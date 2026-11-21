@@ -65,7 +65,7 @@ SW.Combat = (function () {
     SW.Input.reset(); document.body.classList.remove('combat');
     SW.Save.save();
   }
-  const outT = () => S.state === 'win' ? 3.6 : 2.4;
+  const outT = () => S.state === 'win' ? 5.5 : 2.4;
 
   function say(txt, col) { S.msg = txt; S.msgCol = col || '#fff'; S.msgT = 1.1; }
   function flt(txt, col) { S.floats.push({ x: .5 + rnd(-.08, .08), t: 0, txt, col }); }
@@ -490,7 +490,7 @@ SW.Combat = (function () {
       txt(c, T('enemy_' + S.spot.type), cw / 2, ch * .45, u * 9, '#f4ecd8');
     } else if (S.state === 'win' || S.state === 'lose') {
       c.fillStyle = 'rgba(0,0,0,' + clamp(S.t / .6, 0, .5) + ')'; c.fillRect(0, 0, cw, ch);
-      txt(c, T(S.state === 'win' ? 'combat_victory' : 'combat_defeat'), cw / 2, ch * .45, u * 13, S.state === 'win' ? '#ffe27a' : '#e0452f');
+      txt(c, T(S.state === 'win' ? 'combat_victory' : 'combat_defeat'), cw / 2, ch * (S.state === 'win' && S.rew ? .26 : .45), u * (S.state === 'win' && S.rew ? 11 : 13), S.state === 'win' ? '#ffe27a' : '#e0452f');
       if (S.state === 'win' && S.rew && S.t > .5) {
         const r = S.rew, L = ['+' + r.xp + ' XP'];
         r.lv.forEach(x => L.push(x)); if (r.coins) L.push('+' + r.coins + ' ' + T('coins')); r.ess.forEach(x => L.push('+' + x));
@@ -498,7 +498,13 @@ SW.Combat = (function () {
         if (r.yy.yin) L.push('Yin +' + r.yy.yin); if (r.yy.yang) L.push('Yang +' + r.yy.yang);
         r.items.forEach(x => L.push(x));
         if (r.secret) L.push(r.secret);
-        L.forEach((s, i) => txt(c, s, cw / 2, ch * .58 + i * u * 5.2, u * 4.2, i && r.lv.indexOf(s) >= 0 || s === r.secret || r.items.indexOf(s) >= 0 ? '#ffe27a' : '#f4ecd8'));
+        const y0 = ch * .42, avail = ch * .95 - y0;
+        let cols = 1, rows = L.length, step = Math.min(u * 5.2, avail / rows);
+        if (step < u * 3.8) { cols = 2; rows = Math.ceil(L.length / 2); step = Math.min(u * 5.2, avail / rows); }
+        L.forEach((s, i) => {
+          const col = cols === 1 ? 0 : (i < rows ? 0 : 1), row = cols === 1 ? i : i % rows, x = cols === 1 ? cw / 2 : cw * (col ? .66 : .34);
+          txt(c, s, x, y0 + row * step, step * .8, i && r.lv.indexOf(s) >= 0 || s === r.secret || r.items.indexOf(s) >= 0 ? '#ffe27a' : '#f4ecd8');
+        });
       }
       if (S.t > outT() - .6) { c.fillStyle = 'rgba(0,0,0,' + clamp((S.t - outT() + .6) / .6, 0, 1) + ')'; c.fillRect(0, 0, cw, ch); }
     }
