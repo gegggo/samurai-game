@@ -119,3 +119,13 @@ body.trial #pos { display: none !important; }
 #title h1 { margin: 0 0 8px; font: 700 34px Georgia, serif; letter-spacing: .08em; }
 #title .pn { max-height: 100%; overflow-y: auto; }
 #title .row { justify-content: center; }
+
+/* Schnellreise-Leiste auf der Karte */
+#travel-bar { position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: rgba(11,11,15,.88); border: 1px solid rgba(232,224,208,.5); border-radius: 10px; color: #e8e0d0; font: 15px sans-serif; z-index: 5; max-width: 94%; }
+#travel-bar .btn { background: rgba(181,53,43,.6); }
+
+/* Karten-Tab: kein CSS-zoom um die Karte (iOS: getBoundingClientRect/Touch-Koordinaten passen sonst nicht zusammen -> Tipp auf Schrein trifft daneben). Tab-Spalte und Schliessen-Knopf behalten die Verkleinerung. */
+#menu.maptab { zoom: 1; }
+#menu.maptab #menu-tabs, #menu.maptab #menu-close { zoom: .85; }
+#travel-bar { font-size: 13px; white-space: nowrap; }
+#travel-bar .btn { min-height: 38px; font-size: 14px; }
