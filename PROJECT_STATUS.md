@@ -1,9 +1,17 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v63 (Spielversion 0.9.24)
+**Cache-Version:** v64 (Spielversion 0.9.25)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.25 – Diagnose: Ablauf der Korrekturstufen mitschreiben (Dateien gesendet – Prüfung ausstehend)
+- **Gerätetest 0.9.24:** Log der Fehl-Sitzung kam an. Ablauf: Start Hochformat 393x793 -> Drehung auf 852x393 (normal) -> `touch` (Screenshot) -> `resize`: `iw393x852 cw393x852 cv852x852 vv393 o90` = **Fenster springt auf Hochformat-Maße, Gerät bleibt quer (o90)** -> `BAD`. Canvas (cv852x852) passt dann nicht zur Layoutbreite 393. Echter Auslöser ist ein iOS-Größensprung beim Screenshot, nicht meine Korrektur. Video: nach Screenshot-Vorschau wird Bild oben dunkel, unten schwarz.
+- **Unbekannt:** Zeilen nach `BAD` waren am Rand abgeschnitten. Nicht bekannt, ob Stufe 1/2/Neuladen liefen und was sie bewirkten.
+- **Änderung `js/main.js`:** Log schreibt `fix1/fix2/fix3`, `fix1res/fix2res`, `reload`. Rotes Feld oben, kleinere Schrift, 28 Zeilen, ohne `sc`/`sa`. Archiv 26 Zeilen je Fehl-Sitzung.
+- **Geändert:** `js/main.js`, `js/config.js` (0.9.25), `index.html` (v64), `PROJECT_STATUS.md`.
+- **Geprüft:** `node --check` bestanden. NICHT geprüft: Browser, Gerät.
+- **NÄCHSTER SCHRITT:** Gerätetest wie zuvor (Screenshot bis schwarz, Spiel schließen, öffnen, Feld fotografieren). Danach gezielte Korrektur (z. B. Layout auf feste Pixelgröße erzwingen) anhand der `fix`-Zeilen.
 
 ## 0.9.24 – Diagnose-Protokoll repariert, Fehlalarm beim Start entfernt (Dateien gesendet – Prüfung ausstehend)
 - **Gerätetest 0.9.23 (iPhone, Home-Bildschirm-App):** Screenshot -> Bildschirm halb schwarz/blau -> Spiel reagiert auf nichts, Tabwechsel hilft nicht, nur komplett schließen + neu öffnen. DIAG-Feld erschien, enthielt aber nur 5 Zeilen (1 s): `pageshow iw393x852 cw393 o90` -> `BAD cw852 o90` -> `blur` -> `visibilitychange h1` -> `orientationchange o0`.
