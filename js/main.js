@@ -47,7 +47,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   SW.Skills.check();
   // Schutz: ist css/main.css veraltet oder fehlt, erscheint eine Warnung im Spiel
   const cssOk = () => getComputedStyle(document.getElementById('mini')).position === 'fixed';
-  let last = performance.now(), time = 0;
+  let last = performance.now(), time = 0, frozenKey = '';
   function frame(now) {
     try {
       const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now; time += dt;
@@ -67,7 +67,9 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
           SW.Save.tick(dt);
         }
         SW.Shop.update(SW.Player);
-        SW.Render.draw(ctx, canvas.width, canvas.height, time);
+        // Hinter offenem Menü steht die Welt still: nur einmal je Fenstergröße zeichnen (spart viel Rechenzeit, Menü reagiert schneller)
+        const dk = canvas.width + 'x' + canvas.height;
+        if (!(SW.UI.isOpen() && frozenKey === dk)) { SW.Render.draw(ctx, canvas.width, canvas.height, time); frozenKey = SW.UI.isOpen() ? dk : ''; }
         SW.UI.update(dt);
         ctx.fillStyle = 'rgba(244,236,216,.55)'; ctx.font = Math.round(canvas.height / 40) + 'px sans-serif'; ctx.textAlign = 'left';
         ctx.fillText('v' + SW.version, 56 * SW.dpr, canvas.height - 10 * SW.dpr);
