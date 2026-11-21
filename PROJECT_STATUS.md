@@ -1,9 +1,22 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v64 (Spielversion 0.9.25)
+**Cache-Version:** v65 (Spielversion 0.9.26)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.26 – Inhalt für Frostpeaks, Ember Crater, Dust Dunes, Sun Coast (Dateien gesendet – Gerätetest offen)
+- Bisher hatten diese 4 Regionen nur Schrein + Ort. Jetzt je 3 einmalige Gegner (`e_frost1-3`, `e_ember1-3`, `e_dunes1-3`, `e_coast1-3`; Typen bandit/ronin/spearman/swift/samurai/armored, Belohnung nach Typ aus `SW.Data.rewards`) und je 2 Truhen (`c_frost1-2`, `c_ember1-2`, `c_dunes1-2`, `c_coast1-2`; nur Münzen oder Ressourcen, je genau 1 Eintrag). KEINE Essence, KEIN Elite/Boss: Essence-Bilanz (Angebot 35 / Baum 47) unverändert. Alle Zahlen Platzhalter.
+- Kein neues System; vorhandene Spot-/Truhen-Datenstrukturen. Keine neuen Texte nötig (Gegnertypen/Items vorhanden).
+- **Geändert:** `js/combat-data.js`, `js/items-data.js`, `js/config.js` (0.9.26), `index.html` (v65), `PROJECT_STATUS.md`.
+- **Geprüft (headless Chromium 852x393, Playwright):** Start ohne JS-Fehler. Erreichbarkeit per Suchlauf vom Start (4-Nachbarn, Interaktion Radius 2) mit tatsächlichen Laufzeitpositionen nach `free()`: alle 66 Gegnerpunkte, 42 Truhen, 19 NPCs, 19 Schreine erreichbar; einzige Ausnahme Ort `lake` (liegt bewusst im Wasser). Landfläche zu >99 % erreichbar. Alle 12 neuen Gegner und 8 Truhen liegen in der richtigen Region (12–15). Truhe öffnet genau einmal (Kräuter +4 bzw. Münzen +140, zweites Öffnen ohne Wirkung), steht danach im Speicherstand.
+- **Alter Befund widerlegt:** Boss `e_oni` und `e_cave2`/`c_cave2` wirken vor `free()` unerreichbar, sind es nach `free()` aber nicht.
+- **NICHT geprüft:** iPhone, Kampf von Hand gegen die neuen Gegner, Schwierigkeit/Balancing, Optik der Regionen.
+- **Lokal-Hinweis:** Beim Headless-Test lieferte ein Asset 404 (Ladebild-Pfad `assets/loading.jpg` lokal vs. `assets/images/ui/loading.jpg` auf GitHub); auf GitHub funktioniert es laut Gerätetest.
+
+## Gerätetest-Meldung Nutzer (iPhone, nach 0.9.25)
+- Nutzer meldet: alle bisher offenen Gerätetests durchgeführt (7a–7d, Phase 6, Phase 8, 0.9.1–0.9.25 inkl. Regionen, Autosave, Schnellreise, Screenshot-Schwarzbild). Keine Fehler gemeldet. Einzelergebnisse je Test wurden nicht übermittelt; Status daher: **auf Gerät durchgeführt (Nutzerbericht), ohne Einzelprotokoll**.
+- Nutzer gibt weiteren Auftrag: offene Aufgaben abarbeiten (siehe Abschnitt "Offen"), Dateien einzeln liefern.
 
 ## 0.9.25 – Diagnose: Ablauf der Korrekturstufen mitschreiben (Dateien gesendet – Prüfung ausstehend)
 - **Gerätetest 0.9.24:** Log der Fehl-Sitzung kam an. Ablauf: Start Hochformat 393x793 -> Drehung auf 852x393 (normal) -> `touch` (Screenshot) -> `resize`: `iw393x852 cw393x852 cv852x852 vv393 o90` = **Fenster springt auf Hochformat-Maße, Gerät bleibt quer (o90)** -> `BAD`. Canvas (cv852x852) passt dann nicht zur Layoutbreite 393. Echter Auslöser ist ein iOS-Größensprung beim Screenshot, nicht meine Korrektur. Video: nach Screenshot-Vorschau wird Bild oben dunkel, unten schwarz.
@@ -11,7 +24,9 @@
 - **Änderung `js/main.js`:** Log schreibt `fix1/fix2/fix3`, `fix1res/fix2res`, `reload`. Rotes Feld oben, kleinere Schrift, 28 Zeilen, ohne `sc`/`sa`. Archiv 26 Zeilen je Fehl-Sitzung.
 - **Geändert:** `js/main.js`, `js/config.js` (0.9.25), `index.html` (v64), `PROJECT_STATUS.md`.
 - **Geprüft:** `node --check` bestanden. NICHT geprüft: Browser, Gerät.
-- **NÄCHSTER SCHRITT:** Gerätetest wie zuvor (Screenshot bis schwarz, Spiel schließen, öffnen, Feld fotografieren). Danach gezielte Korrektur (z. B. Layout auf feste Pixelgröße erzwingen) anhand der `fix`-Zeilen.
+- **Gerätetest 0.9.25:** Spiel läuft in Safari-Tab und als Home-Bildschirm-App (Dorf, Menü, Karte, Zoom ok). Screenshot-Schwarzbild auf v0.9.25 NICHT erneut getestet. Das gezeigte rote Feld stammt noch aus der 0.9.24-Sitzung (23:31, daher ohne `fix`-Zeilen). Neuer Hinweis darin: nach `BAD` wächst die Layouthöhe auf `cw852x1847` / `cv852x1847` (Seitenverhältnis 393x852 skaliert auf Breite 852) -> Canvas-Größe wächst nach dem Größensprung.
+- **Gerätetest 0.9.25 (Nachtrag):** Screenshot-Schwarzbild tritt auf iPhone nicht mehr auf (Nutzerbericht, Safari + Home-App). Ursache nicht eindeutig belegt (vermutlich Fehlalarm-Eingriffe von `vpFix` entfernt/entprellt). Als gelöst beobachten; Diagnose-Protokoll bleibt vorerst drin.
+- ~~NÄCHSTER SCHRITT (erledigt):~~ Gerätetest wie zuvor (Screenshot bis schwarz, Spiel schließen, öffnen, Feld fotografieren). Danach gezielte Korrektur (z. B. Layout auf feste Pixelgröße erzwingen) anhand der `fix`-Zeilen.
 
 ## 0.9.24 – Diagnose-Protokoll repariert, Fehlalarm beim Start entfernt (Dateien gesendet – Prüfung ausstehend)
 - **Gerätetest 0.9.23 (iPhone, Home-Bildschirm-App):** Screenshot -> Bildschirm halb schwarz/blau -> Spiel reagiert auf nichts, Tabwechsel hilft nicht, nur komplett schließen + neu öffnen. DIAG-Feld erschien, enthielt aber nur 5 Zeilen (1 s): `pageshow iw393x852 cw393 o90` -> `BAD cw852 o90` -> `blur` -> `visibilitychange h1` -> `orientationchange o0`.
@@ -281,7 +296,7 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-data.js` (Truhen), `quests-data.js`, `trials.js`; Startwert `progress.js` (Essence); Karma-Schwelle Cross `skills-data.js`.
 
 ## Offen
-- Weitere Regionen: nur Hain (klein) vorhanden; größere Erweiterung braucht Konzept/Freigabe.
+- Weitere Regionen (Kirschblütenwald, große Stadt, Festung usw.): brauchen Konzept/Freigabe. Regionen 12–15 haben seit 0.9.26 Gegner/Truhen, aber noch keine NPCs/Quests.
 - Phase 8 weiter ausbauen: Weltreaktionen auf Karma systematisch für NPCs, Händler, Quests und besondere Zugänge prüfen; Yin/Yang-Boni und Belohnungsraten balancieren.
 - Phase 8: prüfen, ob alle Bossarten erreichbar sind und jede Technik genau einmal vergeben wird.
 - Weitere Aufgabentypen (Wasser, Spiegel): bewusst nicht in 7b, nur Block- und Laternenräume wiederverwendet.
@@ -294,4 +309,4 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 - Systeme getrennt: XP/Level, Skillpunkte, Essence (nur Skilltree), Karma, Yin/Yang, Münzen (Handel), Ressourcen (Handwerk/Dorf).
 
 ## Nächster Schritt
-Gerätetest iPhone (7a–7d, Phase 6, Phase 8, 0.9.1: Regionen Garten/Marsch, Autosave). Danach Konzept für neue Regionen abstimmen und Karma-Weltreaktionen/Yin-Yang-Balancing ergänzen.
+Schwarzbild-Thema abgeschlossen (0.9.25). Gerätetest iPhone (7a–7d, Phase 6, Phase 8, 0.9.1: Regionen Garten/Marsch, Autosave) steht weiter offen; Freigabe für nächste Teilaufgabe durch Nutzer abwarten. Danach Konzept für neue Regionen abstimmen und Karma-Weltreaktionen/Yin-Yang-Balancing ergänzen.
