@@ -1,13 +1,14 @@
 'use strict';
 // Globaler Namespace, Konstanten, zentrale Texte (Sprachsystem folgt Phase 6).
 const SW = {
-  version: '0.9.19',
+  version: '0.9.20',
   CFG: { W: 5000, H: 3000, SPEED: 5, OV: 8 }, // Welt wächst nur nach rechts/unten (Ursprung oben links); neue Regionen als Segment js/layout-<name>.js
   lang: (function () { try { const l = localStorage.getItem('sw_lang'); return l === 'de' ? 'de' : 'en'; } catch (e) { return 'en'; } })(),
   paused: false,
   TEXT: { en: {
     menu: 'Menu', close: 'Close', locked: 'Coming in phase {n}',
     discovered: 'Discovered: {n}', loading: 'Mapping the land…',
+    leg_village: 'Village', leg_temple: 'Temple', leg_camp: 'Camp', leg_place: 'Place',
     tab_map: 'Map', tab_inventory: 'Inventory', tab_equipment: 'Equipment', tab_skills: 'Skills',
     tab_skilltree: 'Skilltree', tab_quests: 'Quests', tab_character: 'Character',
     tab_karma: 'Karma & Yin-Yang', tab_settings: 'Settings',

@@ -186,6 +186,18 @@ SW.UI = (function () {
     mc.restore();
   }
 
+  // Ortssymbole der Karte
+  const KIND = { village: 'v', peakvillage: 'v', fishers: 'v', hermit: 'v', huts: 'v', temple: 't', ruins: 't', cave: 't', shrine: 't', camp: 'c' };
+  function poiIcon(c, k, x, y, r, got, d) {
+    c.save(); c.globalAlpha = got ? 1 : .85; c.lineJoin = 'round'; c.lineWidth = 1.6 * d; c.strokeStyle = got ? '#fff' : 'rgba(15,20,30,.9)';
+    c.beginPath();
+    if (k === 'v') { c.fillStyle = '#f0a43c'; c.moveTo(x - r, y - r * .1); c.lineTo(x, y - r); c.lineTo(x + r, y - r * .1); c.lineTo(x + r * .7, y - r * .1); c.lineTo(x + r * .7, y + r * .8); c.lineTo(x - r * .7, y + r * .8); c.lineTo(x - r * .7, y - r * .1); c.closePath(); }
+    else if (k === 't') { c.fillStyle = '#d9503f'; c.moveTo(x - r * 1.1, y - r * .8); c.lineTo(x + r * 1.1, y - r * .8); c.lineTo(x + r * .8, y - r * .35); c.lineTo(x + r * .55, y - r * .35); c.lineTo(x + r * .55, y + r * .9); c.lineTo(x + r * .25, y + r * .9); c.lineTo(x + r * .25, y - r * .35); c.lineTo(x - r * .25, y - r * .35); c.lineTo(x - r * .25, y + r * .9); c.lineTo(x - r * .55, y + r * .9); c.lineTo(x - r * .55, y - r * .35); c.lineTo(x - r * .8, y - r * .35); c.closePath(); }
+    else if (k === 'c') { c.fillStyle = '#b8472a'; c.moveTo(x, y - r); c.lineTo(x + r * 1.1, y + r * .8); c.lineTo(x - r * 1.1, y + r * .8); c.closePath(); }
+    else { r *= .8; c.fillStyle = got ? '#f2c14e' : 'rgba(242,193,78,.55)'; c.moveTo(x, y - r); c.lineTo(x + r, y); c.lineTo(x, y + r); c.lineTo(x - r, y); c.closePath(); }
+    c.fill(); c.stroke(); c.restore();
+  }
+
   function drawMap() {
     if (!mapC) return;
     const c = mapC.getContext('2d'), s = mapC.width, hh = mapC.height, p = SW.Player, v = U.view, ppw = s / WW * v.z, d = SW.dpr || 1;
@@ -199,11 +211,19 @@ SW.UI = (function () {
     const lab = (s, x, y, a, big) => { c.font = '700 ' + ((big ? 14 : 11) * d) + 'px sans-serif'; const tw = c.measureText(s).width / 2 + 3 * d, th = (big ? 14 : 11) * d; if (used.some(u => Math.abs(u[0] - x) < u[2] + tw && Math.abs(u[1] - y) < u[3] + th)) return; used.push([x, y, tw, th / 2]); c.globalAlpha = a; c.lineJoin = 'round'; c.lineWidth = 3 * d; c.strokeStyle = 'rgba(15,20,30,.85)'; c.strokeText(s, x, y); c.fillStyle = '#fff'; c.fillText(s, x, y); c.globalAlpha = 1; };
     const poiNames = W.POI.map(o => SW.t('poi_' + o.id));
     for (let r = 0; r < W.CEN.length; r++) { const n = SW.t('reg_' + r), m = W.CEN[r]; if (m && poiNames.indexOf(n) < 0) lab(n, X(m[0]), Y(m[1]) - 14 * d, U.seen.has(r) ? 1 : .75, 1); } // gleichnamige Orte nicht doppelt beschriften
-    W.POI.slice().sort((a, b) => U.disc.has(b.id) - U.disc.has(a.id)).forEach(o => { // entdeckte Orte zuerst beschriften
-      const x = X(o.x), y = Y(o.y), r = 5 * d, got = U.disc.has(o.id);
-      c.globalAlpha = got ? 1 : .55; c.fillStyle = got ? '#f2c14e' : 'rgba(242,193,78,.0)'; c.strokeStyle = '#f2c14e'; c.lineWidth = 1.5 * d;
-      c.beginPath(); c.moveTo(x, y - r); c.lineTo(x + r, y); c.lineTo(x, y + r); c.lineTo(x - r, y); c.closePath(); if (got) c.fill(); else c.stroke(); c.globalAlpha = 1;
-      lab(SW.t('poi_' + o.id), x, y + 16 * d, got ? 1 : .7);
+    // Orte: Symbol je Art (Dorf = Haus, Tempel/Ruine/Höhle = Tor, Lager = Zelt, sonst Raute). Alle immer sichtbar, unentdeckte gedämpft.
+    const pois = W.POI.slice().sort((a, b) => (KIND[b.id] ? 1 : 0) - (KIND[a.id] ? 1 : 0) || U.disc.has(b.id) - U.disc.has(a.id));
+    pois.slice().reverse().forEach(o => poiIcon(c, KIND[o.id] || 'n', X(o.x), Y(o.y), 7 * d, U.disc.has(o.id), d)); // wichtige Symbole zuletzt = obenauf
+    pois.forEach(o => { // Beschriftung: wichtige zuerst, Ausweichpositionen gegen Überlappung
+      const x = X(o.x), y = Y(o.y), got = U.disc.has(o.id), s = SW.t('poi_' + o.id);
+      const dys = KIND[o.id] ? [17, -13, 31, -27] : [16, -12];
+      c.font = '700 ' + (11 * d) + 'px sans-serif';
+      const tw = c.measureText(s).width / 2 + 3 * d, th = 11 * d;
+      for (const dy of dys) {
+        const ly = y + dy * d;
+        if (used.some(u => Math.abs(u[0] - x) < u[2] + tw && Math.abs(u[1] - ly) < u[3] + th)) continue;
+        used.push([x, ly, tw, th / 2]); c.globalAlpha = got ? 1 : .8; c.lineJoin = 'round'; c.lineWidth = 3 * d; c.strokeStyle = 'rgba(15,20,30,.85)'; c.strokeText(s, x, ly); c.fillStyle = '#fff'; c.fillText(s, x, ly); c.globalAlpha = 1; break;
+      }
     });
     SW.Shrines.list.forEach(o => {
       if (!SW.Shrines.isFound(o.id)) return;
@@ -219,6 +239,12 @@ SW.UI = (function () {
     // eigene Position als Koordinaten (Kacheln, Weltmaß CFG.W x CFG.H)
     const pt = 'X ' + Math.floor(p.x) + ' · Y ' + Math.floor(p.y); c.font = (13 * d) + 'px sans-serif'; c.textAlign = 'left';
     c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(8 * d, 8 * d, c.measureText(pt).width + 12 * d, 22 * d); c.fillStyle = '#fff'; c.fillText(pt, 14 * d, 24 * d); c.textAlign = 'center';
+    // Legende unten links
+    c.font = (11 * d) + 'px sans-serif'; c.textAlign = 'left'; let lx = 12 * d; const ly = hh - 14 * d;
+    [['v', 'leg_village'], ['t', 'leg_temple'], ['c', 'leg_camp'], ['n', 'leg_place']].forEach(e => {
+      const t = SW.t(e[1]), w = c.measureText(t).width; c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(lx - 4 * d, ly - 11 * d, 28 * d + w, 22 * d);
+      poiIcon(c, e[0], lx + 7 * d, ly, 7 * d, true, d); c.fillStyle = '#fff'; c.fillText(t, lx + 20 * d, ly + 4 * d); lx += 36 * d + w;
+    }); c.textAlign = 'center';
   }
 
   U.update = function (dt) {

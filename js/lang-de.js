@@ -4,6 +4,7 @@
 SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
   menu: 'Menü', close: 'Schließen', locked: 'Kommt in Phase {n}',
   discovered: 'Entdeckt: {n}', loading: 'Das Land wird kartiert…',
+  leg_village: 'Dorf', leg_temple: 'Tempel', leg_camp: 'Lager', leg_place: 'Ort',
   tab_map: 'Karte', tab_inventory: 'Inventar', tab_equipment: 'Ausrüstung', tab_skills: 'Fähigkeiten',
   tab_skilltree: 'Skilltree', tab_quests: 'Quests', tab_character: 'Charakter',
   tab_karma: 'Karma & Yin-Yang', tab_settings: 'Einstellungen',
