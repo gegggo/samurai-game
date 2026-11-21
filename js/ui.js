@@ -96,6 +96,7 @@ SW.UI = (function () {
     U.sel = best; drawMap(); travelBar(best);
   }
   // Schnellreise: Tipp auf entdeckten Schrein -> Leiste mit Name, Reisen und Abbrechen (nur aktivierte Schreine sind Ziele)
+  let traveling = false;
   function travelBar(id) {
     const old = document.getElementById('travel-bar'); if (old) old.remove();
     if (!id) return;
@@ -103,7 +104,15 @@ SW.UI = (function () {
     const lbl = document.createElement('span'); lbl.textContent = on ? SW.t('travel_to', SW.Shrines.name(id)) : SW.t('travel_off', SW.Shrines.name(id)); bar.appendChild(lbl);
     if (on) {
       const go = document.createElement('button'); go.className = 'btn'; go.textContent = SW.t('travel_go');
-      go.onclick = () => { if (SW.Shrines.travel(id)) { U.sel = null; toggle(false); } else { lbl.textContent = SW.t('travel_blocked'); } };
+      go.onclick = () => {
+        if (traveling) return;
+        if (!SW.Shrines.canTravel(id)) { lbl.textContent = SW.t('travel_blocked'); return; }
+        traveling = true; U.sel = null; bar.remove();
+        const ld = document.getElementById('loading'), tx = document.createElement('div'); tx.className = 'ltxt'; tx.textContent = SW.t('travel_loading', SW.Shrines.name(id)); ld.appendChild(tx);
+        ld.classList.remove('done'); // Ladebild einblenden (ca. 1,6 s gesamt)
+        setTimeout(() => { SW.Shrines.travel(id); toggle(false); }, 800);
+        setTimeout(() => { ld.classList.add('done'); traveling = false; setTimeout(() => tx.remove(), 700); }, 1600);
+      };
       bar.appendChild(go);
     }
     const no = document.createElement('button'); no.className = 'btn'; no.textContent = SW.t('travel_cancel'); no.onclick = () => { U.sel = null; bar.remove(); drawMap(); }; bar.appendChild(no);

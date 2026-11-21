@@ -7,10 +7,19 @@
   let lt = 0;
   document.addEventListener('touchend', e => { const n = Date.now(); if (n - lt < 320 && !(e.target.closest && e.target.closest('button'))) e.preventDefault(); lt = n; }, { passive: false });
 })();
+// Diagnose-Protokoll: letzte Ereignisse (Sichtbarkeit, Größe, Ausrichtung) in localStorage, damit ein Schwarzbild nach Neustart auswertbar ist
+SW.Diag = (function () {
+  const K = 'sw_diag'; let a = [], prev = [];
+  try { prev = JSON.parse(localStorage.getItem(K) || '[]'); } catch (e) { prev = []; }
+  try { localStorage.setItem(K, '[]'); } catch (e) { /* egal */ }
+  function snap() { const vv = window.visualViewport; return 'iw' + window.innerWidth + 'x' + window.innerHeight + ' cw' + document.documentElement.clientWidth + ' vv' + (vv ? Math.round(vv.width) + '@' + vv.scale.toFixed(2) : '-') + ' o' + window.orientation + ' h' + (document.hidden ? 1 : 0); }
+  function log(ev) { a.push(new Date().toTimeString().slice(0, 8) + ' ' + ev + ' ' + snap()); if (a.length > 40) a.shift(); try { localStorage.setItem(K, JSON.stringify(a)); } catch (e) { /* egal */ } }
+  return { log, prev, snap };
+})();
 // Fehleranzeige: zeigt JS-Fehler direkt auf dem Bildschirm (Test auf dem Handy)
 function showErr(t) {
   let d = document.getElementById('errbox');
-  if (!d) { d = document.createElement('div'); d.id = 'errbox'; d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99;background:#800;color:#fff;font:12px monospace;padding:6px;white-space:pre-wrap;max-height:40%;overflow:auto'; document.body.appendChild(d); }
+  if (!d) { d = document.createElement('div'); d.id = 'errbox'; d.onclick = () => d.remove(); d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99;background:#800;color:#fff;font:12px monospace;padding:6px;white-space:pre-wrap;max-height:40%;overflow:auto'; document.body.appendChild(d); }
   d.textContent += t + '\n';
 }
 window.addEventListener('error', e => { if (e.target && e.target.tagName) return; showErr((e.filename || '').split('/').pop() + ':' + e.lineno + ' ' + e.message); });
@@ -127,9 +136,18 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   startLoop();
   // Diagnose: bei Auffälligkeit (Viewport schmal, Schleife steht) erscheint eine kleine Textzeile oben links
   let dg = null, dgUntil = 0;
+  ['visibilitychange', 'pagehide', 'pageshow', 'resize', 'orientationchange', 'focus', 'blur'].forEach(n => window.addEventListener(n, () => SW.Diag.log(n)));
+  ['freeze', 'resume'].forEach(n => document.addEventListener(n, () => SW.Diag.log(n)));
+  let hbLast = '';
+  setInterval(() => { const s = SW.Diag.snap(); if (s !== hbLast) { hbLast = s; SW.Diag.log('hb'); } }, 2000);
+  setTimeout(() => { // Auswertung der letzten Sitzung: nur wenn dort ein Fehlzustand protokolliert wurde
+    if (SW.Diag.prev.some(x => / (BAD|STALL) /.test(x))) showErr('DIAG letzte Sitzung (antippen = schließen):\n' + SW.Diag.prev.slice(-16).join('\n'));
+  }, 2500);
+  let badLog = 0;
   setInterval(() => {
     const stalled = !document.hidden && performance.now() - lastFrameAt > 1500;
     if (stalled) startLoop();
+    if ((landscapeBroken() || stalled) && Date.now() - badLog > 3000) { badLog = Date.now(); SW.Diag.log(stalled ? 'STALL' : 'BAD'); }
     const bad = landscapeBroken() || stalled;
     const now = Date.now();
     if (bad) dgUntil = now + 6000;

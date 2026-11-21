@@ -4,7 +4,7 @@
 SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
   menu: 'Menü', close: 'Schließen', locked: 'Kommt in Phase {n}',
   discovered: 'Entdeckt: {n}', loading: 'Das Land wird kartiert…',
-  travel_to: 'Reisen nach {n}?', travel_off: '{n} ist noch nicht aktiviert', travel_go: 'Reisen', travel_cancel: 'Abbrechen', travel_blocked: 'Reisen jetzt nicht möglich',
+  travel_loading: 'Reise nach {n}…', travel_to: 'Reisen nach {n}?', travel_off: '{n} ist noch nicht aktiviert', travel_go: 'Reisen', travel_cancel: 'Abbrechen', travel_blocked: 'Reisen jetzt nicht möglich',
   leg_village: 'Dorf', leg_temple: 'Tempel', leg_camp: 'Lager', leg_place: 'Ort',
   tab_map: 'Karte', tab_inventory: 'Inventar', tab_equipment: 'Ausrüstung', tab_skills: 'Fähigkeiten',
   tab_skilltree: 'Skilltree', tab_quests: 'Quests', tab_character: 'Charakter',
