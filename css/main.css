@@ -1,0 +1,96 @@
+html, body { margin: 0; height: 100%; background: #0b0b0f; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+#game { position: fixed; inset: 0; display: block; width: 100%; height: 100%; }
+#mini { position: fixed; left: calc(10px + env(safe-area-inset-left, 0px)); top: calc(8px + env(safe-area-inset-top, 0px)); width: 104px; height: 104px; border-radius: 50%; border: 2px solid rgba(232,224,208,.6); box-shadow: 0 2px 10px rgba(0,0,0,.5); pointer-events: none; }
+#menu-btn { position: fixed; right: calc(10px + env(safe-area-inset-right, 0px)); top: calc(8px + env(safe-area-inset-top, 0px)); width: 56px; height: 56px; border-radius: 12px; border: 1px solid rgba(232,224,208,.45); background: rgba(11,11,15,.55); color: #e8e0d0; font-size: 28px; }
+#banner { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); padding: 6px 20px; background: rgba(11,11,15,.55); border: 1px solid rgba(232,224,208,.3); color: #f4ecd8; font: 600 18px Georgia, serif; letter-spacing: .08em; opacity: 0; transition: opacity .6s; pointer-events: none; white-space: nowrap; }
+#menu { display: none; position: fixed; inset: 0; background: rgba(11,11,15,.85); color: #e8e0d0; font-family: sans-serif; padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); box-sizing: border-box; }
+#menu.open { display: flex; }
+#menu-tabs { width: 210px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; }
+#menu-tabs button { min-height: 44px; border: 1px solid rgba(232,224,208,.3); background: rgba(255,255,255,.06); color: #e8e0d0; font-size: 15px; text-align: left; padding: 0 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+#menu-tabs button.on { background: rgba(181,53,43,.55); border-color: #e8e0d0; }
+#menu-tabs button:disabled { opacity: .4; }
+#menu-tabs small { font-size: 11px; opacity: .8; }
+#menu-panel { flex: 1; display: flex; padding: 10px; min-width: 0; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; -webkit-overflow-scrolling: touch; box-sizing: border-box; }
+#menu-panel > canvas { margin: auto; }
+#menu-tabs { touch-action: pan-y; }
+#menu-close { position: absolute; right: calc(10px + env(safe-area-inset-right, 0px)); top: calc(8px + env(safe-area-inset-top, 0px)); width: 48px; height: 48px; border-radius: 12px; border: 1px solid rgba(232,224,208,.45); background: rgba(11,11,15,.7); color: #e8e0d0; font-size: 22px; }
+#rotate-hint { display: none; position: fixed; inset: 0; align-items: center; justify-content: center; background: #0b0b0f; color: #e8e0d0; font: 20px sans-serif; text-align: center; z-index: 10; }
+@media (orientation: portrait) { #rotate-hint { display: flex; } }
+
+/* ---- Kampf (Phase 2) ---- */
+body.combat #mini, body.combat #menu-btn, body.combat #banner { display: none; }
+#cbt { display: none; position: fixed; inset: 0; pointer-events: none; }
+body.combat #cbt { display: block; }
+.cb { position: absolute; pointer-events: auto; border-radius: 50%; border: 2px solid rgba(232,224,208,.55); background: rgba(11,11,15,.5); color: #f4ecd8; font: 600 13px Georgia, serif; letter-spacing: .03em; padding: 0; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.cb.on { background: rgba(181,53,43,.7); border-color: #fff; }
+#cb-block { left: calc(22px + env(safe-area-inset-left, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 92px; height: 92px; }
+#cb-dodge { left: calc(44px + env(safe-area-inset-left, 0px)); bottom: calc(120px + env(safe-area-inset-bottom, 0px)); width: 72px; height: 72px; }
+#cb-attack { right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 92px; height: 92px; background: rgba(181,53,43,.45); }
+#cb-heavy { right: calc(126px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 72px; height: 72px; }
+#cb-special { right: calc(36px + env(safe-area-inset-right, 0px)); bottom: calc(120px + env(safe-area-inset-bottom, 0px)); width: 72px; height: 72px; border-color: #7fd0ff; }
+#cb-breath { right: calc(124px + env(safe-area-inset-right, 0px)); bottom: calc(112px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; font-size: 11px; }
+
+/* ---- Kompass ---- */
+#compass { position: fixed; left: calc(10px + env(safe-area-inset-left, 0px)); top: calc(116px + env(safe-area-inset-top, 0px)); width: 104px; text-align: center; color: #f4ecd8; font: 700 15px Georgia, serif; letter-spacing: .1em; text-shadow: 0 1px 4px #000; pointer-events: none; }
+body.combat #compass { display: none; }
+
+/* ---- Charakter-Menüs (Phase 3) ---- */
+#cb-s0 { left: calc(124px + env(safe-area-inset-left, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
+#cb-s1 { left: calc(132px + env(safe-area-inset-left, 0px)); bottom: calc(100px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
+.pn { margin: auto; width: 100%; max-width: 720px; font-size: 15px; }
+.pn h3 { margin: 10px 0 6px; font: 700 17px Georgia, serif; letter-spacing: .04em; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0; }
+.row.stat { justify-content: space-between; flex-wrap: nowrap; padding: 2px 0; border-bottom: 1px solid rgba(232,224,208,.12); }
+.row.stat .lbl { flex: 1; } .row.stat .val { min-width: 70px; text-align: right; }
+.row.card { background: rgba(255,255,255,.06); border: 1px solid rgba(232,224,208,.2); border-radius: 8px; padding: 6px 10px; }
+.card { background: rgba(255,255,255,.06); border: 1px solid rgba(232,224,208,.2); border-radius: 8px; padding: 6px 10px; margin: 6px 0; }
+.lbl { min-width: 54px; }
+.bar { flex: 1; min-width: 90px; height: 12px; background: rgba(0,0,0,.5); border: 1px solid rgba(232,224,208,.3); border-radius: 6px; overflow: hidden; }
+.bar i { display: block; height: 100%; }
+.chip { display: inline-block; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(232,224,208,.25); font-size: 13px; }
+.ess_common { border-color: #b9b2a2; } .ess_refined { border-color: #6fbf73; } .ess_rare { border-color: #5aa0e0; } .ess_ancient { border-color: #b07ae0; } .ess_legendary { border-color: #f2c14e; }
+.btn { min-height: 44px; min-width: 44px; padding: 0 14px; border: 1px solid rgba(232,224,208,.4); background: rgba(255,255,255,.08); color: #e8e0d0; font-size: 15px; border-radius: 8px; }
+.btn.sq { padding: 0; font-size: 22px; }
+.btn.pri { background: rgba(181,53,43,.6); border-color: #e8e0d0; }
+.btn:disabled { opacity: .4; }
+.slotbox { flex: 1; text-align: left; }
+.dim { opacity: .7; font-size: 13px; margin: 2px 0 8px; }
+.ok { color: #8fd694; } .no { color: #e0705a; }
+.reqs { margin: 6px 0; font-size: 14px; display: grid; gap: 2px; }
+.split { display: flex; gap: 12px; align-items: flex-start; }
+.nodes { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.detail { flex: 1; min-width: 0; }
+.node { min-height: 44px; text-align: left; padding: 0 10px; border: 1px solid rgba(232,224,208,.3); background: rgba(255,255,255,.05); color: #e8e0d0; border-radius: 8px; font-size: 14px; }
+.node.av { border-color: #f2c14e; } .node.done { border-color: #6fbf73; background: rgba(111,191,115,.15); } .node.sel { background: rgba(181,53,43,.5); }
+
+/* ---- Inventar / Ausrüstung (Phase 4) ---- */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; flex: 1; min-width: 0; align-content: start; }
+.cell { min-height: 56px; padding: 4px 6px; border: 2px solid rgba(232,224,208,.3); background: rgba(255,255,255,.06); color: #e8e0d0; border-radius: 8px; font-size: 13px; line-height: 1.15; text-align: center; }
+.cell small { display: block; opacity: .8; }
+.cell.sel { background: rgba(181,53,43,.5); }
+.cell.r_common, .chip.r_common { border-color: #b9b2a2; } .cell.r_uncommon, .chip.r_uncommon { border-color: #6fbf73; }
+.cell.r_rare, .chip.r_rare { border-color: #5aa0e0; } .cell.r_epic, .chip.r_epic { border-color: #b07ae0; } .cell.r_legendary, .chip.r_legendary { border-color: #f2c14e; }
+.row.cand { border-top: 1px solid rgba(232,224,208,.12); padding-top: 4px; }
+
+/* ---- Händler / Schmied (Phase 4b) ---- */
+#act-btn { position: fixed; right: calc(30px + env(safe-area-inset-right, 0px)); bottom: calc(60px + env(safe-area-inset-bottom, 0px)); width: 92px; height: 92px; border-radius: 50%; border: 2px solid #f2c14e; background: rgba(181,53,43,.6); color: #f4ecd8; font: 700 16px Georgia, serif; z-index: 5; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+body.combat #act-btn { display: none !important; }
+#shop, #dlg { display: none; position: fixed; inset: 0; z-index: 20; flex-direction: column; background: rgba(11,11,15,.94); color: #e8e0d0; font-family: sans-serif; padding: env(safe-area-inset-top, 0px) calc(12px + env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) calc(12px + env(safe-area-inset-left, 0px)); box-sizing: border-box; }
+#shop.open, #dlg.open { display: flex; }
+.shop-h { display: flex; align-items: center; gap: 12px; padding: 8px 0; } .shop-h h3 { margin: 0; flex: 1; font: 700 20px Georgia, serif; }
+.shop-t { margin: 0 0 6px; }
+#shop-body, #dlg-body { flex: 1; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; -webkit-overflow-scrolling: touch; padding-bottom: 12px; }
+
+/* UI-Skalierung Menue/Shop (4b-Feinschliff): ca. 15% kleiner */
+#menu, #shop, #dlg { zoom: .85; }
+
+/* Karte: volle verfügbare Fläche, ohne rechte Seitenleiste */
+#world-map { display: block; flex: 0 0 auto; max-width: 100%; max-height: 100%; touch-action: none; }
+
+/* Dialoge / Quests (5b) */
+.dlgtext { margin: 8px 0 12px; font: 17px Georgia, serif; line-height: 1.35; }
+#dlg-body .btn { margin: 4px 6px 4px 0; }
+.btn.on { background: rgba(181,53,43,.6); border-color: #e8e0d0; }
+#cb-dodge { font-size: 11px; letter-spacing: 0; }
+#cb-ranged { left: calc(208px + env(safe-area-inset-left, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; font-size: 11px; border-color: #d8b36a; }
+#cb-s0, #cb-s1 { font-size: 9px; overflow-wrap: anywhere; hyphens: auto; }
