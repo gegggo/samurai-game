@@ -86,7 +86,9 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   // Schutz: ist css/main.css veraltet oder fehlt, erscheint eine Warnung im Spiel
   const cssOk = () => getComputedStyle(document.getElementById('mini')).position === 'fixed';
   let last = performance.now(), time = 0;
-  function frame(now) {
+  let lastFrameAt = performance.now();
+  function step(now) {
+    lastFrameAt = performance.now();
     try {
       const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now; time += dt;
       if (Math.abs(canvas.clientWidth * SW.dpr - canvas.width) > 2 || Math.abs(canvas.clientHeight * SW.dpr - canvas.height) > 2) resize();
@@ -117,9 +119,24 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
       }
     } catch (e) {
       showErr('Frame-Fehler: ' + (e && e.message ? e.message : e));
-    } finally {
-      requestAnimationFrame(frame);
     }
   }
-  requestAnimationFrame(frame);
+  // Zeichenschleife mit Watchdog: bleibt sie nach Screenshot/Tabwechsel stehen, wird sie neu gestartet
+  let gen = 0;
+  function startLoop() { const g = ++gen; const f = now => { if (g !== gen) return; try { step(now); } finally { requestAnimationFrame(f); } }; requestAnimationFrame(f); }
+  startLoop();
+  // Diagnose: bei Auffälligkeit (Viewport schmal, Schleife steht) erscheint eine kleine Textzeile oben links
+  let dg = null, dgUntil = 0;
+  setInterval(() => {
+    const stalled = !document.hidden && performance.now() - lastFrameAt > 1500;
+    if (stalled) startLoop();
+    const bad = landscapeBroken() || stalled;
+    const now = Date.now();
+    if (bad) dgUntil = now + 6000;
+    if (now < dgUntil) {
+      if (!dg) { dg = document.createElement('div'); dg.style.cssText = 'position:fixed;left:0;top:0;z-index:98;background:#036;color:#fff;font:11px monospace;padding:3px;white-space:pre-wrap;pointer-events:none'; document.body.appendChild(dg); }
+      const vv = window.visualViewport;
+      dg.textContent = 'VP iw=' + window.innerWidth + ' cw=' + document.documentElement.clientWidth + ' vv=' + (vv ? Math.round(vv.width) + '@' + vv.scale.toFixed(2) : '-') + ' ow=' + window.orientation + ' sw=' + screen.width + 'x' + screen.height + ' try=' + vpTry + ' forced=' + vpForced + ' stalled=' + stalled + ' cv=' + canvas.clientWidth + 'x' + canvas.clientHeight;
+    } else if (dg) { dg.remove(); dg = null; }
+  }, 500);
 })();
