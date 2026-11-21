@@ -135,9 +135,9 @@ SW.Data.rewards = {
   armored:  { xp: 40, ess: { common: 1 } },
   elite:    { xp: 70, ess: { common: 2 }, karma: 3 },
   boss:     { xp: 200, ess: { refined: 1, rare: 1 }, karma: 8, secret: 'cross' },
-  boss_warden: { xp: 260, ess: { refined: 1, rare: 1 }, karma: 5 },
-  boss_monk:   { xp: 320, ess: { rare: 1, ancient: 1 }, karma: 5 },
-  boss_oni:    { xp: 420, ess: { ancient: 1, legendary: 1 }, karma: 6 }
+  boss_warden: { xp: 260, ess: { refined: 1, rare: 1 }, karma: 5, secret: 'ironwill' },
+  boss_monk:   { xp: 320, ess: { rare: 1, ancient: 1 }, karma: 5, secret: 'stillwater' },
+  boss_oni:    { xp: 420, ess: { ancient: 1, legendary: 1 }, karma: 6, secret: 'oniwrath' }
 };
 // Phase 7d: Kopfgeldjäger (kv = erscheinen bei Karma <= kv, einmalig besiegbar, gespeichert über 'defeated')
 SW.Data.spots.push(

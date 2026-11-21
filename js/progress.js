@@ -56,7 +56,7 @@ SW.Char = (function () {
 
 SW.Essence = (function () {
   const E = { TYPES: ['common', 'refined', 'rare', 'ancient', 'legendary'], n: { common: 3, refined: 0, rare: 0, ancient: 0, legendary: 0 } };
-  E.add = function (t, k) { if (E.n[t] === undefined || !(k > 0)) return; E.n[t] += k; SW.Save.touch(); };
+  E.add = function (t, k) { if (E.n[t] === undefined || !Number.isFinite(k) || !(k > 0)) return false; E.n[t] += Math.floor(k); SW.Save.touch(); return true; };
   E.has = cost => Object.keys(cost || {}).every(t => (E.n[t] || 0) >= cost[t]);
   E.spend = function (cost) {
     if (!E.has(cost)) return false;
@@ -72,8 +72,10 @@ SW.YinYang = (function () {
   const Y = { yin: 20, yang: 20 };
   // Wer eine Seite stärkt, verliert langsam etwas von der anderen: keine dauerhafte Festlegung.
   Y.gain = function (k, g) {
-    const o = k === 'yin' ? 'yang' : 'yin';
+    if ((k !== 'yin' && k !== 'yang') || !Number.isFinite(g) || !(g > 0)) return 0;
+    const o = k === 'yin' ? 'yang' : 'yin', before = Y[k];
     Y[k] = Math.min(100, Y[k] + g); Y[o] = Math.max(0, Y[o] - g * .35);
+    SW.Save.touch(); SW.Skills.check(); return Y[k] - before;
   };
   // Pro Kampf begrenzt (max. 6 je Seite), damit Wiederholen nichts erzwingt.
   Y.fromCombat = function (st) {
@@ -104,7 +106,8 @@ SW.Karma = (function () {
   const K = { v: 0, seen: {} };
   // id = Handlung. Gleiche Handlung wiederholt bringt jedes Mal nur die Hälfte (Schutz vor Farmen).
   K.add = function (id, n) {
-    const c = K.seen[id] || 0, g = Math.round(n * Math.pow(.5, c) * 10) / 10;
+    if (typeof id !== 'string' || !id || !Number.isFinite(n) || n === 0) return 0;
+    const c = Math.max(0, Math.min(30, Math.floor(Number(K.seen[id]) || 0))), g = Math.round(n * Math.pow(.5, c) * 10) / 10;
     K.seen[id] = c + 1;
     if (!g) return 0;
     K.v = Math.max(-100, Math.min(100, K.v + g));
@@ -116,7 +119,7 @@ SW.Karma = (function () {
   K.load = function (d) {
     if (!d) return;
     if (typeof d.v === 'number' && isFinite(d.v)) K.v = Math.max(-100, Math.min(100, d.v));
-    if (d.seen && typeof d.seen === 'object') K.seen = Object.assign({}, d.seen);
+    if (d.seen && typeof d.seen === 'object' && !Array.isArray(d.seen)) { K.seen = {}; Object.keys(d.seen).slice(0, 500).forEach(id => { const n = Number(d.seen[id]); if (Number.isFinite(n) && n >= 0) K.seen[id] = Math.min(30, Math.floor(n)); }); }
   };
   return K;
 })();

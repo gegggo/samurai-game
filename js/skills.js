@@ -74,6 +74,7 @@ SW.Skills = (function () {
     if (s.karma) r.push({ ok: SW.Karma.v >= s.karma, text: T('req_karma', s.karma) });
     if (s.yang) r.push({ ok: SW.YinYang.yang >= s.yang, text: T('req_yang', s.yang) });
     if (s.yin) r.push({ ok: SW.YinYang.yin >= s.yin, text: T('req_yin', s.yin) });
+    if (s.balance) r.push({ ok: SW.YinYang.balanced(s.balance), text: T('req_balance', s.balance) });
     return r;
   };
   S.secReady = id => S.sec[id] === 1 && S.secReqs(id).every(x => x.ok);

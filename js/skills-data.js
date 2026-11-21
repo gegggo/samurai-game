@@ -31,7 +31,12 @@
     { id: 'km5', br: 'km', tier: 4, type: 'passive', lvl: 12, req: ['km2', 'km3'], cost: c(2, { rare: 1 }),    fx: { breath: 1 }, balance: 40 }
   ];
   // Geheime Techniken: kommen von Gegnern (nicht kaufbar), danach gesperrt bis alle Bedingungen erfüllt sind. Kein Essence.
-  SW.Data.secrets = [{ id: 'cross', move: 'cross', lvl: 20, karma: 70, yang: 60 }];
+  SW.Data.secrets = [
+    { id: 'cross', move: 'cross', lvl: 20, karma: 70, yang: 60 },
+    { id: 'ironwill', move: 'ironwill', lvl: 18, karma: 30, yin: 60 },
+    { id: 'stillwater', move: 'stillwater', lvl: 22, karma: 50, balance: 60 },
+    { id: 'oniwrath', move: 'oniwrath', lvl: 25, karma: 70, yang: 70 }
+  ];
   SW.Data.resetCost = { common: 2 };
 
   // Zusätzliche Kampfaktionen der aktiven Fähigkeiten (anim = Waffenanimation aus combat.js)
@@ -42,7 +47,10 @@
     flurry:     { wind: .30, rec: .60, dmg: 5,  hits: 3, gap: .16, ki: 40, anim: 'quick', ignoreGuard: true, glow: '#9a7bd8' },
     mend:       { wind: .40, rec: .60, dmg: 0,  heal: .2, ki: 40, anim: 'special', glow: '#7fe08a' },
     kiwave:     { wind: .50, rec: .55, dmg: 30, ki: 35, anim: 'special', ignoreGuard: true, glow: '#7fd0ff' },
-    cross:      { wind: .70, rec: .80, dmg: 55, hits: 2, gap: .20, ki: 60, anim: 'heavy', guardBreak: true, glow: '#ffe27a' }
+    cross:      { wind: .70, rec: .80, dmg: 55, hits: 2, gap: .20, ki: 60, anim: 'heavy', guardBreak: true, glow: '#ffe27a' },
+    ironwill:   { wind: .45, rec: .65, dmg: 28, ki: 45, anim: 'special', guardBreak: true, glow: '#9fc8e8' },
+    stillwater: { wind: .35, rec: .55, dmg: 22, ki: 40, anim: 'special', inv: .35, glow: '#70c9df' },
+    oniwrath:   { wind: .85, rec: .95, dmg: 78, ki: 75, anim: 'heavy', hits: 2, gap: .24, guardBreak: true, glow: '#e36a55' }
   });
 
   // Texte (zentrales Textobjekt SW.TEXT, Übersetzung folgt in Phase 6)
@@ -69,6 +77,9 @@
     sk_km4: 'Ki Wave', skd_km4: 'Wave of energy that ignores guards. Costs Ki.',
     sk_km5: "Heaven's Breath", skd_km5: 'Breathing restores Ki twice as fast.',
     sk_cross: 'Heavenly Cross', skd_cross: 'Secret technique of the Bandit Chief. Two crushing cuts. Costs Ki.',
+    sk_ironwill: 'Iron Will', skd_ironwill: 'Secret technique of the Mountain Warden. A focused guard-breaking strike. Costs Ki.',
+    sk_stillwater: 'Stillwater', skd_stillwater: 'Secret technique of the Temple Monk. A precise strike with a brief evasive window. Costs Ki.',
+    sk_oniwrath: 'Oni Wrath', skd_oniwrath: 'Secret technique of the Oni. Two devastating heavy strikes. Costs Ki.',
     sp: 'Skill points', ap: 'Attribute points', lvl: 'Level', active: 'Active', passive: 'Passive', secret: 'Secret techniques',
     learn: 'Learn', learned: 'Learned', reset: 'Reset skills', reset_ask: 'Reset all skills? You get your skill points back, essence is lost.',
     req_lvl: 'Level {n}', req_skill: '{n}', req_yin: 'Yin {n}+', req_yang: 'Yang {n}+', req_karma: 'Karma {n}+',
