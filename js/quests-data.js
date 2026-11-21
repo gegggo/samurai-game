@@ -14,6 +14,7 @@ SW.Data = SW.Data || {};
     { id: 'n_pris1', role: 'prisoner', q: true, gone: 'pris1', x: 1126.5, y: 1944.5, robe: '#6a6258', hat: '#3a3530' }, // Gefangene im Banditenlager (7d)
     { id: 'n_pris2', role: 'prisoner', q: true, gone: 'pris2', x: 1284.5, y: 1964.5, robe: '#58626a', hat: '#30353a' },
     { id: 'n_pris3', role: 'prisoner', q: true, gone: 'pris3', x: 1176.5, y: 2086.5, robe: '#62586a', hat: '#35303a' },
+    { id: 'n_sage', role: 'sage', q: true, kmin: 30, x: 1646.5, y: 1606.5, robe: '#e8e0c8', hat: '#b08a2e' }, // Weiser im Himmelstempel: nur bei Karma >= 30
     { id: 'n_watch', role: 'watch', q: true, night: true, x: 392.5, y: 412.5, robe: '#2a3350', hat: '#14161f' } // Nachtwächter: nur nachts im Dorf
   );
   D.quests = [
@@ -28,12 +29,15 @@ SW.Data = SW.Data || {};
     { id: 'elder5', giver: 'n_elder', req: { done: 'elder4' }, obj: { type: 'have', item: 'wood', n: 10 }, rew: { coins: 60, xp: 60, karma: 4 } },
     { id: 'elder6', giver: 'n_elder', req: { done: 'elder5' }, obj: { type: 'have', item: 'iron', n: 5 }, rew: { coins: 80, xp: 70, ess: 1, karma: 4 } },
     { id: 'hermit1', giver: 'n_hermit', obj: { type: 'shrine', shrine: 'mountain' }, rew: { xp: 70, ess: 1, karma: 3 } },
+    { id: 'sage1', giver: 'n_sage', obj: { type: 'shrine', shrine: 'windspire' }, rew: { xp: 90, ess: 1, karma: 3 } },
     { id: 'watch1', giver: 'n_watch', obj: { type: 'kill', spot: 'n_quest' }, rew: { coins: 60, xp: 80, karma: 4 } },
     { id: 'fisher1', giver: 'n_fisher', obj: { type: 'have', item: 'herb', n: 2 },
       choice: [{ id: 'free', rew: { xp: 40, karma: 6 } }, { id: 'sell', rew: { xp: 20, coins: 80, karma: -8 } }] }
   ];
   Object.assign(SW.TEXT.en, {
     npc_prisoner: 'Prisoner', dl_prisoner_neu: 'Please. The bandits keep us in cages.', dl_prisoner_pos: 'You are the wanderer people speak of. Please help me!', dl_prisoner_neg: 'Stay away from me. I know what you are.',
+    npc_sage: 'Temple Sage', dl_sage_neu: 'The temple opens its doors to those who walk with care.', dl_sage_pos: 'Your name is spoken kindly even here, in the clouds. Sit with me.', dl_sage_neg: 'The temple does not know you.',
+    qn_sage1: 'Wind Over the Spires', qd_sage1: 'The Wind Shrine on the western spire has been silent for years. Cross the bridges and pray there.', qo_sage1: 'Pray at the Wind Shrine (west spire)', qdone_sage1: 'I felt the wind return. Thank you, wanderer.',
     npc_elder: 'Village Elder', npc_hermit: 'Hermit', npc_fisher: 'Fisher', npc_watch: 'Night Watchman',
     dl_watch_neu: 'Quiet nights are rare. Something stalks the road south of the village after dark.',
     dl_watch_pos: 'Hinode sleeps easier with you around. Will you help me again tonight?',
@@ -48,7 +52,7 @@ SW.Data = SW.Data || {};
     dl_fisher_neu: 'The lake gives, the lake takes. My boy is sick.',
     dl_fisher_pos: 'You are the one who helps people. Please, I need you again.',
     dl_fisher_neg: 'I have little. Do not take it from me.',
-    karma_price: 'Karma price: {n}', refuse_herb: 'I do not serve you. Your deeds are known here.', refuse_general: 'Not for you. Leave my stall.',
+    karma_price: 'Karma price: {n}', refuse_herb: 'I do not serve you. Your deeds are known here.', refuse_armor: 'I forge no armor for you. Go.', refuse_general: 'Not for you. Leave my stall.',
     q_offer: 'Quest', q_report: 'Report', q_accept: 'Accept', q_back: 'Back', q_complete: 'Complete', q_refuse: 'The elder refuses to give you work. Earn back trust first.',
     q_locked: 'Needs', q_new: 'New quest: {n}', q_done: 'Quest complete: {n}', q_none: 'No quests yet. Talk to people.',
     q_active: 'Active', q_finished: 'Completed', qs_active: 'In progress', qs_ready: 'Ready to report', qs_done: 'Done',

@@ -24,6 +24,11 @@ SW.Data = SW.Data || {};
     general: ['wood', 'iron', 'stone'],
     herb: ['herb']
   };
+  // Karma-Ware (Phase 8): zusätzliche Ware ab Karma k (30 = Honored, 70 = Revered)
+  D.stockK = {
+    weapon: [{ id: 'katana_temper', k: 30 }],
+    armor: [{ id: 'kote_iron', k: 30 }, { id: 'boots_iron', k: 30 }, { id: 'helm_kabuto', k: 70 }]
+  };
   // Schmied: Herstellung (Münzen + Ressourcen)
   D.recipes = [
     { id: 'naginata', coins: 220, res: { iron: 5, wood: 4 } },

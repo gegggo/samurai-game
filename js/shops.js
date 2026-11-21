@@ -17,17 +17,18 @@ SW.Shop = (function () {
     return { x, y };
   }
   S.free = free;
-  D.npcs.forEach(n => { const p = free(n.x, n.y); S.npcs.push({ id: n.id, role: n.role, q: !!n.q, night: !!n.night, gone: n.gone, x: p.x, y: p.y, robe: n.robe, hat: n.hat }); });
+  D.npcs.forEach(n => { const p = free(n.x, n.y); S.npcs.push({ id: n.id, role: n.role, q: !!n.q, night: !!n.night, gone: n.gone, kmin: n.kmin, x: p.x, y: p.y, robe: n.robe, hat: n.hat }); });
 
   // Karma wirkt auf Preise: guter Ruf = Rabatt, schlechter Ruf = Aufschlag; bei sehr schlechtem Ruf verweigern Kräuter- und Allgemeinhändler
   const KM = { revered: .8, honored: .9, neutral: 1, distrusted: 1.2, despised: 1.35 };
   S.mul = () => KM[SW.Karma.rank()] || 1;
   S.price = id => { const p = D.price(id); return p > 0 ? Math.max(1, Math.round(p * S.mul())) : 0; };
-  S.refuses = role => SW.Karma.rank() === 'despised' && (role === 'herb' || role === 'general');
+  S.refuses = role => SW.Karma.rank() === 'despised' && (role === 'herb' || role === 'general' || role === 'armor');
+  S.list = role => D.stock[role].concat((D.stockK[role] || []).filter(e => SW.Karma.v >= e.k).map(e => e.id)); // Basisware + Karma-Ware
 
   // ---------- Geschäftslogik (ohne Oberfläche, testbar) ----------
   S.buy = function (id) {
-    const list = S.cur ? D.stock[S.cur.role] : [].concat(...Object.values(D.stock));
+    const list = S.cur ? S.list(S.cur.role) : [].concat(...Object.keys(D.stock).map(S.list));
     if (S.cur && S.refuses(S.cur.role)) return false;
     const p = S.price(id); if (!it(id) || p <= 0 || list.indexOf(id) < 0 || !I.spend(p)) return false;
     return I.add(id, 1);
@@ -58,7 +59,7 @@ SW.Shop = (function () {
     I.spend(r.coins); for (const k in r.res) I.remove(k, r.res[k]);
     return I.add(r.id, 1);
   };
-  S.on = n => (!n.night || SW.Time.period() === 'night') && !(n.gone && SW.Quests && SW.Quests.st[n.gone] === 'done'); // Nacht-NPCs nur nachts; gone = weg nach Quest
+  S.on = n => (!n.night || SW.Time.period() === 'night') && (n.kmin === undefined || SW.Karma.v >= n.kmin) && !(n.gone && SW.Quests && SW.Quests.st[n.gone] === 'done'); // Nacht-NPCs nur nachts; gone = weg nach Quest
   S.near = function (p) {
     let best = null, bd = S.RANGE;
     S.npcs.forEach(n => { if (n.amb || !S.on(n)) return; const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < bd) { bd = d; best = n; } });
@@ -94,7 +95,7 @@ SW.Shop = (function () {
     add(body, el('div', 'dim', T('hi_' + role)));
     if (S.mul() !== 1 && S.tab === 'buy') add(body, el('div', S.mul() < 1 ? 'ok' : 'no', T('karma_price', (S.mul() < 1 ? '' : '+') + Math.round((S.mul() - 1) * 100) + '%')));
     if (S.tab === 'buy') {
-      D.stock[role].forEach(id => {
+      S.list(role).forEach(id => {
         const p = S.price(id), r = add(el('div', 'row card'), nameChip(id), info(id));
         if (I.bag[id]) add(r, el('span', 'dim', T('owned') + ' ' + I.bag[id]));
         add(r, btn(T('buy') + ' ' + p, 'pri', () => { S.buy(id); render(); }, I.coins < p));
