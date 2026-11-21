@@ -1,9 +1,16 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v57 (Spielversion 0.9.18)
+**Cache-Version:** v58 (Spielversion 0.9.19)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.19 – Karte zentriert, Schwarzbild-Fix (Dateien gesendet, Gerätetest offen)
+- **Karte:** Start im Menü zeigt ganze Landfläche zentriert (Inhaltsrahmen aus Übersichtsbild, Meer ausgenommen). Verschieben/Zoom klemmt auf diesen Rahmen. Hintergrund einheitlich schwarz.
+- **Schwarzbild nach Screenshot/Tabwechsel (iOS):** (1) Resume-Hooks `UI/Render/Combat.resume` leeren/neu bauen verworfene Offscreen-Canvas (Übersichtsbild, Glow, Arena). (2) `vpFix` dreistufig: Skalierung ändern -> Viewport-Breite fest auf lange Seite -> Neuladen (Spielstand vorher gespeichert, max. alle 8 s). Prüfintervall 400 ms.
+- **Geändert:** `js/ui.js`, `js/main.js`, `js/render.js`, `js/combat.js`, `js/config.js`, `index.html` (v58), `PROJECT_STATUS.md`.
+- **Geprüft:** `node --check` alle JS ok; Chromium 852x393: Karte zentriert, keine JS-Fehler, visibilitychange-Simulation ok. **NICHT geprüft:** iPhone (Schwarzbild-Fix nur per Code, nicht reproduzierbar im Headless-Browser).
+- **OFFEN:** Gerätetest: Screenshot und Tabwechsel in Spiel + Menü. Falls weiter schwarz: Bildschirm-Zustand melden (halb/ganz schwarz, Minimap sichtbar?).
 
 ## 0.9.16–0.9.18 – Weltumbau nach World Draft (Teile A, B, C in einem Zug gebaut, NICHT getestet)
 **Stand:** Dateien gebaut, Browser- und Gerätetest offen (auf Wunsch zuerst nur Dateien geliefert). Nur Syntaxprüfung (`node --check`, alle JS) und zwei Lade-Smoketests in Node (Strukturen nicht im Wasser/Fels; alle 126 Orteinträge finden eine freie Kachel) liefen.
@@ -15,6 +22,7 @@
 - **Inhalte (Teil B):** `tools/move_content.py` (einmalig, Markierung `MOVED` in der Datei) hat 125 Koordinaten verschoben: alte Region -> Mittelpunkt der neuen Region, relative Lage bleibt, dann auf Landzelle der gleichen Region (kein See/Meer/Fluss) eingerastet (2 Einträge). Betroffen: `combat-data`, `shops-data`, `items-data`, `quests-data`, `shrines-data`, `village`. IDs unverändert. `free()` in `shops/combat/shrines/inventory` sucht jetzt bis Radius 40 (vorher 10/14), weil einige Einträge weiter vom freien Platz liegen (5 Einträge brauchten 11 bis 16).
 - **Karte (Teil C):** Kartenbild und Minimap mit `WIDTH` x `HEIGHT`, Meer schwarz, helle Küstenlinie, Flüsse/Wege. Zoom und Verschieben rechteckig. Namen überlappen nicht mehr (Textfelder-Prüfung, entdeckte Orte zuerst; beim Hineinzoomen erscheinen die übrigen).
 - **Alte Spielstände:** Fortschritts-IDs bleiben, Position wird nur übernommen, wenn die Kachel in der neuen Welt begehbar ist (sonst Start).
+- **Ordner der Skripte:** Auf GitHub liegen `make_layout.py` und `move_content.py` in `/tools`. Auf dem Handy (lokaler Stand) liegen sie im Ordner `py`. Gleiche Dateien, nur anderer Ordnername. Aufruf im Repo-Root: `python3 tools/make_layout.py DRAFT.jpg js/layout.js vorschau.png` (lokal `py/…`).
 - **Geändert:** `js/config.js`, `js/layout.js` (neu), `js/world.js`, `js/ui.js`, `js/progress.js`, `js/combat-data.js`, `js/shops-data.js`, `js/items-data.js`, `js/quests-data.js`, `js/shrines-data.js`, `js/village.js`, `js/shops.js`, `js/combat.js`, `js/shrines.js`, `js/inventory.js`, `index.html` (v57, `layout.js` vor `world.js`), `tools/make_layout.py` (neu), `tools/move_content.py` (neu), `PROJECT_STATUS.md`.
 - **OFFEN / nächster Schritt:** (1) Chromium 852x393: Start, Neues Spiel, Karte, Schnellreise, Konsole ohne Fehler. (2) Erreichbarkeitstest in Node (Suche vom Start): alle Schreine, Orte, NPCs, Gegner, Truhen erreichbar, Landfläche über 95 % erreichbar. (3) iPhone-Test, vor allem Ladezeit und Karte (OV 8, Bild 625x375). (4) Sichtprüfung: Dorf/Camp/Ruinen/Höhlen nicht auf Weg oder Fluss, Karst-Brücken, Bergdorf, Brücken über dem Seeweg (Weg Moonlit Grove -> Stone Garden quert den See, wird dort Brücke).
 - **Bekannte Risiken:** Draft-Regionsgrenzen sind per Farbe/Wasserscheide geschätzt (kleine Abweichungen, z. B. Stone Garden mit schmaler Zunge); Sun Coast und Reed Marsh haben im Draft keinen Weg; Wasserfall und See-Ort liegen im Wasser (nur Karten-/Entdeckungspunkt); Region Mirror Lake ist groß (See in der Mitte, Fischerhütten am Südufer); Sun-Coast-Bucht (alte Weltecke) entfällt. Performance Gelände: pro Kachel zusätzlich Layout- und Liniensuche, nicht auf dem Gerät gemessen.
