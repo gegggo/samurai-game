@@ -1,6 +1,6 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v43 (Spielversion 0.9.4)
+**Cache-Version:** v44 (Spielversion 0.9.5)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
@@ -108,6 +108,17 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geprüft: Syntax; Node-BFS: Mauer solid, Treppe/Plateaus/Brücke/Tempel/Gipfelschrein vom Start erreichbar; Chromium 852x393: Mauer+Turm, Treppe sichtbar, keine JS-Fehler.
 - NICHT geprüft: iPhone, Brücke/Dorf/Tempel im Screenshot angesehen, Performance.
 - OFFEN: Bergdorf hat keine NPCs/Händler, Tempel keine Gegner/Truhen. Berge sind flach dargestellt (graue Felsfläche, keine Höhe/Schatten).
+
+## Neu in 0.9.5 – Phase 8: Karma-Weltreaktionen (Teilaufgabe)
+**Status: Dateien gesendet – Prüfung ausstehend (Gerätetest). Browser-Test bestanden.**
+- Karma-Ware: Händler verkaufen ab Karma 30 zusätzlich (`D.stockK` in `shops-data.js`): Waffenhändler Tempered Katana; Rüstungshändler Iron Kote, Iron Greaves; ab Karma 70 Kabuto. Kauf unter der Schwelle wird abgelehnt.
+- Verweigerung: bei Karma <= -70 (despised) bedient auch der Rüstungshändler nicht mehr (zuvor nur Kräuter/Allgemein).
+- Karma-NPC: `n_sage` (Tempelweiser, Himmelstempel) nur sichtbar bei Karma >= 30 (neues NPC-Feld `kmin`, `Shop.on`). Quest `sage1`: am Windschrein beten, Belohnung 90 XP, 1 Essence, Karma +3. Texte EN+DE.
+- Geändert: `js/shops-data.js`, `js/shops.js`, `js/quests-data.js`, `js/lang-de.js`, `js/config.js`, `index.html` (v44), `PROJECT_STATUS.md`. Davor (0.9.4, bereits gesendet): `world.js`, `render.js`, `shrines-data.js`, `combat-data.js`, `items-data.js`.
+- Geprüft (Chromium, Skript): Weiser aus bei Karma 0, an bei 30; Warenlisten 0/30/70; Kauf gesperrt/erlaubt; Rüstung verweigert bei -70, nicht bei -30; Quest annehmen/Schrein/abgeben (+1 Essence); Dump enthält Quest; DE-Schlüssel; keine JS-Fehler. Syntax aller JS ok.
+- NICHT geprüft: iPhone, Optik Händlerliste mit Zusatzware, Balancing der Preise/Ware, Karma-Sturz mit aktiver Quest (Weiser verschwindet, bis Karma wieder >= 30), echtes Laufen zum Tempel.
+- OFFEN Phase 8: Negativ-Gegenstück zum Weisen (Schmuggler/Quest bei Karma <= -30), Trainingsmöglichkeiten, Yin/Yang-Boni balancieren.
+- Nächster Schritt: zuerst Gerätetest der gesendeten Dateien (0.9.4 + 0.9.5), dann Negativ-Quests/Training.
 
 ## Neu in 0.9.4 – Karst Spires erweitert
 - Region 16 Radius 150 -> 215. Zwei neue Berge: Windturm (Berg 3, West, 1450/1600) und Wolkenturm (Berg 4, Nord, 1560/1490). Brücken vom Bergdorf nach Ost, West, Nord (`BR` in `world.js`). Plateau Berg 2-4 = Stein.
