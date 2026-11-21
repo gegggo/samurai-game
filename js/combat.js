@@ -55,6 +55,7 @@ SW.Combat = (function () {
     K.spots.push({ id: 'amb', type: 'shadow', x: q.x, y: q.y, dead: false, night: false, respawn: false, amb: true });
     if (SW.UI && SW.UI.banner) SW.UI.banner(T('amb_warn'));
   }
+  K.boss = s => !!(s.trial || (D.enemies[s.type] && D.enemies[s.type].phases)); // Arena-Gegner (Boss/Schrein-Duell)
   K.check = function (p) {
     if (K.active) return;
     ambush(p);
@@ -63,7 +64,7 @@ SW.Combat = (function () {
     K.wasNight = nt;
     for (let i = 0; i < K.spots.length; i++) {
       const s = K.spots[i];
-      if (K.on(s) && Math.hypot(s.x - p.x, s.y - p.y) < 1.6) { K.start(s); return; }
+      if (K.boss(s) && K.on(s) && Math.hypot(s.x - p.x, s.y - p.y) < 1.6) { K.start(s); return; } // normale Gegner: Weltkampf (worldcombat.js)
     }
   };
 
@@ -197,18 +198,23 @@ SW.Combat = (function () {
   // ---------- Belohnungen (Phase 3): jedes System bekommt nur seinen Teil ----------
   function reward() {
     if (S.spot.trial) { const o = SW.Trials.duelWon(S.spot.trial); Object.assign(o, { coins: 0, items: [], karma: 0, secret: null }); S.rew = o; SW.Save.touch(); return; } // Schrein-Duell: nur Prüfungsbelohnung, keine Münzen/Beute
-    const R = D.rewards[S.spot.type] || { xp: 10 }, C = SW.Char, out = { xp: R.xp, coins: 0, items: [], ess: [], karma: 0, secret: null, lv: [], yy: { yin: 0, yang: 0 } };
-    out.lv = C.addXp(R.xp);
-    out.coins = SW.Inv.addCoins(SW.Inv.coinDrop(S.spot.type));
-    const dr = D.drops && D.drops[S.spot.id]; if (dr && SW.Inv.add(dr, 1)) out.items.push(T('drop_got', T('it_' + dr)));
-    if (S.spot.amb && Math.random() < .1 && SW.Inv.add('katana_shadow', 1)) out.items.push(T('drop_wpn', T('it_katana_shadow'))); // Schattenclan: 10 % Waffe
-    if (R.ess && !S.spot.respawn && SW.Essence.add(R.ess)) out.ess.push(R.ess + ' ' + T('ess')); // wiederkehrende Nachtgegner geben keine Essence (kein Farmen)
-    if (R.karma) out.karma = SW.Karma.add('foe_' + S.spot.type, R.karma);
-    if (R.secret && SW.Skills.award(R.secret)) out.secret = T('secret_got', T('sk_' + R.secret));
-    out.yy = SW.YinYang.fromCombat(S.st);
-    S.rew = out;
-    SW.Save.touch();
+    S.rew = grant(S.spot, S.st); SW.Save.touch();
   }
+  // Belohnung für einen besiegten Gegner (Arena und Weltkampf): spot = Gegnerpunkt, st = Kampfstatistik für Yin/Yang
+  function grant(spot, st) {
+    const R = D.rewards[spot.type] || { xp: 10 }, C = SW.Char, out = { xp: R.xp, coins: 0, items: [], ess: [], karma: 0, secret: null, lv: [], yy: { yin: 0, yang: 0 } };
+    out.lv = C.addXp(R.xp);
+    out.coins = SW.Inv.addCoins(SW.Inv.coinDrop(spot.type));
+    const dr = D.drops && D.drops[spot.id]; if (dr && SW.Inv.add(dr, 1)) out.items.push(T('drop_got', T('it_' + dr)));
+    if (spot.amb && Math.random() < .1 && SW.Inv.add('katana_shadow', 1)) out.items.push(T('drop_wpn', T('it_katana_shadow'))); // Schattenclan: 10 % Waffe
+    if (R.ess && !spot.respawn && SW.Essence.add(R.ess)) out.ess.push(R.ess + ' ' + T('ess')); // wiederkehrende Nachtgegner geben keine Essence (kein Farmen)
+    if (R.karma) out.karma = SW.Karma.add('foe_' + spot.type, R.karma);
+    if (R.secret && SW.Skills.award(R.secret)) out.secret = T('secret_got', T('sk_' + R.secret));
+    out.yy = SW.YinYang.fromCombat(st);
+    SW.Save.touch();
+    return out;
+  }
+  K.grant = grant;
 
   // ---------- Update ----------
   function fight(dt) {
@@ -262,8 +268,9 @@ SW.Combat = (function () {
                   ['heavy', 'combat_heavy'], ['special', 'combat_special'], ['breath', 'combat_breath', 'hold'], ['s0', ''], ['s1', ''], ['ranged', 'combat_ranged']];
     defs.forEach(d => {
       const b = document.createElement('button'); b.id = 'cb-' + d[0]; b.className = 'cb'; b.textContent = d[1] ? T(d[1]) : '';
-      const down = e => { e.preventDefault(); b.classList.add('on'); if (d[2]) held[d[0]] = true; else if (d[0] === 'dodge') dodge(); else act(d[0]); };
-      const up = e => { e.preventDefault(); b.classList.remove('on'); if (d[2]) held[d[0]] = false; };
+      const wc = () => SW.WCombat && SW.WCombat.active && !K.active; // Weltkampf: gleiche Buttons, andere Logik
+      const down = e => { e.preventDefault(); b.classList.add('on'); if (wc()) SW.WCombat.press(d[0]); else if (d[2]) held[d[0]] = true; else if (d[0] === 'dodge') dodge(); else act(d[0]); };
+      const up = e => { e.preventDefault(); b.classList.remove('on'); if (SW.WCombat) SW.WCombat.release(d[0]); if (d[2]) held[d[0]] = false; };
       b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up);
       b.addEventListener('pointercancel', up); b.addEventListener('pointerleave', up);
       b.addEventListener('contextmenu', e => e.preventDefault());
@@ -316,11 +323,12 @@ SW.Combat = (function () {
     c.fillStyle = col('#e0b58f'); c.beginPath(); c.arc(o.hx, o.hy, 3.4, 0, TAU); c.fill();
   }
 
-  function foePose() {
-    const f = S.foe, spear = S.def.weapon === 'spear', len = spear ? 64 : 44, A = f.atk, th = A && A.kind === 'thrust';
+  function foePose(f, fsw, fdef) {
+    f = f || S.foe; fsw = fsw === undefined ? fsw : fsw; fdef = fdef || S.def;
+    const spear = fdef.weapon === 'spear', len = spear ? 64 : 44, A = f.atk, th = A && A.kind === 'thrust';
     const o = { ang: spear ? -.35 : -.9, hx: 17, hy: -38, len, flash: f.flash > 0, tilt: 0, glow: null };
-    if (S.fswing > 0) {
-      const q = 1 - S.fswing / SWING;
+    if (fsw > 0) {
+      const q = 1 - fsw / SWING;
       if (th) { o.ang = 2.6; o.hx = lerp(26, -6, q); o.hy = lerp(-44, -46, q); o.len = len * lerp(.9, 1.25, q); }
       else { o.ang = lerp(-2.3, 1.7, q); o.hx = lerp(12, 4, q); o.hy = lerp(-86, -44, q); }
     } else if (f.st === 'wind') {
@@ -335,12 +343,18 @@ SW.Combat = (function () {
 
   // Gegner in der Weltansicht (wird von render.js aufgerufen)
   K.drawWorld = function (c, sx, sy, u, time, spot) {
-    const def = D.enemies[spot.type], k = u / 62 * (def.phases ? 1.2 : 1);
+    const def = D.enemies[spot.type], w = spot.w, k = u / 62 * (def.phases ? 1.2 : 1);
     c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(sx, sy, u * .4, u * .12, 0, 0, TAU); c.fill();
-    c.save(); c.translate(sx, sy); c.scale(k, k);
-    body(c, def, { ang: def.weapon === 'spear' ? -.35 : -.9, hx: 17, hy: -38, len: def.weapon === 'spear' ? 64 : 44, flash: false, glow: null });
+    c.save(); c.translate(sx, sy); c.scale(k * (w && w.dir < 0 ? -1 : 1), k);
+    body(c, def, w && w.st !== 'dead' ? foePose(w, w.sw, def) : { ang: def.weapon === 'spear' ? -.35 : -.9, hx: 17, hy: -38, len: def.weapon === 'spear' ? 64 : 44, flash: false, glow: null });
     c.restore();
     const by = sy - u * 1.75 * (def.phases ? 1.2 : 1) + Math.sin(time * 3 + spot.x) * u * .05, r = u * .12;
+    if (w) { // Weltkampf: Lebensbalken, Angriffswarnung
+      const bw = u * 1.0; c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(sx - bw / 2 - 1, by - u * .1 - 1, bw + 2, u * .12 + 2);
+      c.fillStyle = '#d6453a'; c.fillRect(sx - bw / 2, by - u * .1, bw * Math.max(0, Math.min(1, w.hp / w.max)), u * .12);
+      if (w.st === 'wind') { c.fillStyle = w.atk && w.atk.unblock ? '#b06cff' : '#ff4a2e'; c.font = '700 ' + Math.round(u * .6) + 'px sans-serif'; c.textAlign = 'center'; c.fillText('!', sx, by - u * .22); }
+      return;
+    }
     c.fillStyle = '#e0452f'; c.beginPath(); c.moveTo(sx, by - r); c.lineTo(sx + r, by); c.lineTo(sx, by + r); c.lineTo(sx - r, by); c.fill();
   };
 

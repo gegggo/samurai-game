@@ -117,6 +117,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
         if (!SW.paused) {
           SW.Input.update();
           SW.Player.update(dt, SW.Input.vec);
+          SW.WCombat.update(dt);
           const k = 1 - Math.exp(-dt * 8);
           SW.cam.x += (SW.Player.x - SW.cam.x) * k; SW.cam.y += (SW.Player.y - SW.cam.y) * k;
           SW.Combat.check(SW.Player);
@@ -125,10 +126,11 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
           SW.Time.update(dt);
           SW.Save.tick(dt);
         }
+        SW.WCombat.sync();
         SW.Shop.update(SW.Player);
         // Hinter offenem Menü steht die Welt still: nur einmal je Fenstergröße zeichnen (spart viel Rechenzeit, Menü reagiert schneller)
         const dk = canvas.width + 'x' + canvas.height;
-        if (!(SW.UI.isOpen() && frozenKey === dk && now - frozenAt < 1000)) { SW.Render.draw(ctx, canvas.width, canvas.height, time); frozenKey = SW.UI.isOpen() ? dk : ''; frozenAt = now; } // im Menü: höchstens 1 Bild pro Sekunde als Sicherheit
+        if (!(SW.UI.isOpen() && frozenKey === dk && now - frozenAt < 1000)) { SW.Render.draw(ctx, canvas.width, canvas.height, time); SW.WCombat.draw(ctx, canvas.width, canvas.height); frozenKey = SW.UI.isOpen() ? dk : ''; frozenAt = now; } // im Menü: höchstens 1 Bild pro Sekunde als Sicherheit
         SW.UI.update(dt);
         ctx.fillStyle = 'rgba(244,236,216,.55)'; ctx.font = Math.round(canvas.height / 40) + 'px sans-serif'; ctx.textAlign = 'left';
         ctx.fillText('v' + SW.version, 56 * SW.dpr, canvas.height - 10 * SW.dpr);
