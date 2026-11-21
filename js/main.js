@@ -41,7 +41,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   }
   let frozenKey = '', frozenAt = 0;
   const later = () => {
-    setTimeout(vpFix, 150); setTimeout(vpFix, 600);
+    gapTicks = 0; setTimeout(vpFix, 150); setTimeout(vpFix, 600);
     ['UI', 'Render', 'Combat'].forEach(m => { try { SW[m] && SW[m].resume && SW[m].resume(); } catch (e) { /* egal */ } });
     frozenKey = ''; // Standbild hinter dem Menü neu zeichnen (iOS leert die Zeichenfläche beim Tabwechsel/Screenshot)
     last = performance.now();
@@ -83,7 +83,22 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
       location.reload();
     }
   }
-  setInterval(() => { if (!document.hidden) vpFix(); }, 400);
+  // iOS-Fehler: Layout-Höhe bleibt kleiner als der Bildschirm (schwarzer Balken unten, z. B. nach Leiste/Screenshot/Tabwechsel).
+  // Erkennung nur auf iOS (window.orientation ist eine Zahl), Querformat, Höhe dauerhaft (3 Prüfungen) kleiner als die kurze Seite: Höhe der Vollbild-Ebenen fest setzen.
+  const FITIDS = ['game', 'cbt', 'menu', 'shop', 'dlg', 'title'];
+  let fitted = 0, gapTicks = 0;
+  function fitH() {
+    if (typeof window.orientation !== 'number') return;
+    const vv = window.visualViewport, ih = Math.max(window.innerHeight, vv ? vv.height : 0, document.documentElement.clientHeight), sh = Math.min(screen.width, screen.height);
+    const gap = isLandscape() && ih < sh - 6 && ih > sh * .6;
+    gapTicks = gap ? gapTicks + 1 : 0;
+    const want = gapTicks >= 3 ? sh : 0;
+    if (want === fitted) return;
+    fitted = want;
+    FITIDS.forEach(id => { const e = document.getElementById(id); if (e) e.style.height = want ? want + 'px' : ''; });
+    frozenKey = ''; resize(); SW.Diag.log(want ? 'fitH' : 'fitH0');
+  }
+  setInterval(() => { if (!document.hidden) { vpFix(); fitH(); } }, 400);
   window.addEventListener('resize', () => { frozenKey = ''; resize(); setTimeout(vpFix, 150); });
   window.addEventListener('focus', () => { frozenKey = ''; });
   window.addEventListener('orientationchange', later);
