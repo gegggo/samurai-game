@@ -1,7 +1,7 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v36 (Spielversion 0.8.0)
-**Aktuelle Phase:** Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt, Gerätetest offen). Phase 7a–7d sind im gelieferten Stand bereits integriert; Stabilitätsprüfung durchgeführt.
+**Cache-Version:** v37 (Spielversion 0.8.1)
+**Aktuelle Phase:** Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
 
@@ -49,7 +49,24 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geändert: `js/skills-data.js`, `js/skills.js`, `js/combat-data.js`, `js/progress.js`, `js/lang-de.js`, `js/config.js`, `index.html` (Cache v36).
 - Prüfung: JavaScript-Syntaxprüfung für alle JS-Dateien bestanden. Isolierter Logiktest bestanden: alle vier Bossbelohnungen verweisen auf vorhandene Geheimtechniken, alle vier können erhalten werden, alle vier werden bei erfüllten Bedingungen freischaltbar, alle vier Kampfaktionen sind vorhanden und Essence bleibt unverändert. Vorherige Phase-7-Tests aus v35 bleiben dokumentiert; ein vollständiger Browser-/Gerätetest der neuen Phase-8-Funktionen steht noch aus.
 
+## Stabilitätstest 7a–7d + Phase 8 (headless Chromium 852x393, ohne Codeänderung)
+- Start ohne JS-Fehler. Nachtgegner/Nacht-NPC: Nacht an, Tag aus. Jäger: Karma -29 aus, -30 an. Nachtende mitten im Kampf: Kampf läuft sauber weiter.
+- Schreine: Beten erweckt, zweites Beten betritt Prüfung; 7 Räume starten, Höhlenschrein = Duell. Speichern/Neuladen: Karma, Schrein, Prüfungen, Quests bleiben.
+- Phase 8: alle 4 Bosse (Banditenchef, Wächter, Mönch, Oni) per Kampf besiegt: je genau 1 Geheimtechnik (cross, ironwill, stillwater, oniwrath), Essence nur Skilltree, Boss bleibt tot. Bei Level 30/Karma 100/Yin+Yang 70 alle 4 freischaltbar und ausrüstbar.
+- Karma 70 (cross, oniwrath) rechnerisch erreichbar (~90 durch alle guten Quests, Bosse, Gegner), aber nur auf dem "guten" Weg.
+- DE-Texte: keine fehlenden Schlüssel. Keine JS-Fehler in allen Läufen.
+- Datei im ZIP hieß `js/config .js` (Leerzeichen); index.html lädt `js/config.js`. Auf GitHub Dateinamen prüfen.
+- NICHT geprüft: iPhone-Touch (Prüfungsräume, Karte), Schwierigkeit, Balancing, Aussehen der Techniken im Kampf, Block-Raum-Verklemmung.
+
+## Neu in 0.8.1 – Region 9 "Moonlit Grove"
+- Kreis r=80 bei (800,800) zwischen Dorf, Westwald und See (`regionAt` -> 9). Waldboden, Steinplatz, Bäume dichter ausgespart um die Mitte. Name, Karte, Banner, Erkundungs-XP laufen über das bestehende Regionssystem.
+- Inhalt: Schrein `grove` (ohne Prüfungsraum, öffnet Karma-Seite), 3 Gegner (`e_grove1-3`: Ronin, Speer, Schnell), 2 Truhen (1 Refined Essence, 120 Münzen), POI `grove`. Arena = Bambus. Texte EN + DE.
+- Geändert: `world.js`, `ui.js`, `config.js`, `lang-de.js`, `shrines-data.js`, `combat-data.js`, `items-data.js`, `index.html` (v37).
+- Geprüft (Chromium): Region 9 am Kreis, Schrein/Gegner/Truhen auf freien Kacheln, Banner/seen, Screenshot, Smoke-Test und alle 4 Bosskämpfe weiter ok, keine JS-Fehler.
+- NICHT geprüft: iPhone, Weg zum Hain per Touch, Optik/Größe (kein eigener Boden, nur Wald+Platz), Balancing.
+
 ## Offen
+- Weitere Regionen: nur Hain (klein) vorhanden; größere Erweiterung braucht Konzept/Freigabe.
 - Phase 8 weiter ausbauen: Weltreaktionen auf Karma systematisch für NPCs, Händler, Quests und besondere Zugänge prüfen; Yin/Yang-Boni und Belohnungsraten balancieren.
 - Phase 8: prüfen, ob alle Bossarten erreichbar sind und jede Technik genau einmal vergeben wird.
 - Weitere Aufgabentypen (Wasser, Spiegel): bewusst nicht in 7b, nur Block- und Laternenräume wiederverwendet.
@@ -62,4 +79,4 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Systeme getrennt: XP/Level, Skillpunkte, Essence (nur Skilltree), Karma, Yin/Yang, Münzen (Handel), Ressourcen (Handwerk/Dorf).
 
 ## Nächster Schritt
-Phase 8 im Browser testen (alle vier Bossbelohnungen, gesperrt/freischaltbar/ausgerüstet, Speichern/Neuladen), danach Karma-Weltreaktionen und Yin/Yang-Balancing ergänzen. Anschließend Touch-/Gerätetest auf dem iPhone.
+Gerätetest iPhone (7a–7d, Phase 8). Danach Konzept für neue Regionen abstimmen und Karma-Weltreaktionen/Yin-Yang-Balancing ergänzen.
