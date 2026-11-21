@@ -1,9 +1,17 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v69 (Spielversion 0.10.0)
-**Aktuelle Phase:** 0.10.0 = Duell-Umbau Phase A (Weltkampf normale Gegner; Dateien gesendet, Gerätetest offen). Danach Phase B (Boss-Arena Ego-Pseudo-3D, noch NICHT begonnen). Davor: 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
+**Cache-Version:** v70 (Spielversion 0.10.1)
+**Aktuelle Phase:** 0.10.1 (Balken-Fix + mehr Gegner/Schreine) auf Basis von 0.10.0 = Duell-Umbau Phase A (Weltkampf normale Gegner; Dateien gesendet, Gerätetest offen). Danach Phase B (Boss-Arena Ego-Pseudo-3D, noch NICHT begonnen). Davor: 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.10.1 – Schwarzer Balken unten + mehr Inhalt auf der Karte (Dateien gesendet – Gerätetest offen)
+- **iOS-Balken unten:** `main.js` `fitH()`: nur iOS + Querformat; ist die Layout-Höhe 3 Prüfungen (ca. 1,2 s) in Folge > 6 px kleiner als die kurze Bildschirmseite, bekommen `game, cbt, menu, shop, dlg, title` die feste Höhe der kurzen Seite; sonst zurück auf automatisch. Ursache nicht reproduzierbar (nur Screenshot vom Gerät), Fix ist eine Gegenmaßnahme -> auf dem iPhone beobachten. Diagnose-Protokoll zeigt `fitH`/`fitH0`.
+- **Gegner:** +117 neue Gegnerpunkte `e_x1..e_x117` in `combat-data.js` (36 Gruppen à 2–3 + 2 Wächter je neuem Schrein). Typ nach Regionsstufe (leicht: Bandit/Ronin/Speer; mittel: +Swift/Samurai; schwer: Samurai/Gepanzert/Swift/Speer), kein Elite/Boss -> keine Essence, Essence-Bilanz unverändert. Einmalig (kein Respawn). Weltkampf aus 0.10.0.
+- **Schreine:** +14 Wegschreine `way1..way14` (`shrines-data.js`, Namen en/de `shr_way*` dort). Nur Beten/Schnellreise (keine Prüfungen/Quests), +20 XP beim Erwecken wie bei allen Schreinen.
+- **Verteilung:** Positionen aus Farthest-Point-Suche über erreichbares Land (Flood-Fill vom Start). Geprüft (Chromium): alle 117 Gegner und 14 Schreine erreichbar, 183 Gegnerpunkte / 33 Schreine insgesamt, keine JS-Fehler. Ungleich verteilt: viele in Sun Coast (35) und Mirror Lake (17); Regionen 1, 2, 3, 9, 10, 13, 14, 16 ohne neue Gegner (Flood-Fill erreicht sie mit 3x3-Freiraum kaum). Region 13 (Ember Crater) vom Flood-Fill gar nicht erfasst (alte Prüfung mit Laufzeit-`free()` fand sie erreichbar).
+- **Nicht geprüft:** Balancing (117 Gegner = viel XP), Karte/Minimap mit 33 Schreinen auf dem iPhone, Leistung auf dem iPhone, Gefühl der Gegnerdichte, ob `way*`-Schreine optisch sinnvoll stehen (Wasserrand).
+- **Geändert:** `js/combat-data.js`, `js/shrines-data.js`, `js/main.js`, `js/config.js` (0.10.1), `index.html` (v70), `PROJECT_STATUS.md`.
 
 ## 0.10.0 – Duell-Umbau Phase A: Weltkampf für normale Gegner (Dateien gesendet – Gerätetest offen)
 - **Entscheidungen (Nutzer):** Normale Gegner direkt in der Welt (laufen, ausweichen, angreifen, Spezial, 2 Skill-Plätze), kein Moduswechsel. Bosse später in kleiner Arena in Ego-Pseudo-3D (Phase B, so bauen, dass später echtes 3D möglich ist). Boss-Arena: nur freier BOTW-Stil, KEINE ▲■▼/Finten/Atem-Fokus (weicht von Spec 33.6 ab, ausdrückliche Nutzerentscheidung; Kap. 33.6/Trainingsbereich 27.8 bleiben offen).
