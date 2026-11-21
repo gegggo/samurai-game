@@ -1,9 +1,17 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v61 (Spielversion 0.9.22)
+**Cache-Version:** v62 (Spielversion 0.9.23)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.23 – Reise mit Ladebild, Diagnose-Protokoll (Dateien gesendet, Gerätetest offen)
+- 0.9.22: Schnellreise-Tipp auf iPhone bestätigt (Ursache war CSS-zoom um die Karte).
+- **Reise:** Knopf "Reisen" blendet das Ladebild mit Text "Reise nach X…" ein (Wechsel bei 0,8 s, Ausblenden bei 1,6 s). Doppeltipp gesperrt.
+- **Schwarzbild nach Screenshot (weiter offen, bleibt dauerhaft halb schwarz, auch im Spiel):** Auf dem Foto ist nur ein 393x393-Bereich links mit Körperfarbe sichtbar, nichts gezeichnet (auch keine Diagnosezeile). Vermutung: iOS-Layout-Fehler + verworfene Compositing-Ebenen. Neu: `SW.Diag` schreibt Ereignisse (visibilitychange, pagehide, pageshow, resize, orientationchange, focus, blur, freeze, resume, Herzschlag bei Größenänderung, BAD/STALL) in `localStorage['sw_diag']`. Beim nächsten Start (nach 2,5 s) erscheint bei BAD/STALL ein rotes Feld "DIAG letzte Sitzung", antippen = schließen.
+- **Geändert:** `js/main.js`, `js/ui.js`, `js/config.js`, `js/lang-de.js`, `css/main.css`, `index.html` (v62), `PROJECT_STATUS.md`.
+- **Geprüft:** `node --check`; Chromium 852x393: Ladebild-Ablauf (Text, Positionswechsel, Ausblenden), Protokoll schreibt, keine JS-Fehler. NICHT geprüft: iPhone.
+- **OFFEN:** Schwarzbild: nach Auftreten Spiel schließen und neu öffnen, rotes DIAG-Feld fotografieren.
 
 ## 0.9.22 – Schnellreise-Tipp (Ursache CSS-zoom), Schleife-Watchdog, Diagnose (Dateien gesendet, Gerätetest offen)
 - 0.9.20/0.9.21 auf iPhone bestätigt, ABER: Tipp auf Schrein/Reisen ging auf dem iPhone nicht, Halbbild schwarz nach Screenshot/Tabwechsel bei hineingezoomter Karte weiterhin.
