@@ -124,39 +124,41 @@ SW.Karma = (function () {
   return K;
 })();
 
-// Lokale Speicherung des Spielstands (Phase 6b). Format v2: wie v1 plus Spielerposition. Alte v1-Stände werden beim Laden übernommen.
-// Sicherheit: vor jedem Schreiben wird der letzte gültige Stand als Kopie gesichert; defekter Stand fällt auf die Kopie zurück.
+// Lokale Speicherung des Spielstands (Phase 6). Format v2 + Umschlag {ts, pt, sum, d}: Zeitstempel, Spielzeit, Prüfsumme über den Daten-Text.
+// Sicherheit: vor jedem Schreiben wird der letzte gültige Stand als Kopie gesichert; defekter Stand (Prüfsumme falsch) fällt auf die Kopie zurück.
+// Hauptstand + 4 rotierende Wiederherstellungspunkte (alle 10 min Echtzeit rückt der alte Hauptstand nach). Alte Stände ohne Umschlag werden übernommen.
 SW.Save = (function () {
-  const KEY = 'sw_progress_v1', BAK = 'sw_progress_v1_bak', VER = 2, V = {};
-  let tmr = 0, acc = 0, lp = null, wiped = false;
+  const KEY = 'sw_progress_v1', BAK = 'sw_progress_v1_bak', RP = 'sw_progress_v1_rp', NRP = 4, GAP = 600000, VER = 2, V = {};
+  let tmr = 0, acc = 0, lp = null, wiped = false, pt = 0;
+  const hash = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return h >>> 0; };
   V.data = () => ({
     v: VER, gv: SW.version, char: SW.Char.dump(), ess: SW.Essence.dump(), yy: SW.YinYang.dump(), karma: SW.Karma.dump(), skills: SW.Skills.dump(),
     inv: SW.Inv ? SW.Inv.dump() : null,
     shr: SW.Shrines ? SW.Shrines.dump() : null, tr: SW.Trials ? SW.Trials.dump() : null, q: SW.Quests ? SW.Quests.dump() : null, time: SW.Time ? SW.Time.dump() : null,
     pos: SW.Player ? { x: Math.round(SW.Player.x * 100) / 100, y: Math.round(SW.Player.y * 100) / 100 } : null,
-    defeated: SW.Combat.spots.filter(s => s.dead && !s.respawn).map(s => s.id),
+    defeated: SW.Combat.spots.filter(s => s.dead && !s.respawn).map(s => s.id), pt: Math.floor(pt),
     disc: SW.UI ? [...SW.UI.disc] : [], seen: SW.UI ? [...SW.UI.seen] : []
   });
   V.save = function () {
-    if (wiped) return;
+    if (wiped || V.hold) return; // hold: Startbildschirm offen, noch nichts überschreiben
     if (tmr) { clearTimeout(tmr); tmr = 0; }
     try {
-      const old = localStorage.getItem(KEY);
-      if (old) { try { if (JSON.parse(old)) localStorage.setItem(BAK, old); } catch (e) { /* defekten Stand nicht als Kopie sichern */ } }
-      localStorage.setItem(KEY, JSON.stringify(V.data()));
+      const old = localStorage.getItem(KEY), d = JSON.stringify(V.data());
+      if (old && unpack(old)) { localStorage.setItem(BAK, old); rotate(old, false); } // defekten Stand nie als Kopie sichern
+      localStorage.setItem(KEY, JSON.stringify({ e: 1, ts: Date.now(), pt: Math.floor(pt), sum: hash(d), d }));
       if (SW.Player) lp = { x: SW.Player.x, y: SW.Player.y };
     } catch (e) { /* Speicher gesperrt oder voll */ }
   };
   // Spielstand löschen (beide Kopien); danach wird nichts mehr geschrieben, die Seite lädt neu. Sprache bleibt.
   V.clear = function () {
     wiped = true; if (tmr) { clearTimeout(tmr); tmr = 0; }
-    try { localStorage.removeItem(KEY); localStorage.removeItem(BAK); } catch (e) { /* Speicher gesperrt */ }
+    try { localStorage.removeItem(KEY); localStorage.removeItem(BAK); for (let i = 0; i < NRP; i++) localStorage.removeItem(RP + i); } catch (e) { /* Speicher gesperrt */ }
     location.reload();
   };
   V.touch = function () { if (!tmr) tmr = setTimeout(V.save, 500); };
   // Position regelmäßig sichern (alle 5 s Spielzeit, nur nach Bewegung), nicht bei jedem Bild
   V.tick = function (dt) {
-    acc += dt; if (acc < 5) return; acc = 0;
+    pt += dt; acc += dt; if (acc < 5) return; acc = 0;
     const P = SW.Player;
     if (!lp || Math.hypot(P.x - lp.x, P.y - lp.y) > .5) V.touch();
   };
@@ -166,13 +168,58 @@ SW.Save = (function () {
     if (d.v === 1) d.v = 2; // v1 -> v2: nur Position kommt neu dazu (fehlt = Startpunkt)
     return d;
   }
-  function read(key) {
-    try { return migrate(JSON.parse(localStorage.getItem(key) || 'null')); } catch (e) { return null; }
+  // Umschlag prüfen und auspacken: {ts, pt, d} oder null (beschädigt/zu neu). Alter Stand ohne Umschlag: ts 0.
+  function unpack(raw) {
+    try {
+      const o = JSON.parse(raw); if (!o || typeof o !== 'object') return null;
+      if (o.e === 1) { if (typeof o.d !== 'string' || hash(o.d) !== o.sum) return null; const d = migrate(JSON.parse(o.d)); return d ? { ts: o.ts || 0, pt: o.pt || 0, d } : null; }
+      const d = migrate(o); return d ? { ts: 0, pt: 0, d } : null;
+    } catch (e) { return null; }
   }
+  function read(key) { try { const r = localStorage.getItem(key); return r ? unpack(r) : null; } catch (e) { return null; } }
+  // Alten Hauptstand in die Wiederherstellungspunkte schieben (nur wenn force oder seit 10 min kein neuer Punkt)
+  function rotate(old, force) {
+    const tk = RP + '_t';
+    if (!force && Date.now() - Number(localStorage.getItem(tk) || 0) < GAP) return;
+    for (let i = NRP - 1; i > 0; i--) { const v = localStorage.getItem(RP + (i - 1)); if (v) localStorage.setItem(RP + i, v); }
+    localStorage.setItem(RP + 0, old); localStorage.setItem(tk, String(Date.now()));
+  }
+  // Liste für die Auswahl: Hauptstand + Wiederherstellungspunkte (nur vorhandene), mit Kurzinfo
+  V.slots = function () {
+    const out = [];
+    [KEY].concat([0, 1, 2, 3].map(i => RP + i)).forEach((k, i) => {
+      let raw = null; try { raw = localStorage.getItem(k); } catch (e) { /* gesperrt */ }
+      if (!raw) return;
+      const r = unpack(raw), d = r && r.d, q = d && d.pos, W = SW.World;
+      out.push({ key: k, main: i === 0, n: i, ok: !!r, ts: r ? r.ts : 0, pt: r ? (d.pt || r.pt) : 0, lvl: r ? (d.char && d.char.level) || 1 : 0,
+        reg: q && isFinite(q.x) && isFinite(q.y) ? W.regionAt(Math.floor(q.x), Math.floor(q.y)) : 0, shr: r && d.shr && d.shr.on ? d.shr.on.length : 0, def: r && d.defeated ? d.defeated.length : 0 });
+    });
+    return out;
+  };
+  // Tausch: Wiederherstellungspunkt wird Hauptstand, alter Hauptstand nimmt dessen Platz ein (nichts geht verloren). Danach Neuladen.
+  V.restore = function (key) {
+    try {
+      const sel = localStorage.getItem(key), cur = localStorage.getItem(KEY);
+      if (key === KEY || !sel || !unpack(sel)) return false;
+      wiped = true; if (tmr) { clearTimeout(tmr); tmr = 0; }
+      if (cur) localStorage.setItem(key, cur); else localStorage.removeItem(key);
+      localStorage.setItem(KEY, sel);
+    } catch (e) { return false; }
+    location.reload(); return true;
+  };
+  // Neues Spiel: aktueller Hauptstand wird Wiederherstellungspunkt 1 (ältester Punkt entfällt), dann leerer Start.
+  V.newGame = function () {
+    wiped = true; if (tmr) { clearTimeout(tmr); tmr = 0; }
+    try { const cur = localStorage.getItem(KEY); if (cur && unpack(cur)) rotate(cur, true); localStorage.removeItem(KEY); localStorage.removeItem(BAK); } catch (e) { /* gesperrt */ }
+    location.reload();
+  };
+  V.has = () => !!(read(KEY) || read(BAK));
   const step = fn => { try { fn(); } catch (e) { /* ein defekter Teil darf den Rest nicht blockieren */ } };
   V.load = function () {
-    const d = read(KEY) || read(BAK);
+    const r = read(KEY) || read(BAK), d = r && r.d;
+    V.damaged = !r && !!(function () { try { return localStorage.getItem(KEY); } catch (e) { return null; } })();
     if (!d) return;
+    pt = d.pt || r.pt || 0;
     step(() => SW.Char.load(d.char)); step(() => SW.Essence.load(d.ess)); step(() => SW.YinYang.load(d.yy));
     step(() => SW.Karma.load(d.karma)); step(() => SW.Skills.load(d.skills));
     if (SW.Inv) step(() => SW.Inv.load(d.inv));

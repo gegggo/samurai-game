@@ -68,6 +68,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   SW.Combat.init();
   SW.Save.load();
   SW.Skills.check();
+  SW.Title.show();
   // Schutz: ist css/main.css veraltet oder fehlt, erscheint eine Warnung im Spiel
   const cssOk = () => getComputedStyle(document.getElementById('mini')).position === 'fixed';
   let last = performance.now(), time = 0;
