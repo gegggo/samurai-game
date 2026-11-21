@@ -1,0 +1,158 @@
+'use strict';
+// Händler, Schmied, Interaktion (Phase 4b). Namensraum SW.Shop. Zahlungsmittel: nur Münzen (+ Ressourcen beim Schmied).
+// Braucht inventory.js (SW.Inv) und menus.js (SW.Menus.h).
+SW.Shop = (function () {
+  const D = SW.Data, W = SW.World, I = SW.Inv, TAU = 6.2832, T = (k, n) => SW.t(k, n);
+  const S = { npcs: [], cur: null, tab: 'buy', RANGE: 2.3 };
+  const it = id => D.itemMap[id];
+
+  function free(x, y) {
+    for (let r = 0; r < 10; r++) {
+      const n = r ? r * 8 : 1;
+      for (let a = 0; a < n; a++) {
+        const g = a / n * TAU, px = Math.floor(x + Math.cos(g) * r), py = Math.floor(y + Math.sin(g) * r);
+        if (!W.solid(px, py) && !W.solid(px + 1, py) && !W.solid(px, py + 1) && !W.solid(px - 1, py)) return { x: px + .5, y: py + .5 };
+      }
+    }
+    return { x, y };
+  }
+  S.free = free;
+  D.npcs.forEach(n => { const p = free(n.x, n.y); S.npcs.push({ id: n.id, role: n.role, q: !!n.q, x: p.x, y: p.y, robe: n.robe, hat: n.hat }); });
+
+  // Karma wirkt auf Preise: guter Ruf = Rabatt, schlechter Ruf = Aufschlag; bei sehr schlechtem Ruf verweigern Kräuter- und Allgemeinhändler
+  const KM = { revered: .8, honored: .9, neutral: 1, distrusted: 1.2, despised: 1.35 };
+  S.mul = () => KM[SW.Karma.rank()] || 1;
+  S.price = id => { const p = D.price(id); return p > 0 ? Math.max(1, Math.round(p * S.mul())) : 0; };
+  S.refuses = role => SW.Karma.rank() === 'despised' && (role === 'herb' || role === 'general');
+
+  // ---------- Geschäftslogik (ohne Oberfläche, testbar) ----------
+  S.buy = function (id) {
+    const list = S.cur ? D.stock[S.cur.role] : [].concat(...Object.values(D.stock));
+    if (S.cur && S.refuses(S.cur.role)) return false;
+    const p = S.price(id); if (!it(id) || p <= 0 || list.indexOf(id) < 0 || !I.spend(p)) return false;
+    return I.add(id, 1);
+  };
+  S.sell = function (id) {
+    if (S.cur && S.refuses(S.cur.role)) return false;
+    const v = D.sellPrice(id);
+    if (!v || !(I.bag[id] > 0)) return false; // nicht verkäuflich (Legendäres) oder nicht im Beutel; Ausgerüstetes bleibt sicher
+    I.remove(id, 1); I.addCoins(v); return true;
+  };
+  S.upgradable = id => it(id) && (it(id).type === 'weapon' || it(id).type === 'armor') && I.owned(id);
+  S.canUpgrade = function (id) {
+    if (!S.upgradable(id)) return false;
+    const l = I.lvl(id); if (l >= D.upMax) return false;
+    const c = D.upCost(id, l); return I.coins >= c.coins && (I.bag.iron || 0) >= c.iron;
+  };
+  S.upgrade = function (id) {
+    if (!S.canUpgrade(id)) return false;
+    const l = I.lvl(id), c = D.upCost(id, l);
+    I.spend(c.coins); I.remove('iron', c.iron); I.up[id] = l + 1; SW.Save.touch(); return true;
+  };
+  S.canCraft = function (r) {
+    if (I.coins < r.coins) return false;
+    return Object.keys(r.res).every(k => (I.bag[k] || 0) >= r.res[k]);
+  };
+  S.craft = function (r) {
+    if (!S.canCraft(r)) return false;
+    I.spend(r.coins); for (const k in r.res) I.remove(k, r.res[k]);
+    return I.add(r.id, 1);
+  };
+  S.near = function (p) {
+    let best = null, bd = S.RANGE;
+    S.npcs.forEach(n => { if (n.amb) return; const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < bd) { bd = d; best = n; } });
+    return best;
+  };
+
+  // ---------- Oberfläche ----------
+  const H = SW.Menus.h, el = H.el, add = H.add, btn = H.btn;
+  let root, body, tabsEl, titleEl, coinsEl, act;
+  function ensure() {
+    if (root) return;
+    root = el('div'); root.id = 'shop';
+    const head = el('div', 'shop-h');
+    titleEl = el('h3'); coinsEl = el('span', 'chip');
+    const close = btn(T('close'), '', () => S.close());
+    add(head, titleEl, coinsEl, close);
+    tabsEl = el('div', 'row shop-t'); body = el('div'); body.id = 'shop-body';
+    add(root, head, tabsEl, body); document.body.appendChild(root);
+  }
+  const tabsFor = role => role === 'smith' ? ['upgrade', 'craft'] : ['buy', 'sell'];
+  const costTxt = o => Object.keys(o).map(k => o[k] + ' ' + T('it_' + k)).join(', ');
+  const nameChip = id => el('span', 'chip r_' + it(id).rar, I.name(id));
+  const info = id => el('span', 'dim', I.fxLines(it(id).fx).join(' · '));
+
+  function render() {
+    if (!S.cur) return;
+    const role = S.cur.role, tabs = tabsFor(role);
+    titleEl.textContent = T('npc_' + role); coinsEl.textContent = T('coins') + ': ' + I.coins;
+    tabsEl.innerHTML = '';
+    tabs.forEach(t => add(tabsEl, btn(T(t === 'buy' ? 'buy' : t === 'sell' ? 'sell' : t === 'upgrade' ? 'shop_upgrade' : 'shop_craft'), t === S.tab ? 'pri' : '', () => { S.tab = t; render(); })));
+    body.innerHTML = ''; body.scrollTop = body.scrollTop;
+    if (S.refuses(role)) { add(body, el('div', 'no', T('refuse_' + role))); return; }
+    add(body, el('div', 'dim', T('hi_' + role)));
+    if (S.mul() !== 1 && S.tab === 'buy') add(body, el('div', S.mul() < 1 ? 'ok' : 'no', T('karma_price', (S.mul() < 1 ? '' : '+') + Math.round((S.mul() - 1) * 100) + '%')));
+    if (S.tab === 'buy') {
+      D.stock[role].forEach(id => {
+        const p = S.price(id), r = add(el('div', 'row card'), nameChip(id), info(id));
+        if (I.bag[id]) add(r, el('span', 'dim', T('owned') + ' ' + I.bag[id]));
+        add(r, btn(T('buy') + ' ' + p, 'pri', () => { S.buy(id); render(); }, I.coins < p));
+        add(body, r);
+      });
+    } else if (S.tab === 'sell') {
+      const ids = Object.keys(I.bag).filter(id => I.bag[id] > 0 && it(id));
+      if (!ids.length) add(body, el('div', 'dim', T('nothing_sell')));
+      ids.forEach(id => {
+        const v = D.sellPrice(id), r = add(el('div', 'row card'), nameChip(id), el('span', 'dim', '×' + I.bag[id]));
+        if (v) add(r, btn(T('sell') + ' ' + v, '', () => { S.sell(id); render(); })); else add(r, el('span', 'dim', T('cannot_sell')));
+        add(body, r);
+      });
+    } else if (S.tab === 'upgrade') {
+      const ids = D.items.filter(d => S.upgradable(d.id)).map(d => d.id);
+      if (!ids.length) add(body, el('div', 'dim', T('no_upgrade')));
+      else add(body, el('div', 'dim', T('up_hint_w') + ' ' + T('up_hint_a')));
+      ids.forEach(id => {
+        const l = I.lvl(id), r = add(el('div', 'row card'), nameChip(id), info(id));
+        if (l >= D.upMax) add(r, el('span', 'ok', T('max_lvl')));
+        else { const c = D.upCost(id, l); add(r, el('span', 'dim', T('cost') + ': ' + c.coins + ' ' + T('coins') + ', ' + c.iron + ' ' + T('it_iron')), btn(T('upgrade'), 'pri', () => { S.upgrade(id); render(); }, !S.canUpgrade(id))); }
+        add(body, r);
+      });
+    } else {
+      D.recipes.forEach(rc => {
+        const r = add(el('div', 'row card'), nameChip(rc.id), info(rc.id));
+        if (I.owned(rc.id)) add(r, el('span', 'dim', T('owned')));
+        add(r, el('span', 'dim', T('cost') + ': ' + rc.coins + ' ' + T('coins') + (Object.keys(rc.res).length ? ', ' + costTxt(rc.res) : '')));
+        add(r, btn(T('craft'), 'pri', () => { S.craft(rc); render(); }, !S.canCraft(rc)));
+        add(body, r);
+      });
+    }
+  }
+  S.open = function (npc) {
+    if (!npc || SW.paused || SW.Combat.active) return false;
+    if (npc.q && SW.Quests) return SW.Quests.open(npc);
+    ensure(); S.cur = npc; S.tab = tabsFor(npc.role)[0];
+    SW.paused = true; SW.Input.reset(); root.classList.add('open'); if (act) act.style.display = 'none';
+    render(); return true;
+  };
+  S.close = function () {
+    if (!S.cur) return;
+    S.cur = null; if (root) root.classList.remove('open');
+    SW.paused = false; SW.Input.reset(); SW.Save.touch();
+  };
+  // Interaktionsknopf: nur sichtbar, wenn ein NPC nah ist
+  S.update = function (p) {
+    if (!act) {
+      act = el('button', '', T('talk')); act.id = 'act-btn'; act.style.display = 'none';
+      act.addEventListener('click', () => {
+        const n = S.near(SW.Player);
+        if (n) S.open(n); else { const sh = SW.Shrines && SW.Shrines.near(SW.Player); if (sh) SW.Shrines.interact(sh); }
+      });
+      document.body.appendChild(act);
+    }
+    const busy = SW.paused || SW.Combat.active, n = busy ? null : S.near(p), sh = (busy || n || !SW.Shrines) ? null : SW.Shrines.near(p);
+    const want = (n || sh) ? 'block' : 'none', lbl = n ? T('talk') : T('pray');
+    if (act.style.display !== want) act.style.display = want;
+    if (act.textContent !== lbl) act.textContent = lbl;
+  };
+  return S;
+})();

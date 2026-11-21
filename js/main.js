@@ -1,0 +1,83 @@
+'use strict';
+// Zoom sperren (iOS Safari ignoriert user-scalable=no): Doppeltipp, Pinch und Gesten abfangen
+(function () {
+  const st = document.createElement('style'); st.textContent = '*{touch-action:manipulation}html,body,#game,.cb{touch-action:none}#menu-panel,#menu-tabs{touch-action:pan-y}'; document.head.appendChild(st);
+  ['gesturestart', 'gesturechange', 'gestureend', 'dblclick'].forEach(n => document.addEventListener(n, e => e.preventDefault(), { passive: false }));
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
+  let lt = 0;
+  document.addEventListener('touchend', e => { const n = Date.now(); if (n - lt < 320 && !(e.target.closest && e.target.closest('button'))) e.preventDefault(); lt = n; }, { passive: false });
+})();
+// Fehleranzeige: zeigt JS-Fehler direkt auf dem Bildschirm (Test auf dem Handy)
+function showErr(t) {
+  let d = document.getElementById('errbox');
+  if (!d) { d = document.createElement('div'); d.id = 'errbox'; d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99;background:#800;color:#fff;font:12px monospace;padding:6px;white-space:pre-wrap;max-height:40%;overflow:auto'; document.body.appendChild(d); }
+  d.textContent += t + '\n';
+}
+window.addEventListener('error', e => { if (e.target && e.target.tagName) return; showErr((e.filename || '').split('/').pop() + ':' + e.lineno + ' ' + e.message); });
+(window.__e || []).forEach(showErr); // Fehler beim Laden der Skripte (fehlende Datei / Fehler beim Start)
+// Start und Hauptschleife.
+(function () {
+  const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
+  SW.cam = { x: SW.Player.x, y: SW.Player.y };
+  function resize() {
+    SW.dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = canvas.clientWidth || window.innerWidth, h = canvas.clientHeight || window.innerHeight;
+    canvas.width = Math.floor(w * SW.dpr); canvas.height = Math.floor(h * SW.dpr);
+    SW.Render.resize(canvas.width, canvas.height);
+  }
+  const later = () => {
+    last = performance.now();
+    SW.Input.reset();
+    resize();
+    setTimeout(resize, 250);
+    setTimeout(resize, 700);
+  };
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', later);
+  window.addEventListener('pageshow', later);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) later(); });
+  canvas.addEventListener('contextlost', e => { e.preventDefault(); showErr('Canvas-Kontext verloren; warte auf Wiederherstellung.'); });
+  canvas.addEventListener('contextrestored', later);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
+  resize();
+  SW.Input.init(canvas);
+  SW.UI.init();
+  SW.Combat.init();
+  SW.Save.load();
+  SW.Skills.check();
+  // Schutz: ist css/main.css veraltet oder fehlt, erscheint eine Warnung im Spiel
+  const cssOk = () => getComputedStyle(document.getElementById('mini')).position === 'fixed';
+  let last = performance.now(), time = 0;
+  function frame(now) {
+    try {
+      const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now; time += dt;
+      if (Math.abs(canvas.clientWidth * SW.dpr - canvas.width) > 2 || Math.abs(canvas.clientHeight * SW.dpr - canvas.height) > 2) resize();
+      if (SW.Combat.active) {
+        SW.Combat.update(dt); SW.Combat.draw(ctx, canvas.width, canvas.height, time);
+      } else {
+        if (!SW.paused) {
+          SW.Input.update();
+          SW.Player.update(dt, SW.Input.vec);
+          const k = 1 - Math.exp(-dt * 8);
+          SW.cam.x += (SW.Player.x - SW.cam.x) * k; SW.cam.y += (SW.Player.y - SW.cam.y) * k;
+          SW.Combat.check(SW.Player);
+          SW.Inv.check(SW.Player);
+          SW.Shrines.check(SW.Player);
+          SW.Time.update(dt);
+          SW.Save.tick(dt);
+        }
+        SW.Shop.update(SW.Player);
+        SW.Render.draw(ctx, canvas.width, canvas.height, time);
+        SW.UI.update(dt);
+        ctx.fillStyle = 'rgba(244,236,216,.55)'; ctx.font = Math.round(canvas.height / 40) + 'px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText('v' + SW.version, 56 * SW.dpr, canvas.height - 10 * SW.dpr);
+        if (!cssOk()) { ctx.fillStyle = '#e0452f'; ctx.font = '700 ' + Math.round(canvas.height / 22) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('css/main.css veraltet - komplett ersetzen', canvas.width / 2, canvas.height / 8); }
+      }
+    } catch (e) {
+      showErr('Frame-Fehler: ' + (e && e.message ? e.message : e));
+    } finally {
+      requestAnimationFrame(frame);
+    }
+  }
+  requestAnimationFrame(frame);
+})();
