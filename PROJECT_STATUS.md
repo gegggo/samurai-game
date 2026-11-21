@@ -1,6 +1,6 @@
 # PROJECT_STATUS
 
-**Cache-Version aktuell:** v29
+**Cache-Version aktuell:** v30 (Spielversion 0.6.1)
 
 **Aktueller Stand:** Phase 5c (Grobgerüst) – Dorf-Wiederaufbau Hinode umgesetzt. 5a/5b vom Nutzer als funktionierend bestätigt. 5c noch nicht auf dem Gerät getestet.
 
@@ -102,3 +102,8 @@
 - Eigene Position als „X … · Y …“ (Kacheln, Karte 0–2400) unter der Minikarte (im Spiel) und oben links im Karten-Menü. Dient zum Finden der Bosse (Koordinaten siehe oben). Im Kampf und bei offenem Menü ist die Anzeige unter der Minikarte ausgeblendet.
 - Schwarzbild nach Screenshot/Tabwechsel: Das Standbild hinter dem Menü (7a) wird bei Fokus-, Sichtbarkeits-, Größen- und Seitenwechsel neu gezeichnet und zusätzlich höchstens 1× pro Sekunde, falls iOS die Zeichenfläche leert. Headless getestet: Fläche gelöscht → nach 1,3 s wieder gefüllt. Auf dem iPhone ungetestet; wenn weiter schwarz, bitte melden, ob nur die Welt hinter dem Menü oder die ganze Seite betroffen ist.
 - Geändert: ui.js, main.js, main.css, index.html.
+
+
+**Patch v30:**
+- Siegbildschirm: Belohnungsliste passt sich an (Titel höher, Schrift kleiner, bei vielen Zeilen 2 Spalten), Anzeigedauer 5,5 s. Headless geprüft (852x393), Gerät offen.
+- Schwarzer Bildschirm nach Screenshot: Ursache laut Screenshot vermutlich iOS-Fehler, Seitenbreite bleibt auf Hochformat (393) hängen. main.js erkennt das (quer, aber innerWidth zu klein), setzt Viewport-Meta neu, sonst Neuladen (max. alle 15 s, Spielstand wird vorher gespeichert). NICHT auf iPhone getestet.
