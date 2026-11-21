@@ -14,7 +14,7 @@ SW.Diag = (function () {
   const sv = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* egal */ } };
   const last = ld(K); // Sitzung davor: nur archivieren, wenn BAD/STALL enthalten (kurze Normal-Sitzungen überschreiben nichts)
   prev = ld(KB);
-  if (last.some(x => / (BAD|STALL) /.test(x))) { prev = prev.concat(['--- Sitzung ---'], last.slice(-14)).slice(-40); sv(KB, prev); }
+  if (last.some(x => / (BAD|STALL) /.test(x))) { prev = prev.concat(['--- Sitzung ---'], last.slice(-26)).slice(-60); sv(KB, prev); }
   sv(K, []);
   function snap() { const vv = window.visualViewport, c = document.getElementById('game'); return 'iw' + window.innerWidth + 'x' + window.innerHeight + ' cw' + document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight + ' cv' + (c ? c.clientWidth + 'x' + c.clientHeight : '-') + ' vv' + (vv ? Math.round(vv.width) + '@' + vv.scale.toFixed(2) : '-') + ' sc' + screen.width + 'x' + screen.height + ' o' + window.orientation + ' h' + (document.hidden ? 1 : 0) + ' sa' + (navigator.standalone ? 1 : 0); }
   function log(ev) { a.push(new Date().toTimeString().slice(0, 8) + ' ' + ev + ' ' + snap()); if (a.length > 40) a.shift(); sv(K, a); }
@@ -67,18 +67,19 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
     if (vpOrig === null) vpOrig = m.getAttribute('content');
     if (!landscapeBroken()) { vpTry = 0; badTicks = 0; if (vpForced && isLandscape()) { /* Zwangsbreite bleibt, solange Querformat */ } else if (vpForced) vpRestore(); return; }
     if (++badTicks < 3) return; // erst nach ca. 1,2 s Dauerzustand eingreifen (Start-Drehung ist kurz)
-    vpTry++;
+    vpTry++; SW.Diag.log('fix' + vpTry);
     if (vpTry === 1) { // Stufe 1: Skalierung minimal ändern
       m.setAttribute('content', 'width=device-width, initial-scale=1.0001, viewport-fit=cover');
-      setTimeout(() => { m.setAttribute('content', vpOrig); frozenKey = ''; resize(); }, 80);
+      setTimeout(() => { m.setAttribute('content', vpOrig); frozenKey = ''; resize(); SW.Diag.log('fix1res'); }, 80);
     } else if (vpTry === 2 || vpTry === 3) { // Stufe 2: Breite fest auf lange Seite setzen
       vpForced = true; m.setAttribute('content', 'width=' + longSide() + ', initial-scale=1, viewport-fit=cover');
-      setTimeout(() => { frozenKey = ''; resize(); }, 80);
+      setTimeout(() => { frozenKey = ''; resize(); SW.Diag.log('fix2res'); }, 80);
     } else if (vpTry > 5) { // Stufe 3: Neuladen (Spielstand vorher speichern), nicht in Schleife
       let n = 0; try { n = +sessionStorage.getItem('sw_vp') || 0; } catch (e) { /* egal */ }
       if (Date.now() - n < 8000) return;
       try { sessionStorage.setItem('sw_vp', Date.now()); } catch (e) { /* egal */ }
       try { SW.Save.save(); } catch (e) { /* egal */ }
+      SW.Diag.log('reload');
       location.reload();
     }
   }
@@ -149,7 +150,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   let hbLast = '';
   setInterval(() => { const s = SW.Diag.snap(); if (s !== hbLast) { hbLast = s; SW.Diag.log('hb'); } }, 2000);
   setTimeout(() => { // Auswertung der letzten Sitzung: nur wenn dort ein Fehlzustand protokolliert wurde
-    if (SW.Diag.prev.length) { showErr('DIAG Fehl-Sitzung (antippen = schließen):\n' + SW.Diag.prev.slice(-24).join('\n')); const eb = document.getElementById('errbox'); if (eb) { const o = eb.onclick; eb.onclick = () => { SW.Diag.clear(); o(); }; } }
+    if (SW.Diag.prev.length) { showErr('DIAG Fehl-Sitzung (antippen = schließen):\n' + SW.Diag.prev.slice(-28).join('\n').replace(/ sc\d+x\d+/g, '').replace(/ sa\d/g, '')); const eb = document.getElementById('errbox'); if (eb) { eb.style.cssText += ';top:0;bottom:auto;max-height:100%;font-size:9px;line-height:11px'; const o = eb.onclick; eb.onclick = () => { SW.Diag.clear(); o(); }; } }
   }, 2500);
   let badLog = 0;
   setInterval(() => {
