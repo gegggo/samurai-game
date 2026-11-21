@@ -48,7 +48,7 @@ body.combat #compass { display: none; }
 .bar { flex: 1; min-width: 90px; height: 12px; background: rgba(0,0,0,.5); border: 1px solid rgba(232,224,208,.3); border-radius: 6px; overflow: hidden; }
 .bar i { display: block; height: 100%; }
 .chip { display: inline-block; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(232,224,208,.25); font-size: 13px; }
-.ess_common { border-color: #b9b2a2; } .ess_refined { border-color: #6fbf73; } .ess_rare { border-color: #5aa0e0; } .ess_ancient { border-color: #b07ae0; } .ess_legendary { border-color: #f2c14e; }
+.chip.ess { border-color: #b9b2a2; }
 .btn { min-height: 44px; min-width: 44px; padding: 0 14px; border: 1px solid rgba(232,224,208,.4); background: rgba(255,255,255,.08); color: #e8e0d0; font-size: 15px; border-radius: 8px; }
 .btn.sq { padding: 0; font-size: 22px; }
 .btn.pri { background: rgba(181,53,43,.6); border-color: #e8e0d0; }
