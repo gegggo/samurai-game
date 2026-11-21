@@ -1,43 +1,43 @@
 'use strict';
 // Skilltree-Daten (Phase 3). Werte sind Platzhalter bis zum Balancing.
-// Kosten: sp = Skillpunkte, ess = Essence (nur hier verwendbar). Passive wirken immer, aktive werden ausgerüstet.
+// Kosten: sp = Skillpunkte, ess = Essence (Zahl, nur hier verwendbar). Stufe 1/2/3/4 = 1/2/3/4 (BALANCE-PLATZHALTER). Passive wirken immer, aktive werden ausgerüstet.
 (function () {
   const c = (sp, ess) => ({ sp, ess });
   SW.Data.branches = ['sm', 'sw', 'df', 'km'];
   SW.Data.skills = [
     // A. Schwertmeister
-    { id: 'sm1', br: 'sm', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, { common: 1 }),  fx: { dmg: .10 } },
-    { id: 'sm2', br: 'sm', tier: 2, type: 'passive', lvl: 4,  req: ['sm1'],       cost: c(1, { common: 2 }),  fx: { rec: .10 } },
-    { id: 'sm3', br: 'sm', tier: 2, type: 'passive', lvl: 4,  req: ['sm1'],       cost: c(1, { common: 2 }),  fx: { crit: 5 } },
-    { id: 'sm4', br: 'sm', tier: 3, type: 'active',  lvl: 8,  req: ['sm2'],       cost: c(2, { refined: 1 }), move: 'dblstrike' },
-    { id: 'sm5', br: 'sm', tier: 4, type: 'active',  lvl: 12, req: ['sm3', 'sm4'], cost: c(2, { rare: 1 }),    move: 'cleave', yang: 40 },
+    { id: 'sm1', br: 'sm', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, 1),  fx: { dmg: .10 } },
+    { id: 'sm2', br: 'sm', tier: 2, type: 'passive', lvl: 4,  req: ['sm1'],       cost: c(1, 2),  fx: { rec: .10 } },
+    { id: 'sm3', br: 'sm', tier: 2, type: 'passive', lvl: 4,  req: ['sm1'],       cost: c(1, 2),  fx: { crit: 5 } },
+    { id: 'sm4', br: 'sm', tier: 3, type: 'active',  lvl: 8,  req: ['sm2'],       cost: c(2, 3), move: 'dblstrike' },
+    { id: 'sm5', br: 'sm', tier: 4, type: 'active',  lvl: 12, req: ['sm3', 'sm4'], cost: c(2, 4),    move: 'cleave', yang: 40 },
     // B. Schattenkrieger
-    { id: 'sw1', br: 'sw', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, { common: 1 }),  fx: { dodgeCd: .20 } },
-    { id: 'sw2', br: 'sw', tier: 2, type: 'passive', lvl: 4,  req: ['sw1'],       cost: c(1, { common: 2 }),  fx: { ambush: .30 } },
-    { id: 'sw4', br: 'sw', tier: 2, type: 'passive', lvl: 4,  req: ['sw1'],       cost: c(1, { common: 2 }),  fx: { breath: .30 } },
-    { id: 'sw3', br: 'sw', tier: 3, type: 'active',  lvl: 8,  req: ['sw1'],       cost: c(2, { refined: 1 }), move: 'shadowstep' },
-    { id: 'sw5', br: 'sw', tier: 4, type: 'active',  lvl: 12, req: ['sw2', 'sw3'], cost: c(2, { rare: 1 }),    move: 'flurry', yin: 40 },
+    { id: 'sw1', br: 'sw', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, 1),  fx: { dodgeCd: .20 } },
+    { id: 'sw2', br: 'sw', tier: 2, type: 'passive', lvl: 4,  req: ['sw1'],       cost: c(1, 2),  fx: { ambush: .30 } },
+    { id: 'sw4', br: 'sw', tier: 2, type: 'passive', lvl: 4,  req: ['sw1'],       cost: c(1, 2),  fx: { breath: .30 } },
+    { id: 'sw3', br: 'sw', tier: 3, type: 'active',  lvl: 8,  req: ['sw1'],       cost: c(2, 3), move: 'shadowstep' },
+    { id: 'sw5', br: 'sw', tier: 4, type: 'active',  lvl: 12, req: ['sw2', 'sw3'], cost: c(2, 4),    move: 'flurry', yin: 40 },
     // C. Verteidiger
-    { id: 'df1', br: 'df', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, { common: 1 }),  fx: { hpFlat: 15 } },
-    { id: 'df2', br: 'df', tier: 2, type: 'passive', lvl: 4,  req: ['df1'],       cost: c(1, { common: 2 }),  fx: { blockMul: .10 } },
-    { id: 'df3', br: 'df', tier: 2, type: 'passive', lvl: 4,  req: ['df1'],       cost: c(1, { common: 2 }),  fx: { parry: .10 } },
-    { id: 'df4', br: 'df', tier: 3, type: 'passive', lvl: 8,  req: ['df3'],       cost: c(2, { refined: 1 }), fx: { counter: .40 } },
-    { id: 'df5', br: 'df', tier: 3, type: 'active',  lvl: 8,  req: ['df2'],       cost: c(2, { refined: 1 }), move: 'mend' },
+    { id: 'df1', br: 'df', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, 1),  fx: { hpFlat: 15 } },
+    { id: 'df2', br: 'df', tier: 2, type: 'passive', lvl: 4,  req: ['df1'],       cost: c(1, 2),  fx: { blockMul: .10 } },
+    { id: 'df3', br: 'df', tier: 2, type: 'passive', lvl: 4,  req: ['df1'],       cost: c(1, 2),  fx: { parry: .10 } },
+    { id: 'df4', br: 'df', tier: 3, type: 'passive', lvl: 8,  req: ['df3'],       cost: c(2, 3), fx: { counter: .40 } },
+    { id: 'df5', br: 'df', tier: 3, type: 'active',  lvl: 8,  req: ['df2'],       cost: c(2, 3), move: 'mend' },
     // D. Ki-Meister
-    { id: 'km1', br: 'km', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, { common: 1 }),  fx: { kiFlat: 20 } },
-    { id: 'km2', br: 'km', tier: 2, type: 'passive', lvl: 4,  req: ['km1'],       cost: c(1, { common: 2 }),  fx: { kiRegen: .50 } },
-    { id: 'km3', br: 'km', tier: 2, type: 'passive', lvl: 4,  req: ['km1'],       cost: c(1, { common: 2 }),  fx: { kiCost: .20 } },
-    { id: 'km4', br: 'km', tier: 3, type: 'active',  lvl: 8,  req: ['km2'],       cost: c(2, { refined: 1 }), move: 'kiwave' },
-    { id: 'km5', br: 'km', tier: 4, type: 'passive', lvl: 12, req: ['km2', 'km3'], cost: c(2, { rare: 1 }),    fx: { breath: 1 }, balance: 40 }
+    { id: 'km1', br: 'km', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, 1),  fx: { kiFlat: 20 } },
+    { id: 'km2', br: 'km', tier: 2, type: 'passive', lvl: 4,  req: ['km1'],       cost: c(1, 2),  fx: { kiRegen: .50 } },
+    { id: 'km3', br: 'km', tier: 2, type: 'passive', lvl: 4,  req: ['km1'],       cost: c(1, 2),  fx: { kiCost: .20 } },
+    { id: 'km4', br: 'km', tier: 3, type: 'active',  lvl: 8,  req: ['km2'],       cost: c(2, 3), move: 'kiwave' },
+    { id: 'km5', br: 'km', tier: 4, type: 'passive', lvl: 12, req: ['km2', 'km3'], cost: c(2, 4),    fx: { breath: 1 }, balance: 40 }
   ];
   // Geheime Techniken: kommen von Gegnern (nicht kaufbar), danach gesperrt bis alle Bedingungen erfüllt sind. Kein Essence.
   SW.Data.secrets = [
-    { id: 'cross', move: 'cross', lvl: 20, karma: 70, yang: 60 },
+    { id: 'cross', move: 'cross', lvl: 20, karma: 60, yang: 60 },
     { id: 'ironwill', move: 'ironwill', lvl: 18, karma: 30, yin: 60 },
     { id: 'stillwater', move: 'stillwater', lvl: 22, karma: 50, balance: 60 },
     { id: 'oniwrath', move: 'oniwrath', lvl: 25, karma: 70, yang: 70 }
   ];
-  SW.Data.resetCost = { common: 2 };
+  SW.Data.resetCost = 2; // BALANCE-PLATZHALTER
 
   // Zusätzliche Kampfaktionen der aktiven Fähigkeiten (anim = Waffenanimation aus combat.js)
   Object.assign(SW.Data.moves, {
@@ -84,7 +84,7 @@
     learn: 'Learn', learned: 'Learned', reset: 'Reset skills', reset_ask: 'Reset all skills? You get your skill points back, essence is lost.',
     req_lvl: 'Level {n}', req_skill: '{n}', req_yin: 'Yin {n}+', req_yang: 'Yang {n}+', req_karma: 'Karma {n}+',
     req_balance: 'Yin and Yang balanced, both {n}+', req_sp: '{n} skill point(s)', req_ess: '{n}',
-    ess_common: 'Common Essence', ess_refined: 'Refined Essence', ess_rare: 'Rare Essence', ess_ancient: 'Ancient Essence', ess_legendary: 'Legendary Essence',
+    ess: 'Essence',
     lv_up: 'Level {n}!', slot: 'Slot {n}', slot_empty: 'Empty', equip: 'Equip', no_active: 'No active techniques learned yet.',
     st_locked: 'Locked', st_ready: 'Ready', st_active: 'Unlocked', activate: 'Unlock', secret_ready: 'Secret technique ready to unlock!',
     secret_got: 'Secret technique found: {n}', ki_cost: 'Ki {n}', no_passive: 'No passive skills learned yet.'

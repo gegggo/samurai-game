@@ -40,7 +40,7 @@ SW.Quests = (function () {
     const p = [];
     if (r.coins) p.push(r.coins + ' ' + T('coins'));
     if (r.xp) p.push(r.xp + ' XP');
-    for (const t in (r.ess || {})) p.push(r.ess[t] + ' ' + T('ess_' + t));
+    if (r.ess) p.push(r.ess + ' ' + T('ess'));
     if (r.karma) p.push('Karma ' + (r.karma > 0 ? '+' : '') + r.karma);
     return p.join(' · ');
   };
@@ -57,7 +57,7 @@ SW.Quests = (function () {
     let lv = [], vt = '';
     if (rew.coins) SW.Inv.addCoins(rew.coins);
     if (rew.xp) lv = SW.Char.addXp(rew.xp);
-    for (const t in (rew.ess || {})) SW.Essence.add(t, rew.ess[t]);
+    if (rew.ess) SW.Essence.add(rew.ess);
     if (rew.karma) SW.Karma.add('quest_' + id, rew.karma);
     Q.st[id] = 'done'; if (ch) Q.ch[id] = ch.id;
     if (id === 'elder2' && SW.World.buildVillageFence) SW.World.buildVillageFence();

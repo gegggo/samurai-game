@@ -52,7 +52,7 @@ SW.Data = SW.Data || {};
   ];
   D.items = L.map(a => ({ id: a[0], type: a[1], slot: a[2], rar: a[3], fx: a[4] }));
   D.itemMap = {}; D.items.forEach(i => { D.itemMap[i.id] = i; });
-  // Truhen: genau EIN Eintrag je Truhe. give: {coins:n} | {ess:[Art,n]} | {item:id, n}
+  // Truhen: genau EIN Eintrag je Truhe. give: {coins:n} | {ess:n} | {item:id, n}
   D.chests = [
     { id: 'c_vil1', x: 372, y: 372, rar: 'common', give: { coins: 30 } },
     { id: 'c_vil2', x: 428, y: 446, rar: 'common', give: { item: 'herb', n: 2 } },
@@ -60,22 +60,26 @@ SW.Data = SW.Data || {};
     { id: 'c_bam2', x: 1255, y: 470, rar: 'uncommon', give: { coins: 60 } },
     { id: 'c_bam3', x: 1130, y: 445, rar: 'common', give: { item: 'wood', n: 4 } },
     { id: 'c_shr1', x: 2040, y: 330, rar: 'uncommon', give: { item: 'helm_iron', n: 1 } },
-    { id: 'c_shr2', x: 1975, y: 420, rar: 'uncommon', give: { ess: ['common', 1] } },
+    { id: 'c_shr2', x: 1975, y: 420, rar: 'uncommon', give: { ess: 1 } },
     { id: 'c_west1', x: 360, y: 1150, rar: 'common', give: { item: 'spear', n: 1 } },
     { id: 'c_west2', x: 470, y: 1260, rar: 'uncommon', give: { coins: 50 } },
     { id: 'c_lake1', x: 1520, y: 1180, rar: 'rare', give: { item: 'katana_steel', n: 1 } },
     { id: 'c_east1', x: 1950, y: 1180, rar: 'rare', give: { item: 'iron', n: 4 } },
     { id: 'c_east2', x: 2110, y: 1290, rar: 'rare', give: { item: 'armor_heavy', n: 1 } },
-    { id: 'c_ruin1', x: 330, y: 1960, rar: 'rare', give: { ess: ['refined', 1] } },
+    { id: 'c_ruin1', x: 330, y: 1960, rar: 'rare', give: { ess: 2 } },
     { id: 'c_ruin2', x: 460, y: 2050, rar: 'epic', give: { item: 'tanto_night', n: 1 } },
     { id: 'c_camp1', x: 1150, y: 1975, rar: 'uncommon', give: { coins: 80 } },
     { id: 'c_camp2', x: 1240, y: 2050, rar: 'rare', give: { item: 'armor_light', n: 1 } },
-    { id: 'c_cave1', x: 1960, y: 1990, rar: 'epic', give: { ess: ['rare', 1] } },
+    { id: 'c_cave1', x: 1960, y: 1990, rar: 'epic', give: { ess: 2 } },
     { id: 'c_cave2', x: 2060, y: 2060, rar: 'epic', give: { item: 'katana_temper', n: 1 } },
     { id: 'c_peak1', x: 2089, y: 1149, rar: 'epic', give: { item: 'bow_yumi', n: 1 } },
     { id: 'c_hut1', x: 1211, y: 432, rar: 'uncommon', give: { item: 'mask_oni_half', n: 1 } },
-    { id: 'c_grove1', x: 772, y: 790, rar: 'rare', give: { ess: ['refined', 1] } },
-    { id: 'c_grove2', x: 828, y: 812, rar: 'uncommon', give: { coins: 120 } }
+    { id: 'c_grove1', x: 772, y: 790, rar: 'rare', give: { ess: 1 } },
+    { id: 'c_grove2', x: 828, y: 812, rar: 'uncommon', give: { coins: 120 } },
+    { id: 'c_garden1', x: 1572, y: 790, rar: 'rare', give: { ess: 1 } },
+    { id: 'c_garden2', x: 1628, y: 812, rar: 'uncommon', give: { coins: 130 } },
+    { id: 'c_marsh1', x: 772, y: 1590, rar: 'common', give: { item: 'herb', n: 3 } },
+    { id: 'c_marsh2', x: 828, y: 1612, rar: 'uncommon', give: { coins: 90 } }
   ];
   // Legendäre Waffen: einmalige Belohnung für den Sieg über diesen Gegner (Gegner bleiben besiegt)
   D.drops = { e_boss: 'katana_counter', e_cave: 'katana_moon', e_ruins: 'nodachi_reaper', e_warden: 'tanto_warden', e_monk: 'naginata_monk', e_oni: 'armor_oni' };

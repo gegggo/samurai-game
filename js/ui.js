@@ -150,7 +150,7 @@ SW.UI = (function () {
     // Namen: alle Regionen und Orte stehen auf der Karte, noch nicht besuchte gedämpft. Schreine bleiben an Entdeckung gebunden (Schnellreise).
     const lab = (s, x, y, a) => { c.globalAlpha = a; c.fillStyle = 'rgba(0,0,0,.65)'; c.fillText(s, x + 1, y + 1); c.fillStyle = '#f4ecd8'; c.fillText(s, x, y); c.globalAlpha = 1; };
     const poiNames = W.POI.map(o => SW.t('poi_' + o.id));
-    for (let r = 0; r < 10; r++) { const n = SW.t('reg_' + r); if (poiNames.indexOf(n) < 0) lab(n, X(r === 9 ? 800 : W.C[r % 3]), Y(r === 9 ? 800 : W.C[(r / 3) | 0]) - 14 * d, U.seen.has(r) ? 1 : .6); } // gleichnamige Orte nicht doppelt beschriften
+    for (let r = 0; r < 12; r++) { const n = SW.t('reg_' + r), m = r >= 9 && W.MINI[r - 9]; if (poiNames.indexOf(n) < 0) lab(n, X(m ? m.x : W.C[r % 3]), Y(m ? m.y : W.C[(r / 3) | 0]) - 14 * d, U.seen.has(r) ? 1 : .6); } // gleichnamige Orte nicht doppelt beschriften
     W.POI.forEach(o => {
       const x = X(o.x), y = Y(o.y), r = 5 * d, got = U.disc.has(o.id);
       c.globalAlpha = got ? 1 : .55; c.fillStyle = got ? '#f2c14e' : 'rgba(242,193,78,.0)'; c.strokeStyle = '#f2c14e'; c.lineWidth = 1.5 * d;
@@ -179,7 +179,7 @@ SW.UI = (function () {
     const r = W.regionAt(Math.floor(p.x), Math.floor(p.y));
     if (r !== reg) {
       const first = reg === -1, fresh = !U.seen.has(r); reg = r; U.seen.add(r); showBanner(SW.t('reg_' + r));
-      if (fresh && !first) { explore(XP_REGION); SW.Save.touch(); }
+      if (!first) { if (fresh) explore(XP_REGION); SW.Save.touch(); } // Autosave bei jedem Gebietswechsel
     }
     W.POI.forEach(o => {
       if (!U.disc.has(o.id) && Math.hypot(o.x - p.x, o.y - p.y) < 40) { U.disc.add(o.id); showBanner(SW.t('discovered', SW.t('poi_' + o.id))); explore(XP_POI); SW.Save.touch(); }

@@ -1,7 +1,7 @@
 'use strict';
 // Globaler Namespace, Konstanten, zentrale Texte (Sprachsystem folgt Phase 6).
 const SW = {
-  version: '0.9.0',
+  version: '0.9.1',
   CFG: { WORLD: 2400, SPEED: 5, OV: 8 },
   lang: (function () { try { const l = localStorage.getItem('sw_lang'); return l === 'de' ? 'de' : 'en'; } catch (e) { return 'en'; } })(),
   paused: false,
@@ -13,7 +13,7 @@ const SW = {
     tab_karma: 'Karma & Yin-Yang', tab_settings: 'Settings',
     reg_0: 'Hinode Village', reg_1: 'Bamboo Forest', reg_2: 'Mountain Shrine',
     reg_3: 'Western Woods', reg_4: 'Mirror Lake', reg_5: 'Iron Peaks',
-    reg_6: 'Forgotten Ruins', reg_7: 'Bandit Camp', reg_8: 'Hollow Caves', reg_9: 'Moonlit Grove', poi_grove: 'Moonlit Grove',
+    reg_6: 'Forgotten Ruins', reg_7: 'Bandit Camp', reg_8: 'Hollow Caves', reg_9: 'Moonlit Grove', poi_grove: 'Moonlit Grove', reg_10: 'Stone Garden', reg_11: 'Reed Marsh', poi_garden: 'Stone Garden', poi_marsh: 'Reed Marsh',
     poi_village: 'Hinode Village', poi_huts: 'Abandoned Huts', poi_shrine: 'Great Shrine',
     poi_hermit: 'Hermit Hut', poi_lake: 'Mirror Lake', poi_lookout: 'Lookout Point',
     poi_falls: 'Waterfall', poi_ruins: 'Old Temple Ruins', poi_camp: 'Bandit Camp',

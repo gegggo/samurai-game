@@ -5,7 +5,7 @@ SW.Skills = (function () {
   const S = { nodes: D.skills, learned: {}, spent: 0, slots: [null, null], sec: {}, notified: {} };
   S.node = id => S.nodes.find(n => n.id === id);
   const secDef = id => D.secrets.find(s => s.id === id);
-  const costTxt = ess => Object.keys(ess).map(t => ess[t] + ' ' + T('ess_' + t)).join(', ');
+  const costTxt = ess => ess + ' ' + T('ess');
 
   // Liste der Voraussetzungen als {ok, text}; wird auch vom Menü angezeigt
   S.reqs = function (id) {
@@ -16,7 +16,7 @@ SW.Skills = (function () {
     if (n.yang) r.push({ ok: Y.yang >= n.yang, text: T('req_yang', n.yang) });
     if (n.balance) r.push({ ok: Y.balanced(n.balance), text: T('req_balance', n.balance) });
     r.push({ ok: C.sp >= n.cost.sp, text: T('req_sp', n.cost.sp) });
-    Object.keys(n.cost.ess).forEach(t => r.push({ ok: SW.Essence.n[t] >= n.cost.ess[t], text: n.cost.ess[t] + ' ' + T('ess_' + t) }));
+    r.push({ ok: SW.Essence.has(n.cost.ess), text: costTxt(n.cost.ess) });
     return r;
   };
   S.can = id => !S.learned[id] && S.reqs(id).every(x => x.ok);

@@ -95,7 +95,7 @@ SW.Inv = (function () {
     if (!c || c.open) return false;
     const g = c.give; let txt;
     if (g.coins) { I.addCoins(g.coins); txt = T('found_coins', g.coins); }
-    else if (g.ess) { SW.Essence.add(g.ess[0], g.ess[1]); txt = g.ess[1] + ' ' + T('ess_' + g.ess[0]); }
+    else if (g.ess) { SW.Essence.add(g.ess); txt = g.ess + ' ' + T('ess'); }
     else if (g.item) { if (!I.add(g.item, g.n || 1)) return false; txt = T('it_' + g.item) + ((g.n || 1) > 1 ? ' ×' + g.n : ''); }
     else return false;
     c.open = true; touch();

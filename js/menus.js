@@ -66,7 +66,7 @@ SW.Menus = (function () {
   M.skilltree = function (p) {
     const S = SW.Skills, E = SW.Essence, root = page(p, T('tab_skilltree'));
     const head = el('div', 'row'); add(head, el('span', 'chip', T('sp') + ': ' + SW.Char.sp));
-    E.TYPES.forEach(t => add(head, el('span', 'chip ess_' + t, T('ess_' + t) + ' ' + E.n[t])));
+    add(head, el('span', 'chip ess', T('ess') + ' ' + E.n));
     add(root, head);
     const brs = el('div', 'row');
     SW.Data.branches.forEach(b => add(brs, btn(T('br_' + b), b === br ? 'pri' : '', () => { br = b; sel = null; refresh(); })));

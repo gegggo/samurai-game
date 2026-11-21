@@ -175,7 +175,7 @@ SW.Combat = (function () {
     out.lv = C.addXp(R.xp);
     out.coins = SW.Inv.addCoins(SW.Inv.coinDrop(S.spot.type));
     const dr = D.drops && D.drops[S.spot.id]; if (dr && SW.Inv.add(dr, 1)) out.items.push(T('drop_got', T('it_' + dr)));
-    for (const t in (R.ess || {})) { SW.Essence.add(t, R.ess[t]); out.ess.push(R.ess[t] + ' ' + T('ess_' + t)); }
+    if (R.ess && !S.spot.respawn && SW.Essence.add(R.ess)) out.ess.push(R.ess + ' ' + T('ess')); // wiederkehrende Nachtgegner geben keine Essence (kein Farmen)
     if (R.karma) out.karma = SW.Karma.add('foe_' + S.spot.type, R.karma);
     if (R.secret && SW.Skills.award(R.secret)) out.secret = T('secret_got', T('sk_' + R.secret));
     out.yy = SW.YinYang.fromCombat(S.st);

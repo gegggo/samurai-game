@@ -2,7 +2,7 @@
 // Quest-, Dialog- und Quest-NPC-Daten (Phase 5b). Alle Werte Platzhalter bis Balancing.
 // Ziel-Typen: kill (Gegnerpunkt besiegt) | shrine (Schrein erweckt) | have (Gegenstand abgeben, wird verbraucht).
 // req: done = Quest davor, level, karma (Mindestwert). choice = Entscheidung beim Abschluss (Karma-Folgen).
-// Belohnungen: coins, xp, ess {Art:n}, karma. Essence nur als Belohnung, ausgegeben wird sie nur im Skilltree.
+// Belohnungen: coins, xp, ess (Zahl), karma. Essence nur als Belohnung, ausgegeben wird sie nur im Skilltree.
 SW.Data = SW.Data || {};
 (function () {
   const D = SW.Data;
@@ -22,12 +22,12 @@ SW.Data = SW.Data || {};
     { id: 'pris2', giver: 'n_pris2', obj: { type: 'kill', spot: 'e_camp2' }, choice: [{ id: 'free', rew: { xp: 40, karma: 6 } }, { id: 'sell', rew: { xp: 20, coins: 80, karma: -10 } }] },
     { id: 'pris3', giver: 'n_pris3', obj: { type: 'kill', spot: 'e_camp3' }, choice: [{ id: 'free', rew: { xp: 40, karma: 6 } }, { id: 'sell', rew: { xp: 20, coins: 80, karma: -10 } }] },
     { id: 'elder1', giver: 'n_elder', obj: { type: 'kill', spot: 'e_train' }, rew: { coins: 80, xp: 50, karma: 5 } },
-    { id: 'elder2', giver: 'n_elder', req: { done: 'elder1' }, obj: { type: 'have', item: 'wood', n: 6 }, rew: { coins: 40, xp: 40, ess: { common: 1 }, karma: 4 } },
-    { id: 'elder3', giver: 'n_elder', req: { done: 'elder2', level: 3, karma: 10 }, obj: { type: 'kill', spot: 'e_boss' }, rew: { coins: 300, xp: 150, ess: { refined: 1 }, karma: 10 } },
+    { id: 'elder2', giver: 'n_elder', req: { done: 'elder1' }, obj: { type: 'have', item: 'wood', n: 6 }, rew: { coins: 40, xp: 40, ess: 1, karma: 4 } },
+    { id: 'elder3', giver: 'n_elder', req: { done: 'elder2', level: 3, karma: 10 }, obj: { type: 'kill', spot: 'e_boss' }, rew: { coins: 300, xp: 150, ess: 2, karma: 10 } },
     { id: 'elder4', giver: 'n_elder', req: { done: 'elder1' }, obj: { type: 'have', item: 'herb', n: 3 }, rew: { coins: 30, xp: 40, karma: 4 } },
     { id: 'elder5', giver: 'n_elder', req: { done: 'elder4' }, obj: { type: 'have', item: 'wood', n: 10 }, rew: { coins: 60, xp: 60, karma: 4 } },
-    { id: 'elder6', giver: 'n_elder', req: { done: 'elder5' }, obj: { type: 'have', item: 'iron', n: 5 }, rew: { coins: 80, xp: 70, ess: { common: 1 }, karma: 4 } },
-    { id: 'hermit1', giver: 'n_hermit', obj: { type: 'shrine', shrine: 'mountain' }, rew: { xp: 70, ess: { common: 2 }, karma: 3 } },
+    { id: 'elder6', giver: 'n_elder', req: { done: 'elder5' }, obj: { type: 'have', item: 'iron', n: 5 }, rew: { coins: 80, xp: 70, ess: 1, karma: 4 } },
+    { id: 'hermit1', giver: 'n_hermit', obj: { type: 'shrine', shrine: 'mountain' }, rew: { xp: 70, ess: 1, karma: 3 } },
     { id: 'watch1', giver: 'n_watch', obj: { type: 'kill', spot: 'n_quest' }, rew: { coins: 60, xp: 80, karma: 4 } },
     { id: 'fisher1', giver: 'n_fisher', obj: { type: 'have', item: 'herb', n: 2 },
       choice: [{ id: 'free', rew: { xp: 40, karma: 6 } }, { id: 'sell', rew: { xp: 20, coins: 80, karma: -8 } }] }

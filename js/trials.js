@@ -13,12 +13,12 @@ SW.Trials = (function () {
       map: ['###########', '#P##.A.##P#', '#.###D###.#', '#.........#', '#..B...B..#', '#.........#', '#...#.#...#', '#....S....#', '#####E#####']
     },
     bamboo: {
-      kind: 'lanterns', name: 'trn_bamboo', hint: 'tr_hint_lanterns', reward: { xp: 40, yin: 2, ess: { common: 1 } }, order: [2, 3, 0, 1],
+      kind: 'lanterns', name: 'trn_bamboo', hint: 'tr_hint_lanterns', reward: { xp: 40, yin: 2, ess: 1 }, order: [2, 3, 0, 1],
       map: ['###########', '#####A#####', '#####D#####', '#.........#', '#.L.....L.#', '#....#....#', '#.L.....L.#', '#....S....#', '#####E#####']
     },
     // 7b: weitere Schreine. Gleiche Aufgabentypen, andere Räume. Belohnungen: nur XP, Yin/Yang, Essence (keine Münzen).
     mountain: {
-      kind: 'blocks', name: 'trn_mountain', hint: 'tr_hint_blocks', reward: { xp: 50, yin: 3, ess: { common: 1 } },
+      kind: 'blocks', name: 'trn_mountain', hint: 'tr_hint_blocks', reward: { xp: 50, yin: 3, ess: 1 },
       map: ['###########', '#P##.A.##P#', '#.###D###.#', '#.........#', '#.B..B..B.#', '#.........#', '#....P....#', '#....S....#', '#####E#####']
     },
     hermit: {
@@ -26,7 +26,7 @@ SW.Trials = (function () {
       map: ['###########', '#####A#####', '#####D#####', '#.L.....L.#', '#.........#', '#..#...#..#', '#.L.....L.#', '#....S....#', '#####E#####']
     },
     lookout: {
-      kind: 'blocks', name: 'trn_lookout', hint: 'tr_hint_blocks', reward: { xp: 50, yin: 2, ess: { common: 1 } },
+      kind: 'blocks', name: 'trn_lookout', hint: 'tr_hint_blocks', reward: { xp: 50, yin: 2, ess: 1 },
       map: ['###########', '#P##.A.##P#', '#.###D###.#', '#.........#', '#.#..B..#.#', '#..B...B..#', '#.........#', '#....S....#', '#####E#####']
     },
     fishers: {
@@ -34,11 +34,11 @@ SW.Trials = (function () {
       map: ['###########', '#####A#####', '#####D#####', '#..L...L..#', '#.........#', '#L.......L#', '#.........#', '#....S....#', '#####E#####']
     },
     ruins: {
-      kind: 'blocks', name: 'trn_ruins', hint: 'tr_hint_blocks', reward: { xp: 60, yin: 3, ess: { refined: 1 } },
+      kind: 'blocks', name: 'trn_ruins', hint: 'tr_hint_blocks', reward: { xp: 60, yin: 3, ess: 2 },
       map: ['###########', '#####A#####', '#####D#####', '#.P.....P.#', '#....P....#', '#.#.....#.#', '#...BBB...#', '#....S....#', '#####E#####']
     },
     // Duell-Prüfung (Yang): kein Raum, direkter Kampf gegen einen Elitegegner. Sieg = Belohnung, Niederlage = später erneut versuchen.
-    cave: { kind: 'duel', name: 'trn_cave', foe: 'elite', reward: { xp: 80, yang: 5, ess: { refined: 1 } } }
+    cave: { kind: 'duel', name: 'trn_cave', foe: 'elite', reward: { xp: 80, yang: 5, ess: 2 } }
   };
   let R = null, btnLeave = null, btnReset = null;
 
@@ -94,7 +94,7 @@ SW.Trials = (function () {
     const o = { xp: rw.xp || 0, lv: SW.Char.addXp(rw.xp || 0), ess: [], yy: { yin: rw.yin || 0, yang: rw.yang || 0 } };
     if (rw.yin) SW.YinYang.gain('yin', rw.yin);
     if (rw.yang) SW.YinYang.gain('yang', rw.yang);
-    for (const t in (rw.ess || {})) { SW.Essence.add(t, rw.ess[t]); o.ess.push(rw.ess[t] + ' ' + tr('ess_' + t)); }
+    if (rw.ess) { SW.Essence.add(rw.ess); o.ess.push(rw.ess + ' ' + tr('ess')); }
     T.done.add(id); if (SW.Skills) SW.Skills.check(); SW.Save.save();
     return o;
   }

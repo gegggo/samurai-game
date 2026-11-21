@@ -55,16 +55,17 @@ SW.Char = (function () {
 })();
 
 SW.Essence = (function () {
-  const E = { TYPES: ['common', 'refined', 'rare', 'ancient', 'legendary'], n: { common: 3, refined: 0, rare: 0, ancient: 0, legendary: 0 } };
-  E.add = function (t, k) { if (E.n[t] === undefined || !Number.isFinite(k) || !(k > 0)) return false; E.n[t] += Math.floor(k); SW.Save.touch(); return true; };
-  E.has = cost => Object.keys(cost || {}).every(t => (E.n[t] || 0) >= cost[t]);
-  E.spend = function (cost) {
-    if (!E.has(cost)) return false;
-    for (const t in cost) E.n[t] -= cost[t];
-    SW.Save.touch(); return true;
+  // Eine einzige Essence ohne Arten/Seltenheit (Spec 32.5/33.2). Ausgabe nur im Skilltree. BALANCE-PLATZHALTER: Startwert 2.
+  const E = { n: 2 };
+  E.add = function (k) { if (!Number.isFinite(k) || !(k > 0)) return false; E.n = Math.min(999, E.n + Math.floor(k)); SW.Save.touch(); return true; };
+  E.has = c => Number.isFinite(c) && E.n >= c;
+  E.spend = function (c) { if (!E.has(c)) return false; E.n -= c; SW.Save.touch(); return true; };
+  E.dump = () => E.n;
+  // Altstand (Format <= 2): Objekt je Art -> Summe 1:1, nichts geht verloren. Neu: Zahl.
+  E.load = function (d) {
+    const v = typeof d === 'number' ? d : (d && typeof d === 'object') ? Object.keys(d).reduce((a, t) => a + (Number.isFinite(d[t]) && d[t] > 0 ? Math.floor(d[t]) : 0), 0) : NaN;
+    if (Number.isFinite(v) && v >= 0) E.n = Math.min(999, Math.floor(v));
   };
-  E.dump = () => Object.assign({}, E.n);
-  E.load = function (d) { if (d) E.TYPES.forEach(t => { if (typeof d[t] === 'number' && d[t] >= 0) E.n[t] = Math.floor(d[t]); }); };
   return E;
 })();
 
@@ -128,7 +129,7 @@ SW.Karma = (function () {
 // Sicherheit: vor jedem Schreiben wird der letzte gültige Stand als Kopie gesichert; defekter Stand (Prüfsumme falsch) fällt auf die Kopie zurück.
 // Hauptstand + 4 rotierende Wiederherstellungspunkte (alle 10 min Echtzeit rückt der alte Hauptstand nach). Alte Stände ohne Umschlag werden übernommen.
 SW.Save = (function () {
-  const KEY = 'sw_progress_v1', BAK = 'sw_progress_v1_bak', RP = 'sw_progress_v1_rp', NRP = 4, GAP = 600000, VER = 2, V = {};
+  const KEY = 'sw_progress_v1', BAK = 'sw_progress_v1_bak', RP = 'sw_progress_v1_rp', NRP = 4, GAP = 600000, VER = 3, V = {};
   let tmr = 0, acc = 0, lp = null, wiped = false, pt = 0;
   const hash = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return h >>> 0; };
   V.data = () => ({
@@ -140,8 +141,8 @@ SW.Save = (function () {
     disc: SW.UI ? [...SW.UI.disc] : [], seen: SW.UI ? [...SW.UI.seen] : []
   });
   V.save = function () {
+    if (tmr) { clearTimeout(tmr); tmr = 0; } // zuerst entriegeln, sonst blockiert ein verworfener Timer (hold) alle späteren touch()
     if (wiped || V.hold) return; // hold: Startbildschirm offen, noch nichts überschreiben
-    if (tmr) { clearTimeout(tmr); tmr = 0; }
     try {
       const old = localStorage.getItem(KEY), d = JSON.stringify(V.data());
       if (old && unpack(old)) { localStorage.setItem(BAK, old); rotate(old, false); } // defekten Stand nie als Kopie sichern
@@ -166,6 +167,7 @@ SW.Save = (function () {
   function migrate(d) {
     if (!d || typeof d !== 'object' || typeof d.v !== 'number' || d.v > VER) return null;
     if (d.v === 1) d.v = 2; // v1 -> v2: nur Position kommt neu dazu (fehlt = Startpunkt)
+    if (d.v === 2) d.v = 3; // v2 -> v3: Essence ist eine Zahl (Altformat wird in Essence.load summiert)
     return d;
   }
   // Umschlag prüfen und auspacken: {ts, pt, d} oder null (beschädigt/zu neu). Alter Stand ohne Umschlag: ts 0.

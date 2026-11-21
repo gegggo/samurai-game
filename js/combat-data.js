@@ -87,7 +87,7 @@ SW.Data.arenas = {
   cavern:   { sky: ['#1f1a28', '#3a3346'], gnd: ['#4a4450', '#221e28'], deco: 'cavern' }
 };
 // Region (Index wie in world.js) -> Arena
-SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', 'plateau', 'ruins', 'camp', 'cavern', 'bamboo'];
+SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', 'plateau', 'ruins', 'camp', 'cavern', 'bamboo', 'temple', 'clearing'];
 // Begegnungen in der Welt (Phase 2: feste Testpunkte; echte Gegner-Spawns folgen in Phase 5).
 // Position wird beim Start auf die nächste freie Kachel gesetzt.
 SW.Data.spots = [
@@ -122,25 +122,32 @@ SW.Data.spots = [
   { id: 'e_grove1',  type: 'ronin',    x: 770,  y: 825 },
   { id: 'e_grove2',  type: 'spearman', x: 835,  y: 770 },
   { id: 'e_grove3',  type: 'swift',    x: 800,  y: 845 },
+  // Steingarten (Region 10) und Schilfmarsch (Region 11)
+  { id: 'e_garden1', type: 'samurai',  x: 1575, y: 810 },
+  { id: 'e_garden2', type: 'armored',  x: 1630, y: 775 },
+  { id: 'e_garden3', type: 'spearman', x: 1600, y: 835 },
+  { id: 'e_marsh1',  type: 'bandit',   x: 775,  y: 1610 },
+  { id: 'e_marsh2',  type: 'swift',    x: 830,  y: 1580 },
+  { id: 'e_marsh3',  type: 'ronin',    x: 800,  y: 1635 },
   // Bosse
   { id: 'e_warden',  type: 'boss_warden', x: 370,  y: 2130 },
   { id: 'e_monk',    type: 'boss_monk',   x: 2100, y: 1300 },
   { id: 'e_oni',     type: 'boss_oni',    x: 1990, y: 2120 }
 ];
-// Belohnungen je Gegnertyp (Phase 3, Platzhalter bis Balancing). xp = Erfahrung, ess = Essence (selten), karma = Ruf, secret = geheime Technik.
+// Belohnungen je Gegnertyp (Phase 3, Platzhalter bis Balancing). xp = Erfahrung, ess = Essence (Zahl; BALANCE-PLATZHALTER), karma = Ruf, secret = geheime Technik.
 // Münzen folgen in Phase 4, Gegenstände ebenfalls.
 SW.Data.rewards = {
   bandit:   { xp: 12, karma: 2 },
   ronin:    { xp: 20 },
-  samurai:  { xp: 35, ess: { common: 1 } },
+  samurai:  { xp: 35 },
   spearman: { xp: 25 },
   swift:    { xp: 28 },
-  armored:  { xp: 40, ess: { common: 1 } },
-  elite:    { xp: 70, ess: { common: 2 }, karma: 3 },
-  boss:     { xp: 200, ess: { refined: 1, rare: 1 }, karma: 8, secret: 'cross' },
-  boss_warden: { xp: 260, ess: { refined: 1, rare: 1 }, karma: 5, secret: 'ironwill' },
-  boss_monk:   { xp: 320, ess: { rare: 1, ancient: 1 }, karma: 5, secret: 'stillwater' },
-  boss_oni:    { xp: 420, ess: { ancient: 1, legendary: 1 }, karma: 6, secret: 'oniwrath' }
+  armored:  { xp: 40 },
+  elite:    { xp: 70, ess: 2, karma: 3 },
+  boss:     { xp: 200, ess: 2, karma: 8, secret: 'cross' },
+  boss_warden: { xp: 260, ess: 3, karma: 5, secret: 'ironwill' },
+  boss_monk:   { xp: 320, ess: 3, karma: 5, secret: 'stillwater' },
+  boss_oni:    { xp: 420, ess: 4, karma: 6, secret: 'oniwrath' }
 };
 // Phase 7d: Kopfgeldjäger (kv = erscheinen bei Karma <= kv, einmalig besiegbar, gespeichert über 'defeated')
 SW.Data.spots.push(
