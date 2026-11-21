@@ -32,15 +32,16 @@ SW.Combat = (function () {
   // Nachtgegner: nur nachts aktiv; wiederkehrende kommen mit jeder neuen Nacht zurück
   K.on = s => !s.dead && (!s.night || SW.Time.period() === 'night') && (s.kv === undefined || SW.Karma.v <= s.kv); // kv: Kopfgeldjäger erscheinen bei schlechtem Ruf
   // Schattenclan-Hinterhalt (Phase 8, wie die Yiga in BOTW): bei Karma <= -30 spawnt nach einer Wegstrecke ein Angreifer nahe dem Spieler und läuft auf ihn zu.
-  // Langsamer als der Spieler (Flucht möglich), nicht gespeichert, keine Karma-Belohnung. Schlechterer Ruf (<= -70) = kürzere Abstände.
+  // Bleibt bis zum Tod eines der beiden: weicht der Spieler > 12 Kacheln aus (Schnellreise, Flucht, Hängenbleiben), teleportiert er sich wieder neben ihn. Nicht gespeichert, keine Karma-Belohnung. Schlechterer Ruf (<= -70) = kürzere Abstände.
   const AMB = { walked: 0, next: 160, last: null, t: 0 };
   function ambush(p) {
-    const now = performance.now(), dt = Math.min(.05, (now - AMB.t) / 1000); AMB.t = now;
+    const dt = Math.min(.05, (performance.now() - AMB.t) / 1000); AMB.t = performance.now();
     let a = K.spots.find(s => s.amb);
     if (SW.Karma.v > -30) { if (a) K.spots.splice(K.spots.indexOf(a), 1); AMB.last = null; return; }
     if (a) {
-      const d = Math.hypot(p.x - a.x, p.y - a.y); a.age += dt;
-      if (a.dead || d > 30 || a.age > 60) { K.spots.splice(K.spots.indexOf(a), 1); AMB.walked = 0; AMB.next = rnd(SW.Karma.v <= -70 ? 70 : 110, SW.Karma.v <= -70 ? 130 : 200); return; }
+      const d = Math.hypot(p.x - a.x, p.y - a.y);
+      if (a.dead) { K.spots.splice(K.spots.indexOf(a), 1); AMB.walked = 0; AMB.next = rnd(SW.Karma.v <= -70 ? 70 : 110, SW.Karma.v <= -70 ? 130 : 200); return; }
+      if (d > 12) { const g = rnd(0, TAU), q = free(p.x + Math.cos(g) * 8, p.y + Math.sin(g) * 8); if (Math.hypot(q.x - p.x, q.y - p.y) >= 4) { a.x = q.x; a.y = q.y; } return; }
       const sp = 3.2 * dt, nx = a.x + (p.x - a.x) / d * sp, ny = a.y + (p.y - a.y) / d * sp;
       if (!W.solid(Math.floor(nx), Math.floor(a.y))) a.x = nx;
       if (!W.solid(Math.floor(a.x), Math.floor(ny))) a.y = ny;
@@ -51,7 +52,7 @@ SW.Combat = (function () {
     if (AMB.walked < AMB.next) return;
     const g = rnd(0, TAU), q = free(p.x + Math.cos(g) * 8, p.y + Math.sin(g) * 8);
     if (Math.hypot(q.x - p.x, q.y - p.y) < 4) return; // kein freier Platz in der Nähe: später erneut
-    K.spots.push({ id: 'amb', type: 'shadow', x: q.x, y: q.y, dead: false, night: false, respawn: false, amb: true, age: 0 });
+    K.spots.push({ id: 'amb', type: 'shadow', x: q.x, y: q.y, dead: false, night: false, respawn: false, amb: true });
     if (SW.UI && SW.UI.banner) SW.UI.banner(T('amb_warn'));
   }
   K.check = function (p) {
@@ -89,6 +90,7 @@ SW.Combat = (function () {
 
   function end() {
     const won = S.state === 'win';
+    if (!won && S.spot.amb) S.spot.dead = true; // Spieler besiegt: Angreifer ist fertig, wird beim nächsten check entfernt
     if (!won) { const P = SW.Player; P.x = W.spawn.x; P.y = W.spawn.y; SW.cam.x = P.x; SW.cam.y = P.y; }
     S = null; K.active = false; SW.paused = false; held.block = held.breath = false;
     SW.Input.reset(); document.body.classList.remove('combat');
