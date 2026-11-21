@@ -36,7 +36,13 @@ SW.UI = (function () {
     [...$('menu-tabs').children].forEach(b => b.classList.toggle('on', b.dataset.k === k));
     panel.innerHTML = '';
     panel.scrollTop = 0;
-    if (k === 'map') { mapC = document.createElement('canvas'); mapC.id = 'world-map'; panel.appendChild(mapC); sizeMap(); mapEvents(); drawMap(); }
+    menu.classList.toggle('maponly', k === 'map'); // Karte: Vollbild ohne Tab-Spalte, Knopf unten links öffnet die Tabs
+    if (k === 'map') {
+      mapC = document.createElement('canvas'); mapC.id = 'world-map'; panel.appendChild(mapC);
+      const tb = document.createElement('button'); tb.id = 'map-tabs'; tb.textContent = '\u2630 ' + SW.t('menu'); tb.onclick = () => { menu.classList.remove('maponly'); sizeMap(); drawMap(); };
+      panel.appendChild(tb);
+      U.view.z = 1; U.view.x = SW.Player.x; U.view.y = SW.Player.y; sizeMap(); mapEvents(); drawMap();
+    }
     else if (SW.Menus && SW.Menus[k]) SW.Menus[k](panel);
   }
   // Sprachwechsel: Tab-Beschriftungen neu setzen
@@ -48,18 +54,20 @@ SW.UI = (function () {
   // Schnellreise: Tipp auf Schrein wählt ihn, Knopf reist dorthin
   const ZMAX = 5;
   function clampView() {
-    const v = U.view, W2 = SW.CFG.WORLD, h = W2 / v.z / 2;
-    v.z = Math.max(1, Math.min(ZMAX, v.z)); v.x = Math.max(h, Math.min(W2 - h, v.x)); v.y = Math.max(h, Math.min(W2 - h, v.y));
+    const v = U.view, W2 = SW.CFG.WORLD, A = mapC ? mapC.height / mapC.width : 1;
+    v.z = Math.max(Math.min(1, A), Math.min(ZMAX, v.z)); // z=1: Kartenbreite = Weltbreite; min: ganze Welthöhe sichtbar
+    const hx = W2 / v.z / 2, hy = hx * A;
+    v.x = hx * 2 >= W2 ? W2 / 2 : Math.max(hx, Math.min(W2 - hx, v.x)); v.y = hy * 2 >= W2 ? W2 / 2 : Math.max(hy, Math.min(W2 - hy, v.y));
   }
   // Zoom um einen Bildschirmpunkt (fx, fy = 0..1 im Kartenbild), Punkt bleibt unter dem Finger
   function zoomAt(f, fx, fy) {
-    const v = U.view, W2 = SW.CFG.WORLD, wx = v.x + (fx - .5) * W2 / v.z, wy = v.y + (fy - .5) * W2 / v.z;
-    v.z = Math.max(1, Math.min(ZMAX, v.z * f));
-    v.x = wx - (fx - .5) * W2 / v.z; v.y = wy - (fy - .5) * W2 / v.z; clampView(); drawMap();
+    const v = U.view, W2 = SW.CFG.WORLD, A = mapC.height / mapC.width, wx = v.x + (fx - .5) * W2 / v.z, wy = v.y + (fy - .5) * A * W2 / v.z;
+    v.z = Math.max(Math.min(1, A), Math.min(ZMAX, v.z * f));
+    v.x = wx - (fx - .5) * W2 / v.z; v.y = wy - (fy - .5) * A * W2 / v.z; clampView(); drawMap();
   }
   function mapTap(cx, cy) {
     const r = mapC.getBoundingClientRect(), v = U.view, W2 = SW.CFG.WORLD;
-    const wx = v.x + ((cx - r.left) / r.width - .5) * W2 / v.z, wy = v.y + ((cy - r.top) / r.height - .5) * W2 / v.z;
+    const wx = v.x + ((cx - r.left) / r.width - .5) * W2 / v.z, wy = v.y + ((cy - r.top) / r.height - .5) * r.height / r.width * W2 / v.z;
     const lim = 30 / r.width * W2 / v.z; let best = null, bd = lim;
     SW.Shrines.list.forEach(s => { if (!SW.Shrines.isFound(s.id)) return; const d = Math.hypot(s.x - wx, s.y - wy); if (d < bd) { bd = d; best = s.id; } });
     if (best && SW.Shrines.isOn(best)) { if (SW.Shrines.travel(best)) toggle(false); return; } U.sel = best; drawMap();
@@ -76,11 +84,11 @@ SW.UI = (function () {
       const r = c.getBoundingClientRect(), v = U.view, W2 = SW.CFG.WORLD;
       if (P.size >= 2) {
         P.set(e.pointerId, { x: e.clientX, y: e.clientY });
-        const sp = span(), m = mid(); if (lm) { v.x -= (m.x - lm.x) / r.width * W2 / v.z; v.y -= (m.y - lm.y) / r.height * W2 / v.z; } lm = m; zoomAt(sp / last, (m.x - r.left) / r.width, (m.y - r.top) / r.height); last = sp; return;
+        const sp = span(), m = mid(); if (lm) { v.x -= (m.x - lm.x) / r.width * W2 / v.z; v.y -= (m.y - lm.y) / r.width * W2 / v.z; } lm = m; zoomAt(sp / last, (m.x - r.left) / r.width, (m.y - r.top) / r.height); last = sp; return;
       }
       const dx = e.clientX - p.x, dy = e.clientY - p.y; moved += Math.abs(dx) + Math.abs(dy);
       p.x = e.clientX; p.y = e.clientY;
-      if (moved > 8 && v.z > 1) { v.x -= dx / r.width * W2 / v.z; v.y -= dy / r.height * W2 / v.z; clampView(); drawMap(); }
+      if (moved > 8) { v.x -= dx / r.width * W2 / v.z; v.y -= dy / r.width * W2 / v.z; clampView(); drawMap(); }
     });
     const end = e => {
       const had = P.has(e.pointerId); P.delete(e.pointerId);
@@ -92,7 +100,7 @@ SW.UI = (function () {
   }
   // Menü neu aufbauen (Scrollposition bleibt)
   U.refresh = function () { const y = panel.scrollTop; selectTab(tab); panel.scrollTop = y; };
-  function sizeMap() { const d = SW.dpr || 1, s = Math.max(1, Math.min(panel.clientWidth - 8, panel.clientHeight - 8)); mapC.style.width = mapC.style.height = s + 'px'; mapC.width = mapC.height = Math.round(s * d); }
+  function sizeMap() { const d = SW.dpr || 1, w = Math.max(1, panel.clientWidth), h = Math.max(1, panel.clientHeight); mapC.style.width = w + 'px'; mapC.style.height = h + 'px'; mapC.width = Math.round(w * d); mapC.height = Math.round(h * d); clampView(); }
   function showBanner(txt) { banner.textContent = txt; banner.style.opacity = 1; bt = 2.8; }
   U.banner = showBanner;
   const XP_REGION = 10, XP_POI = 15; // Erkundungs-XP (Platzhalter)
@@ -141,11 +149,11 @@ SW.UI = (function () {
 
   function drawMap() {
     if (!mapC) return;
-    const c = mapC.getContext('2d'), s = mapC.width, p = SW.Player, v = U.view, W2 = SW.CFG.WORLD, ppw = s / W2 * v.z, d = SW.dpr || 1;
-    const X = wx => (wx - v.x) * ppw + s / 2, Y = wy => (wy - v.y) * ppw + s / 2;
-    c.fillStyle = '#0b0b0f'; c.fillRect(0, 0, s, s);
+    const c = mapC.getContext('2d'), s = mapC.width, hh = mapC.height, p = SW.Player, v = U.view, W2 = SW.CFG.WORLD, ppw = s / W2 * v.z, d = SW.dpr || 1;
+    const X = wx => (wx - v.x) * ppw + s / 2, Y = wy => (wy - v.y) * ppw + hh / 2;
+    c.fillStyle = '#0b0b0f'; c.fillRect(0, 0, s, hh);
     c.imageSmoothingEnabled = v.z < 2.5; c.drawImage(ov, X(0), Y(0), W2 * ppw, W2 * ppw);
-    c.strokeStyle = 'rgba(232,224,208,.6)'; c.lineWidth = 2; c.strokeRect(1, 1, s - 2, s - 2);
+    c.strokeStyle = 'rgba(232,224,208,.6)'; c.lineWidth = 2; c.strokeRect(1, 1, s - 2, hh - 2);
     c.font = (11 * d) + 'px sans-serif'; c.textAlign = 'center';
     // Namen: alle Regionen und Orte stehen auf der Karte, noch nicht besuchte gedämpft. Schreine bleiben an Entdeckung gebunden (Schnellreise).
     const lab = (s, x, y, a) => { c.globalAlpha = a; c.fillStyle = 'rgba(0,0,0,.65)'; c.fillText(s, x + 1, y + 1); c.fillStyle = '#f4ecd8'; c.fillText(s, x, y); c.globalAlpha = 1; };
