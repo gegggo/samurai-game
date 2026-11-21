@@ -1,7 +1,7 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v39 (Spielversion 0.9.0)
-**Aktuelle Phase:** Phase 6 (Speichern/Startbildschirm, 0.9.0 umgesetzt, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
+**Cache-Version:** v40 (Spielversion 0.9.1)
+**Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
 
@@ -78,6 +78,23 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geprüft (Chromium): Umschlag/Prüfsumme, Rotation, verfälschter Stand, Müll-Stand, alter Stand ohne Umschlag, Laden-Tausch, Neues Spiel mit Warnung, Speicher gesperrt ohne Absturz, Smoke, 4 Bosskämpfe, keine JS-Fehler.
 - NICHT geprüft: iPhone-Touch/Optik Startbildschirm, Safari-Speicherverhalten (Privatmodus), Performance-Messung, Loading-Screens (nur Platzhalter-Spec), Autosave bei Gebietswechsel (bisher nur Ereignisse + Position alle 5 s).
 
+## Neu in 0.9.1 – Balancing + Autosave + Regionen
+- **Spec-Konflikt behoben:** Essence hatte noch 5 Arten (Spec 32.5/33.2: nur eine, keine Seltenheit). Jetzt eine Zahl (`SW.Essence.n`, add(k)/has(k)/spend(k)). Speicherformat v3; Altstände (Arten-Objekt) werden 1:1 summiert (Test: 3+2+1 -> 6). Ausgabe nur Skilltree. Chip im Menü: "Essence n". Texte `ess` statt `ess_*`.
+- **Anti-Farm-Fix:** wiederkehrende Nachtgegner (`respawn:true`) geben keine Essence mehr (vorher 1/Nacht beim gepanzerten).
+- **Bugfix Speichern:** `V.save` blockierte nach Titel-`hold` alle späteren `touch()` (Timer-ID blieb gesetzt). Timer wird jetzt vor der hold-Prüfung gelöscht.
+- **Autosave:** jetzt bei jedem Gebietswechsel (`ui.js`), zusätzlich zu Ereignissen und Position alle 5 s.
+- **Essence-Bilanz (Platzhalter):** Skilltree gesamt 47 (Stufe 1/2/3/4 = 1/2/3/4, Reset 2). Festes Angebot 35 (Start 2, Bosse 2/3/3/4, Elite 2, Truhen 7, Quests 5, Prüfungen 7). Ca. 74 % des Baums erreichbar: Spieler muss wählen.
+- **Karma:** Quellen summiert ca. +93 gut / Schwellen 30/70. Heavenly Cross Karma 70 -> 60 (Platzhalter). Rest unverändert (Wiederholung halbiert).
+- **Yin/Yang:** Simulation (Formeln aus `progress.js`): Yang/Yin 60 in 8 Kämpfen, 70 in 9, Balance 60 in 16-21 (je 3-4/4 pro Kampf). Keine Änderung nötig.
+- **Neue Regionen (Kreis r 80, `World.MINI`):** 10 Steingarten (1600,800), 11 Schilfmarsch (800,1600). Je Schrein (ohne Prüfung), 3 Gegner, 2 Truhen, POI, Arena, Texte EN+DE. Garten: 1 Essence-Truhe. Terrain nur mit vorhandenen Kacheln (kein Kirschblütenwald, keine Küste: bräuchten neue Kacheln).
+- Geändert: `progress.js`, `skills-data.js`, `skills.js`, `menus.js`, `combat.js`, `combat-data.js`, `inventory.js`, `items-data.js`, `quests.js`, `quests-data.js`, `trials.js`, `lang-de.js`, `ui.js`, `world.js`, `shrines-data.js`, `config.js`, `css/main.css`, `index.html` (v40).
+- Geprüft (headless Chromium 852x393, Playwright): Start ohne JS-Fehler; Altstand-Migration; ungültige add/spend abgelehnt; Skill-Kosten 1/2; Regionen 10/11 (Gegner, Truhen, Schrein auf freien Kacheln in richtiger Region); BFS vom Start erreicht Schreine Garten/Marsch/Hain; Autosave bei Gebietswechsel (Position gespeichert, Format v3); Neuladen behält Essence/Position; Truhen-Essence einmalig; Skilltree-Menü zeigt nur "Essence"; DE-Texte.
+- Regression (Chromium, Kampfzustand per Skript auf Sieg gesetzt, echter reward()-Pfad): 4 Bosse (+2/3/3/4 Essence, je 1 Geheimtechnik), Elite (+2), Samurai/Gepanzerter/Nachtgegner (0, Respawn 0), Quest hermit1 (+1 einmalig), Prüfungs-Duell (+2). Alle bestanden. Hinweis: `Trials.duelWon` selbst ist nicht gegen Doppelaufruf gesichert, Einmaligkeit kommt aus `Trials.can`/`enter` (unverändert).
+- NICHT geprüft: iPhone-Touch/Optik, echter Kampf von Hand (nur Skript-Sieg), Prüfungsräume 7a/7b spielen, Performance, Spielgefühl/Schwierigkeit der neuen Regionen, Tümpel im Schilfmarsch (nur Erreichbarkeit der Schreine geprüft), Gebietswechsel-Autosave per echtem Laufen.
+
+## BALANCE-PLATZHALTER (alle vorläufig, nicht final)
+Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-data.js` (Truhen), `quests-data.js`, `trials.js`; Startwert `progress.js` (Essence); Karma-Schwelle Cross `skills-data.js`.
+
 ## Offen
 - Weitere Regionen: nur Hain (klein) vorhanden; größere Erweiterung braucht Konzept/Freigabe.
 - Phase 8 weiter ausbauen: Weltreaktionen auf Karma systematisch für NPCs, Händler, Quests und besondere Zugänge prüfen; Yin/Yang-Boni und Belohnungsraten balancieren.
@@ -92,4 +109,4 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Systeme getrennt: XP/Level, Skillpunkte, Essence (nur Skilltree), Karma, Yin/Yang, Münzen (Handel), Ressourcen (Handwerk/Dorf).
 
 ## Nächster Schritt
-Gerätetest iPhone (7a–7d, Phase 8). Danach Konzept für neue Regionen abstimmen und Karma-Weltreaktionen/Yin-Yang-Balancing ergänzen.
+Gerätetest iPhone (7a–7d, Phase 6, Phase 8, 0.9.1: Regionen Garten/Marsch, Autosave). Danach Konzept für neue Regionen abstimmen und Karma-Weltreaktionen/Yin-Yang-Balancing ergänzen.
