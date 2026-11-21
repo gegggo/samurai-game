@@ -255,11 +255,11 @@ SW.Render = (function () {
       if (GLOWTYPES[s.type]) glows.push(s.x + s.w / 2, s.y + s.h - .4, s.type === 'tent' ? 2.4 : 3.2);
     }
     const sp = SW.Combat.spots;
-    for (let i = 0; i < sp.length; i++) { const e = sp[i]; if (!e.dead && e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) items.push({ k: -3, s: e, key: e.y + .3 }); }
+    for (let i = 0; i < sp.length; i++) { const e = sp[i]; if (SW.Combat.on(e) && e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) items.push({ k: -3, s: e, key: e.y + .3 }); }
     const chs = SW.Inv.chests;
     for (let i = 0; i < chs.length; i++) { const e = chs[i]; if (e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) items.push({ k: -4, s: e, key: e.y + .3 }); }
     const np = SW.Shop.npcs;
-    for (let i = 0; i < np.length; i++) { const e = np[i]; if (e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) items.push({ k: -5, s: e, key: e.y + .3 }); }
+    for (let i = 0; i < np.length; i++) { const e = np[i]; if (SW.Shop.on(e) && e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) items.push({ k: -5, s: e, key: e.y + .3 }); }
     const shr = SW.Shrines.list;
     for (let i = 0; i < shr.length; i++) { const e = shr[i]; if (e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) { items.push({ k: -6, s: e, key: e.y + .3 }); glows.push(e.x, e.y - .7, SW.Shrines.isOn(e.id) ? 5 : 2.2); } }
     items.push({ k: -2, key: p.y + .3 });

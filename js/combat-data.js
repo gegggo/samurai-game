@@ -139,3 +139,11 @@ SW.Data.rewards = {
   boss_monk:   { xp: 320, ess: { rare: 1, ancient: 1 }, karma: 5 },
   boss_oni:    { xp: 420, ess: { ancient: 1, legendary: 1 }, karma: 6 }
 };
+// Phase 7c: Nachtgegner (nur nachts sichtbar). respawn: jede Nacht neu, nicht gespeichert. Ohne respawn: einmalig (Quest 'watch1').
+SW.Data.spots.push(
+  { id: 'n_quest', type: 'samurai',  x: 400,  y: 470, night: true },
+  { id: 'n_south', type: 'swift',    x: 400,  y: 800, night: true, respawn: true },
+  { id: 'n_east',  type: 'ronin',    x: 800,  y: 400, night: true, respawn: true },
+  { id: 'n_mid',   type: 'spearman', x: 1200, y: 800, night: true, respawn: true },
+  { id: 'n_lake',  type: 'armored',  x: 800,  y: 1200, night: true, respawn: true }
+);

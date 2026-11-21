@@ -131,7 +131,7 @@ SW.Save = (function () {
     inv: SW.Inv ? SW.Inv.dump() : null,
     shr: SW.Shrines ? SW.Shrines.dump() : null, tr: SW.Trials ? SW.Trials.dump() : null, q: SW.Quests ? SW.Quests.dump() : null, time: SW.Time ? SW.Time.dump() : null,
     pos: SW.Player ? { x: Math.round(SW.Player.x * 100) / 100, y: Math.round(SW.Player.y * 100) / 100 } : null,
-    defeated: SW.Combat.spots.filter(s => s.dead).map(s => s.id),
+    defeated: SW.Combat.spots.filter(s => s.dead && !s.respawn).map(s => s.id),
     disc: SW.UI ? [...SW.UI.disc] : [], seen: SW.UI ? [...SW.UI.seen] : []
   });
   V.save = function () {

@@ -82,7 +82,7 @@ SW.Quests = (function () {
     const out = [];
     D.quests.forEach(q => {
       const s = Q.status(q.id);
-      if (s === 'ready') { const n = npc(q.giver); if (n) out.push({ x: n.x, y: n.y }); }
+      if (s === 'ready') { const n = npc(q.giver); if (n && SW.Shop.on(n)) out.push({ x: n.x, y: n.y }); }
       else if (s === 'active') {
         const o = q.obj, t = o.type === 'kill' ? spot(o.spot) : o.type === 'shrine' ? SW.Shrines.get(o.shrine) : null;
         if (t) out.push({ x: t.x, y: t.y });

@@ -10,7 +10,8 @@ SW.Data = SW.Data || {};
   D.npcs.push(
     { id: 'n_elder', role: 'elder', q: true, x: 403.5, y: 404.5, robe: '#c9c3b0', hat: '#8a8a90' },
     { id: 'n_hermit', role: 'hermit', q: true, x: 386.5, y: 1224.5, robe: '#5a4a34', hat: '#3a3226' },
-    { id: 'n_fisher', role: 'fisher', q: true, x: 1101.5, y: 1470.5, robe: '#3a5a6a', hat: '#c8b070' }
+    { id: 'n_fisher', role: 'fisher', q: true, x: 1101.5, y: 1470.5, robe: '#3a5a6a', hat: '#c8b070' },
+    { id: 'n_watch', role: 'watch', q: true, night: true, x: 392.5, y: 412.5, robe: '#2a3350', hat: '#14161f' } // Nachtwächter: nur nachts im Dorf
   );
   D.quests = [
     { id: 'elder1', giver: 'n_elder', obj: { type: 'kill', spot: 'e_train' }, rew: { coins: 80, xp: 50, karma: 5 } },
@@ -20,11 +21,16 @@ SW.Data = SW.Data || {};
     { id: 'elder5', giver: 'n_elder', req: { done: 'elder4' }, obj: { type: 'have', item: 'wood', n: 10 }, rew: { coins: 60, xp: 60, karma: 4 } },
     { id: 'elder6', giver: 'n_elder', req: { done: 'elder5' }, obj: { type: 'have', item: 'iron', n: 5 }, rew: { coins: 80, xp: 70, ess: { common: 1 }, karma: 4 } },
     { id: 'hermit1', giver: 'n_hermit', obj: { type: 'shrine', shrine: 'mountain' }, rew: { xp: 70, ess: { common: 2 }, karma: 3 } },
+    { id: 'watch1', giver: 'n_watch', obj: { type: 'kill', spot: 'n_quest' }, rew: { coins: 60, xp: 80, karma: 4 } },
     { id: 'fisher1', giver: 'n_fisher', obj: { type: 'have', item: 'herb', n: 2 },
       choice: [{ id: 'free', rew: { xp: 40, karma: 6 } }, { id: 'sell', rew: { xp: 20, coins: 80, karma: -8 } }] }
   ];
   Object.assign(SW.TEXT.en, {
-    npc_elder: 'Village Elder', npc_hermit: 'Hermit', npc_fisher: 'Fisher',
+    npc_elder: 'Village Elder', npc_hermit: 'Hermit', npc_fisher: 'Fisher', npc_watch: 'Night Watchman',
+    dl_watch_neu: 'Quiet nights are rare. Something stalks the road south of the village after dark.',
+    dl_watch_pos: 'Hinode sleeps easier with you around. Will you help me again tonight?',
+    dl_watch_neg: 'Keep your distance. I watch you, wanderer.',
+    qn_watch1: 'Shadow on the Road', qd_watch1: 'A masked swordsman haunts the road south of the village, but only at night. Find him and end it. I only speak at night.', qo_watch1: 'Defeat the night stalker south of the village (night only)', qdone_watch1: 'The road is quiet. Thank you, wanderer.',
     dl_elder_neu: 'Wanderer. Bandits make our roads unsafe. Will you help us?',
     dl_elder_pos: 'Honored wanderer! The village speaks well of you. Please, sit.',
     dl_elder_neg: 'You are not welcome here. Your name brings fear, not hope.',

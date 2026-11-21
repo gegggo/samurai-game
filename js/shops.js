@@ -17,7 +17,7 @@ SW.Shop = (function () {
     return { x, y };
   }
   S.free = free;
-  D.npcs.forEach(n => { const p = free(n.x, n.y); S.npcs.push({ id: n.id, role: n.role, q: !!n.q, x: p.x, y: p.y, robe: n.robe, hat: n.hat }); });
+  D.npcs.forEach(n => { const p = free(n.x, n.y); S.npcs.push({ id: n.id, role: n.role, q: !!n.q, night: !!n.night, x: p.x, y: p.y, robe: n.robe, hat: n.hat }); });
 
   // Karma wirkt auf Preise: guter Ruf = Rabatt, schlechter Ruf = Aufschlag; bei sehr schlechtem Ruf verweigern Kräuter- und Allgemeinhändler
   const KM = { revered: .8, honored: .9, neutral: 1, distrusted: 1.2, despised: 1.35 };
@@ -58,9 +58,10 @@ SW.Shop = (function () {
     I.spend(r.coins); for (const k in r.res) I.remove(k, r.res[k]);
     return I.add(r.id, 1);
   };
+  S.on = n => !n.night || SW.Time.period() === 'night'; // Nacht-NPCs nur nachts
   S.near = function (p) {
     let best = null, bd = S.RANGE;
-    S.npcs.forEach(n => { if (n.amb) return; const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < bd) { bd = d; best = n; } });
+    S.npcs.forEach(n => { if (n.amb || !S.on(n)) return; const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < bd) { bd = d; best = n; } });
     return best;
   };
 
