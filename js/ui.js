@@ -150,7 +150,7 @@ SW.UI = (function () {
     // Namen: alle Regionen und Orte stehen auf der Karte, noch nicht besuchte gedämpft. Schreine bleiben an Entdeckung gebunden (Schnellreise).
     const lab = (s, x, y, a) => { c.globalAlpha = a; c.fillStyle = 'rgba(0,0,0,.65)'; c.fillText(s, x + 1, y + 1); c.fillStyle = '#f4ecd8'; c.fillText(s, x, y); c.globalAlpha = 1; };
     const poiNames = W.POI.map(o => SW.t('poi_' + o.id));
-    for (let r = 0; r < 9; r++) { const n = SW.t('reg_' + r); if (poiNames.indexOf(n) < 0) lab(n, X(W.C[r % 3]), Y(W.C[(r / 3) | 0]) - 14 * d, U.seen.has(r) ? 1 : .6); } // gleichnamige Orte nicht doppelt beschriften
+    for (let r = 0; r < 10; r++) { const n = SW.t('reg_' + r); if (poiNames.indexOf(n) < 0) lab(n, X(r === 9 ? 800 : W.C[r % 3]), Y(r === 9 ? 800 : W.C[(r / 3) | 0]) - 14 * d, U.seen.has(r) ? 1 : .6); } // gleichnamige Orte nicht doppelt beschriften
     W.POI.forEach(o => {
       const x = X(o.x), y = Y(o.y), r = 5 * d, got = U.disc.has(o.id);
       c.globalAlpha = got ? 1 : .55; c.fillStyle = got ? '#f2c14e' : 'rgba(242,193,78,.0)'; c.strokeStyle = '#f2c14e'; c.lineWidth = 1.5 * d;

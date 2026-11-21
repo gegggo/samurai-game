@@ -6,8 +6,8 @@ SW.World = (function () {
   const O = { NONE: 0, TREE: 1, BAMBOO: 2, BOULDER: 3, PILLAR: 4 };
   const PAL = [[98,142,70],[58,102,58],[118,150,84],[112,108,112],[58,128,168],[34,88,134],[180,150,100],[130,92,58],[214,196,146],[150,148,150],[58,52,66],[150,122,86]];
   // Regionen: 0 NW Dorf, 1 N Bambus, 2 NO Schrein, 3 W Wald, 4 Mitte See, 5 O Gebirge, 6 SW Ruinen, 7 S Banditen, 8 SO Höhlen
-  const ROCKY = [2, 2, .66, 2, 2, .56, 2, 2, .58];
-  const DENS = [.05, .34, .12, .2, .03, .07, .05, .07, .05];
+  const ROCKY = [2, 2, .66, 2, 2, .56, 2, 2, .58, 2];
+  const DENS = [.05, .34, .12, .2, .03, .07, .05, .07, .05, .14];
 
   function h(x, y, s) {
     let n = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1442695041)) | 0;
@@ -22,7 +22,9 @@ SW.World = (function () {
   }
   function fbm(x, y, s) { return vn(x / 40, y / 40, s) * .6 + vn(x / 15, y / 15, s + 1) * .3 + vn(x / 6, y / 6, s + 2) * .1; }
 
+  const GX = 800, GY = 800; // Region 9: Moonlit Grove (Kreis, r 80) in der Lücke zwischen Dorf, Wald und See
   function regionAt(x, y) {
+    if ((x - GX) * (x - GX) + (y - GY) * (y - GY) < 6400) return 9;
     const wx = x + (vn(x / 50, y / 50, 11) - .5) * 120, wy = y + (vn(x / 50, y / 50, 12) - .5) * 120;
     const cx = Math.min(2, Math.max(0, Math.floor(wx / R))), cy = Math.min(2, Math.max(0, Math.floor(wy / R)));
     return cy * 3 + cx;
@@ -55,7 +57,9 @@ SW.World = (function () {
     if (water) return road ? T.BRIDGE : deep ? T.DEEP : T.WATER;
     if (road) return T.PATH;
     if (ld < 275) return T.SAND;
-    const reg = regionAt(x, y), cx = C[reg % 3], cy = C[(reg / 3) | 0], dx = x - cx, dy = y - cy;
+    const reg = regionAt(x, y);
+    if (reg === 9) return (x - GX) * (x - GX) + (y - GY) * (y - GY) < 64 ? T.STONE : T.FOREST;
+    const cx = C[reg % 3], cy = C[(reg / 3) | 0], dx = x - cx, dy = y - cy;
     if (reg === 2 && dx * dx + dy * dy < 196) return T.STONE;
     if (reg === 6 && Math.abs(dx) < 12 && Math.abs(dy) < 9) return T.STONE;
     if (reg === 8 && dx * dx + dy * dy < 2500) return T.CAVE;
@@ -127,7 +131,7 @@ SW.World = (function () {
     });
     POI.push({ id: 'village', x: vx, y: vy }, { id: 'huts', x: bx - 23, y: by - 10 }, { id: 'shrine', x: sx + 10, y: sy - 8 },
       { id: 'hermit', x: C[0] - 18, y: C[1] + 17 }, { id: 'lake', x: 1200, y: 1200 }, { id: 'lookout', x: C[2] + 7, y: C[1] - 7 },
-      { id: 'falls', x: RA[0], y: RA[1] }, { id: 'ruins', x: rx, y: ry }, { id: 'camp', x: cx, y: cy }, { id: 'cave', x: kx + 10, y: ky - 11 });
+      { id: 'falls', x: RA[0], y: RA[1] }, { id: 'ruins', x: rx, y: ry }, { id: 'camp', x: cx, y: cy }, { id: 'cave', x: kx + 10, y: ky - 11 }, { id: 'grove', x: GX, y: GY });
   }
 
   // Dauerhafte Quest-Bauten. Werden aus dem Quest-Spielstand rekonstruiert.
@@ -162,7 +166,7 @@ SW.World = (function () {
       }
     return false;
   }
-  const ZONES = [[C[2], C[0], 20, 20], [C[2], C[2], 52, 52], [C[0], C[0], 26, 20], [C[1], C[2], 24, 18], [C[0], C[2], 15, 12]];
+  const ZONES = [[C[2], C[0], 20, 20], [C[2], C[2], 52, 52], [C[0], C[0], 26, 20], [C[1], C[2], 24, 18], [C[0], C[2], 15, 12], [GX, GY, 10, 10]];
   function objAt(x, y, t) {
     if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE) return 0;
     const reg = regionAt(x, y);

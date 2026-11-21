@@ -73,7 +73,9 @@ SW.Data = SW.Data || {};
     { id: 'c_cave1', x: 1960, y: 1990, rar: 'epic', give: { ess: ['rare', 1] } },
     { id: 'c_cave2', x: 2060, y: 2060, rar: 'epic', give: { item: 'katana_temper', n: 1 } },
     { id: 'c_peak1', x: 2089, y: 1149, rar: 'epic', give: { item: 'bow_yumi', n: 1 } },
-    { id: 'c_hut1', x: 1211, y: 432, rar: 'uncommon', give: { item: 'mask_oni_half', n: 1 } }
+    { id: 'c_hut1', x: 1211, y: 432, rar: 'uncommon', give: { item: 'mask_oni_half', n: 1 } },
+    { id: 'c_grove1', x: 772, y: 790, rar: 'rare', give: { ess: ['refined', 1] } },
+    { id: 'c_grove2', x: 828, y: 812, rar: 'uncommon', give: { coins: 120 } }
   ];
   // Legendäre Waffen: einmalige Belohnung für den Sieg über diesen Gegner (Gegner bleiben besiegt)
   D.drops = { e_boss: 'katana_counter', e_cave: 'katana_moon', e_ruins: 'nodachi_reaper', e_warden: 'tanto_warden', e_monk: 'naginata_monk', e_oni: 'armor_oni' };

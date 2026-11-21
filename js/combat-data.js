@@ -87,7 +87,7 @@ SW.Data.arenas = {
   cavern:   { sky: ['#1f1a28', '#3a3346'], gnd: ['#4a4450', '#221e28'], deco: 'cavern' }
 };
 // Region (Index wie in world.js) -> Arena
-SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', 'plateau', 'ruins', 'camp', 'cavern'];
+SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', 'plateau', 'ruins', 'camp', 'cavern', 'bamboo'];
 // Begegnungen in der Welt (Phase 2: feste Testpunkte; echte Gegner-Spawns folgen in Phase 5).
 // Position wird beim Start auf die nächste freie Kachel gesetzt.
 SW.Data.spots = [
@@ -119,6 +119,9 @@ SW.Data.spots = [
   { id: 'e_camp4',   type: 'samurai',  x: 1260, y: 2100 },
   { id: 'e_cave2',   type: 'swift',    x: 1944, y: 2060 },
   { id: 'e_cave3',   type: 'armored',  x: 2090, y: 1930 },
+  { id: 'e_grove1',  type: 'ronin',    x: 770,  y: 825 },
+  { id: 'e_grove2',  type: 'spearman', x: 835,  y: 770 },
+  { id: 'e_grove3',  type: 'swift',    x: 800,  y: 845 },
   // Bosse
   { id: 'e_warden',  type: 'boss_warden', x: 370,  y: 2130 },
   { id: 'e_monk',    type: 'boss_monk',   x: 2100, y: 1300 },

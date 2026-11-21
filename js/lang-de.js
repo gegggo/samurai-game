@@ -10,7 +10,7 @@ SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
   set_save: 'Spielstand', set_wipe: 'Spielstand löschen', set_wipe_ask: 'Gesamten Fortschritt löschen? Das lässt sich nicht rückgängig machen.', set_wipe_yes: 'Löschen', set_wipe_no: 'Abbrechen',
   set_lang: 'Sprache', lang_en: 'English', lang_de: 'Deutsch',
   reg_0: 'Dorf Hinode', reg_1: 'Bambuswald', reg_2: 'Bergschrein', reg_3: 'Westlicher Wald',
-  reg_4: 'Spiegelsee', reg_5: 'Eisgipfel', reg_6: 'Vergessene Ruinen', reg_7: 'Banditenlager', reg_8: 'Hohlhöhlen',
+  reg_4: 'Spiegelsee', reg_5: 'Eisgipfel', reg_6: 'Vergessene Ruinen', reg_7: 'Banditenlager', reg_8: 'Hohlhöhlen', reg_9: 'Mondscheinhain', poi_grove: 'Mondscheinhain', shr_grove: 'Hainschrein',
   poi_village: 'Dorf Hinode', poi_huts: 'Verlassene Hütten', poi_shrine: 'Großer Schrein',
   poi_hermit: 'Einsiedlerhütte', poi_lake: 'Spiegelsee', poi_lookout: 'Aussichtspunkt',
   poi_falls: 'Wasserfall', poi_ruins: 'Alte Tempelruinen', poi_camp: 'Banditenlager',
