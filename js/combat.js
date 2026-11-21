@@ -25,12 +25,12 @@ SW.Combat = (function () {
     }
     return { x, y };
   }
-  D.spots.forEach(s => { const p = free(s.x, s.y); K.spots.push({ id: s.id, type: s.type, x: p.x, y: p.y, dead: false, night: !!s.night, respawn: !!s.respawn }); });
+  D.spots.forEach(s => { const p = free(s.x, s.y); K.spots.push({ id: s.id, type: s.type, x: p.x, y: p.y, dead: false, night: !!s.night, respawn: !!s.respawn, kv: s.kv }); });
 
   K.playerStats = function () { return SW.Char ? SW.Char.combat() : D.player; }; // echte Charakterwerte (Phase 3)
 
   // Nachtgegner: nur nachts aktiv; wiederkehrende kommen mit jeder neuen Nacht zurück
-  K.on = s => !s.dead && (!s.night || SW.Time.period() === 'night');
+  K.on = s => !s.dead && (!s.night || SW.Time.period() === 'night') && (s.kv === undefined || SW.Karma.v <= s.kv); // kv: Kopfgeldjäger erscheinen bei schlechtem Ruf
   K.check = function (p) {
     if (K.active) return;
     const nt = SW.Time.period() === 'night';

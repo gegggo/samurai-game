@@ -139,6 +139,11 @@ SW.Data.rewards = {
   boss_monk:   { xp: 320, ess: { rare: 1, ancient: 1 }, karma: 5 },
   boss_oni:    { xp: 420, ess: { ancient: 1, legendary: 1 }, karma: 6 }
 };
+// Phase 7d: Kopfgeldjäger (kv = erscheinen bei Karma <= kv, einmalig besiegbar, gespeichert über 'defeated')
+SW.Data.spots.push(
+  { id: 'h_1', type: 'samurai', x: 470, y: 430, kv: -30 },
+  { id: 'h_2', type: 'armored', x: 340, y: 500, kv: -30 }
+);
 // Phase 7c: Nachtgegner (nur nachts sichtbar). respawn: jede Nacht neu, nicht gespeichert. Ohne respawn: einmalig (Quest 'watch1').
 SW.Data.spots.push(
   { id: 'n_quest', type: 'samurai',  x: 400,  y: 470, night: true },

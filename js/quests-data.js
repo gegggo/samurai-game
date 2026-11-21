@@ -11,9 +11,16 @@ SW.Data = SW.Data || {};
     { id: 'n_elder', role: 'elder', q: true, x: 403.5, y: 404.5, robe: '#c9c3b0', hat: '#8a8a90' },
     { id: 'n_hermit', role: 'hermit', q: true, x: 386.5, y: 1224.5, robe: '#5a4a34', hat: '#3a3226' },
     { id: 'n_fisher', role: 'fisher', q: true, x: 1101.5, y: 1470.5, robe: '#3a5a6a', hat: '#c8b070' },
+    { id: 'n_pris1', role: 'prisoner', q: true, gone: 'pris1', x: 1126.5, y: 1944.5, robe: '#6a6258', hat: '#3a3530' }, // Gefangene im Banditenlager (7d)
+    { id: 'n_pris2', role: 'prisoner', q: true, gone: 'pris2', x: 1284.5, y: 1964.5, robe: '#58626a', hat: '#30353a' },
+    { id: 'n_pris3', role: 'prisoner', q: true, gone: 'pris3', x: 1176.5, y: 2086.5, robe: '#62586a', hat: '#35303a' },
     { id: 'n_watch', role: 'watch', q: true, night: true, x: 392.5, y: 412.5, robe: '#2a3350', hat: '#14161f' } // Nachtwächter: nur nachts im Dorf
   );
   D.quests = [
+    // 7d: Gefangene. Wache besiegen, dann entscheiden: befreien (+Karma) oder gegen Lösegeld ausliefern (-Karma)
+    { id: 'pris1', giver: 'n_pris1', obj: { type: 'kill', spot: 'e_camp1' }, choice: [{ id: 'free', rew: { xp: 40, karma: 6 } }, { id: 'sell', rew: { xp: 20, coins: 80, karma: -10 } }] },
+    { id: 'pris2', giver: 'n_pris2', obj: { type: 'kill', spot: 'e_camp2' }, choice: [{ id: 'free', rew: { xp: 40, karma: 6 } }, { id: 'sell', rew: { xp: 20, coins: 80, karma: -10 } }] },
+    { id: 'pris3', giver: 'n_pris3', obj: { type: 'kill', spot: 'e_camp3' }, choice: [{ id: 'free', rew: { xp: 40, karma: 6 } }, { id: 'sell', rew: { xp: 20, coins: 80, karma: -10 } }] },
     { id: 'elder1', giver: 'n_elder', obj: { type: 'kill', spot: 'e_train' }, rew: { coins: 80, xp: 50, karma: 5 } },
     { id: 'elder2', giver: 'n_elder', req: { done: 'elder1' }, obj: { type: 'have', item: 'wood', n: 6 }, rew: { coins: 40, xp: 40, ess: { common: 1 }, karma: 4 } },
     { id: 'elder3', giver: 'n_elder', req: { done: 'elder2', level: 3, karma: 10 }, obj: { type: 'kill', spot: 'e_boss' }, rew: { coins: 300, xp: 150, ess: { refined: 1 }, karma: 10 } },
@@ -26,6 +33,7 @@ SW.Data = SW.Data || {};
       choice: [{ id: 'free', rew: { xp: 40, karma: 6 } }, { id: 'sell', rew: { xp: 20, coins: 80, karma: -8 } }] }
   ];
   Object.assign(SW.TEXT.en, {
+    npc_prisoner: 'Prisoner', dl_prisoner_neu: 'Please. The bandits keep us in cages.', dl_prisoner_pos: 'You are the wanderer people speak of. Please help me!', dl_prisoner_neg: 'Stay away from me. I know what you are.',
     npc_elder: 'Village Elder', npc_hermit: 'Hermit', npc_fisher: 'Fisher', npc_watch: 'Night Watchman',
     dl_watch_neu: 'Quiet nights are rare. Something stalks the road south of the village after dark.',
     dl_watch_pos: 'Hinode sleeps easier with you around. Will you help me again tonight?',
@@ -58,5 +66,9 @@ SW.Data = SW.Data || {};
     qn_hermit1: 'Wake the Mountain Shrine', qd_hermit1: 'Travel to the Great Shrine in the northeast and pray there.', qo_hermit1: 'Pray at the Mountain Shrine', qdone_hermit1: 'I feel it. The mountain speaks again. Thank you.',
     qn_fisher1: 'Medicine for My Son', qd_fisher1: 'My son has a fever. The herbalist in the village sells healing herbs. Please bring 2.', qo_fisher1: 'Bring healing herbs to the fisher', qdone_fisher1: 'You have the herbs. What will you ask in return?',
     qc_fisher1_free: 'Give them freely', qc_fisher1_sell: 'Demand payment'
+  });
+  for (let i = 1; i <= 3; i++) Object.assign(SW.TEXT.en, {
+    ['qn_pris' + i]: 'Caged Prisoner ' + i, ['qd_pris' + i]: 'The bandits keep me in this cage. Defeat the guard watching it and I am free.', ['qo_pris' + i]: 'Defeat the guard of the cage',
+    ['qdone_pris' + i]: 'The guard is down. What will you do with me?', ['qc_pris' + i + '_free']: 'Set them free', ['qc_pris' + i + '_sell']: 'Hand them over for ransom'
   });
 })();

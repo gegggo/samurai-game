@@ -189,3 +189,10 @@ Object.assign(SW.TEXT.de, {
   it_mask_oni_half: 'Halbe Oni-Maske', itd_mask_oni_half: 'Wilde, lackierte Halbmaske.',
   it_mask_kitsune: 'Kitsune-Maske', itd_mask_kitsune: 'Fuchsmaske. Leichtfüßig und scharf für Hinterhalte.'
 });
+
+// Phase 7d: Gefangene im Banditenlager
+Object.assign(SW.TEXT.de, { npc_prisoner: 'Gefangener', dl_prisoner_neu: 'Bitte. Die Banditen halten uns in Käfigen.', dl_prisoner_pos: 'Du bist der Wanderer, von dem man spricht. Bitte hilf mir!', dl_prisoner_neg: 'Bleib weg von mir. Ich weiß, was du bist.' });
+for (let i = 1; i <= 3; i++) Object.assign(SW.TEXT.de, {
+  ['qn_pris' + i]: 'Gefangener im Käfig ' + i, ['qd_pris' + i]: 'Die Banditen halten mich in diesem Käfig. Besiege die Wache davor, dann bin ich frei.', ['qo_pris' + i]: 'Besiege die Wache des Käfigs',
+  ['qdone_pris' + i]: 'Die Wache ist besiegt. Was machst du mit mir?', ['qc_pris' + i + '_free']: 'Freilassen', ['qc_pris' + i + '_sell']: 'Gegen Lösegeld ausliefern'
+});
