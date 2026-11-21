@@ -1,9 +1,18 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v65 (Spielversion 0.9.26)
+**Cache-Version:** v66 (Spielversion 0.9.27)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.27 – Export/Import des Spielstands (Spec 33.4) (Dateien gesendet – Gerätetest offen)
+- `SW.Save`: `exportText()`, `inspect()`, `applyImport()`, `exportName()`, `lastExport()/markExported()`, `backupDue()`. Datei = JSON `{sw:'save', fmt:1, gv, ts, sum, raw}`; `raw` = Umschlag des Hauptstands (eigene Prüfsumme), `sum` = Prüfsumme über `raw`. Import prüft Format, Prüfsumme, Version (zu neu -> abgelehnt) und ändert vorher nichts. Beim Import wird der aktuelle Stand Wiederherstellungspunkt 1 (Kopie vor dem Ersetzen), dann Neuladen.
+- UI: `Menus.h.backupBox` (Einstellungen + Startbildschirm-Button „Sicherung“). Export per `navigator.share` mit Datei (iPhone-Teilen-Menü), Fallback Download. Hinweis „Zeit für Sicherung“ bei >7 Tagen seit letztem Export (bzw. nie exportiert und >30 min Spielzeit); Zeitpunkt in `localStorage sw_last_export`.
+- Textschlüssel `back`, `bk_*` (en in `menus.js`, de in `lang-de.js`).
+- **Geändert:** `js/progress.js`, `js/menus.js`, `js/title.js`, `js/lang-de.js`, `js/config.js` (0.9.27), `index.html` (v66), `PROJECT_STATUS.md`.
+- **Geprüft (headless Chromium 852x393, Playwright):** Export erzeugt gültige Datei; `inspect` erkennt manipulierte (Prüfsumme), fremde und zu neue Dateien; Import-Round-Trip (Karma 10 -> 0 wie in Datei, alter Stand in Wiederherstellungspunkt 1); UI-Upload defekter Datei zeigt Fehler, gültiger Datei zeigt Rückfrage; keine neuen JS-Fehler.
+- **Nicht geprüft:** echtes iPhone-Teilen-Menü / „In Dateien sichern“, Dateiauswahl auf iOS (Gerätetest offen).
+- **Bekannt (vorher vorhanden):** 404 auf `assets/images/ui/loading.jpg` (Datei liegt unter `assets/loading.jpg`) – Pfad im CSS/HTML prüfen, nicht angefasst.
 
 ## 0.9.26 – Inhalt für Frostpeaks, Ember Crater, Dust Dunes, Sun Coast (Dateien gesendet – Gerätetest offen)
 - Bisher hatten diese 4 Regionen nur Schrein + Ort. Jetzt je 3 einmalige Gegner (`e_frost1-3`, `e_ember1-3`, `e_dunes1-3`, `e_coast1-3`; Typen bandit/ronin/spearman/swift/samurai/armored, Belohnung nach Typ aus `SW.Data.rewards`) und je 2 Truhen (`c_frost1-2`, `c_ember1-2`, `c_dunes1-2`, `c_coast1-2`; nur Münzen oder Ressourcen, je genau 1 Eintrag). KEINE Essence, KEIN Elite/Boss: Essence-Bilanz (Angebot 35 / Baum 47) unverändert. Alle Zahlen Platzhalter.
