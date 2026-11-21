@@ -66,17 +66,17 @@ SW.UI = (function () {
   }
   // Karte: ein Finger = verschieben, zwei Finger = zoomen, kurzer Tipp = Schrein wählen, Mausrad = zoomen
   function mapEvents() {
-    const c = mapC, P = new Map(); let moved = 0, multi = false, last = 0;
+    const c = mapC, P = new Map(); let moved = 0, multi = false, last = 0, lm = null;
     const span = () => { const a = [...P.values()]; return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) || 1; };
     const mid = () => { const a = [...P.values()]; return { x: (a[0].x + a[1].x) / 2, y: (a[0].y + a[1].y) / 2 }; };
     c.style.touchAction = 'none';
-    c.addEventListener('pointerdown', e => { try { c.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } P.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (P.size === 1) { moved = 0; multi = false; } else { multi = true; last = span(); } e.preventDefault(); });
+    c.addEventListener('pointerdown', e => { try { c.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } P.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (P.size === 1) { moved = 0; multi = false; } else { multi = true; last = span(); lm = mid(); } e.preventDefault(); });
     c.addEventListener('pointermove', e => {
       const p = P.get(e.pointerId); if (!p) return;
       const r = c.getBoundingClientRect(), v = U.view, W2 = SW.CFG.WORLD;
       if (P.size >= 2) {
         P.set(e.pointerId, { x: e.clientX, y: e.clientY });
-        const sp = span(), m = mid(); zoomAt(sp / last, (m.x - r.left) / r.width, (m.y - r.top) / r.height); last = sp; return;
+        const sp = span(), m = mid(); if (lm) { v.x -= (m.x - lm.x) / r.width * W2 / v.z; v.y -= (m.y - lm.y) / r.height * W2 / v.z; } lm = m; zoomAt(sp / last, (m.x - r.left) / r.width, (m.y - r.top) / r.height); last = sp; return;
       }
       const dx = e.clientX - p.x, dy = e.clientY - p.y; moved += Math.abs(dx) + Math.abs(dy);
       p.x = e.clientX; p.y = e.clientY;
