@@ -1,6 +1,6 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v45 (Spielversion 0.9.6)
+**Cache-Version:** v51 (Spielversion 0.9.12)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
@@ -108,6 +108,52 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geprüft: Syntax; Node-BFS: Mauer solid, Treppe/Plateaus/Brücke/Tempel/Gipfelschrein vom Start erreichbar; Chromium 852x393: Mauer+Turm, Treppe sichtbar, keine JS-Fehler.
 - NICHT geprüft: iPhone, Brücke/Dorf/Tempel im Screenshot angesehen, Performance.
 - OFFEN: Bergdorf hat keine NPCs/Händler, Tempel keine Gegner/Truhen. Berge sind flach dargestellt (graue Felsfläche, keine Höhe/Schatten).
+
+## 0.9.12 – Meister + Schriftrollen (kleine, ausbaubare Version)
+**Status: Dateien gesendet – Prüfung ausstehend. Browser-Test bestanden.**
+- Meister `n_master` im Startdorf (Rolle `master`, Shop-Fenster mit eigener Liste). Gefundene Schriftrollen sind zunächst "nicht lesbar"; Entziffern kostet Mindestlevel + Yin/Yang (verbraucht, `SW.YinYang.spend`) und lehrt eine aktive Technik (auto in freien Slot).
+- Daten: `SW.Data.scrolls` in `skills-data.js` ({id, move, lvl, yin, yang}). 2 Rollen (Platzhalterwerte): `sc_wind` Windschnitt (Lv 6, Yang 25), `sc_mount` Berghut (Lv 8, Yin 25). Neue Moves `windcut`, `mountain` (nur vorhandene Move-Felder).
+- Fund: Truhen `c_scroll1` (Ruinen 334/1964), `c_scroll2` (Höhlen 1964/1994), `give: { scroll: id }`. Je Truhe genau ein Eintrag, einmalig, gespeichert (Truhenliste). Rollenstatus im Spielstand: `skills.scr` {id: 1 gefunden / 2 gelernt}; alte Stände laden ohne Feld.
+- Ausbau: neue Rolle = 1 Eintrag `scrolls` + 1 Move + Texte `sk_`/`skd_` + 1 Truhe. Neuer Skilltree-Knoten = 1 Eintrag `skills` (Kosten sp/ess, Felder yin/yang/balance/karma).
+- Geändert/neu: `js/skills.js`, `js/skills-data.js`, `js/shops.js`, `js/shops-data.js`, `js/inventory.js`, `js/items-data.js`, `js/menus.js`, `js/lang-de.js`, `js/config.js`, `index.html` (v51), `PROJECT_STATUS.md`.
+- Geprüft (Chromium 852x393): Meister, Truhen auf freien Kacheln; BFS vom Start erreicht Meister und beide Truhen; Truhe einmalig; zu wenig Yang/Level sperrt; Entziffern verbraucht Yang (40 -> 15), Technik im Slot; Doppelentziffern und nicht gefundene Rolle abgelehnt; Speichern/Laden; Meister-Fenster und Skills-Menü zeigen Technik; keine JS-Fehler; Syntax ok.
+- NICHT geprüft: iPhone, Technik im echten Kampf (Moves nur per Datenprüfung), Optik des Meister-Fensters, Balancing. Kein Trainingsbereich/Puppen (Spec 27.8) gebaut. Schriftrollen geben noch keine Hinweise/Aufgaben, nur Techniken.
+- Skillpunkte begrenzen den Baum (Level 30 = 30 SP, aktuell 28 im Baum). Schriftrollen kosten keine SP.
+- Nächster Schritt: Gerätetest 0.9.11 + 0.9.12 (Technik im Kampf), dann Training.
+
+## 0.9.11 – Yin/Yang werden im Skilltree verbraucht + ganzer Baum bezahlbar
+**Status: Dateien gesendet – Prüfung ausstehend. Browser-Test bestanden.**
+- **SPEZIFIKATIONSÄNDERUNG (ausdrücklich vom Nutzer, überschreibt 33.2/33.3 für den Skilltree):** Yin/Yang sind beim Lernen eines Skilltree-Knotens Kosten und werden abgezogen (`SW.YinYang.spend`, nur ungültige/zu hohe Beträge abgelehnt). Gleichgewichtsknoten: Voraussetzung ausgeglichen + beide >= Wert, verbraucht wird der halbe Wert je Seite. Karma wird NICHT verbraucht (nur Mindestwert). Geheime Boss-Techniken: unverändert (nur Voraussetzungen, nichts verbraucht). Reset gibt Yin/Yang nicht zurück (wie Essence).
+- Essence-Kosten gesenkt (Platzhalter): Baum gesamt 31 Essence (vorher 47) bei Angebot 35, 28 Skillpunkte (Level 30 = 30) -> ganzer Baum erlernbar, 4 Essence Reserve für 2 Resets.
+- Anzeige: Knoten zeigen "Yin 30 (wird verbraucht)" usw. EN + DE.
+- Geändert: `js/progress.js`, `js/skills.js`, `js/skills-data.js`, `js/lang-de.js`, `js/menus.js`, `js/config.js`, `index.html` (v50), `PROJECT_STATUS.md`.
+- Geprüft (Chromium 852x393): alle 20 Knoten erlernbar (Essence 31 -> 0, SP 28 -> 0), sm4 verbraucht 30 Yang, km4 je 15 Yin/Yang, zu wenig Yin/Yang sperrt, Menü rendert, keine JS-Fehler, Syntax ok.
+- RISIKO: Yin/Yang-Zuwachs senkt die Gegenseite um 35 % des Zuwachses (alte Regel). Zusammen mit Verbrauch bremst das. Gesamtbedarf Baum: Yang 130, Yin 190. Erreichbarkeit/Balancing nicht gemessen.
+- NICHT geprüft: iPhone, Anzeige der längeren Knotenliste, Balancing.
+- OFFEN (Vorschlag, noch nicht gebaut, Spec 26.6 verlangt Vorschlag zuerst): Meister-NPC + Schriftrollen entschlüsseln + Fähigkeit lernen gegen Yin/Yang. Im Code gibt es weder Meister noch Schriftrollen.
+- Nächster Schritt: Gerätetest 0.9.11, Entscheidung zum Meister-Vorschlag.
+
+## 0.9.10 – Yin/Yang nur noch Skilltree-Voraussetzung (+ Schmuggler verworfen)
+**Status: Dateien gesendet – Prüfung ausstehend. Gerätetest 0.9.4–0.9.8 vom Nutzer bestätigt (Aussage Nutzer). Browser-Test bestanden.**
+- Entfernt: Yin/Yang-Überschuss-Boni (Angriff/Verteidigung/Gleichgewicht) und `SW.YinYang.bonus`. Menü Karma & Yin-Yang zeigt keine Boni mehr.
+- Skilltree: Knoten verlangen jetzt zusätzlich Yin/Yang/Gleichgewicht/Karma (neues Feld `karma` an Knoten, `S.reqs`). Yin/Yang/Karma werden NICHT ausgegeben (Spec 33.2/33.3), nur Mindestwerte; Kosten bleiben Skillpunkte + Essence.
+- Neue Platzhalter-Werte: sm3 Yang 25; sm4 Yang 30; sm5 Yang 40 + Karma 10; sw3 Yin 30; sw5 Yin 40; df3 Yin 25; df4 Yin 30; df5 Yin 30 + Karma 10; km4 Gleichgewicht 30; km5 Gleichgewicht 40 + Karma 20. Bereits gelernte Knoten bleiben gelernt.
+- Schmuggler (0.9.8) komplett entfernt.
+- Geändert: `js/progress.js`, `js/menus.js`, `js/skills.js`, `js/skills-data.js`, `js/lang-de.js`, `js/shops.js`, `js/quests.js`, `js/quests-data.js`, `js/config.js`, `index.html` (v49), `PROJECT_STATUS.md`.
+- Geprüft (Chromium 852x393): Start ohne JS-Fehler, `Y.bonus` weg, Angriffswert ohne Yin/Yang-Einfluss, sm5 gesperrt ohne Karma 10 und frei mit Karma 10/Yang 40, Karma-Seite und Skilltree-Menü rendern, Syntax aller JS ok.
+- NICHT geprüft: iPhone, Balancing (Yang 40 / Gleichgewicht 40 erreichbar?), Optik der längeren Voraussetzungsliste, DE-Anzeige im Skilltree.
+- OFFEN Phase 8: Training.
+- Nächster Schritt: Gerätetest 0.9.10, dann Training.
+
+## Neu in 0.9.7 – Ladebildschirm + Rotate-Hinweis
+**Status: Dateien gesendet – Prüfung ausstehend (Gerätetest). Browser-Test bestanden.**
+- Ladebildschirm: Tuschemalerei-Bild (`assets/images/ui/loading.jpg`, 103 KB) als Vollbild, Ladeknopf (drehender Ring) unten rechts, Safe-Area beachtet. Mindestens 1,5 s sichtbar, blendet nach Start (Titelbildschirm bereit) aus; Notfall-Ausblendung nach 10 s per Inline-Skript. Vorgriff auf Phase 29 (Loading-Screen-Artwork), vom Nutzer ausdrücklich gewünscht; Bild ist Platzhalter.
+- Fix "Rotate device to landscape": Hinweis lag unter dem Titelbildschirm (z-index 10 < 30) und schien durch die Knöpfe. Jetzt z-index 100, deckt im Hochformat alles ab.
+- Geändert/neu: `index.html` (v46), `css/main.css`, `js/main.js`, `js/config.js`, `assets/images/ui/loading.jpg` (neu), `PROJECT_STATUS.md`.
+- Geprüft (Chromium 852x393 und 393x852): Ladebild + Ring sichtbar bei 0,6 s; nach 3 s ausgeblendet, Titelbildschirm offen; Hochformat zeigt nur den Rotate-Hinweis; keine JS-Fehler.
+- NICHT geprüft: iPhone (Safe-Area, echte Ladezeit, Drehverhalten), ob Bild bei GitHub Pages-Pfad `assets/images/ui/` korrekt lädt (relativer Pfad aus css/ -> ../assets/...).
+- Lieferstand: `assets/images/ui/loading.jpg` vom Nutzer auf GitHub hochgeladen (Commit offen/bestätigen). Übrige 0.9.7-Dateien (`index.html`, `css/main.css`, `js/main.js`, `js/config.js`) vom Nutzer noch zu ersetzen.
+- Nächster Schritt (bei "Fahre fort"): zuerst Gerätetest 0.9.4-0.9.7 auswerten (Ladebild, Rotate-Hinweis, Karst-Brücken, Schattenclan). Danach Phase 8 offen: Quests mit Karma-Änderung, Schmuggler-NPC, Training, Yin/Yang-Boni.
 
 ## Neu in 0.9.6 – Phase 8: Schattenclan-Hinterhalt (Teilaufgabe, BOTW-Yiga-Prinzip)
 **Status: Dateien gesendet – Prüfung ausstehend (Gerätetest). Browser-Tests bestanden.**
