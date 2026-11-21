@@ -175,3 +175,19 @@ SW.Data.spots.push(
   { id: 'n_mid',   type: 'spearman', x: 1887, y: 1030, night: true, respawn: true },
   { id: 'n_lake',  type: 'armored',  x: 1487, y: 1430, night: true, respawn: true }
 );
+
+// 0.9.26: Frostpeaks, Ember Crater, Dust Dunes, Sun Coast (je 3 einmalige Gegner; Belohnung nach Typ, keine Essence; Platzhalter)
+SW.Data.spots.push(
+  { id: 'e_frost1', type: 'spearman', x: 705, y: 670 },
+  { id: 'e_frost2', type: 'swift',    x: 780, y: 720 },
+  { id: 'e_frost3', type: 'armored',  x: 745, y: 745 },
+  { id: 'e_ember1', type: 'ronin',    x: 3000, y: 790 },
+  { id: 'e_ember2', type: 'samurai',  x: 3075, y: 840 },
+  { id: 'e_ember3', type: 'armored',  x: 3040, y: 870 },
+  { id: 'e_dunes1', type: 'bandit',   x: 1095, y: 2485 },
+  { id: 'e_dunes2', type: 'ronin',    x: 1170, y: 2540 },
+  { id: 'e_dunes3', type: 'spearman', x: 1130, y: 2565 },
+  { id: 'e_coast1', type: 'bandit',   x: 1945, y: 2570 },
+  { id: 'e_coast2', type: 'swift',    x: 2020, y: 2620 },
+  { id: 'e_coast3', type: 'ronin',    x: 1985, y: 2640 }
+);

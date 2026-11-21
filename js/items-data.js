@@ -89,7 +89,16 @@ SW.Data = SW.Data || {};
     { id: 'c_wind1', x: 2702, y: 1944, rar: 'rare', give: { coins: 160 } },
     { id: 'c_cloud1', x: 2826, y: 1820, rar: 'rare', give: { item: 'iron', n: 6 } },
     { id: 'c_spire5', x: 2824, y: 2046, rar: 'rare', give: { coins: 150 } },   // Karst Berg 5 (Süd)
-    { id: 'c_spire6', x: 3014, y: 1938, rar: 'rare', give: { item: 'iron', n: 6 } }   // Karst Berg 6 (Ost)
+    { id: 'c_spire6', x: 3014, y: 1938, rar: 'rare', give: { item: 'iron', n: 6 } },   // Karst Berg 6 (Ost)
+    // 0.9.26: Frostpeaks, Ember Crater, Dust Dunes, Sun Coast (je 2 Truhen, nur Münzen/Ressourcen, keine Essence; Platzhalterwerte)
+    { id: 'c_frost1', x: 700, y: 660, rar: 'uncommon', give: { item: 'herb', n: 4 } },
+    { id: 'c_frost2', x: 790, y: 735, rar: 'rare', give: { coins: 140 } },
+    { id: 'c_ember1', x: 2995, y: 780, rar: 'uncommon', give: { item: 'iron', n: 4 } },
+    { id: 'c_ember2', x: 3080, y: 850, rar: 'rare', give: { coins: 150 } },
+    { id: 'c_dunes1', x: 1090, y: 2475, rar: 'uncommon', give: { coins: 110 } },
+    { id: 'c_dunes2', x: 1175, y: 2550, rar: 'rare', give: { item: 'stone', n: 5 } },
+    { id: 'c_coast1', x: 1940, y: 2560, rar: 'uncommon', give: { item: 'wood', n: 5 } },
+    { id: 'c_coast2', x: 2025, y: 2630, rar: 'rare', give: { coins: 130 } }
   ];
   // Legendäre Waffen: einmalige Belohnung für den Sieg über diesen Gegner (Gegner bleiben besiegt)
   D.drops = { e_boss: 'katana_counter', e_cave: 'katana_moon', e_ruins: 'nodachi_reaper', e_warden: 'tanto_warden', e_monk: 'naginata_monk', e_oni: 'armor_oni' };
