@@ -36,11 +36,9 @@ SW.UI = (function () {
     [...$('menu-tabs').children].forEach(b => b.classList.toggle('on', b.dataset.k === k));
     panel.innerHTML = '';
     panel.scrollTop = 0;
-    menu.classList.toggle('maponly', k === 'map'); // Karte: Vollbild ohne Tab-Spalte, Knopf unten links öffnet die Tabs
+    menu.classList.toggle('maptab', k === 'map'); // Karte füllt das Panel neben der Tab-Spalte
     if (k === 'map') {
       mapC = document.createElement('canvas'); mapC.id = 'world-map'; panel.appendChild(mapC);
-      const tb = document.createElement('button'); tb.id = 'map-tabs'; tb.textContent = '\u2630 ' + SW.t('menu'); tb.onclick = () => { menu.classList.remove('maponly'); sizeMap(); drawMap(); };
-      panel.appendChild(tb);
       U.view.z = 1; U.view.x = SW.Player.x; U.view.y = SW.Player.y; sizeMap(); mapEvents(); drawMap();
     }
     else if (SW.Menus && SW.Menus[k]) SW.Menus[k](panel);
