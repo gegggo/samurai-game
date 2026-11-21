@@ -214,6 +214,44 @@ SW.Save = (function () {
     try { const cur = localStorage.getItem(KEY); if (cur && unpack(cur)) rotate(cur, true); localStorage.removeItem(KEY); localStorage.removeItem(BAK); } catch (e) { /* gesperrt */ }
     location.reload();
   };
+  // Export/Import (Phase 0.9.27): Spielstand als JSON-Datei {sw, fmt, gv, ts, sum, raw}; raw = Umschlag des Hauptstands (eigene Prüfsumme), sum = Prüfsumme über raw.
+  const LX = 'sw_last_export', FMT = 1, DAY = 86400000;
+  V.exportText = function () {
+    if (!wiped && !V.hold) V.save(); // aktuellen Stand zuerst schreiben (Startbildschirm: gespeicherter Stand)
+    let raw = null; try { raw = localStorage.getItem(KEY); if (!raw || !unpack(raw)) raw = localStorage.getItem(BAK); } catch (e) { return null; }
+    if (!raw || !unpack(raw)) return null;
+    return JSON.stringify({ sw: 'save', fmt: FMT, gv: SW.version, ts: Date.now(), sum: hash(raw), raw });
+  };
+  V.exportName = () => { const d = new Date(), z = n => String(n).padStart(2, '0'); return 'samurai-wanderer-' + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + '-' + z(d.getHours()) + z(d.getMinutes()) + '.json'; };
+  // Datei prüfen, ohne etwas zu ändern: {ok:true, raw, info} oder {err:'bad'|'sum'|'new'}
+  V.inspect = function (text) {
+    let o; try { o = JSON.parse(text); } catch (e) { return { err: 'bad' }; }
+    if (!o || o.sw !== 'save' || typeof o.raw !== 'string' || typeof o.sum !== 'number') return { err: 'bad' };
+    if (o.fmt > FMT) return { err: 'new' };
+    if (hash(o.raw) !== o.sum) return { err: 'sum' };
+    const r = unpack(o.raw); if (!r) { let n = 0; try { n = JSON.parse(JSON.parse(o.raw).d).v; } catch (e) { /* egal */ } return { err: n > VER ? 'new' : 'sum' }; }
+    const d = r.d, q = d.pos, W = SW.World;
+    return { ok: true, raw: o.raw, info: { ts: r.ts, pt: d.pt || r.pt || 0, lvl: (d.char && d.char.level) || 1,
+      reg: q && isFinite(q.x) && isFinite(q.y) ? W.regionAt(Math.floor(q.x), Math.floor(q.y)) : 0, shr: d.shr && d.shr.on ? d.shr.on.length : 0, def: d.defeated ? d.defeated.length : 0 } };
+  };
+  // Import: aktueller Hauptstand wird Wiederherstellungspunkt 1 (nichts geht verloren), Datei wird Hauptstand, Neuladen.
+  V.applyImport = function (text) {
+    const r = V.inspect(text); if (!r.ok) return false;
+    try {
+      const cur = localStorage.getItem(KEY);
+      wiped = true; if (tmr) { clearTimeout(tmr); tmr = 0; }
+      if (cur && unpack(cur)) rotate(cur, true);
+      localStorage.setItem(KEY, r.raw); localStorage.removeItem(BAK);
+    } catch (e) { wiped = false; return false; }
+    location.reload(); return true;
+  };
+  V.lastExport = () => { try { return Number(localStorage.getItem(LX)) || 0; } catch (e) { return 0; } };
+  V.markExported = () => { try { localStorage.setItem(LX, String(Date.now())); } catch (e) { /* gesperrt */ } };
+  // Hinweis zum Sichern: Spielstand vorhanden und seit 7 Tagen (bzw. noch nie bei >30 min Spielzeit) nicht exportiert
+  V.backupDue = function () {
+    const le = V.lastExport(), r = read(KEY) || read(BAK); if (!r) return false;
+    return le ? Date.now() - le > 7 * DAY : (r.d.pt || r.pt || 0) > 1800;
+  };
   V.has = () => !!(read(KEY) || read(BAK));
   const step = fn => { try { fn(); } catch (e) { /* ein defekter Teil darf den Rest nicht blockieren */ } };
   V.load = function () {

@@ -98,6 +98,48 @@ SW.Menus = (function () {
     add(root, el('div', 'dim', T('yy_hint')));
   };
 
+  // Export/Import-Bereich (Einstellungen + Startbildschirm). done(): nach Abbruch zur Ausgangsansicht zurück.
+  function backupBox(done) {
+    const S = SW.Save, box = el('div', 'card'), msg = el('div', 'dim'), inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = '.json,application/json,text/plain'; inp.style.display = 'none';
+    const lastD = () => { const t = S.lastExport(); return t ? new Date(t).toLocaleDateString(SW.lang === 'de' ? 'de-DE' : 'en-GB') : T('bk_never'); };
+    const say = (k, cls) => { msg.className = cls || 'dim'; msg.textContent = T(k); };
+    const dl = (text, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); S.markExported(); say('bk_dl', 'ok'); };
+    const doExport = () => {
+      const text = S.exportText(); if (!text) return say('bk_none', 'no');
+      const name = S.exportName();
+      try {
+        const f = new File([text], name, { type: 'application/json' });
+        if (navigator.canShare && navigator.canShare({ files: [f] })) {
+          navigator.share({ files: [f], title: 'Samurai Wanderer' }).then(() => { S.markExported(); say('bk_shared', 'ok'); }, e => { if (e && e.name === 'AbortError') say('bk_cancel'); else dl(text, name); });
+          return;
+        }
+      } catch (e) { /* kein Teilen möglich */ }
+      dl(text, name);
+    };
+    inp.onchange = () => {
+      const f = inp.files && inp.files[0]; inp.value = ''; if (!f) return;
+      if (f.size > 5e6) return say('bk_bad', 'no');
+      const rd = new FileReader();
+      rd.onerror = () => say('bk_bad', 'no');
+      rd.onload = () => {
+        const text = String(rd.result), r = S.inspect(text);
+        if (!r.ok) return say(r.err === 'sum' ? 'bk_sum' : r.err === 'new' ? 'bk_new' : 'bk_bad', 'no');
+        const i = r.info, d = new Date(i.ts), t = i.ts ? d.toLocaleDateString(SW.lang === 'de' ? 'de-DE' : 'en-GB') : '–';
+        box.innerHTML = '';
+        add(box, el('div', '', T('bk_ask').replace('{a}', t).replace('{b}', Math.floor(i.pt / 3600) + ':' + String(Math.floor(i.pt % 3600 / 60)).padStart(2, '0') + ' h').replace('{c}', i.lvl)),
+          add(el('div', 'row'), btn(T('ok'), 'on', () => { if (!S.applyImport(text)) { build(); say('bk_fail', 'no'); } }), btn(T('set_wipe_no'), '', () => { build(); if (done) done(); })));
+      };
+      rd.readAsText(f);
+    };
+    function build() {
+      box.innerHTML = '';
+      add(box, el('b', '', T('bk_title')), el('div', 'dim', T('bk_hint') + ' ' + T('bk_last') + ': ' + lastD()), add(el('div', 'row'), btn(T('bk_export'), 'pri', doExport), btn(T('bk_import'), '', () => inp.click())), msg, inp);
+      if (S.backupDue()) say('bk_due', 'no');
+    }
+    build(); return box;
+  }
+
   M.settings = function (p) {
     const root = page(p, T('tab_settings')), row = el('div', 'row');
     add(root, el('b', '', T('set_lang')));
@@ -109,13 +151,19 @@ SW.Menus = (function () {
       add(box, el('span', '', T('set_wipe_ask')), btn(T('set_wipe_yes'), 'on', () => SW.Save.clear()), btn(T('set_wipe_no'), '', () => { box.innerHTML = ''; add(box, first); }));
     }, first = btn(T('set_wipe'), '', ask);
     add(box, first); add(root, box);
+    add(root, backupBox());
   };
 
-  M.h = { el, add, btn, page, refresh };
+  M.h = { el, add, btn, page, refresh, backupBox };
   return M;
 })();
 
 Object.assign(SW.TEXT.en, {
+  back: 'Back', bk_title: 'Backup', bk_hint: 'Export saves your progress as a file (Share menu → Save to Files). Do this regularly: the browser can delete local data.', bk_last: 'Last export', bk_never: 'never',
+  bk_export: 'Export save', bk_import: 'Import save', bk_due: 'Time for a backup: please export your save.', bk_none: 'No valid save to export.',
+  bk_shared: 'Save exported.', bk_dl: 'Save file downloaded.', bk_cancel: 'Export cancelled.', bk_bad: 'This is not a valid Samurai Wanderer save file.',
+  bk_sum: 'The file is damaged (checksum wrong). Nothing was changed.', bk_new: 'The file comes from a newer game version. Nothing was changed.', bk_fail: 'Import failed. Nothing was changed.',
+  bk_ask: 'Import the save from {a} (play time {b}, level {c})? Your current save becomes restore point 1. The oldest restore point is deleted.',
   st_hp: 'Life', st_ki: 'Ki', st_atk: 'Attack', st_def: 'Defense', st_end: 'Endurance', st_crit: 'Crit chance',
   kr_neutral: 'Neutral', kr_honored: 'Honored', kr_revered: 'Revered', kr_distrusted: 'Distrusted', kr_despised: 'Despised',
   kr_hint: 'Helping others and stopping bandits raises Karma. Repeating the same deed counts less each time.',

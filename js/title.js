@@ -23,12 +23,15 @@ SW.Title = (function () {
     });
     add(body, row(btn(T('back'), '', main)));
   }
+  function io() { body.innerHTML = ''; add(body, SW.Menus.h.backupBox(main), row(btn(T('back'), '', main))); }
   function main() {
     body.innerHTML = ''; const has = S.has(), sl = S.slots(), m = sl.find(s => s.main && s.ok);
     add(body, el('h1', '', 'Samurai Wanderer'));
     if (S.damaged) add(body, el('div', 'no', T('t_broken')));
     if (m) add(body, el('div', 'dim', label(m) + ': ' + T('lvl') + ' ' + m.lvl + ' · ' + dur(m.pt) + ' · ' + date(m.ts)));
+    if (S.backupDue()) add(body, el('div', 'no', T('bk_due')));
     add(body, row(btn(T('t_continue'), 'pri', close, !has)), row(btn(T('t_load'), '', list, sl.length < 1 || (sl.length === 1 && sl[0].main && !S.damaged))),
+      row(btn(T('bk_title'), '', io)),
       row(btn(T('t_new'), '', () => { if (has) confirm(T('t_new_ask'), S.newGame, main); else close(); })), lang());
   }
   X.show = function () {
