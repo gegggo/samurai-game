@@ -1,4 +1,5 @@
 'use strict';
+// MOVED: Koordinaten Weltumbau (tools/move_content.py)
 // Dorf-Wiederaufbau Hinode (Phase 5c). Namensraum SW.Village.
 // Stufe wird nur aus dem Quest-Status abgeleitet (nichts Neues im Spielstand, alte Spielstände bleiben gültig).
 // 0 besetzt | 1 befreit (elder1) | 2 Erste Hilfe (elder4) | 3 Häuser repariert (elder5) | 4 Schmiede (elder6) | 5 vollständig (+ elder2 Zaun)
@@ -9,9 +10,9 @@ SW.Village = (function () {
   V.calc = () => !done('elder1') ? 0 : !done('elder4') ? 1 : !done('elder5') ? 2 : !done('elder6') ? 3 : !done('elder2') ? 4 : 5;
   // Zurückgekehrte Bewohner: erscheinen ab Stufe at
   const FOLK = [
-    { id: 'v_1', at: 2, x: 398.5, y: 405.5, robe: '#8a6a4a', hat: '#4a3a2a' },
-    { id: 'v_2', at: 3, x: 409.5, y: 406.5, robe: '#4a6a7a', hat: '#c8b070' },
-    { id: 'v_3', at: 5, x: 391.5, y: 407.5, robe: '#7a4a5a', hat: '#2a2a30' }
+    { id: 'v_1', at: 2, x: 882.5, y: 1177.5, robe: '#8a6a4a', hat: '#4a3a2a' },
+    { id: 'v_2', at: 3, x: 893.5, y: 1178.5, robe: '#4a6a7a', hat: '#c8b070' },
+    { id: 'v_3', at: 5, x: 875.5, y: 1179.5, robe: '#7a4a5a', hat: '#2a2a30' }
   ];
   const houses = () => W.S.filter(s => s.type === 'house').slice(0, 8); // die 8 Dorfhäuser (zuerst erzeugt)
   function apply() {

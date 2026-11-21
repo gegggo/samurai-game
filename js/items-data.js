@@ -1,4 +1,5 @@
 'use strict';
+// MOVED: Koordinaten Weltumbau (tools/move_content.py)
 // Gegenstandsdaten (Phase 4a). Alle Werte Platzhalter bis Balancing.
 // fx: atk = Schadensbonus (0.1 = +10%), crit = Krit in %-Punkten, hp/def = Flachwerte,
 // rec = Erholung (negativ = schneller), dodge = Ausweich-Abklingzeit (positiv = länger), ambush = Hinterhalt-Bonus, parry = Parade-Fenster (s).
@@ -55,38 +56,40 @@ SW.Data = SW.Data || {};
   D.itemMap = {}; D.items.forEach(i => { D.itemMap[i.id] = i; });
   // Truhen: genau EIN Eintrag je Truhe. give: {coins:n} | {ess:n} | {item:id, n}
   D.chests = [
-    { id: 'c_scroll1', x: 334, y: 1964, rar: 'rare', give: { scroll: 'sc_wind' } },   // Ruinen (Schriftrolle, Meister entziffert)
-    { id: 'c_scroll2', x: 1964, y: 1994, rar: 'rare', give: { scroll: 'sc_mount' } },  // Höhlen
-    { id: 'c_vil1', x: 372, y: 372, rar: 'common', give: { coins: 30 } },
-    { id: 'c_vil2', x: 428, y: 446, rar: 'common', give: { item: 'herb', n: 2 } },
-    { id: 'c_bam1', x: 1160, y: 340, rar: 'common', give: { item: 'tanto', n: 1 } },
-    { id: 'c_bam2', x: 1255, y: 470, rar: 'uncommon', give: { coins: 60 } },
-    { id: 'c_bam3', x: 1130, y: 445, rar: 'common', give: { item: 'wood', n: 4 } },
-    { id: 'c_shr1', x: 2040, y: 330, rar: 'uncommon', give: { item: 'helm_iron', n: 1 } },
-    { id: 'c_shr2', x: 1975, y: 420, rar: 'uncommon', give: { ess: 1 } },
-    { id: 'c_west1', x: 360, y: 1150, rar: 'common', give: { item: 'spear', n: 1 } },
-    { id: 'c_west2', x: 470, y: 1260, rar: 'uncommon', give: { coins: 50 } },
-    { id: 'c_lake1', x: 1520, y: 1180, rar: 'rare', give: { item: 'katana_steel', n: 1 } },
-    { id: 'c_east1', x: 1950, y: 1180, rar: 'rare', give: { item: 'iron', n: 4 } },
-    { id: 'c_east2', x: 2110, y: 1290, rar: 'rare', give: { item: 'armor_heavy', n: 1 } },
-    { id: 'c_ruin1', x: 330, y: 1960, rar: 'rare', give: { ess: 2 } },
-    { id: 'c_ruin2', x: 460, y: 2050, rar: 'epic', give: { item: 'tanto_night', n: 1 } },
-    { id: 'c_camp1', x: 1150, y: 1975, rar: 'uncommon', give: { coins: 80 } },
-    { id: 'c_camp2', x: 1240, y: 2050, rar: 'rare', give: { item: 'armor_light', n: 1 } },
-    { id: 'c_cave1', x: 1960, y: 1990, rar: 'epic', give: { ess: 2 } },
-    { id: 'c_cave2', x: 2060, y: 2060, rar: 'epic', give: { item: 'katana_temper', n: 1 } },
-    { id: 'c_peak1', x: 2089, y: 1149, rar: 'epic', give: { item: 'bow_yumi', n: 1 } },
-    { id: 'c_hut1', x: 1211, y: 432, rar: 'uncommon', give: { item: 'mask_oni_half', n: 1 } },
-    { id: 'c_grove1', x: 772, y: 790, rar: 'rare', give: { ess: 1 } },
-    { id: 'c_grove2', x: 828, y: 812, rar: 'uncommon', give: { coins: 120 } },
-    { id: 'c_garden1', x: 1572, y: 790, rar: 'rare', give: { ess: 1 } },
-    { id: 'c_garden2', x: 1628, y: 812, rar: 'uncommon', give: { coins: 130 } },
-    { id: 'c_marsh1', x: 772, y: 1590, rar: 'common', give: { item: 'herb', n: 3 } },
-    { id: 'c_marsh2', x: 828, y: 1612, rar: 'uncommon', give: { coins: 90 } },
-    { id: 'c_temple1', x: 1654, y: 1612, rar: 'epic', give: { ess: 1 } },
-    { id: 'c_pv1', x: 1568, y: 1612, rar: 'uncommon', give: { coins: 100 } },
-    { id: 'c_wind1', x: 1442, y: 1612, rar: 'rare', give: { coins: 160 } },
-    { id: 'c_cloud1', x: 1566, y: 1488, rar: 'rare', give: { item: 'iron', n: 6 } }
+    { id: 'c_scroll1', x: 674, y: 2224, rar: 'rare', give: { scroll: 'sc_wind' } },   // Ruinen (Schriftrolle, Meister entziffert)
+    { id: 'c_scroll2', x: 2656, y: 2366, rar: 'rare', give: { scroll: 'sc_mount' } },  // Höhlen
+    { id: 'c_vil1', x: 856, y: 1144, rar: 'common', give: { coins: 30 } },
+    { id: 'c_vil2', x: 912, y: 1218, rar: 'common', give: { item: 'herb', n: 2 } },
+    { id: 'c_bam1', x: 1516, y: 720, rar: 'common', give: { item: 'tanto', n: 1 } },
+    { id: 'c_bam2', x: 1611, y: 850, rar: 'uncommon', give: { coins: 60 } },
+    { id: 'c_bam3', x: 1486, y: 825, rar: 'common', give: { item: 'wood', n: 4 } },
+    { id: 'c_shr1', x: 2532, y: 390, rar: 'uncommon', give: { item: 'helm_iron', n: 1 } },
+    { id: 'c_shr2', x: 2467, y: 480, rar: 'uncommon', give: { ess: 1 } },
+    { id: 'c_west1', x: 420, y: 1650, rar: 'common', give: { item: 'spear', n: 1 } },
+    { id: 'c_west2', x: 530, y: 1760, rar: 'uncommon', give: { coins: 50 } },
+    { id: 'c_lake1', x: 2204, y: 1420, rar: 'rare', give: { item: 'katana_steel', n: 1 } },
+    { id: 'c_east1', x: 3290, y: 1528, rar: 'rare', give: { item: 'iron', n: 4 } },
+    { id: 'c_east2', x: 3450, y: 1638, rar: 'rare', give: { item: 'armor_heavy', n: 1 } },
+    { id: 'c_ruin1', x: 670, y: 2220, rar: 'rare', give: { ess: 2 } },
+    { id: 'c_ruin2', x: 800, y: 2310, rar: 'epic', give: { item: 'tanto_night', n: 1 } },
+    { id: 'c_camp1', x: 1602, y: 2163, rar: 'uncommon', give: { coins: 80 } },
+    { id: 'c_camp2', x: 1692, y: 2238, rar: 'rare', give: { item: 'armor_light', n: 1 } },
+    { id: 'c_cave1', x: 2652, y: 2362, rar: 'epic', give: { ess: 2 } },
+    { id: 'c_cave2', x: 2752, y: 2432, rar: 'epic', give: { item: 'katana_temper', n: 1 } },
+    { id: 'c_peak1', x: 3429, y: 1497, rar: 'epic', give: { item: 'bow_yumi', n: 1 } },
+    { id: 'c_hut1', x: 1567, y: 812, rar: 'uncommon', give: { item: 'mask_oni_half', n: 1 } },
+    { id: 'c_grove1', x: 1304, y: 1154, rar: 'rare', give: { ess: 1 } },
+    { id: 'c_grove2', x: 1360, y: 1176, rar: 'uncommon', give: { coins: 120 } },
+    { id: 'c_garden1', x: 2264, y: 1002, rar: 'rare', give: { ess: 1 } },
+    { id: 'c_garden2', x: 2320, y: 1024, rar: 'uncommon', give: { coins: 130 } },
+    { id: 'c_marsh1', x: 1272, y: 1986, rar: 'common', give: { item: 'herb', n: 3 } },
+    { id: 'c_marsh2', x: 1328, y: 2008, rar: 'uncommon', give: { coins: 90 } },
+    { id: 'c_temple1', x: 2914, y: 1944, rar: 'epic', give: { ess: 1 } },
+    { id: 'c_pv1', x: 2828, y: 1944, rar: 'uncommon', give: { coins: 100 } },
+    { id: 'c_wind1', x: 2702, y: 1944, rar: 'rare', give: { coins: 160 } },
+    { id: 'c_cloud1', x: 2826, y: 1820, rar: 'rare', give: { item: 'iron', n: 6 } },
+    { id: 'c_spire5', x: 2824, y: 2046, rar: 'rare', give: { coins: 150 } },   // Karst Berg 5 (Süd)
+    { id: 'c_spire6', x: 3014, y: 1938, rar: 'rare', give: { item: 'iron', n: 6 } }   // Karst Berg 6 (Ost)
   ];
   // Legendäre Waffen: einmalige Belohnung für den Sieg über diesen Gegner (Gegner bleiben besiegt)
   D.drops = { e_boss: 'katana_counter', e_cave: 'katana_moon', e_ruins: 'nodachi_reaper', e_warden: 'tanto_warden', e_monk: 'naginata_monk', e_oni: 'armor_oni' };

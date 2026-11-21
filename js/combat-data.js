@@ -1,4 +1,5 @@
 'use strict';
+// MOVED: Koordinaten Weltumbau (tools/move_content.py)
 // Kampfdaten (Phase 2). Platzhalterwerte, Balancing folgt in Phase 3 und 6.
 SW.Data = SW.Data || {};
 // Basiswerte des Spielers. Phase 3 ersetzt das über SW.Combat.playerStats().
@@ -96,52 +97,54 @@ SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', '
 // Begegnungen in der Welt (Phase 2: feste Testpunkte; echte Gegner-Spawns folgen in Phase 5).
 // Position wird beim Start auf die nächste freie Kachel gesetzt.
 SW.Data.spots = [
-  { id: 'e_train',  type: 'bandit',   x: 401,  y: 408 },
-  { id: 'e_bamboo', type: 'bandit',   x: 1230, y: 395 },
-  { id: 'e_west',   type: 'ronin',    x: 430,  y: 1180 },
-  { id: 'e_shrine', type: 'spearman', x: 2000, y: 520 },
-  { id: 'e_ruins',  type: 'samurai',  x: 400,  y: 2030 },
-  { id: 'e_east1',  type: 'swift',    x: 1980, y: 1230 },
-  { id: 'e_east2',  type: 'armored',  x: 2090, y: 1205 },
-  { id: 'e_cave',   type: 'elite',    x: 2000, y: 2030 },
-  { id: 'e_boss',   type: 'boss',     x: 1200, y: 2008 },
+  { id: 'e_train',  type: 'bandit',   x: 885, y: 1180 },
+  { id: 'e_bamboo', type: 'bandit',   x: 1586, y: 775 },
+  { id: 'e_west',   type: 'ronin',    x: 490, y: 1680 },
+  { id: 'e_shrine', type: 'spearman', x: 2492, y: 580 },
+  { id: 'e_ruins',  type: 'samurai',  x: 740, y: 2290 },
+  { id: 'e_east1',  type: 'swift',    x: 3320, y: 1578 },
+  { id: 'e_east2',  type: 'armored',  x: 3430, y: 1553 },
+  { id: 'e_cave',   type: 'elite',    x: 2692, y: 2402 },
+  { id: 'e_boss',   type: 'boss',     x: 1652, y: 2196 },
   // Phase 2b: weitere Gegnerpunkte (Richtwerte, werden auf freie Kacheln gesetzt)
-  { id: 'e_bamboo2', type: 'bandit',   x: 1330, y: 480 },
-  { id: 'e_bamboo3', type: 'ronin',    x: 1100, y: 310 },
-  { id: 'e_bamboo4', type: 'bandit',   x: 1260, y: 300 },
-  { id: 'e_shrine2', type: 'spearman', x: 1940, y: 330 },
-  { id: 'e_shrine3', type: 'samurai',  x: 2100, y: 470 },
-  { id: 'e_west2',   type: 'bandit',   x: 330,  y: 1280 },
-  { id: 'e_west3',   type: 'spearman', x: 500,  y: 1100 },
-  { id: 'e_lake1',   type: 'ronin',    x: 1452, y: 1330 },
-  { id: 'e_east3',   type: 'swift',    x: 1900, y: 1120 },
-  { id: 'e_east4',   type: 'armored',  x: 2150, y: 1150 },
-  { id: 'e_ruins2',  type: 'ronin',    x: 320,  y: 1930 },
-  { id: 'e_ruins3',  type: 'swift',    x: 480,  y: 2110 },
-  { id: 'e_camp1',   type: 'bandit',   x: 1130, y: 1940 },
-  { id: 'e_camp2',   type: 'bandit',   x: 1280, y: 1960 },
-  { id: 'e_camp3',   type: 'ronin',    x: 1180, y: 2090 },
-  { id: 'e_camp4',   type: 'samurai',  x: 1260, y: 2100 },
-  { id: 'e_cave2',   type: 'swift',    x: 1944, y: 2060 },
-  { id: 'e_cave3',   type: 'armored',  x: 2090, y: 1930 },
-  { id: 'e_grove1',  type: 'ronin',    x: 770,  y: 825 },
-  { id: 'e_grove2',  type: 'spearman', x: 835,  y: 770 },
-  { id: 'e_grove3',  type: 'swift',    x: 800,  y: 845 },
+  { id: 'e_bamboo2', type: 'bandit',   x: 1686, y: 860 },
+  { id: 'e_bamboo3', type: 'ronin',    x: 1456, y: 690 },
+  { id: 'e_bamboo4', type: 'bandit',   x: 1616, y: 680 },
+  { id: 'e_shrine2', type: 'spearman', x: 2432, y: 390 },
+  { id: 'e_shrine3', type: 'samurai',  x: 2592, y: 530 },
+  { id: 'e_west2',   type: 'bandit',   x: 390, y: 1780 },
+  { id: 'e_west3',   type: 'spearman', x: 560, y: 1600 },
+  { id: 'e_lake1',   type: 'ronin',    x: 2139, y: 1560 },
+  { id: 'e_east3',   type: 'swift',    x: 3240, y: 1468 },
+  { id: 'e_east4',   type: 'armored',  x: 3490, y: 1498 },
+  { id: 'e_ruins2',  type: 'ronin',    x: 660, y: 2190 },
+  { id: 'e_ruins3',  type: 'swift',    x: 820, y: 2370 },
+  { id: 'e_camp1',   type: 'bandit',   x: 1582, y: 2128 },
+  { id: 'e_camp2',   type: 'bandit',   x: 1732, y: 2148 },
+  { id: 'e_camp3',   type: 'ronin',    x: 1632, y: 2278 },
+  { id: 'e_camp4',   type: 'samurai',  x: 1712, y: 2288 },
+  { id: 'e_cave2',   type: 'swift',    x: 2636, y: 2432 },
+  { id: 'e_cave3',   type: 'armored',  x: 2782, y: 2302 },
+  { id: 'e_grove1',  type: 'ronin',    x: 1302, y: 1189 },
+  { id: 'e_grove2',  type: 'spearman', x: 1367, y: 1134 },
+  { id: 'e_grove3',  type: 'swift',    x: 1332, y: 1209 },
   // Steingarten (Region 10) und Schilfmarsch (Region 11)
-  { id: 'e_garden1', type: 'samurai',  x: 1575, y: 810 },
-  { id: 'e_garden2', type: 'armored',  x: 1630, y: 775 },
-  { id: 'e_garden3', type: 'spearman', x: 1600, y: 835 },
-  { id: 'e_marsh1',  type: 'bandit',   x: 775,  y: 1610 },
-  { id: 'e_marsh2',  type: 'swift',    x: 830,  y: 1580 },
-  { id: 'e_marsh3',  type: 'ronin',    x: 800,  y: 1635 },
+  { id: 'e_garden1', type: 'samurai',  x: 2267, y: 1022 },
+  { id: 'e_garden2', type: 'armored',  x: 2322, y: 987 },
+  { id: 'e_garden3', type: 'spearman', x: 2292, y: 1047 },
+  { id: 'e_marsh1',  type: 'bandit',   x: 1275, y: 2006 },
+  { id: 'e_marsh2',  type: 'swift',    x: 1330, y: 1976 },
+  { id: 'e_marsh3',  type: 'ronin',    x: 1300, y: 2031 },
   // Karst Spires: Himmelstempel (Berg 2), Windturm (Berg 3), Wolkenturm (Berg 4)
-  { id: 'e_temple1', type: 'armored', x: 1650, y: 1611 }, { id: 'e_temple2', type: 'samurai', x: 1650, y: 1583 },
-  { id: 'e_wind1',   type: 'swift',   x: 1458, y: 1612 }, { id: 'e_wind2',   type: 'spearman', x: 1442, y: 1584 },
-  { id: 'e_cloud1',  type: 'ronin',   x: 1550, y: 1496 }, { id: 'e_cloud2',  type: 'samurai',  x: 1570, y: 1494 },
+  { id: 'e_temple1', type: 'armored', x: 2910, y: 1943 }, { id: 'e_temple2', type: 'samurai', x: 2910, y: 1915 },
+  { id: 'e_wind1',   type: 'swift',   x: 2718, y: 1944 }, { id: 'e_wind2',   type: 'spearman', x: 2702, y: 1916 },
+  { id: 'e_cloud1',  type: 'ronin',   x: 2810, y: 1828 }, { id: 'e_cloud2',  type: 'samurai',  x: 2830, y: 1826 },
+  // Karst Berg 5 (Süd) und Berg 6 (fern im Osten), neu im Weltumbau
+  { id: 'e_spire5', type: 'ronin', x: 2820, y: 2040 }, { id: 'e_spire6', type: 'swift', x: 3006, y: 1928 },
   // Bosse
-  { id: 'e_warden',  type: 'boss_warden', x: 370,  y: 2130 },
-  { id: 'e_monk',    type: 'boss_monk',   x: 2100, y: 1300 },
-  { id: 'e_oni',     type: 'boss_oni',    x: 1990, y: 2120 }
+  { id: 'e_warden',  type: 'boss_warden', x: 710, y: 2390 },
+  { id: 'e_monk',    type: 'boss_monk',   x: 3440, y: 1648 },
+  { id: 'e_oni',     type: 'boss_oni',    x: 2682, y: 2492 }
 ];
 // Belohnungen je Gegnertyp (Phase 3, Platzhalter bis Balancing). xp = Erfahrung, ess = Essence (Zahl; BALANCE-PLATZHALTER), karma = Ruf, secret = geheime Technik.
 // Münzen folgen in Phase 4, Gegenstände ebenfalls.
@@ -161,14 +164,14 @@ SW.Data.rewards = {
 };
 // Phase 7d: Kopfgeldjäger (kv = erscheinen bei Karma <= kv, einmalig besiegbar, gespeichert über 'defeated')
 SW.Data.spots.push(
-  { id: 'h_1', type: 'samurai', x: 470, y: 430, kv: -30 },
-  { id: 'h_2', type: 'armored', x: 340, y: 500, kv: -30 }
+  { id: 'h_1', type: 'samurai', x: 954, y: 1202, kv: -30 },
+  { id: 'h_2', type: 'armored', x: 824, y: 1272, kv: -30 }
 );
 // Phase 7c: Nachtgegner (nur nachts sichtbar). respawn: jede Nacht neu, nicht gespeichert. Ohne respawn: einmalig (Quest 'watch1').
 SW.Data.spots.push(
-  { id: 'n_quest', type: 'samurai',  x: 400,  y: 470, night: true },
-  { id: 'n_south', type: 'swift',    x: 400,  y: 800, night: true, respawn: true },
-  { id: 'n_east',  type: 'ronin',    x: 800,  y: 400, night: true, respawn: true },
-  { id: 'n_mid',   type: 'spearman', x: 1200, y: 800, night: true, respawn: true },
-  { id: 'n_lake',  type: 'armored',  x: 800,  y: 1200, night: true, respawn: true }
+  { id: 'n_quest', type: 'samurai',  x: 884, y: 1242, night: true },
+  { id: 'n_south', type: 'swift',    x: 436, y: 1372, night: true, respawn: true },
+  { id: 'n_east',  type: 'ronin',    x: 1156, y: 780, night: true, respawn: true },
+  { id: 'n_mid',   type: 'spearman', x: 1887, y: 1030, night: true, respawn: true },
+  { id: 'n_lake',  type: 'armored',  x: 1487, y: 1430, night: true, respawn: true }
 );

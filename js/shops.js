@@ -7,7 +7,7 @@ SW.Shop = (function () {
   const it = id => D.itemMap[id];
 
   function free(x, y) {
-    for (let r = 0; r < 10; r++) {
+    for (let r = 0; r < 40; r++) {
       const n = r ? r * 8 : 1;
       for (let a = 0; a < n; a++) {
         const g = a / n * TAU, px = Math.floor(x + Math.cos(g) * r), py = Math.floor(y + Math.sin(g) * r);

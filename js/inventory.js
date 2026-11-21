@@ -9,7 +9,7 @@ SW.Inv = (function () {
   const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 
   function free(x, y) {
-    for (let r = 0; r < 14; r++) {
+    for (let r = 0; r < 40; r++) {
       const n = r ? r * 8 : 1;
       for (let a = 0; a < n; a++) {
         const g = a / n * TAU, px = Math.floor(x + Math.cos(g) * r), py = Math.floor(y + Math.sin(g) * r);

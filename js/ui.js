@@ -1,19 +1,19 @@
 'use strict';
 // UI: Minimap, Regionsbanner, Hauptmenü (Phase 1: nur Map aktiv), Entdeckung von Orten.
 SW.UI = (function () {
-  const W = SW.World, OV = SW.CFG.OV, OS = SW.CFG.WORLD / OV;
+  const W = SW.World, OV = SW.CFG.OV, WW = W.WIDTH, HH = W.HEIGHT, OSW = Math.ceil(WW / OV), OSH = Math.ceil(HH / OV); // Kartenbild skaliert mit CFG.W/H (OV wächst mit der Welt)
   const $ = id => document.getElementById(id);
   const TABS = [['map', 1], ['inventory', 4], ['equipment', 4], ['skills', 3], ['skilltree', 3], ['quests', 4], ['character', 3], ['karma', 3], ['settings', 1]];
-  const U = { disc: new Set(), seen: new Set(), sel: null, view: { z: 1, x: 1200, y: 1200 } };
+  const U = { disc: new Set(), seen: new Set(), sel: null, view: { z: 1, x: WW / 2, y: HH / 2 } };
   let cmp, posEl, posK = '', cmpK = -1, mini, mc, ov, oc, ov2, oc2, ovRow = 0, reg = -1, banner, bt = 0, menu, panel, mapC, mapT = 0, mt = 0, tab = 'map', open = false;
 
   U.init = function () {
     cmp = $('compass');
     posEl = document.createElement('div'); posEl.id = 'pos'; document.body.appendChild(posEl); // Koordinaten unter der Minikarte
     mini = $('mini'); mc = mini.getContext('2d'); banner = $('banner'); menu = $('menu'); panel = $('menu-panel');
-    ov = document.createElement('canvas'); ov.width = ov.height = OS; oc = ov.getContext('2d');
-    oc.fillStyle = '#0b0b0f'; oc.fillRect(0, 0, OS, OS);
-    ov2 = document.createElement('canvas'); ov2.width = ov2.height = OS; oc2 = ov2.getContext('2d');
+    ov = document.createElement('canvas'); ov.width = OSW; ov.height = OSH; oc = ov.getContext('2d');
+    oc.fillStyle = '#000'; oc.fillRect(0, 0, OSW, OSH);
+    ov2 = document.createElement('canvas'); ov2.width = OSW; ov2.height = OSH; oc2 = ov2.getContext('2d');
     const tabs = $('menu-tabs');
     TABS.forEach(a => {
       const b = document.createElement('button'); b.textContent = SW.t('tab_' + a[0]); b.dataset.k = a[0];
@@ -51,23 +51,24 @@ SW.UI = (function () {
   U.isOpen = () => open;
   U.open = function (k) { if (!open) toggle(true); selectTab(k); };
   // Schnellreise: Tipp auf Schrein wählt ihn, Knopf reist dorthin
-  const ZMAX = 5;
+  const ZMAX = 5 * Math.max(1, WW / 2400); // Zoomstufe wächst mit der Welt
+  const zmin = A => Math.min(1, A * WW / HH); // z=1: Kartenbreite = Weltbreite; min: ganze Welt sichtbar
   function clampView() {
-    const v = U.view, W2 = SW.CFG.WORLD, A = mapC ? mapC.height / mapC.width : 1;
-    v.z = Math.max(Math.min(1, A), Math.min(ZMAX, v.z)); // z=1: Kartenbreite = Weltbreite; min: ganze Welthöhe sichtbar
-    const hx = W2 / v.z / 2, hy = hx * A;
-    v.x = hx * 2 >= W2 ? W2 / 2 : Math.max(hx, Math.min(W2 - hx, v.x)); v.y = hy * 2 >= W2 ? W2 / 2 : Math.max(hy, Math.min(W2 - hy, v.y));
+    const v = U.view, A = mapC ? mapC.height / mapC.width : 1;
+    v.z = Math.max(zmin(A), Math.min(ZMAX, v.z));
+    const hx = WW / v.z / 2, hy = hx * A;
+    v.x = hx * 2 >= WW ? WW / 2 : Math.max(hx, Math.min(WW - hx, v.x)); v.y = hy * 2 >= HH ? HH / 2 : Math.max(hy, Math.min(HH - hy, v.y));
   }
   // Zoom um einen Bildschirmpunkt (fx, fy = 0..1 im Kartenbild), Punkt bleibt unter dem Finger
   function zoomAt(f, fx, fy) {
-    const v = U.view, W2 = SW.CFG.WORLD, A = mapC.height / mapC.width, wx = v.x + (fx - .5) * W2 / v.z, wy = v.y + (fy - .5) * A * W2 / v.z;
-    v.z = Math.max(Math.min(1, A), Math.min(ZMAX, v.z * f));
-    v.x = wx - (fx - .5) * W2 / v.z; v.y = wy - (fy - .5) * A * W2 / v.z; clampView(); drawMap();
+    const v = U.view, A = mapC.height / mapC.width, wx = v.x + (fx - .5) * WW / v.z, wy = v.y + (fy - .5) * A * WW / v.z;
+    v.z = Math.max(zmin(A), Math.min(ZMAX, v.z * f));
+    v.x = wx - (fx - .5) * WW / v.z; v.y = wy - (fy - .5) * A * WW / v.z; clampView(); drawMap();
   }
   function mapTap(cx, cy) {
-    const r = mapC.getBoundingClientRect(), v = U.view, W2 = SW.CFG.WORLD;
-    const wx = v.x + ((cx - r.left) / r.width - .5) * W2 / v.z, wy = v.y + ((cy - r.top) / r.height - .5) * r.height / r.width * W2 / v.z;
-    const lim = 30 / r.width * W2 / v.z; let best = null, bd = lim;
+    const r = mapC.getBoundingClientRect(), v = U.view;
+    const wx = v.x + ((cx - r.left) / r.width - .5) * WW / v.z, wy = v.y + ((cy - r.top) / r.height - .5) * r.height / r.width * WW / v.z;
+    const lim = 30 / r.width * WW / v.z; let best = null, bd = lim;
     SW.Shrines.list.forEach(s => { if (!SW.Shrines.isFound(s.id)) return; const d = Math.hypot(s.x - wx, s.y - wy); if (d < bd) { bd = d; best = s.id; } });
     if (best && SW.Shrines.isOn(best)) { if (SW.Shrines.travel(best)) toggle(false); return; } U.sel = best; drawMap();
   }
@@ -80,7 +81,7 @@ SW.UI = (function () {
     c.addEventListener('pointerdown', e => { try { c.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } P.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (P.size === 1) { moved = 0; multi = false; } else { multi = true; last = span(); lm = mid(); } e.preventDefault(); });
     c.addEventListener('pointermove', e => {
       const p = P.get(e.pointerId); if (!p) return;
-      const r = c.getBoundingClientRect(), v = U.view, W2 = SW.CFG.WORLD;
+      const r = c.getBoundingClientRect(), v = U.view, W2 = WW;
       if (P.size >= 2) {
         P.set(e.pointerId, { x: e.clientX, y: e.clientY });
         const sp = span(), m = mid(); if (lm) { v.x -= (m.x - lm.x) / r.width * W2 / v.z; v.y -= (m.y - lm.y) / r.width * W2 / v.z; } lm = m; zoomAt(sp / last, (m.x - r.left) / r.width, (m.y - r.top) / r.height); last = sp; return;
@@ -108,23 +109,26 @@ SW.UI = (function () {
   // Flächenfarbe je Region (Index = W.regionAt)
   const RCOL = [[143, 160, 95], [74, 122, 58], [138, 130, 112], [58, 100, 56], [64, 112, 96], [126, 118, 108], [118, 106, 92], [140, 100, 60], [88, 78, 98], [44, 84, 56], [128, 126, 120], [88, 112, 70], [225, 232, 238], [118, 62, 42], [214, 176, 98], [205, 190, 140], [140, 124, 108]];
   // Übersichtsbild der Welt, schrittweise erzeugt (blockiert den Start nicht)
-  function stepOverview(rows) {
-    if (ovRow >= OS) return;
-    const n = Math.min(rows, OS - ovRow), img = oc.createImageData(OS, n);
-    for (let j = 0; j < n; j++) for (let i = 0; i < OS; i++) {
-      const c = W.PAL[W.terrain(i * OV + OV / 2 | 0, (ovRow + j) * OV + OV / 2 | 0)], k = (j * OS + i) * 4;
+  function stepOverview() {
+    if (ovRow >= OSH) return;
+    const n = Math.min(Math.max(1, Math.floor(7200 / OSW)), OSH - ovRow), img = oc.createImageData(OSW, n); // ca. 7200 Bildpunkte je Bild, blockiert nichts
+    for (let j = 0; j < n; j++) for (let i = 0; i < OSW; i++) {
+      const c = W.PAL[W.terrain(i * OV + OV / 2 | 0, (ovRow + j) * OV + OV / 2 | 0)], k = (j * OSW + i) * 4;
       img.data[k] = c[0]; img.data[k + 1] = c[1]; img.data[k + 2] = c[2]; img.data[k + 3] = 255;
     }
     oc.putImageData(img, 0, ovRow);
-    // Kartenbild im Stil des World Draft: Regionen als Flächen, Wasser, Wege, heller Küstenrand (Minimap nutzt weiter das Geländebild)
-    const im2 = oc2.createImageData(OS, n), TT = W.T, h = OV / 4 | 0;
-    for (let j = 0; j < n; j++) for (let i = 0; i < OS; i++) {
-      const X0 = i * OV + OV / 2 | 0, Y0 = (ovRow + j) * OV + OV / 2 | 0, t = W.terrain(X0, Y0);
-      let c = RCOL[W.regionAt(X0, Y0)] || RCOL[0];
-      if (t === TT.DEEP) c = [32, 70, 150]; else if (t === TT.WATER) c = [58, 110, 190]; else if (t === TT.LAVA) c = [200, 70, 30]; else if (t === TT.SAND) c = [222, 204, 150];
-      else for (let q = 0; q < 4; q++) { const u = W.terrain(X0 + (q & 1 ? h : -h), Y0 + (q & 2 ? h : -h)); if (u === TT.PATH || u === TT.BRIDGE) { c = [226, 200, 140]; break; } }
-      if (i === 0 || j + ovRow === 0 || i === OS - 1 || j + ovRow === OS - 1) c = [201, 185, 138];
-      const k = (j * OS + i) * 4; im2.data[k] = c[0]; im2.data[k + 1] = c[1]; im2.data[k + 2] = c[2]; im2.data[k + 3] = 255;
+    // Kartenbild im Stil des World Draft: Meer schwarz, Regionen als Flächen, Wasser, Wege, heller Küstenrand
+    const im2 = oc2.createImageData(OSW, n), TT = W.T, h = OV / 4 | 0;
+    for (let j = 0; j < n; j++) for (let i = 0; i < OSW; i++) {
+      const X0 = i * OV + OV / 2 | 0, Y0 = (ovRow + j) * OV + OV / 2 | 0, t = W.terrain(X0, Y0), k = (j * OSW + i) * 4;
+      let c = [0, 0, 0];
+      if (t !== TT.SEA) {
+        c = RCOL[W.regionAt(X0, Y0)] || RCOL[0];
+        if (t === TT.DEEP) c = [32, 70, 150]; else if (t === TT.WATER) c = [58, 110, 190]; else if (t === TT.LAVA) c = [200, 70, 30]; else if (t === TT.SAND) c = [222, 204, 150];
+        else for (let q = 0; q < 4; q++) { const u = W.terrain(X0 + (q & 1 ? h : -h), Y0 + (q & 2 ? h : -h)); if (u === TT.PATH || u === TT.BRIDGE) { c = [226, 200, 140]; break; } if (u === TT.WATER) c = [58, 110, 190]; }
+        if (t !== TT.WATER && t !== TT.DEEP && (W.terrain(X0 - OV, Y0) === TT.SEA || W.terrain(X0 + OV, Y0) === TT.SEA || W.terrain(X0, Y0 - OV) === TT.SEA || W.terrain(X0, Y0 + OV) === TT.SEA)) c = [201, 185, 138]; // Küstenlinie
+      }
+      im2.data[k] = c[0]; im2.data[k + 1] = c[1]; im2.data[k + 2] = c[2]; im2.data[k + 3] = 255;
     }
     oc2.putImageData(im2, 0, ovRow); ovRow += n;
   }
@@ -132,7 +136,7 @@ SW.UI = (function () {
   function drawMini(p) {
     const w = mini.width, sp = 60, k = w / sp, sx = p.x / OV - sp / 2, sy = p.y / OV - sp / 2;
     mc.fillStyle = '#0b0b0f'; mc.fillRect(0, 0, w, w);
-    mc.drawImage(ov, -sx * k, -sy * k, OS * k, OS * k);
+    mc.drawImage(ov, -sx * k, -sy * k, OSW * k, OSH * k);
     mc.fillStyle = '#f2c14e';
     W.POI.forEach(o => {
       if (!U.disc.has(o.id)) return;
@@ -161,17 +165,18 @@ SW.UI = (function () {
 
   function drawMap() {
     if (!mapC) return;
-    const c = mapC.getContext('2d'), s = mapC.width, hh = mapC.height, p = SW.Player, v = U.view, W2 = SW.CFG.WORLD, ppw = s / W2 * v.z, d = SW.dpr || 1;
+    const c = mapC.getContext('2d'), s = mapC.width, hh = mapC.height, p = SW.Player, v = U.view, ppw = s / WW * v.z, d = SW.dpr || 1;
     const X = wx => (wx - v.x) * ppw + s / 2, Y = wy => (wy - v.y) * ppw + hh / 2;
     c.fillStyle = '#0b0b0f'; c.fillRect(0, 0, s, hh);
-    c.imageSmoothingEnabled = v.z < 2.5; c.drawImage(ov2, X(0), Y(0), W2 * ppw, W2 * ppw);
+    c.imageSmoothingEnabled = v.z < 2.5; c.drawImage(ov2, X(0), Y(0), WW * ppw, HH * ppw);
     c.strokeStyle = 'rgba(232,224,208,.6)'; c.lineWidth = 2; c.strokeRect(1, 1, s - 2, hh - 2);
     c.font = (11 * d) + 'px sans-serif'; c.textAlign = 'center';
     // Namen: alle Regionen und Orte stehen auf der Karte, noch nicht besuchte gedämpft. Schreine bleiben an Entdeckung gebunden (Schnellreise).
-    const lab = (s, x, y, a, big) => { c.globalAlpha = a; c.font = '700 ' + ((big ? 14 : 11) * d) + 'px sans-serif'; c.lineJoin = 'round'; c.lineWidth = 3 * d; c.strokeStyle = 'rgba(15,20,30,.85)'; c.strokeText(s, x, y); c.fillStyle = '#fff'; c.fillText(s, x, y); c.globalAlpha = 1; };
+    const used = []; // belegte Textfelder: überlappende Namen entfallen (beim Hineinzoomen erscheinen sie)
+    const lab = (s, x, y, a, big) => { c.font = '700 ' + ((big ? 14 : 11) * d) + 'px sans-serif'; const tw = c.measureText(s).width / 2 + 3 * d, th = (big ? 14 : 11) * d; if (used.some(u => Math.abs(u[0] - x) < u[2] + tw && Math.abs(u[1] - y) < u[3] + th)) return; used.push([x, y, tw, th / 2]); c.globalAlpha = a; c.lineJoin = 'round'; c.lineWidth = 3 * d; c.strokeStyle = 'rgba(15,20,30,.85)'; c.strokeText(s, x, y); c.fillStyle = '#fff'; c.fillText(s, x, y); c.globalAlpha = 1; };
     const poiNames = W.POI.map(o => SW.t('poi_' + o.id));
-    for (let r = 0; r < 17; r++) { const n = SW.t('reg_' + r), m = r >= 9 && W.MINI[r - 9]; if (poiNames.indexOf(n) < 0) lab(n, X(m ? m.x : W.C[r % 3]), Y(m ? m.y : W.C[(r / 3) | 0]) - 14 * d, U.seen.has(r) ? 1 : .75, 1); } // gleichnamige Orte nicht doppelt beschriften
-    W.POI.forEach(o => {
+    for (let r = 0; r < W.CEN.length; r++) { const n = SW.t('reg_' + r), m = W.CEN[r]; if (m && poiNames.indexOf(n) < 0) lab(n, X(m[0]), Y(m[1]) - 14 * d, U.seen.has(r) ? 1 : .75, 1); } // gleichnamige Orte nicht doppelt beschriften
+    W.POI.slice().sort((a, b) => U.disc.has(b.id) - U.disc.has(a.id)).forEach(o => { // entdeckte Orte zuerst beschriften
       const x = X(o.x), y = Y(o.y), r = 5 * d, got = U.disc.has(o.id);
       c.globalAlpha = got ? 1 : .55; c.fillStyle = got ? '#f2c14e' : 'rgba(242,193,78,.0)'; c.strokeStyle = '#f2c14e'; c.lineWidth = 1.5 * d;
       c.beginPath(); c.moveTo(x, y - r); c.lineTo(x + r, y); c.lineTo(x, y + r); c.lineTo(x - r, y); c.closePath(); if (got) c.fill(); else c.stroke(); c.globalAlpha = 1;
@@ -188,14 +193,14 @@ SW.UI = (function () {
       c.fillStyle = '#6fd36f'; c.strokeStyle = '#000'; c.lineWidth = 1.5 * d; c.beginPath(); c.arc(X(o.x), Y(o.y), 6 * d, 0, 6.2832); c.fill(); c.stroke();
     });
     c.fillStyle = '#e0452f'; c.strokeStyle = '#fff'; c.lineWidth = 2 * d; c.beginPath(); c.arc(X(p.x), Y(p.y), 5 * d, 0, 6.2832); c.fill(); c.stroke();
-    // eigene Position als Koordinaten (Kacheln, Karte 0 bis 2400)
+    // eigene Position als Koordinaten (Kacheln, Weltmaß CFG.W x CFG.H)
     const pt = 'X ' + Math.floor(p.x) + ' · Y ' + Math.floor(p.y); c.font = (13 * d) + 'px sans-serif'; c.textAlign = 'left';
     c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(8 * d, 8 * d, c.measureText(pt).width + 12 * d, 22 * d); c.fillStyle = '#fff'; c.fillText(pt, 14 * d, 24 * d); c.textAlign = 'center';
   }
 
   U.update = function (dt) {
     const p = SW.Player;
-    stepOverview(24);
+    stepOverview();
     const r = W.regionAt(Math.floor(p.x), Math.floor(p.y));
     if (r !== reg) {
       const first = reg === -1, fresh = !U.seen.has(r); reg = r; U.seen.add(r); showBanner(SW.t('reg_' + r));

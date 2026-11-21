@@ -1,22 +1,23 @@
 'use strict';
+// MOVED: Koordinaten Weltumbau (tools/move_content.py)
 // Händler-, Schmied- und Herstellungsdaten (Phase 4b). Alle Werte Platzhalter bis Balancing.
 SW.Data = SW.Data || {};
 (function () {
   const D = SW.Data;
   // NPCs im Startdorf (Position wird beim Start auf freie Kachel gesetzt)
   D.npcs = [
-    { id: 'n_weapon', role: 'weapon', x: 389.5, y: 399.5, robe: '#7a2e2a', hat: '#2a2a30' },
-    { id: 'n_armor', role: 'armor', x: 395.5, y: 399.5, robe: '#3a4a6a', hat: '#5a5a62' },
-    { id: 'n_general', role: 'general', x: 405.5, y: 399.5, robe: '#7a6a3a', hat: '#4a3a22' },
-    { id: 'n_herb', role: 'herb', x: 411.5, y: 399.5, robe: '#3f6b4a', hat: '#2a4a30' },
-    { id: 'n_master', role: 'master', x: 398.5, y: 392.5, robe: '#d9d2bd', hat: '#20202a' }, // Meister: entziffert Schriftrollen (Yin/Yang)
-    { id: 'n_smith', role: 'smith', x: 417.5, y: 399.5, robe: '#5a4a44', hat: '#1c1c20' },
+    { id: 'n_weapon', role: 'weapon', x: 873.5, y: 1171.5, robe: '#7a2e2a', hat: '#2a2a30' },
+    { id: 'n_armor', role: 'armor', x: 879.5, y: 1171.5, robe: '#3a4a6a', hat: '#5a5a62' },
+    { id: 'n_general', role: 'general', x: 889.5, y: 1171.5, robe: '#7a6a3a', hat: '#4a3a22' },
+    { id: 'n_herb', role: 'herb', x: 895.5, y: 1171.5, robe: '#3f6b4a', hat: '#2a4a30' },
+    { id: 'n_master', role: 'master', x: 882.5, y: 1164.5, robe: '#d9d2bd', hat: '#20202a' }, // Meister: entziffert Schriftrollen (Yin/Yang)
+    { id: 'n_smith', role: 'smith', x: 901.5, y: 1171.5, robe: '#5a4a44', hat: '#1c1c20' },
     // Karst Spires: Bergdorf (Berg 1), Himmelstempel (Berg 2), Windturm (Berg 3). Gleiche Händlerrollen wie im Startdorf.
-    { id: 'n_pv_general', role: 'general', x: 1555.5, y: 1596.5, robe: '#6a5a3a', hat: '#3a2a1a' },
-    { id: 'n_pv_herb', role: 'herb', x: 1566.5, y: 1596.5, robe: '#4a7a5a', hat: '#2a4a30' },
-    { id: 'n_pv_smith', role: 'smith', x: 1557.5, y: 1610.5, robe: '#5a4a44', hat: '#1c1c20' },
-    { id: 'n_pv_weapon', role: 'weapon', x: 1650.5, y: 1598.5, robe: '#c28a2e', hat: '#6b2d1d' },
-    { id: 'n_pv_armor', role: 'armor', x: 1450.5, y: 1612.5, robe: '#3a4a6a', hat: '#5a5a62' }
+    { id: 'n_pv_general', role: 'general', x: 2815.5, y: 1928.5, robe: '#6a5a3a', hat: '#3a2a1a' },
+    { id: 'n_pv_herb', role: 'herb', x: 2826.5, y: 1928.5, robe: '#4a7a5a', hat: '#2a4a30' },
+    { id: 'n_pv_smith', role: 'smith', x: 2817.5, y: 1942.5, robe: '#5a4a44', hat: '#1c1c20' },
+    { id: 'n_pv_weapon', role: 'weapon', x: 2910.5, y: 1930.5, robe: '#c28a2e', hat: '#6b2d1d' },
+    { id: 'n_pv_armor', role: 'armor', x: 2710.5, y: 1944.5, robe: '#3a4a6a', hat: '#5a5a62' }
   ];
   // Warenangebot (unbegrenzt). Seltene Ausrüstung gibt es nur beim Schmied; Legendäres nie im Handel.
   D.stock = {

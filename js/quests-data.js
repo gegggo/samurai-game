@@ -1,4 +1,5 @@
 'use strict';
+// MOVED: Koordinaten Weltumbau (tools/move_content.py)
 // Quest-, Dialog- und Quest-NPC-Daten (Phase 5b). Alle Werte Platzhalter bis Balancing.
 // Ziel-Typen: kill (Gegnerpunkt besiegt) | shrine (Schrein erweckt) | have (Gegenstand abgeben, wird verbraucht).
 // req: done = Quest davor, level, karma (Mindestwert). choice = Entscheidung beim Abschluss (Karma-Folgen).
@@ -8,14 +9,14 @@ SW.Data = SW.Data || {};
   const D = SW.Data;
   // Quest-NPCs (q: true = nur Quests, kein Handel). Position wird beim Start auf freie Kachel gesetzt.
   D.npcs.push(
-    { id: 'n_elder', role: 'elder', q: true, x: 403.5, y: 404.5, robe: '#c9c3b0', hat: '#8a8a90' },
-    { id: 'n_hermit', role: 'hermit', q: true, x: 386.5, y: 1224.5, robe: '#5a4a34', hat: '#3a3226' },
-    { id: 'n_fisher', role: 'fisher', q: true, x: 1101.5, y: 1470.5, robe: '#3a5a6a', hat: '#c8b070' },
-    { id: 'n_pris1', role: 'prisoner', q: true, gone: 'pris1', x: 1126.5, y: 1944.5, robe: '#6a6258', hat: '#3a3530' }, // Gefangene im Banditenlager (7d)
-    { id: 'n_pris2', role: 'prisoner', q: true, gone: 'pris2', x: 1284.5, y: 1964.5, robe: '#58626a', hat: '#30353a' },
-    { id: 'n_pris3', role: 'prisoner', q: true, gone: 'pris3', x: 1176.5, y: 2086.5, robe: '#62586a', hat: '#35303a' },
-    { id: 'n_sage', role: 'sage', q: true, kmin: 30, x: 1646.5, y: 1606.5, robe: '#e8e0c8', hat: '#b08a2e' }, // Weiser im Himmelstempel: nur bei Karma >= 30
-    { id: 'n_watch', role: 'watch', q: true, night: true, x: 392.5, y: 412.5, robe: '#2a3350', hat: '#14161f' } // Nachtwächter: nur nachts im Dorf
+    { id: 'n_elder', role: 'elder', q: true, x: 887.5, y: 1176.5, robe: '#c9c3b0', hat: '#8a8a90' },
+    { id: 'n_hermit', role: 'hermit', q: true, x: 446.5, y: 1724.5, robe: '#5a4a34', hat: '#3a3226' },
+    { id: 'n_fisher', role: 'fisher', q: true, x: 1788.5, y: 1700.5, robe: '#3a5a6a', hat: '#c8b070' },
+    { id: 'n_pris1', role: 'prisoner', q: true, gone: 'pris1', x: 1578.5, y: 2132.5, robe: '#6a6258', hat: '#3a3530' }, // Gefangene im Banditenlager (7d)
+    { id: 'n_pris2', role: 'prisoner', q: true, gone: 'pris2', x: 1736.5, y: 2152.5, robe: '#58626a', hat: '#30353a' },
+    { id: 'n_pris3', role: 'prisoner', q: true, gone: 'pris3', x: 1628.5, y: 2274.5, robe: '#62586a', hat: '#35303a' },
+    { id: 'n_sage', role: 'sage', q: true, kmin: 30, x: 2906.5, y: 1938.5, robe: '#e8e0c8', hat: '#b08a2e' }, // Weiser im Himmelstempel: nur bei Karma >= 30
+    { id: 'n_watch', role: 'watch', q: true, night: true, x: 876.5, y: 1184.5, robe: '#2a3350', hat: '#14161f' } // Nachtwächter: nur nachts im Dorf
   );
   D.quests = [
     // 7d: Gefangene. Wache besiegen, dann entscheiden: befreien (+Karma) oder gegen Lösegeld ausliefern (-Karma)

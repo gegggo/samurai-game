@@ -1,20 +1,21 @@
 'use strict';
+// MOVED: Koordinaten Weltumbau (tools/move_content.py)
 // Schreindaten (Phase 5a). Position = Richtwert, wird beim Start auf freie Kachel gesetzt. Namen: Schlüssel shr_<id>.
 SW.Data = SW.Data || {};
 (function () {
   SW.Data.shrines = [
-    { id: 'village', x: 400.5, y: 395.5 },   // Hinode Village, nahe Dorfmitte
-    { id: 'bamboo', x: 1180, y: 394 },       // Verlassene Hütten im Bambuswald
-    { id: 'mountain', x: 2010, y: 396 },     // vor dem Großen Schrein
-    { id: 'hermit', x: 382, y: 1221 },       // Einsiedlerhütte im Westwald
-    { id: 'lookout', x: 2010, y: 1196 },     // Aussichtsturm Gebirge
-    { id: 'fishers', x: 1106, y: 1467 },     // Fischerhütten am See
-    { id: 'ruins', x: 400.5, y: 2000.5 },    // Alte Tempelruinen
-    { id: 'cave', x: 2010, y: 1994 },        // Höhlentempel
-    { id: 'grove', x: 800.5, y: 794 },       // Mondscheinhain (Region 9)
-    { id: 'garden', x: 1600.5, y: 794 },     // Steingarten (Region 10)
-    { id: 'marsh', x: 800.5, y: 1594 },
-    { id: 'frost', x: 100.5, y: 94 }, { id: 'ember', x: 2300.5, y: 94 }, { id: 'dunes', x: 100.5, y: 2294 }, { id: 'coast', x: 2300.5, y: 2294 }, { id: 'karst', x: 1600.5, y: 1594 }, { id: 'peak', x: 1650.5, y: 1604 }, { id: 'windspire', x: 1450.5, y: 1604 }, { id: 'cloudspire', x: 1565.5, y: 1500.5 }       // Schilfmarsch (Region 11)
+    { id: 'village', x: 884.5, y: 1167.5 },   // Hinode Village, nahe Dorfmitte
+    { id: 'bamboo', x: 1536, y: 774 },       // Verlassene Hütten im Bambuswald
+    { id: 'mountain', x: 2502, y: 456 },     // vor dem Großen Schrein
+    { id: 'hermit', x: 442, y: 1721 },       // Einsiedlerhütte im Westwald
+    { id: 'lookout', x: 3350, y: 1544 },     // Aussichtsturm Gebirge
+    { id: 'fishers', x: 1793, y: 1697 },     // Fischerhütten am See
+    { id: 'ruins', x: 740.5, y: 2260.5 },    // Alte Tempelruinen
+    { id: 'cave', x: 2702, y: 2366 },        // Höhlentempel
+    { id: 'grove', x: 1332.5, y: 1158 },       // Mondscheinhain (Region 9)
+    { id: 'garden', x: 2292.5, y: 1006 },     // Steingarten (Region 10)
+    { id: 'marsh', x: 1300.5, y: 1990 },
+    { id: 'frost', x: 740.5, y: 694 }, { id: 'ember', x: 3036.5, y: 814 }, { id: 'dunes', x: 1132.5, y: 2510 }, { id: 'coast', x: 1980.5, y: 2598 }, { id: 'karst', x: 2860.5, y: 1926 }, { id: 'peak', x: 2910.5, y: 1936 }, { id: 'windspire', x: 2710.5, y: 1936 }, { id: 'cloudspire', x: 2825.5, y: 1832.5 }       // Schilfmarsch (Region 11)
   ];
   Object.assign(SW.TEXT.en, {
     pray: 'Pray', shrine_on: 'Shrine awakened: {n}', shrine_found: 'Shrine found: {n}', shrine_travel: 'Traveled to {n}',

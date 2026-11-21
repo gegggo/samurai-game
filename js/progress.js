@@ -231,8 +231,8 @@ SW.Save = (function () {
     step(() => (d.defeated || []).forEach(id => { const s = SW.Combat.spots.find(x => x.id === id); if (s) s.dead = true; }));
     if (SW.UI) step(() => { (d.disc || []).forEach(i => SW.UI.disc.add(i)); (d.seen || []).forEach(i => SW.UI.seen.add(i)); });
     step(() => {
-      const q = d.pos, W = SW.World, M = SW.CFG.WORLD;
-      if (!q || !isFinite(q.x) || !isFinite(q.y) || q.x < 1 || q.y < 1 || q.x > M - 1 || q.y > M - 1) return;
+      const q = d.pos, W = SW.World;
+      if (!q || !isFinite(q.x) || !isFinite(q.y) || q.x < 1 || q.y < 1 || q.x > SW.CFG.W - 1 || q.y > SW.CFG.H - 1) return;
       if (W.solid(Math.floor(q.x), Math.floor(q.y))) return;
       SW.Player.x = q.x; SW.Player.y = q.y; lp = { x: q.x, y: q.y };
       if (SW.cam) { SW.cam.x = q.x; SW.cam.y = q.y; }

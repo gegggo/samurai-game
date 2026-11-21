@@ -1,11 +1,10 @@
 'use strict';
 // Weltgenerierung: deterministisch, Chunk-Cache. Keine Kachel-Arrays für die ganze Welt.
 SW.World = (function () {
-  const N = SW.CFG.WORLD, R = N / 3, C = [R / 2, R * 1.5, R * 2.5];
-  const T = { GRASS: 0, FOREST: 1, BAMBOO: 2, ROCK: 3, WATER: 4, DEEP: 5, PATH: 6, BRIDGE: 7, SAND: 8, STONE: 9, CAVE: 10, DIRT: 11, SNOW: 12, ASH: 13, LAVA: 14, DUNE: 15, STAIR: 16, WALL: 17 };
+  const T = { GRASS: 0, FOREST: 1, BAMBOO: 2, ROCK: 3, WATER: 4, DEEP: 5, PATH: 6, BRIDGE: 7, SAND: 8, STONE: 9, CAVE: 10, DIRT: 11, SNOW: 12, ASH: 13, LAVA: 14, DUNE: 15, STAIR: 16, WALL: 17, SEA: 18 };
   const O = { NONE: 0, TREE: 1, BAMBOO: 2, BOULDER: 3, PILLAR: 4 };
-  const PAL = [[98,142,70],[58,102,58],[118,150,84],[112,108,112],[58,128,168],[34,88,134],[180,150,100],[130,92,58],[214,196,146],[150,148,150],[58,52,66],[150,122,86],[232,238,244],[74,62,60],[226,92,34],[226,190,120],[176,170,160],[160,138,110]];
-  // Regionen: 0 NW Dorf, 1 N Bambus, 2 NO Schrein, 3 W Wald, 4 Mitte See, 5 O Gebirge, 6 SW Ruinen, 7 S Banditen, 8 SO Höhlen
+  const PAL = [[98,142,70],[58,102,58],[118,150,84],[112,108,112],[58,128,168],[34,88,134],[180,150,100],[130,92,58],[214,196,146],[150,148,150],[58,52,66],[150,122,86],[232,238,244],[74,62,60],[226,92,34],[226,190,120],[176,170,160],[160,138,110],[0,0,0]];
+  // Regionen 0-8: Dorf, Bambus, Schrein, Wald, See, Gebirge, Ruinen, Banditen, Höhlen; 9-16 siehe Namen reg_N. Mitten aus dem Layout (CEN).
   const ROCKY = [2, 2, .66, 2, 2, .56, 2, 2, .58, 2, 2, 2];
   const DENS = [.05, .34, .12, .2, .03, .07, .05, .07, .05, .14, .12, .06, .07, .04, .02, .03, .05];
 
@@ -22,37 +21,53 @@ SW.World = (function () {
   }
   function fbm(x, y, s) { return vn(x / 40, y / 40, s) * .6 + vn(x / 15, y / 15, s + 1) * .3 + vn(x / 6, y / 6, s + 2) * .1; }
 
-  const GX = 800, GY = 800; // Region 9: Moonlit Grove (Kreis, r 80) in der Lücke zwischen Dorf, Wald und See
-  // Kleine Kreisregionen (r 80): 9 Hain, 10 Steingarten, 11 Schilfmarsch. Region = Index + 9.
-  // 12 Frostpeaks (Schnee), 13 Ember Crater (Vulkan), 14 Dust Dunes (Wüste), 15 Sun Coast (Küste), 16 Karst Spires (hohe Felstürme); r = Radius
-  const MINI = [{ x: 800, y: 800 }, { x: 1600, y: 800 }, { x: 800, y: 1600 }, { x: 100, y: 100, r: 190 }, { x: 2300, y: 100, r: 190 }, { x: 100, y: 2300, r: 190 }, { x: 2300, y: 2300, r: 190 }, { x: 1600, y: 1600, r: 215 }];
-  function regionAt(x, y) {
-    for (let i = 0; i < MINI.length; i++) if ((x - MINI[i].x) * (x - MINI[i].x) + (y - MINI[i].y) * (y - MINI[i].y) < (MINI[i].r || 80) * (MINI[i].r || 80)) return 9 + i;
-    const wx = x + (vn(x / 50, y / 50, 11) - .5) * 120, wy = y + (vn(x / 50, y / 50, 12) - .5) * 120;
-    const cx = Math.min(2, Math.max(0, Math.floor(wx / R))), cy = Math.min(2, Math.max(0, Math.floor(wy / R)));
-    return cy * 3 + cx;
+  // ---------- Layout (Form der Welt) ----------
+  // Segmente aus js/layout*.js: Rechteck, Zellgitter (0 Meer, reg+1 Land, 128+reg+1 See), Mittelpunkte, Straßen, Flüsse. Außerhalb aller Segmente ist Meer.
+  const SEG = (SW.Layouts || []).map(s => {
+    const g = new Uint8Array(s.w * s.h), rows = s.rows.split('|');
+    for (let y = 0; y < s.h; y++) { let x = 0; rows[y].split(',').forEach(tk => { const p = tk.split('*'), n = p[1] ? +p[1] : 1; g.fill(parseInt(p[0], 36), y * s.w + x, y * s.w + x + n); x += n; }); }
+    return { x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1, c: s.cell, w: s.w, g, centers: s.centers || {}, roads: s.roads || [], rivers: s.rivers || [] };
+  });
+  const CEN = []; // Regionsmitte je Region (Mirror Lake = Seemitte). Strukturen und Inhalte hängen daran.
+  SEG.forEach(s => Object.keys(s.centers).forEach(k => { CEN[+k] = s.centers[k]; }));
+  function code(x, y) {
+    for (let i = 0; i < SEG.length; i++) {
+      const s = SEG[i];
+      if (x >= s.x0 && x < s.x1 && y >= s.y0 && y < s.y1) { const v = s.g[(((y - s.y0) / s.c) | 0) * s.w + (((x - s.x0) / s.c) | 0)]; if (v) return v; }
+    }
+    return 0;
   }
-  // Wege: 3 senkrechte + 3 waagrechte, in Regionsmitte gerade, dazwischen leicht geschwungen
-  function wob(t, s) {
-    const d = Math.min(Math.abs(t - C[0]), Math.abs(t - C[1]), Math.abs(t - C[2]));
-    return (vn(t / 30, s, 31) - .5) * 40 * Math.min(1, d / 60);
-  }
-  function roadDist(x, y) {
-    let m = 1e9;
-    for (let i = 0; i < 3; i++) m = Math.min(m, Math.abs(x - (C[i] + wob(y, i))), Math.abs(y - (C[i] + wob(x, i + 3))));
+  const warpX = (x, y) => x + (vn(x / 12, y / 12, 11) - .5) * 6, warpY = (x, y) => y + (vn(x / 12, y / 12, 12) - .5) * 6; // unregelmäßige Ränder
+  function regionAt(x, y) { const c = code(warpX(x, y), warpY(x, y)); return c ? (c & 127) - 1 : 0; }
+  // Linien (Straßen, Flüsse): geglättet, in 64er-Felder einsortiert (Abfrage nur im eigenen Feld, Segmente 8 Kacheln überlappt)
+  function chaikin(p) { const q = [p[0]]; for (let i = 0; i < p.length - 1; i++) { const a = p[i], b = p[i + 1]; q.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]); } q.push(p[p.length - 1]); return q; }
+  function lineIndex(key) {
+    const m = new Map();
+    SEG.forEach(s => s[key].forEach(pl => {
+      const p = chaikin(chaikin(pl));
+      for (let i = 0; i < p.length - 1; i++) {
+        const a = p[i], b = p[i + 1], sg = [a[0], a[1], b[0], b[1]];
+        for (let bx = (Math.min(a[0], b[0]) - 8) >> 6; bx <= (Math.max(a[0], b[0]) + 8) >> 6; bx++) for (let by = (Math.min(a[1], b[1]) - 8) >> 6; by <= (Math.max(a[1], b[1]) + 8) >> 6; by++) { const k = bx + by * 1000; if (!m.has(k)) m.set(k, []); m.get(k).push(sg); }
+      }
+    }));
     return m;
   }
-  const RA = [1750, 150], RB = [1350, 1090];
-  function riverDist(x, y) {
-    const dx = RB[0] - RA[0], dy = RB[1] - RA[1];
-    let t = ((x - RA[0]) * dx + (y - RA[1]) * dy) / (dx * dx + dy * dy);
-    t = Math.max(0, Math.min(1, t));
-    return Math.hypot(x - (RA[0] + dx * t + Math.sin(t * 14) * 18), y - (RA[1] + dy * t + Math.cos(t * 11) * 18));
+  function lineDist(m, x, y) {
+    const l = m.get((x >> 6) + (y >> 6) * 1000); if (!l) return 99;
+    let d = 9801;
+    for (let i = 0; i < l.length; i++) {
+      const s = l[i], dx = s[2] - s[0], dy = s[3] - s[1], t = Math.max(0, Math.min(1, ((x - s[0]) * dx + (y - s[1]) * dy) / (dx * dx + dy * dy || 1))), ex = x - s[0] - dx * t, ey = y - s[1] - dy * t;
+      d = Math.min(d, ex * ex + ey * ey);
+    }
+    return Math.sqrt(d);
   }
+  const RI = lineIndex('roads'), VI = lineIndex('rivers');
+  const roadDist = (x, y) => lineDist(RI, x, y);
+  const WW = SW.CFG.W, HH = SW.CFG.H, K = CEN[16] || [0, 0], LK = CEN[4] || [0, 0]; // K = Karst Spires, LK = Seemitte
 
-  // Karst: vier schmale Berge. Plateau (p = Anteil), Treppe auf der Südseite. Dorf auf Berg 1 (Mitte), Tempel auf Berg 2 (Ost), Windturm Berg 3 (West), Wolkenturm Berg 4 (Nord).
-  const MT = [{ x: 1560, y: 1600, rx: 18, ry: 34, p: .36 }, { x: 1650, y: 1600, rx: 22, ry: 66, p: .09 }, { x: 1450, y: 1600, rx: 20, ry: 32, p: .36 }, { x: 1560, y: 1490, rx: 22, ry: 30, p: .36 }];
-  const BR = [[1561, 1649, 1598, 1599], [1451, 1559, 1598, 1599], [1559, 1560, 1491, 1597]]; // Brücken vom Dorf: Ost, West, Nord (x0, x1, y0, y1)
+  // Karst: sechs schmale Berge, Lage relativ zur Mitte K. Plateau (p = Anteil), Treppe auf der Südseite. Dorf Berg 1 (Mitte), Tempel Berg 2 (Ost), Windturm Berg 3 (West), Wolkenturm Berg 4 (Nord), Berg 5 (Süd), Berg 6 (fern im Osten).
+  const MT = [[-40, 0, 18, 34, .36], [50, 0, 22, 66, .09], [-150, 0, 20, 32, .36], [-40, -110, 22, 30, .36], [-40, 110, 22, 30, .36], [150, 0, 20, 34, .36]].map(a => ({ x: K[0] + a[0], y: K[1] + a[1], rx: a[2], ry: a[3], p: a[4] }));
+  const BR = [[-39, 49, -2, -1], [-149, -41, -2, -1], [-41, -40, -109, -3], [-41, -40, 3, 109], [51, 149, -2, -1]].map(b => [K[0] + b[0], K[0] + b[1], K[1] + b[2], K[1] + b[3]]); // Brücken (x0, x1, y0, y1): Dorf-Ost, Dorf-West, Dorf-Nord, Dorf-Süd, Tempel-Ost
   function mtn(x, y) { // 0 Boden, 1 Fels, 2 Treppe, 3 Dorf-Plateau (Gras), 4 Plateau (Stein)
     for (let i = 0; i < MT.length; i++) {
       const m = MT[i], dx = x - m.x, dy = y - m.y, e = (dx / m.rx) * (dx / m.rx) + (dy / m.ry) * (dy / m.ry);
@@ -69,37 +84,27 @@ SW.World = (function () {
       if (k < 3 && BR.some(b => x >= b[0] && x <= b[1] && y >= b[2] && y <= b[3])) return T.BRIDGE;
       if (k) return k === 1 ? T.ROCK : k === 2 ? T.STAIR : k === 3 ? T.GRASS : T.STONE;
     }
-    const d = Math.hypot(x - m.x, y - m.y), f = fbm(x, y, 50 + reg);
+    const d = Math.hypot(x - m[0], y - m[1]), f = fbm(x, y, 50 + reg);
     if (d < 9) return T.STONE; // Plattform um den Schrein
     if (reg === 12) return d > 22 && f > .64 ? T.ROCK : T.SNOW;
     if (reg === 13) return d > 28 && f > .7 ? T.ROCK : d > 22 && f > .62 ? T.LAVA : T.ASH;
-    if (reg === 14) { const o = Math.hypot(x - m.x - 22, y - m.y); return o < 8 ? T.WATER : o < 11 ? T.GRASS : d > 30 && f > .75 ? T.ROCK : T.DUNE; } // Oase
-    if (reg === 15) { const c = Math.hypot(N - x, N - y); return c < 80 ? T.DEEP : c < 105 ? T.WATER : c < 118 || f > .62 ? T.SAND : T.GRASS; }
+    if (reg === 14) { const o = Math.hypot(x - m[0] - 22, y - m[1]); return o < 8 ? T.WATER : o < 11 ? T.GRASS : d > 30 && f > .75 ? T.ROCK : T.DUNE; } // Oase
+    if (reg === 15) return f > .62 ? T.SAND : T.GRASS; // Sun Coast
     return T.GRASS; // 16 Karst
   }
-  function terrain(x, y) {
-    if (x < 5 || y < 5 || x >= N - 5 || y >= N - 5) return T.WALL; // Große Mauer
-    const rd = roadDist(x, y), road = rd < 1.6;
-    const lc = Math.hypot(x - 1200, y - 1200);
-    let water = false, deep = false, ld = 999;
-    if (lc > 28 && lc < 340) { ld = lc + (fbm(x, y, 21) - .5) * 90; if (ld < 260) { water = true; deep = ld < 190; } }
-    if (!water && riverDist(x, y) < 2.2) water = true;
-    if (water) return road ? T.BRIDGE : deep ? T.DEEP : T.WATER;
-    if (road) return T.PATH;
-    if (ld < 275) return T.SAND;
-    const reg = regionAt(x, y);
+  // Gelände einer Landkachel je Region (procedural)
+  function ground(reg, x, y, rd) {
+    if (reg >= 12) return biome(reg, x, y, CEN[reg]);
+    const m = CEN[reg] || [x, y], dx = x - m[0], dy = y - m[1], d2 = dx * dx + dy * dy;
     if (reg >= 9) {
-      if (reg >= 12) return biome(reg, x, y, MINI[reg - 9]);
-      const m = MINI[reg - 9], d2 = (x - m.x) * (x - m.x) + (y - m.y) * (y - m.y);
       if (reg === 9) return d2 < 64 ? T.STONE : T.FOREST;
       if (d2 < (reg === 10 ? 144 : 64)) return T.STONE; // Plattform um den Schrein
       if (reg === 11) { const f = fbm(x, y, 41); return d2 > 169 && f > .66 ? T.WATER : f > .6 ? T.SAND : T.GRASS; } // Tümpel mit Sandrand
       return T.GRASS;
     }
-    const cx = C[reg % 3], cy = C[(reg / 3) | 0], dx = x - cx, dy = y - cy;
-    if (reg === 2 && dx * dx + dy * dy < 196) return T.STONE;
+    if (reg === 2 && d2 < 196) return T.STONE;
     if (reg === 6 && Math.abs(dx) < 12 && Math.abs(dy) < 9) return T.STONE;
-    if (reg === 8 && dx * dx + dy * dy < 2500) return T.CAVE;
+    if (reg === 8 && d2 < 2500) return T.CAVE;
     if (reg === 7 && Math.abs(dx) < 21 && Math.abs(dy) < 15) return T.DIRT;
     if (reg === 0 && Math.abs(dx) < 7 && Math.abs(dy) < 7) return T.DIRT;
     if (ROCKY[reg] < 1 && Math.hypot(dx, dy) > 45 && rd > 3 && fbm(x, y, 5) > ROCKY[reg]) return T.ROCK;
@@ -108,11 +113,26 @@ SW.World = (function () {
     if (reg === 7 && fbm(x, y, 8) > .6) return T.DIRT;
     return T.GRASS;
   }
+  function terrain(x, y) {
+    if (x < 0 || y < 0 || x >= WW || y >= HH) return T.SEA;
+    const wx = warpX(x, y), wy = warpY(x, y), c = code(wx, wy);
+    if (!c) return T.SEA; // Meer: schwarz, nicht betretbar
+    const reg = (c & 127) - 1, rd = lineDist(RI, wx, wy), road = rd < 1.6;
+    if (c > 127) return road ? T.BRIDGE : code(wx + 7, wy) > 127 && code(wx - 7, wy) > 127 && code(wx, wy + 7) > 127 && code(wx, wy - 7) > 127 ? T.DEEP : T.WATER; // See
+    if (lineDist(VI, wx, wy) < 2.5) return road ? T.BRIDGE : T.WATER; // Fluss, Brücke wo ein Weg kreuzt
+    if (road && !(reg === 16 && mtn(x, y))) return T.PATH; // Karst-Berge gehen vor Wegen
+    const g = ground(reg, x, y, rd);
+    if (g === T.GRASS || g === T.FOREST || g === T.BAMBOO || g === T.DIRT) { // Sandsaum an Küste und Ufer
+      const a = code(wx + 3, wy), b = code(wx - 3, wy), d = code(wx, wy + 3), e = code(wx, wy - 3);
+      if (!a || !b || !d || !e || a > 127 || b > 127 || d > 127 || e > 127) return T.SAND;
+    }
+    return g;
+  }
 
   // ---------- Strukturen ----------
-  const S = [], B = new Map();
+  const S = [], B = new Map(), bk = (bx, by) => bx + by * 1000;
   function add(type, x, y, w, hh, solid) { const s = { type, x, y, w, h: hh, solid: solid !== false, v: h(x, y, 9) }; S.push(s); return s; }
-  function land(x, y) { const t = terrain(x, y); return t !== T.WATER && t !== T.DEEP && t !== T.ROCK && t !== T.WALL && t !== T.LAVA && t !== T.BRIDGE; }
+  function land(x, y) { const t = terrain(x, y); return t !== T.WATER && t !== T.DEEP && t !== T.ROCK && t !== T.WALL && t !== T.LAVA && t !== T.BRIDGE && t !== T.SEA; }
   function onLand(x, y, w, hh, dx, dy) {
     for (let i = 0; i < 40; i++) {
       if (land(x, y) && land(x + w, y) && land(x, y + hh) && land(x + w, y + hh)) break;
@@ -122,23 +142,25 @@ SW.World = (function () {
   }
   const POI = [];
   function build() {
-    const [vx, vy] = [C[0], C[0]];
+    const [vx, vy] = CEN[0];                       // Hinode Village
     [[-18,-11],[-10,-11],[6,-11],[13,-11],[-18,5],[-10,5],[6,5],[13,5]].forEach(o => add('house', vx + o[0], vy + o[1], 6, 5));
-    const bx = C[1], by = C[0];
+    const [bx, by] = CEN[1];                       // Bamboo Forest: verlassene Hütten
     [[-25,-12],[18,8],[-30,10]].forEach(o => add('hut', bx + o[0], by + o[1], 4, 4));
-    const sx = C[2], sy = C[0];
+    const [sx, sy] = CEN[2];                       // Mountain Shrine
     add('shrine', sx + 5, sy - 12, 10, 6);
     [[-3, 18],[3, 18],[-3, 27],[3, 27]].forEach(o => add('toriipost', sx + o[0], sy + o[1], 1, 1));
     add('lintel', sx - 3, sy + 18, 7, 1, false); add('lintel', sx - 3, sy + 27, 7, 1, false);
-    add('hut', C[0] - 20, C[1] + 15, 4, 4);
+    add('hut', CEN[3][0] - 20, CEN[3][1] + 15, 4, 4); // Einsiedlerhütte (Western Woods)
+    // Fischerhütten am See: erste bei den Fischern (Schrein/NPC), die anderen am Ufer
+    const shore = a => { const co = Math.cos(a), si = Math.sin(a); let r = 0; while (r < 700 && code(LK[0] + co * r, LK[1] + si * r) > 127) r += 4; return r + 6; };
     [[100, 1], [200, -1], [300, 1]].forEach((a, i) => {
-      const ang = a[0] * Math.PI / 180 * 1.1 + i;
-      const p = onLand(1200 + Math.cos(ang) * 262, 1200 + Math.sin(ang) * 262, 4, 3, Math.cos(ang) * 2, Math.sin(ang) * 2);
+      const ang = a[0] * Math.PI / 180 * 1.1 + i, r = shore(ang);
+      const p = onLand(i ? LK[0] + Math.cos(ang) * r : LK[0] - 90, i ? LK[1] + Math.sin(ang) * r : LK[1] + 246, 4, 3, Math.cos(ang) * 2, Math.sin(ang) * 2);
       add('hut', p[0], p[1], 4, 3);
       if (i === 0) POI.push({ id: 'fishers', x: p[0], y: p[1] });
     });
-    add('tower', C[2] + 6, C[1] - 8, 2, 2);
-    const rx = C[0], ry = C[2];
+    add('tower', CEN[5][0] + 6, CEN[5][1] - 8, 2, 2); // Aussichtsturm (Iron Peaks)
+    const [rx, ry] = CEN[6];                       // Forgotten Ruins
     for (let dx = -12; dx <= 12; dx++) for (let dy = -9; dy <= 9; dy++) {
       if (Math.abs(dx) !== 12 && Math.abs(dy) !== 9) continue;
       if (Math.abs(dx) <= 2 || Math.abs(dy) <= 2) continue;
@@ -146,7 +168,7 @@ SW.World = (function () {
     }
     [[-7,-5],[7,-5],[-7,5],[7,5]].forEach(o => add('pillar', rx + o[0], ry + o[1], 1, 1));
     [[-35,-20],[28,15],[-30,22]].forEach(o => add('ruinhouse', rx + o[0], ry + o[1], 5, 4));
-    const cx = C[1], cy = C[2];
+    const [cx, cy] = CEN[7];                       // Bandit Camp
     add('palisade', cx - 21, cy - 15, 19, 1); add('palisade', cx + 3, cy - 15, 19, 1);
     add('palisade', cx - 21, cy + 15, 19, 1); add('palisade', cx + 3, cy + 15, 19, 1);
     add('palisade', cx - 21, cy - 14, 1, 11); add('palisade', cx - 21, cy + 4, 1, 11);
@@ -156,24 +178,23 @@ SW.World = (function () {
     [[-17,-10],[-9,-10],[7,6],[13,6]].forEach(o => add('tent', cx + o[0], cy + o[1], 4, 3));
     add('tent', cx - 17, cy + 6, 4, 3);
     add('cage', cx - 10, cy + 8, 2, 2); add('cage', cx - 7, cy + 8, 2, 2);
-    const kx = C[2], ky = C[2];
+    const [kx, ky] = CEN[8];                       // Hollow Caves: Höhlentempel
     add('shrine', kx + 5, ky - 14, 10, 6);
     [[-8,-8],[8,8],[-8,8],[8,-8]].forEach(o => add('pillar', kx + o[0], ky + o[1], 1, 1));
-    for (let i = 600; i < N; i += 600) { add('tower', i, 1, 2, 2); add('tower', i, N - 3, 2, 2); add('tower', 1, i, 2, 2); add('tower', N - 3, i, 2, 2); } // Wachtürme an der Mauer
-    [[-8, -12], [2, -12], [-8, 2], [2, 2]].forEach(o => add('house', 1560 + o[0], 1600 + o[1], 6, 5)); // Bergdorf (Berg 1)
-    add('shrine', 1645, 1589, 10, 6); // Tempel (Berg 2)
-    add('shrine', 1445, 1590, 10, 6); // Windturm-Schrein (Berg 3)
-    add('tower', 1554, 1476, 2, 2); add('hut', 1566, 1478, 4, 4); // Wolkenturm (Berg 4)
+    [[-8, -12], [2, -12], [-8, 2], [2, 2]].forEach(o => add('house', K[0] - 40 + o[0], K[1] + o[1], 6, 5)); // Bergdorf (Berg 1)
+    add('shrine', K[0] + 45, K[1] - 11, 10, 6); // Tempel (Berg 2)
+    add('shrine', K[0] - 155, K[1] - 10, 10, 6); // Windturm-Schrein (Berg 3)
+    add('tower', K[0] - 46, K[1] - 124, 2, 2); add('hut', K[0] - 34, K[1] - 122, 4, 4); // Wolkenturm (Berg 4)
+    add('tower', K[0] - 41, K[1] + 105, 2, 2); add('tower', K[0] + 149, K[1] - 3, 2, 2); // Berg 5 (Süd), Berg 6 (fern im Osten)
     // Index
-    S.forEach(s => {
-      for (let bx2 = Math.floor(s.x / 32); bx2 <= Math.floor((s.x + s.w - 1) / 32); bx2++)
-        for (let by2 = Math.floor(s.y / 32); by2 <= Math.floor((s.y + s.h - 1) / 32); by2++) {
-          const k = bx2 + by2 * 100; if (!B.has(k)) B.set(k, []); B.get(k).push(s);
-        }
-    });
+    S.forEach(indexStructure);
+    const fl = SEG[0] && SEG[0].rivers[1] ? SEG[0].rivers[1][0] : LK; // Wasserfall: Quelle des Ostflusses
     POI.push({ id: 'village', x: vx, y: vy }, { id: 'huts', x: bx - 23, y: by - 10 }, { id: 'shrine', x: sx + 10, y: sy - 8 },
-      { id: 'hermit', x: C[0] - 18, y: C[1] + 17 }, { id: 'lake', x: 1200, y: 1200 }, { id: 'lookout', x: C[2] + 7, y: C[1] - 7 },
-      { id: 'falls', x: RA[0], y: RA[1] }, { id: 'ruins', x: rx, y: ry }, { id: 'camp', x: cx, y: cy }, { id: 'cave', x: kx + 10, y: ky - 11 }, { id: 'grove', x: GX, y: GY }, { id: 'garden', x: 1600, y: 800 }, { id: 'marsh', x: 800, y: 1600 }, { id: 'frost', x: 100, y: 100 }, { id: 'ember', x: 2300, y: 100 }, { id: 'dunes', x: 100, y: 2300 }, { id: 'coast', x: 2300, y: 2300 }, { id: 'karst', x: 1600, y: 1600 }, { id: 'peakvillage', x: 1560, y: 1600 }, { id: 'temple', x: 1650, y: 1595 }, { id: 'windspire', x: 1450, y: 1600 }, { id: 'cloudspire', x: 1560, y: 1490 });
+      { id: 'hermit', x: CEN[3][0] - 18, y: CEN[3][1] + 17 }, { id: 'lake', x: LK[0], y: LK[1] }, { id: 'lookout', x: CEN[5][0] + 7, y: CEN[5][1] - 7 },
+      { id: 'falls', x: fl[0], y: fl[1] }, { id: 'ruins', x: rx, y: ry }, { id: 'camp', x: cx, y: cy }, { id: 'cave', x: kx + 10, y: ky - 11 },
+      { id: 'grove', x: CEN[9][0], y: CEN[9][1] }, { id: 'garden', x: CEN[10][0], y: CEN[10][1] }, { id: 'marsh', x: CEN[11][0], y: CEN[11][1] },
+      { id: 'frost', x: CEN[12][0], y: CEN[12][1] }, { id: 'ember', x: CEN[13][0], y: CEN[13][1] }, { id: 'dunes', x: CEN[14][0], y: CEN[14][1] }, { id: 'coast', x: CEN[15][0], y: CEN[15][1] },
+      { id: 'karst', x: K[0], y: K[1] }, { id: 'peakvillage', x: K[0] - 40, y: K[1] }, { id: 'temple', x: K[0] + 50, y: K[1] - 5 }, { id: 'windspire', x: K[0] - 150, y: K[1] }, { id: 'cloudspire', x: K[0] - 40, y: K[1] - 110 });
   }
 
   // Dauerhafte Quest-Bauten. Werden aus dem Quest-Spielstand rekonstruiert.
@@ -181,21 +202,21 @@ SW.World = (function () {
   function indexStructure(s) {
     for (let bx2 = Math.floor(s.x / 32); bx2 <= Math.floor((s.x + s.w - 1) / 32); bx2++)
       for (let by2 = Math.floor(s.y / 32); by2 <= Math.floor((s.y + s.h - 1) / 32); by2++) {
-        const k = bx2 + by2 * 100; if (!B.has(k)) B.set(k, []); B.get(k).push(s);
+        const k = bk(bx2, by2); if (!B.has(k)) B.set(k, []); B.get(k).push(s);
       }
   }
   function buildVillageFence() {
     if (questFence) return;
     questFence = true;
     // Zwei sichtbare Zaunsegmente mit einer offenen Durchfahrt südlich des Dorfes.
-    const y = C[0] + 13;
-    const a = add('fence', C[0] - 25, y, 20, 1);
-    const b = add('fence', C[0] + 5, y, 20, 1);
+    const y = CEN[0][1] + 13;
+    const a = add('fence', CEN[0][0] - 25, y, 20, 1);
+    const b = add('fence', CEN[0][0] + 5, y, 20, 1);
     indexStructure(a); indexStructure(b);
   }
 
   function structSolid(x, y) {
-    const l = B.get((x >> 5) + (y >> 5) * 100);
+    const l = B.get(bk(x >> 5, y >> 5));
     if (!l) return false;
     for (let i = 0; i < l.length; i++) { const s = l[i]; if (s.solid && x >= s.x && x < s.x + s.w && y >= s.y && y < s.y + s.h) return true; }
     return false;
@@ -203,17 +224,19 @@ SW.World = (function () {
   function nearStruct(x, y, m) {
     for (let bx = Math.floor((x - m) / 32); bx <= Math.floor((x + m) / 32); bx++)
       for (let by = Math.floor((y - m) / 32); by <= Math.floor((y + m) / 32); by++) {
-        const l = B.get(bx + by * 100); if (!l) continue;
+        const l = B.get(bk(bx, by)); if (!l) continue;
         for (let i = 0; i < l.length; i++) { const s = l[i]; if (x >= s.x - m && x < s.x + s.w + m && y >= s.y - m && y < s.y + s.h + m) return true; }
       }
     return false;
   }
-  const ZONES = [[C[2], C[0], 20, 20], [C[2], C[2], 52, 52], [C[0], C[0], 26, 20], [C[1], C[2], 24, 18], [C[0], C[2], 15, 12], [GX, GY, 10, 10], [1600, 800, 10, 10], [800, 1600, 10, 10], [100, 100, 10, 10], [2300, 100, 10, 10], [100, 2300, 10, 10], [2300, 2300, 10, 10], [1600, 1600, 10, 10]];
+  // Keine Objekte (Bäume, Felsen) rund um Orte: [Mitte x, Mitte y, Halbbreite, Halbhöhe]
+  const ZONES = [[CEN[2][0], CEN[2][1], 20, 20], [CEN[8][0], CEN[8][1], 52, 52], [CEN[0][0], CEN[0][1], 26, 20], [CEN[7][0], CEN[7][1], 24, 18], [CEN[6][0], CEN[6][1], 15, 12]];
+  for (let r = 9; r <= 16; r++) ZONES.push([CEN[r][0], CEN[r][1], 10, 10]);
   function objAt(x, y, t) {
     if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE && t !== T.SNOW && t !== T.ASH && t !== T.DUNE) return 0;
     const reg = regionAt(x, y);
     if (reg === 16 && mtn(x, y)) return 0;
-    if (h(x, y, 77) >= (t === T.CAVE ? .06 : DENS[reg])) return 0;
+    if (h(x, y, 77) >= (t === T.CAVE ? .06 : DENS[reg] === undefined ? .05 : DENS[reg])) return 0;
     for (let i = 0; i < ZONES.length; i++) { const z = ZONES[i]; if (Math.abs(x - z[0]) < z[2] && Math.abs(y - z[1]) < z[3] && t !== T.CAVE) return 0; }
     if (roadDist(x, y) < 3.5 || nearStruct(x, y, 1.5)) return 0;
     if (t === T.CAVE) return O.BOULDER;
@@ -230,7 +253,7 @@ SW.World = (function () {
   // ---------- Chunk-Cache ----------
   const CS = 16, cache = new Map();
   function chunk(cx, cy) {
-    const k = cx * 1000 + cy; let c = cache.get(k);
+    const k = cx * 8192 + cy; let c = cache.get(k);
     if (c) return c;
     c = { t: new Uint8Array(256), o: new Uint8Array(256) };
     for (let j = 0; j < 16; j++) for (let i = 0; i < 16; i++) {
@@ -241,12 +264,12 @@ SW.World = (function () {
     if (cache.size > 220) cache.delete(cache.keys().next().value);
     return c;
   }
-  function t(x, y) { if (x < 0 || y < 0 || x >= N || y >= N) return T.ROCK; return chunk(x >> 4, y >> 4).t[(y & 15) * 16 + (x & 15)]; }
-  function o(x, y) { if (x < 0 || y < 0 || x >= N || y >= N) return 0; return chunk(x >> 4, y >> 4).o[(y & 15) * 16 + (x & 15)]; }
+  function t(x, y) { if (x < 0 || y < 0 || x >= WW || y >= HH) return T.SEA; return chunk(x >> 4, y >> 4).t[(y & 15) * 16 + (x & 15)]; }
+  function o(x, y) { if (x < 0 || y < 0 || x >= WW || y >= HH) return 0; return chunk(x >> 4, y >> 4).o[(y & 15) * 16 + (x & 15)]; }
   function solid(x, y) {
     const tt = t(x, y);
-    return tt === T.ROCK || tt === T.WALL || tt === T.LAVA || tt === T.WATER || tt === T.DEEP || o(x, y) !== 0 || structSolid(x, y);
+    return tt === T.ROCK || tt === T.WALL || tt === T.LAVA || tt === T.WATER || tt === T.DEEP || tt === T.SEA || o(x, y) !== 0 || structSolid(x, y);
   }
   build();
-  return { mtn, N, T, O, PAL, S, POI, MINI, h, terrain, regionAt, t, o, solid, buildVillageFence, C, spawn: { x: C[0] + .5, y: C[0] + 3.5 } };
+  return { mtn, WIDTH: WW, HEIGHT: HH, T, O, PAL, S, POI, CEN, h, terrain, regionAt, t, o, solid, buildVillageFence, spawn: { x: CEN[0][0] + .5, y: CEN[0][1] + 3.5 } };
 })();
