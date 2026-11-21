@@ -86,11 +86,8 @@ body.combat #act-btn { display: none !important; }
 
 /* Karte: volle verfügbare Fläche, ohne rechte Seitenleiste */
 #world-map { display: block; flex: 0 0 auto; touch-action: none; }
-#menu.maponly #menu-tabs { display: none; }
-#menu.maponly #menu-panel { padding: 0; overflow: hidden; position: relative; }
-#menu.maponly #menu-panel > canvas { margin: 0; }
-#map-tabs { position: absolute; left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(232,224,208,.5); background: rgba(11,11,15,.75); color: #e8e0d0; font-size: 15px; }
-#menu:not(.maponly) #map-tabs { display: none; }
+#menu.maptab #menu-panel { padding: 0; overflow: hidden; position: relative; }
+#menu.maptab #menu-panel > canvas { margin: 0; }
 
 /* Dialoge / Quests (5b) */
 .dlgtext { margin: 8px 0 12px; font: 17px Georgia, serif; line-height: 1.35; }
