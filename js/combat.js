@@ -165,6 +165,7 @@ SW.Combat = (function () {
 
   // ---------- Belohnungen (Phase 3): jedes System bekommt nur seinen Teil ----------
   function reward() {
+    if (S.spot.trial) { const o = SW.Trials.duelWon(S.spot.trial); Object.assign(o, { coins: 0, items: [], karma: 0, secret: null }); S.rew = o; SW.Save.touch(); return; } // Schrein-Duell: nur Prüfungsbelohnung, keine Münzen/Beute
     const R = D.rewards[S.spot.type] || { xp: 10 }, C = SW.Char, out = { xp: R.xp, coins: 0, items: [], ess: [], karma: 0, secret: null, lv: [], yy: { yin: 0, yang: 0 } };
     out.lv = C.addXp(R.xp);
     out.coins = SW.Inv.addCoins(SW.Inv.coinDrop(S.spot.type));

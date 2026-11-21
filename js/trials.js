@@ -15,7 +15,30 @@ SW.Trials = (function () {
     bamboo: {
       kind: 'lanterns', name: 'trn_bamboo', hint: 'tr_hint_lanterns', reward: { xp: 40, yin: 2, ess: { common: 1 } }, order: [2, 3, 0, 1],
       map: ['###########', '#####A#####', '#####D#####', '#.........#', '#.L.....L.#', '#....#....#', '#.L.....L.#', '#....S....#', '#####E#####']
-    }
+    },
+    // 7b: weitere Schreine. Gleiche Aufgabentypen, andere Räume. Belohnungen: nur XP, Yin/Yang, Essence (keine Münzen).
+    mountain: {
+      kind: 'blocks', name: 'trn_mountain', hint: 'tr_hint_blocks', reward: { xp: 50, yin: 3, ess: { common: 1 } },
+      map: ['###########', '#P##.A.##P#', '#.###D###.#', '#.........#', '#.B..B..B.#', '#.........#', '#....P....#', '#....S....#', '#####E#####']
+    },
+    hermit: {
+      kind: 'lanterns', name: 'trn_hermit', hint: 'tr_hint_lanterns', reward: { xp: 45, yin: 3 }, order: [1, 3, 0, 2],
+      map: ['###########', '#####A#####', '#####D#####', '#.L.....L.#', '#.........#', '#..#...#..#', '#.L.....L.#', '#....S....#', '#####E#####']
+    },
+    lookout: {
+      kind: 'blocks', name: 'trn_lookout', hint: 'tr_hint_blocks', reward: { xp: 50, yin: 2, ess: { common: 1 } },
+      map: ['###########', '#P##.A.##P#', '#.###D###.#', '#.........#', '#.#..B..#.#', '#..B...B..#', '#.........#', '#....S....#', '#####E#####']
+    },
+    fishers: {
+      kind: 'lanterns', name: 'trn_fishers', hint: 'tr_hint_lanterns', reward: { xp: 45, yin: 2 }, order: [2, 0, 3, 1],
+      map: ['###########', '#####A#####', '#####D#####', '#..L...L..#', '#.........#', '#L.......L#', '#.........#', '#....S....#', '#####E#####']
+    },
+    ruins: {
+      kind: 'blocks', name: 'trn_ruins', hint: 'tr_hint_blocks', reward: { xp: 60, yin: 3, ess: { refined: 1 } },
+      map: ['###########', '#####A#####', '#####D#####', '#.P.....P.#', '#....P....#', '#.#.....#.#', '#...BBB...#', '#....S....#', '#####E#####']
+    },
+    // Duell-Prüfung (Yang): kein Raum, direkter Kampf gegen einen Elitegegner. Sieg = Belohnung, Niederlage = später erneut versuchen.
+    cave: { kind: 'duel', name: 'trn_cave', foe: 'elite', reward: { xp: 80, yang: 5, ess: { refined: 1 } } }
   };
   let R = null, btnLeave = null, btnReset = null;
 
@@ -54,6 +77,8 @@ SW.Trials = (function () {
   T.can = id => !!ROOMS[id] && !T.done.has(id);
   T.enter = function (id) {
     if (!T.can(id) || SW.Combat.active || SW.paused) return false;
+    const def = ROOMS[id];
+    if (def.kind === 'duel') { const s = SW.Shrines.get(id); SW.Combat.start({ id: 'tr_' + id, type: def.foe, x: s.x, y: s.y, dead: false, trial: id }); return true; }
     ensure(); btnLeave.textContent = tr('tr_leave'); btnReset.textContent = tr('tr_reset');
     build(id); T.active = true; document.body.classList.add('trial'); SW.Input.reset(); return true;
   };
@@ -64,15 +89,21 @@ SW.Trials = (function () {
   T.reset = function () { if (T.active && R && R.state === 'play') build(R.id); };
 
   function say(k) { R.msg = tr(k); R.msgT = 3; }
+  // Belohnung einmalig vergeben (Raum und Duell). Gibt Anzeige-Daten zurück.
+  function grant(id, rw) {
+    const o = { xp: rw.xp || 0, lv: SW.Char.addXp(rw.xp || 0), ess: [], yy: { yin: rw.yin || 0, yang: rw.yang || 0 } };
+    if (rw.yin) SW.YinYang.gain('yin', rw.yin);
+    if (rw.yang) SW.YinYang.gain('yang', rw.yang);
+    for (const t in (rw.ess || {})) { SW.Essence.add(t, rw.ess[t]); o.ess.push(rw.ess[t] + ' ' + tr('ess_' + t)); }
+    T.done.add(id); if (SW.Skills) SW.Skills.check(); SW.Save.save();
+    return o;
+  }
+  T.duelWon = id => grant(id, ROOMS[id].reward);
   function claim() {
-    const rw = R.def.reward, L = [];
-    if (rw.xp) { const m = SW.Char.addXp(rw.xp); L.push('+' + rw.xp + ' XP'); m.forEach(x => L.push(x)); }
-    if (rw.yin) { SW.YinYang.gain('yin', rw.yin); L.push('Yin +' + rw.yin); }
-    if (rw.yang) { SW.YinYang.gain('yang', rw.yang); L.push('Yang +' + rw.yang); }
-    for (const t in (rw.ess || {})) { SW.Essence.add(t, rw.ess[t]); L.push('+' + rw.ess[t] + ' ' + tr('ess_' + t)); }
-    T.done.add(R.id); R.rew = L; R.state = 'reward'; R.t = 0;
-    if (SW.Skills) SW.Skills.check();
-    SW.Save.save();
+    const o = grant(R.id, R.def.reward), L = ['+' + o.xp + ' XP'].concat(o.lv);
+    if (o.yy.yin) L.push('Yin +' + o.yy.yin); if (o.yy.yang) L.push('Yang +' + o.yy.yang);
+    o.ess.forEach(x => L.push('+' + x));
+    R.rew = L; R.state = 'reward'; R.t = 0;
   }
   function tryPush(sx, sy, dt) {
     const p = R.p, tx = Math.floor(p.x + sx * (RAD + .05)), ty = Math.floor(p.y + sy * (RAD + .05)), b = blockAt(tx, ty);
@@ -193,12 +224,14 @@ SW.Trials = (function () {
   Object.assign(SW.TEXT.en, {
     tr_enter: 'Enter', tr_leave: 'Leave', tr_reset: 'Reset', tr_done: 'Trial complete', tr_door: 'The door opens.', tr_wrong: 'The flames die. Try again.',
     tr_hint_blocks: 'Push the stone blocks onto the plates.', tr_hint_lanterns: 'Light the lanterns in the order shown above.',
-    trn_village: 'Trial of Stillness', trn_bamboo: 'Trial of Flames'
+    trn_village: 'Trial of Stillness', trn_bamboo: 'Trial of Flames', trn_mountain: 'Trial of Stone', trn_hermit: 'Trial of Patience',
+    trn_lookout: 'Trial of Balance', trn_fishers: 'Trial of Ripples', trn_ruins: 'Trial of the Ancients', trn_cave: 'Trial of Steel'
   });
   SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
     tr_enter: 'Betreten', tr_leave: 'Verlassen', tr_reset: 'Neustart', tr_done: 'Prüfung bestanden', tr_door: 'Die Tür öffnet sich.', tr_wrong: 'Die Flammen erlöschen. Versuche es erneut.',
     tr_hint_blocks: 'Schiebe die Steinblöcke auf die Platten.', tr_hint_lanterns: 'Entzünde die Laternen in der oben gezeigten Farbreihenfolge.',
-    trn_village: 'Prüfung der Stille', trn_bamboo: 'Prüfung der Flammen'
+    trn_village: 'Prüfung der Stille', trn_bamboo: 'Prüfung der Flammen', trn_mountain: 'Prüfung des Steins', trn_hermit: 'Prüfung der Geduld',
+    trn_lookout: 'Prüfung des Gleichgewichts', trn_fishers: 'Prüfung der Wellen', trn_ruins: 'Prüfung der Uralten', trn_cave: 'Prüfung des Stahls'
   });
   return T;
 })();
