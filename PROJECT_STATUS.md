@@ -1,6 +1,6 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v44 (Spielversion 0.9.5)
+**Cache-Version:** v45 (Spielversion 0.9.6)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
@@ -108,6 +108,18 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geprüft: Syntax; Node-BFS: Mauer solid, Treppe/Plateaus/Brücke/Tempel/Gipfelschrein vom Start erreichbar; Chromium 852x393: Mauer+Turm, Treppe sichtbar, keine JS-Fehler.
 - NICHT geprüft: iPhone, Brücke/Dorf/Tempel im Screenshot angesehen, Performance.
 - OFFEN: Bergdorf hat keine NPCs/Händler, Tempel keine Gegner/Truhen. Berge sind flach dargestellt (graue Felsfläche, keine Höhe/Schatten).
+
+## Neu in 0.9.6 – Phase 8: Schattenclan-Hinterhalt (Teilaufgabe, BOTW-Yiga-Prinzip)
+**Status: Dateien gesendet – Prüfung ausstehend (Gerätetest). Browser-Tests bestanden.**
+- Bei Karma <= -30 spawnt nach ca. 110-200 gelaufenen Kacheln (bei <= -70: 70-130) ein Schattenclan-Assassine 8 Kacheln neben dem Spieler (Banner "Shadow Clan ambush!") und läuft auf ihn zu (3,2 Kacheln/s, Spieler 5: Flucht möglich). Kampf startet bei Kontakt wie bei jedem Gegner.
+- Max. 1 Angreifer gleichzeitig. Bleibt, bis einer stirbt (Sieg oder Niederlage des Spielers), auch wenn Karma wieder steigt (neue Hinterhalte nur bei Karma <= -30). Schnellreise/Teleport (Sprung > 5 Kacheln pro Bild) lässt ihn verschwinden. Ist der Spieler > 12 Kacheln entfernt ohne Sprung (Flucht, Hängenbleiben), teleportiert er sich 4-12 Kacheln neben den Spieler. Nicht gespeichert. Sieg: 30 XP + 15-28 Münzen, KEIN Karma, keine Essence (kein Farmen). 10 % Chance auf die Waffe `katana_shadow` (Shadow Clan Blade, rare, Hauptwaffe, atk +16 %, crit +3, Hinterhalt +12 %; Platzhalterwerte). Schnellreise zählt max. 1 Kachel Wegstrecke.
+- Neuer Gegnertyp `shadow` (70 HP, schnell, schwarz/rot maskiert). Texte EN+DE.
+- Weitere negative Karma-Folgen (bereits vorhanden): höhere Preise, Kräuter-/Allgemein-/Rüstungshändler verweigern bei <= -70, Ältester gibt keine Quests, Kopfgeldjäger bei <= -30. Positiv: Preisrabatt, Karma-Ware, Weiser, Skill-Freischaltungen.
+- Geändert: `js/combat.js`, `js/combat-data.js`, `js/items-data.js`, `js/config.js`, `js/lang-de.js`, `index.html` (v45), `PROJECT_STATUS.md`.
+- Geprüft (Chromium, Skript, nach letzter Änderung): Verschwinden bei Teleport, Bleiben nach Karma-Anstieg, Teleport zum Spieler bei > 12 Kacheln ohne Sprung, Entfernung bei Tod, kein neuer Spawn bei Karma 50, Item + EN/DE-Texte vorhanden, keine JS-Fehler, Syntax ok. Davor: Spawn bei -30/-80, Abstand 4-12, Kampfstart bei Kontakt, Münzen, nicht im Spielstand.
+- NICHT geprüft: 10-%-Drop im echten Kampf (Würfelwurf/Anzeige nur per Code-Review), iPhone, echter Kampf von Hand, Niederlage-Pfad (nur Code-Review), Häufigkeit/Schwierigkeit, Optik im Gelände, Verhalten an Wänden (läuft nur achsenweise).
+- OFFEN Phase 8: Quests, die sich bei schlechtem Karma ändern; Schmuggler-NPC; Trainingsmöglichkeiten; Yin/Yang-Boni.
+- Nächster Schritt: Gerätetest 0.9.4-0.9.6.
 
 ## Neu in 0.9.5 – Phase 8: Karma-Weltreaktionen (Teilaufgabe)
 **Status: Dateien gesendet – Prüfung ausstehend (Gerätetest). Browser-Test bestanden.**
