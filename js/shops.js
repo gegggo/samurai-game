@@ -79,11 +79,28 @@ SW.Shop = (function () {
     tabsEl = el('div', 'row shop-t'); body = el('div'); body.id = 'shop-body';
     add(root, head, tabsEl, body); document.body.appendChild(root);
   }
-  const tabsFor = role => role === 'smith' ? ['upgrade', 'craft'] : ['buy', 'sell'];
+  const tabsFor = role => role === 'smith' ? ['upgrade', 'craft'] : role === 'master' ? [] : ['buy', 'sell'];
   const costTxt = o => Object.keys(o).map(k => o[k] + ' ' + T('it_' + k)).join(', ');
   const nameChip = id => el('span', 'chip r_' + it(id).rar, I.name(id));
   const info = id => el('span', 'dim', I.fxLines(it(id).fx).join(' · '));
 
+  // Meister: gefundene Schriftrollen gegen Yin/Yang entziffern (Daten: SW.Data.scrolls)
+  function masterBody() {
+    const K = SW.Skills, list = SW.Data.scrolls.filter(s => K.scr[s.id]);
+    add(body, el('div', 'dim', T('hi_master')));
+    if (!list.length) add(body, el('div', 'dim', T('master_none')));
+    list.forEach(s => {
+      const r = el('div', 'row card'), done = K.scr[s.id] === 2;
+      add(r, el('b', '', done ? T('sk_' + s.id) : T('scr_unread')));
+      if (done) add(r, el('span', 'dim', T('st_active')));
+      else {
+        add(r, el('span', 'dim', [T('req_lvl', s.lvl), s.yin ? T('cost_yin', s.yin) : '', s.yang ? T('cost_yang', s.yang) : ''].filter(Boolean).join(' · ')));
+        add(r, btn(T('decipher'), 'pri', () => { K.decipher(s.id); render(); }, !K.canDecipher(s.id)));
+      }
+      add(body, r);
+      if (done) add(body, el('div', 'dim', T('skd_' + s.id)));
+    });
+  }
   function render() {
     if (!S.cur) return;
     const role = S.cur.role, tabs = tabsFor(role);
@@ -91,6 +108,7 @@ SW.Shop = (function () {
     tabsEl.innerHTML = '';
     tabs.forEach(t => add(tabsEl, btn(T(t === 'buy' ? 'buy' : t === 'sell' ? 'sell' : t === 'upgrade' ? 'shop_upgrade' : 'shop_craft'), t === S.tab ? 'pri' : '', () => { S.tab = t; render(); })));
     body.innerHTML = ''; body.scrollTop = body.scrollTop;
+    if (role === 'master') { masterBody(); return; }
     if (S.refuses(role)) { add(body, el('div', 'no', T('refuse_' + role))); return; }
     add(body, el('div', 'dim', T('hi_' + role)));
     if (S.mul() !== 1 && S.tab === 'buy') add(body, el('div', S.mul() < 1 ? 'ok' : 'no', T('karma_price', (S.mul() < 1 ? '' : '+') + Math.round((S.mul() - 1) * 100) + '%')));

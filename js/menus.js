@@ -38,7 +38,7 @@ SW.Menus = (function () {
       add(row, box);
     });
     add(root, row);
-    const acts = S.nodes.filter(n => n.type === 'active' && S.learned[n.id]).map(n => n.id).concat(D.secrets.filter(s => S.sec[s.id] === 2).map(s => s.id));
+    const acts = S.nodes.filter(n => n.type === 'active' && S.learned[n.id]).map(n => n.id).concat(D.secrets.filter(s => S.sec[s.id] === 2).map(s => s.id), D.scrolls.filter(s => S.scr[s.id] === 2).map(s => s.id));
     if (!acts.length) add(root, el('div', 'dim', T('no_active')));
     acts.forEach(id => {
       const m = D.moves[S.moveOf(id)], line = el('div', 'row card');
@@ -89,18 +89,12 @@ SW.Menus = (function () {
   };
 
   M.karma = function (p) {
-    const K = SW.Karma, Y = SW.YinYang, root = page(p, T('tab_karma')), bo = Y.bonus();
+    const K = SW.Karma, Y = SW.YinYang, root = page(p, T('tab_karma'));
     add(root, add(el('div', 'row'), el('b', '', 'Karma'), bar((K.v + 100) / 200, K.v >= 0 ? '#6fbf73' : '#c8553c'),
       el('span', 'chip', Math.round(K.v) + ' · ' + T('kr_' + K.rank()))));
     add(root, el('div', 'dim', T('kr_hint')));
     add(root, add(el('div', 'row'), el('b', 'lbl', 'Yin'), bar(Y.yin / 100, '#6aa7e0'), el('span', 'chip', String(Math.round(Y.yin)))));
     add(root, add(el('div', 'row'), el('b', 'lbl', 'Yang'), bar(Y.yang / 100, '#e0703a'), el('span', 'chip', String(Math.round(Y.yang)))));
-    const info = [];
-    if (bo.atk) info.push(T('yy_atk', Math.round(bo.atk * 100)));
-    if (bo.def) info.push(T('yy_def', Math.round(bo.def * 100)));
-    if (bo.balance) info.push(T('yy_bal'));
-    if (!info.length) info.push(T('yy_none'));
-    info.forEach(s => add(root, el('div', 'ok', s)));
     add(root, el('div', 'dim', T('yy_hint')));
   };
 
@@ -125,7 +119,5 @@ Object.assign(SW.TEXT.en, {
   st_hp: 'Life', st_ki: 'Ki', st_atk: 'Attack', st_def: 'Defense', st_end: 'Endurance', st_crit: 'Crit chance',
   kr_neutral: 'Neutral', kr_honored: 'Honored', kr_revered: 'Revered', kr_distrusted: 'Distrusted', kr_despised: 'Despised',
   kr_hint: 'Helping others and stopping bandits raises Karma. Repeating the same deed counts less each time.',
-  yy_atk: 'Yang surplus: attack +{n}%', yy_def: 'Yin surplus: defense +{n}%', yy_bal: 'Balance: Ki regeneration +25%, crit chance +3%',
-  yy_none: 'No Yin-Yang bonus yet.',
-  yy_hint: 'Yang grows through heavy attacks and techniques. Yin grows through parries, dodges, blocks and breathing. Each fight counts only a little.'
+  yy_hint: 'Yang grows through heavy attacks and techniques. Yin grows through parries, dodges, blocks and breathing. Each fight counts only a little. Spent when learning skilltree skills.'
 });

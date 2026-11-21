@@ -96,6 +96,7 @@ SW.Inv = (function () {
     const g = c.give; let txt;
     if (g.coins) { I.addCoins(g.coins); txt = T('found_coins', g.coins); }
     else if (g.ess) { SW.Essence.add(g.ess); txt = g.ess + ' ' + T('ess'); }
+    else if (g.scroll) { if (!SW.Skills.findScroll(g.scroll)) return false; txt = T('scr_found'); }
     else if (g.item) { if (!I.add(g.item, g.n || 1)) return false; txt = T('it_' + g.item) + ((g.n || 1) > 1 ? ' ×' + g.n : ''); }
     else return false;
     c.open = true; touch();

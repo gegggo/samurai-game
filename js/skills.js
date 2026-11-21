@@ -2,9 +2,10 @@
 // Skilltree-Logik (Phase 3): Lernen, Voraussetzungen, Ausrüsten, Zurücksetzen, geheime Techniken.
 SW.Skills = (function () {
   const D = SW.Data, T = (k, n) => SW.t(k, n);
-  const S = { nodes: D.skills, learned: {}, spent: 0, slots: [null, null], sec: {}, notified: {} };
+  const S = { nodes: D.skills, learned: {}, spent: 0, slots: [null, null], sec: {}, scr: {}, notified: {} };
   S.node = id => S.nodes.find(n => n.id === id);
   const secDef = id => D.secrets.find(s => s.id === id);
+  const scrDef = id => D.scrolls.find(s => s.id === id);
   const costTxt = ess => ess + ' ' + T('ess');
 
   // Liste der Voraussetzungen als {ok, text}; wird auch vom Menü angezeigt
@@ -12,9 +13,10 @@ SW.Skills = (function () {
     const n = S.node(id), C = SW.Char, Y = SW.YinYang, r = [];
     r.push({ ok: C.level >= n.lvl, text: T('req_lvl', n.lvl) });
     n.req.forEach(p => r.push({ ok: !!S.learned[p], text: T('req_skill', T('sk_' + p)) }));
-    if (n.yin) r.push({ ok: Y.yin >= n.yin, text: T('req_yin', n.yin) });
-    if (n.yang) r.push({ ok: Y.yang >= n.yang, text: T('req_yang', n.yang) });
-    if (n.balance) r.push({ ok: Y.balanced(n.balance), text: T('req_balance', n.balance) });
+    if (n.karma) r.push({ ok: SW.Karma.v >= n.karma, text: T('req_karma', n.karma) });
+    if (n.yin) r.push({ ok: Y.yin >= n.yin, text: T('cost_yin', n.yin) });
+    if (n.yang) r.push({ ok: Y.yang >= n.yang, text: T('cost_yang', n.yang) });
+    if (n.balance) r.push({ ok: Y.balanced(n.balance), text: T('cost_balance', n.balance) });
     r.push({ ok: C.sp >= n.cost.sp, text: T('req_sp', n.cost.sp) });
     r.push({ ok: SW.Essence.has(n.cost.ess), text: costTxt(n.cost.ess) });
     return r;
@@ -24,6 +26,8 @@ SW.Skills = (function () {
     if (!S.can(id)) return false;
     const n = S.node(id);
     SW.Char.sp -= n.cost.sp; SW.Essence.spend(n.cost.ess);
+    const h = n.balance ? n.balance / 2 : 0; // Gleichgewichtsknoten: je Seite die Hälfte
+    if (n.yin || h) SW.YinYang.spend('yin', (n.yin || 0) + h); if (n.yang || h) SW.YinYang.spend('yang', (n.yang || 0) + h);
     S.learned[id] = 1; S.spent += n.cost.sp;
     if (n.type === 'active') { const i = S.slots.indexOf(null); if (i >= 0) S.slots[i] = id; }
     SW.Save.touch(); return true;
@@ -44,7 +48,9 @@ SW.Skills = (function () {
     const n = S.node(id);
     if (n) return S.learned[id] ? n.move : null;
     const s = secDef(id);
-    return s && S.sec[id] === 2 ? s.move : null;
+    if (s) return S.sec[id] === 2 ? s.move : null;
+    const c = scrDef(id);
+    return c && S.scr[id] === 2 ? c.move : null;
   };
   S.slotMoves = () => S.slots.map(id => (id && S.moveOf(id)) || null);
   S.equip = function (id, i) {
@@ -62,7 +68,7 @@ SW.Skills = (function () {
     if (!S.spent && !Object.keys(S.learned).length) return false;
     if (!SW.Essence.spend(D.resetCost)) return false;
     SW.Char.sp += S.spent; S.spent = 0; S.learned = {};
-    S.slots = S.slots.map(id => (id && secDef(id) && S.sec[id] === 2) ? id : null);
+    S.slots = S.slots.map(id => (id && (secDef(id) && S.sec[id] === 2 || scrDef(id) && S.scr[id] === 2)) ? id : null);
     SW.Save.touch(); return true;
   };
 
@@ -76,6 +82,24 @@ SW.Skills = (function () {
     if (s.yin) r.push({ ok: SW.YinYang.yin >= s.yin, text: T('req_yin', s.yin) });
     if (s.balance) r.push({ ok: SW.YinYang.balanced(s.balance), text: T('req_balance', s.balance) });
     return r;
+  };
+  // Schriftrollen: 1 = gefunden (nicht lesbar), 2 = vom Meister entziffert (Technik gelernt)
+  S.findScroll = function (id) {
+    if (!scrDef(id)) return false;
+    if (!S.scr[id]) { S.scr[id] = 1; SW.Save.touch(); }
+    return true;
+  };
+  S.canDecipher = function (id) {
+    const c = scrDef(id);
+    return !!c && S.scr[id] === 1 && SW.Char.level >= c.lvl && SW.YinYang.yin >= c.yin && SW.YinYang.yang >= c.yang;
+  };
+  S.decipher = function (id) {
+    if (!S.canDecipher(id)) return false;
+    const c = scrDef(id);
+    if (c.yin) SW.YinYang.spend('yin', c.yin); if (c.yang) SW.YinYang.spend('yang', c.yang);
+    S.scr[id] = 2;
+    const i = S.slots.indexOf(null); if (i >= 0) S.slots[i] = id;
+    SW.Save.touch(); if (SW.UI && SW.UI.banner) SW.UI.banner(T('secret_got', T('sk_' + id))); return true;
   };
   S.secReady = id => S.sec[id] === 1 && S.secReqs(id).every(x => x.ok);
   S.award = function (id) {
@@ -95,12 +119,13 @@ SW.Skills = (function () {
     });
   };
 
-  S.dump = () => ({ learned: Object.assign({}, S.learned), spent: S.spent, slots: S.slots.slice(), sec: Object.assign({}, S.sec) });
+  S.dump = () => ({ learned: Object.assign({}, S.learned), spent: S.spent, slots: S.slots.slice(), sec: Object.assign({}, S.sec), scr: Object.assign({}, S.scr) });
   S.load = function (d) {
     if (!d) return;
-    S.learned = {}; S.sec = {};
+    S.learned = {}; S.sec = {}; S.scr = {};
     for (const id in (d.learned || {})) if (S.node(id)) S.learned[id] = 1;
     for (const id in (d.sec || {})) if (secDef(id) && (d.sec[id] === 1 || d.sec[id] === 2)) S.sec[id] = d.sec[id];
+    for (const id in (d.scr || {})) if (scrDef(id) && (d.scr[id] === 1 || d.scr[id] === 2)) S.scr[id] = d.scr[id];
     S.spent = typeof d.spent === 'number' && d.spent >= 0 ? d.spent : 0;
     S.slots = [0, 1].map(i => { const id = d.slots && d.slots[i]; return id && S.moveOf(id) ? id : null; });
   };

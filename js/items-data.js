@@ -55,6 +55,8 @@ SW.Data = SW.Data || {};
   D.itemMap = {}; D.items.forEach(i => { D.itemMap[i.id] = i; });
   // Truhen: genau EIN Eintrag je Truhe. give: {coins:n} | {ess:n} | {item:id, n}
   D.chests = [
+    { id: 'c_scroll1', x: 334, y: 1964, rar: 'rare', give: { scroll: 'sc_wind' } },   // Ruinen (Schriftrolle, Meister entziffert)
+    { id: 'c_scroll2', x: 1964, y: 1994, rar: 'rare', give: { scroll: 'sc_mount' } },  // Höhlen
     { id: 'c_vil1', x: 372, y: 372, rar: 'common', give: { coins: 30 } },
     { id: 'c_vil2', x: 428, y: 446, rar: 'common', give: { item: 'herb', n: 2 } },
     { id: 'c_bam1', x: 1160, y: 340, rar: 'common', give: { item: 'tanto', n: 1 } },

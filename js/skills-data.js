@@ -1,34 +1,34 @@
 'use strict';
 // Skilltree-Daten (Phase 3). Werte sind Platzhalter bis zum Balancing.
-// Kosten: sp = Skillpunkte, ess = Essence (Zahl, nur hier verwendbar). Stufe 1/2/3/4 = 1/2/3/4 (BALANCE-PLATZHALTER). Passive wirken immer, aktive werden ausgerüstet.
+// Kosten: sp = Skillpunkte, ess = Essence (Zahl, nur hier verwendbar). Gesamt 31 Essence = ganzer Baum bezahlbar (Angebot 35; BALANCE-PLATZHALTER). Yin/Yang: Felder yin/yang/balance werden beim Lernen verbraucht (Gleichgewicht: halber Wert je Seite). Passive wirken immer, aktive werden ausgerüstet.
 (function () {
   const c = (sp, ess) => ({ sp, ess });
   SW.Data.branches = ['sm', 'sw', 'df', 'km'];
   SW.Data.skills = [
     // A. Schwertmeister
     { id: 'sm1', br: 'sm', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, 1),  fx: { dmg: .10 } },
-    { id: 'sm2', br: 'sm', tier: 2, type: 'passive', lvl: 4,  req: ['sm1'],       cost: c(1, 2),  fx: { rec: .10 } },
-    { id: 'sm3', br: 'sm', tier: 2, type: 'passive', lvl: 4,  req: ['sm1'],       cost: c(1, 2),  fx: { crit: 5 } },
-    { id: 'sm4', br: 'sm', tier: 3, type: 'active',  lvl: 8,  req: ['sm2'],       cost: c(2, 3), move: 'dblstrike' },
-    { id: 'sm5', br: 'sm', tier: 4, type: 'active',  lvl: 12, req: ['sm3', 'sm4'], cost: c(2, 4),    move: 'cleave', yang: 40 },
+    { id: 'sm2', br: 'sm', tier: 2, type: 'passive', lvl: 4,  req: ['sm1'],       cost: c(1, 1),  fx: { rec: .10 } },
+    { id: 'sm3', br: 'sm', tier: 2, type: 'passive', lvl: 4,  req: ['sm1'],       cost: c(1, 1),  fx: { crit: 5 }, yang: 25 },
+    { id: 'sm4', br: 'sm', tier: 3, type: 'active',  lvl: 8,  req: ['sm2'],       cost: c(2, 2), move: 'dblstrike', yang: 30 },
+    { id: 'sm5', br: 'sm', tier: 4, type: 'active',  lvl: 12, req: ['sm3', 'sm4'], cost: c(2, 3),    move: 'cleave', yang: 40, karma: 10 },
     // B. Schattenkrieger
     { id: 'sw1', br: 'sw', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, 1),  fx: { dodgeCd: .20 } },
-    { id: 'sw2', br: 'sw', tier: 2, type: 'passive', lvl: 4,  req: ['sw1'],       cost: c(1, 2),  fx: { ambush: .30 } },
-    { id: 'sw4', br: 'sw', tier: 2, type: 'passive', lvl: 4,  req: ['sw1'],       cost: c(1, 2),  fx: { breath: .30 } },
-    { id: 'sw3', br: 'sw', tier: 3, type: 'active',  lvl: 8,  req: ['sw1'],       cost: c(2, 3), move: 'shadowstep' },
-    { id: 'sw5', br: 'sw', tier: 4, type: 'active',  lvl: 12, req: ['sw2', 'sw3'], cost: c(2, 4),    move: 'flurry', yin: 40 },
+    { id: 'sw2', br: 'sw', tier: 2, type: 'passive', lvl: 4,  req: ['sw1'],       cost: c(1, 1),  fx: { ambush: .30 } },
+    { id: 'sw4', br: 'sw', tier: 2, type: 'passive', lvl: 4,  req: ['sw1'],       cost: c(1, 1),  fx: { breath: .30 } },
+    { id: 'sw3', br: 'sw', tier: 3, type: 'active',  lvl: 8,  req: ['sw1'],       cost: c(2, 2), move: 'shadowstep', yin: 30 },
+    { id: 'sw5', br: 'sw', tier: 4, type: 'active',  lvl: 12, req: ['sw2', 'sw3'], cost: c(2, 3),    move: 'flurry', yin: 40 },
     // C. Verteidiger
     { id: 'df1', br: 'df', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, 1),  fx: { hpFlat: 15 } },
-    { id: 'df2', br: 'df', tier: 2, type: 'passive', lvl: 4,  req: ['df1'],       cost: c(1, 2),  fx: { blockMul: .10 } },
-    { id: 'df3', br: 'df', tier: 2, type: 'passive', lvl: 4,  req: ['df1'],       cost: c(1, 2),  fx: { parry: .10 } },
-    { id: 'df4', br: 'df', tier: 3, type: 'passive', lvl: 8,  req: ['df3'],       cost: c(2, 3), fx: { counter: .40 } },
-    { id: 'df5', br: 'df', tier: 3, type: 'active',  lvl: 8,  req: ['df2'],       cost: c(2, 3), move: 'mend' },
+    { id: 'df2', br: 'df', tier: 2, type: 'passive', lvl: 4,  req: ['df1'],       cost: c(1, 1),  fx: { blockMul: .10 } },
+    { id: 'df3', br: 'df', tier: 2, type: 'passive', lvl: 4,  req: ['df1'],       cost: c(1, 1),  fx: { parry: .10 }, yin: 25 },
+    { id: 'df4', br: 'df', tier: 3, type: 'passive', lvl: 8,  req: ['df3'],       cost: c(2, 2), fx: { counter: .40 }, yin: 30 },
+    { id: 'df5', br: 'df', tier: 3, type: 'active',  lvl: 8,  req: ['df2'],       cost: c(2, 2), move: 'mend', yin: 30, karma: 10 },
     // D. Ki-Meister
     { id: 'km1', br: 'km', tier: 1, type: 'passive', lvl: 1,  req: [],            cost: c(1, 1),  fx: { kiFlat: 20 } },
-    { id: 'km2', br: 'km', tier: 2, type: 'passive', lvl: 4,  req: ['km1'],       cost: c(1, 2),  fx: { kiRegen: .50 } },
-    { id: 'km3', br: 'km', tier: 2, type: 'passive', lvl: 4,  req: ['km1'],       cost: c(1, 2),  fx: { kiCost: .20 } },
-    { id: 'km4', br: 'km', tier: 3, type: 'active',  lvl: 8,  req: ['km2'],       cost: c(2, 3), move: 'kiwave' },
-    { id: 'km5', br: 'km', tier: 4, type: 'passive', lvl: 12, req: ['km2', 'km3'], cost: c(2, 4),    fx: { breath: 1 }, balance: 40 }
+    { id: 'km2', br: 'km', tier: 2, type: 'passive', lvl: 4,  req: ['km1'],       cost: c(1, 1),  fx: { kiRegen: .50 } },
+    { id: 'km3', br: 'km', tier: 2, type: 'passive', lvl: 4,  req: ['km1'],       cost: c(1, 1),  fx: { kiCost: .20 } },
+    { id: 'km4', br: 'km', tier: 3, type: 'active',  lvl: 8,  req: ['km2'],       cost: c(2, 2), move: 'kiwave', balance: 30 },
+    { id: 'km5', br: 'km', tier: 4, type: 'passive', lvl: 12, req: ['km2', 'km3'], cost: c(2, 3),    fx: { breath: 1 }, balance: 40, karma: 20 }
   ];
   // Geheime Techniken: kommen von Gegnern (nicht kaufbar), danach gesperrt bis alle Bedingungen erfüllt sind. Kein Essence.
   SW.Data.secrets = [
@@ -36,6 +36,12 @@
     { id: 'ironwill', move: 'ironwill', lvl: 18, karma: 30, yin: 60 },
     { id: 'stillwater', move: 'stillwater', lvl: 22, karma: 50, balance: 60 },
     { id: 'oniwrath', move: 'oniwrath', lvl: 25, karma: 70, yang: 70 }
+  ];
+  // Schriftrollen (Meister): Fund in Truhe (give: { scroll: id }), Meister entziffert gegen Yin/Yang (verbraucht) + Mindestlevel.
+  // Neue Rolle = ein Eintrag hier + ein Move + Texte sk_/skd_ + eine Truhe. Werte BALANCE-PLATZHALTER.
+  SW.Data.scrolls = [
+    { id: 'sc_wind', move: 'windcut', lvl: 6, yin: 0, yang: 25 },
+    { id: 'sc_mount', move: 'mountain', lvl: 8, yin: 25, yang: 0 }
   ];
   SW.Data.resetCost = 2; // BALANCE-PLATZHALTER
 
@@ -50,6 +56,8 @@
     cross:      { wind: .70, rec: .80, dmg: 55, hits: 2, gap: .20, ki: 60, anim: 'heavy', guardBreak: true, glow: '#ffe27a' },
     ironwill:   { wind: .45, rec: .65, dmg: 28, ki: 45, anim: 'special', guardBreak: true, glow: '#9fc8e8' },
     stillwater: { wind: .35, rec: .55, dmg: 22, ki: 40, anim: 'special', inv: .35, glow: '#70c9df' },
+    windcut:    { wind: .20, rec: .45, dmg: 24, ki: 30, anim: 'quick', ignoreGuard: true, glow: '#bfe9ff' },
+    mountain:   { wind: .35, rec: .60, dmg: 18, ki: 35, anim: 'special', inv: .4, glow: '#9fd0a0' },
     oniwrath:   { wind: .85, rec: .95, dmg: 78, ki: 75, anim: 'heavy', hits: 2, gap: .24, guardBreak: true, glow: '#e36a55' }
   });
 
@@ -82,6 +90,11 @@
     sk_oniwrath: 'Oni Wrath', skd_oniwrath: 'Secret technique of the Oni. Two devastating heavy strikes. Costs Ki.',
     sp: 'Skill points', ap: 'Attribute points', lvl: 'Level', active: 'Active', passive: 'Passive', secret: 'Secret techniques',
     learn: 'Learn', learned: 'Learned', reset: 'Reset skills', reset_ask: 'Reset all skills? You get your skill points back, essence is lost.',
+    sk_sc_wind: 'Wind Cut', skd_sc_wind: 'Scroll technique. A fast cut that ignores guard. Costs Ki.',
+    sk_sc_mount: 'Mountain Guard', skd_sc_mount: 'Scroll technique. A braced strike with a brief moment of invulnerability. Costs Ki.',
+    scr_unread: 'Old scroll (cannot read it)', scr_found: 'an old scroll. The Master in the village can read it.',
+    npc_master: 'Master', hi_master: 'Bring me old scrolls. I read them, you pay with Yin and Yang.', master_none: 'You carry no scrolls.', decipher: 'Decipher',
+    cost_yin: 'Yin {n} (spent)', cost_yang: 'Yang {n} (spent)', cost_balance: 'Balanced, both {n}+ (half is spent from each)',
     req_lvl: 'Level {n}', req_skill: '{n}', req_yin: 'Yin {n}+', req_yang: 'Yang {n}+', req_karma: 'Karma {n}+',
     req_balance: 'Yin and Yang balanced, both {n}+', req_sp: '{n} skill point(s)', req_ess: '{n}',
     ess: 'Essence',

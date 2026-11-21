@@ -31,12 +31,12 @@ SW.Char = (function () {
   };
   // Alle Kampfwerte (Basis + Skilltree-Passive + Yin/Yang-Bonus)
   C.combat = function () {
-    const b = C.base(), f = SW.Skills.fx(), y = SW.YinYang.bonus();
+    const b = C.base(), f = SW.Skills.fx();
     const g = SW.Inv ? SW.Inv.bonus() : { atk: 0, def: 0, hp: 0, crit: 0, rec: 0, dodge: 0, ambush: 0, parry: 0, counter: 0, kiCost: 0, kiRegen: 0, critDmg: 0, rdmg: 0, rwind: 0, rrec: 0 }; // Ausrüstung (Phase 4)
     return {
       hp: Math.round(b.hp + f.hpFlat + g.hp), ki: Math.round(b.ki + f.kiFlat),
-      kiRegen: 3 * (1 + f.kiRegen + y.kiRegen + g.kiRegen), atk: b.atk / 10 * (1 + f.dmg + y.atk + g.atk), def: (b.def + g.def) * (1 + y.def), end: b.end,
-      crit: Math.min(.6, (b.crit + f.crit + y.crit + g.crit) / 100),
+      kiRegen: 3 * (1 + f.kiRegen + g.kiRegen), atk: b.atk / 10 * (1 + f.dmg + g.atk), def: (b.def + g.def), end: b.end,
+      crit: Math.min(.6, (b.crit + f.crit + g.crit) / 100),
       recMul: Math.max(.4, (1 - f.rec) / (1 + b.end * .015) * (1 + g.rec)), dodgeCdMul: Math.max(.4, (1 - f.dodgeCd) / (1 + b.end * .01) * (1 + g.dodge)),
       breathMul: 1 + f.breath, kiCostMul: Math.max(.3, 1 - f.kiCost - g.kiCost), critMul: 1.5 + g.critDmg, blockMul: f.blockMul, parry: .22 + f.parry + g.parry,
       counterMul: 1 + f.counter + g.counter, ambush: f.ambush + g.ambush, slots: SW.Skills.slotMoves(),
@@ -78,6 +78,7 @@ SW.YinYang = (function () {
     Y[k] = Math.min(100, Y[k] + g); Y[o] = Math.max(0, Y[o] - g * .35);
     SW.Save.touch(); SW.Skills.check(); return Y[k] - before;
   };
+  // Yin/Yang geben keine Kampfboni mehr: sie sind Voraussetzungen im Skilltree und bei Geheimtechniken.
   // Pro Kampf begrenzt (max. 6 je Seite), damit Wiederholen nichts erzwingt.
   Y.fromCombat = function (st) {
     const yg = Math.round(Math.min(6, st.heavy + 2 * st.special + 1.5 * st.counter) * 10) / 10;
@@ -87,13 +88,11 @@ SW.YinYang = (function () {
     SW.Save.touch(); SW.Skills.check();
     return { yin: ng, yang: yg };
   };
-  Y.balanced = min => Math.abs(Y.yang - Y.yin) <= 12 && Math.min(Y.yin, Y.yang) >= min;
-  Y.bonus = function () {
-    const d = Y.yang - Y.yin, b = { atk: 0, def: 0, kiRegen: 0, crit: 0, balance: false };
-    if (d > 0) b.atk = Math.min(.15, d / 300); else b.def = Math.min(.15, -d / 300);
-    if (Y.balanced(30)) { b.kiRegen = .25; b.crit = 3; b.balance = true; }
-    return b;
+  Y.spend = function (k, n) { // Skilltree-Kosten (Spezifikationsänderung durch Nutzer: Yin/Yang werden beim Lernen verbraucht)
+    if ((k !== 'yin' && k !== 'yang') || !Number.isFinite(n) || !(n > 0) || Y[k] < n) return false;
+    Y[k] -= n; SW.Save.touch(); return true;
   };
+  Y.balanced = min => Math.abs(Y.yang - Y.yin) <= 12 && Math.min(Y.yin, Y.yang) >= min;
   Y.dump = () => ({ yin: Y.yin, yang: Y.yang });
   Y.load = function (d) {
     if (!d) return;
