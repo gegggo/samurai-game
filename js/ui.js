@@ -5,10 +5,11 @@ SW.UI = (function () {
   const $ = id => document.getElementById(id);
   const TABS = [['map', 1], ['inventory', 4], ['equipment', 4], ['skills', 3], ['skilltree', 3], ['quests', 4], ['character', 3], ['karma', 3], ['settings', 1]];
   const U = { disc: new Set(), seen: new Set(), sel: null, view: { z: 1, x: 1200, y: 1200 } };
-  let cmp, cmpK = -1, mini, mc, ov, oc, ovRow = 0, reg = -1, banner, bt = 0, menu, panel, mapC, mapT = 0, mt = 0, tab = 'map', open = false;
+  let cmp, posEl, posK = '', cmpK = -1, mini, mc, ov, oc, ovRow = 0, reg = -1, banner, bt = 0, menu, panel, mapC, mapT = 0, mt = 0, tab = 'map', open = false;
 
   U.init = function () {
     cmp = $('compass');
+    posEl = document.createElement('div'); posEl.id = 'pos'; document.body.appendChild(posEl); // Koordinaten unter der Minikarte
     mini = $('mini'); mc = mini.getContext('2d'); banner = $('banner'); menu = $('menu'); panel = $('menu-panel');
     ov = document.createElement('canvas'); ov.width = ov.height = OS; oc = ov.getContext('2d');
     oc.fillStyle = '#0b0b0f'; oc.fillRect(0, 0, OS, OS);
@@ -167,6 +168,9 @@ SW.UI = (function () {
       c.fillStyle = '#6fd36f'; c.strokeStyle = '#000'; c.lineWidth = 1.5 * d; c.beginPath(); c.arc(X(o.x), Y(o.y), 6 * d, 0, 6.2832); c.fill(); c.stroke();
     });
     c.fillStyle = '#e0452f'; c.strokeStyle = '#fff'; c.lineWidth = 2 * d; c.beginPath(); c.arc(X(p.x), Y(p.y), 5 * d, 0, 6.2832); c.fill(); c.stroke();
+    // eigene Position als Koordinaten (Kacheln, Karte 0 bis 2400)
+    const pt = 'X ' + Math.floor(p.x) + ' · Y ' + Math.floor(p.y); c.font = (13 * d) + 'px sans-serif'; c.textAlign = 'left';
+    c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(8 * d, 8 * d, c.measureText(pt).width + 12 * d, 22 * d); c.fillStyle = '#fff'; c.fillText(pt, 14 * d, 24 * d); c.textAlign = 'center';
   }
 
   U.update = function (dt) {
@@ -183,6 +187,8 @@ SW.UI = (function () {
     if (bt > 0) { bt -= dt; if (bt <= 0) banner.style.opacity = 0; }
     const hd = Math.round((((p.face * 180 / Math.PI + 90) % 360) + 360) % 360 / 45) % 8;
     if (hd !== cmpK) { cmpK = hd; cmp.textContent = SW.t('dir_' + hd); }
+    const pk = 'X ' + Math.floor(p.x) + ' · Y ' + Math.floor(p.y);
+    if (pk !== posK) { posK = pk; posEl.textContent = pk; }
     mt -= dt; if (mt <= 0) { mt = .1; drawMini(p); }
     if (open) { mapT -= dt; if (mapT <= 0) { mapT = .3; drawMap(); } }
   };

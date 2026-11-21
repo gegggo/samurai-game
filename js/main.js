@@ -25,14 +25,17 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
     canvas.width = Math.floor(w * SW.dpr); canvas.height = Math.floor(h * SW.dpr);
     SW.Render.resize(canvas.width, canvas.height);
   }
+  let frozenKey = '', frozenAt = 0;
   const later = () => {
+    frozenKey = ''; // Standbild hinter dem Menü neu zeichnen (iOS leert die Zeichenfläche beim Tabwechsel/Screenshot)
     last = performance.now();
     SW.Input.reset();
     resize();
     setTimeout(resize, 250);
     setTimeout(resize, 700);
   };
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', () => { frozenKey = ''; resize(); });
+  window.addEventListener('focus', () => { frozenKey = ''; });
   window.addEventListener('orientationchange', later);
   window.addEventListener('pageshow', later);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) later(); });
@@ -47,7 +50,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   SW.Skills.check();
   // Schutz: ist css/main.css veraltet oder fehlt, erscheint eine Warnung im Spiel
   const cssOk = () => getComputedStyle(document.getElementById('mini')).position === 'fixed';
-  let last = performance.now(), time = 0, frozenKey = '';
+  let last = performance.now(), time = 0;
   function frame(now) {
     try {
       const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now; time += dt;
@@ -69,7 +72,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
         SW.Shop.update(SW.Player);
         // Hinter offenem Menü steht die Welt still: nur einmal je Fenstergröße zeichnen (spart viel Rechenzeit, Menü reagiert schneller)
         const dk = canvas.width + 'x' + canvas.height;
-        if (!(SW.UI.isOpen() && frozenKey === dk)) { SW.Render.draw(ctx, canvas.width, canvas.height, time); frozenKey = SW.UI.isOpen() ? dk : ''; }
+        if (!(SW.UI.isOpen() && frozenKey === dk && now - frozenAt < 1000)) { SW.Render.draw(ctx, canvas.width, canvas.height, time); frozenKey = SW.UI.isOpen() ? dk : ''; frozenAt = now; } // im Menü: höchstens 1 Bild pro Sekunde als Sicherheit
         SW.UI.update(dt);
         ctx.fillStyle = 'rgba(244,236,216,.55)'; ctx.font = Math.round(canvas.height / 40) + 'px sans-serif'; ctx.textAlign = 'left';
         ctx.fillText('v' + SW.version, 56 * SW.dpr, canvas.height - 10 * SW.dpr);
