@@ -1,9 +1,16 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v59 (Spielversion 0.9.20)
+**Cache-Version:** v60 (Spielversion 0.9.21)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.21 – Schnellreise-Leiste, Zoom-Schwarzbild, dynamischer Joystick (Dateien gesendet, Gerätetest offen)
+- **Schnellreise:** Tipp auf entdeckten Schrein wählt ihn und blendet unten auf der Karte eine Leiste ein: "Reisen nach X?" mit Reisen/Abbrechen (nur aktivierte Schreine reisbar, nicht aktivierte zeigen Hinweis). Vorher reiste Tipp sofort, ohne Bestätigung (Spec 27.5).
+- **Schwarzbild bei Karten-Zoom + Screenshot:** Übersichtsbild wird nur noch als sichtbarer Ausschnitt gezeichnet (vorher riesige Zielgröße bis ca. 14000 px). Resume-Neuzeichnen zusätzlich bei 0,25/0,7/1,5 s.
+- **Joystick dynamisch:** Wird der Finger weiter als der Radius von der Mitte gezogen, wandert die Joystick-Mitte mit. Rest unverändert (Aufsetzpunkt links, Totzone).
+- **Geändert:** `js/input.js`, `js/ui.js`, `js/main.js`, `js/config.js`, `js/lang-de.js`, `css/main.css`, `index.html` (v60), `PROJECT_STATUS.md`.
+- **Geprüft:** `node --check`; Chromium 852x393 (Maus): Joystick folgt (Mitte 100 -> 240 bei Zug auf 300), Leiste erscheint, Reisen funktioniert, Menü schließt, keine JS-Fehler. NICHT geprüft: iPhone-Touch, Screenshot-Schwarzbild auf Gerät.
 
 ## 0.9.20 – Kartensymbole und Legende (Dateien gesendet, Gerätetest offen)
 - 0.9.19 (Karte zentriert, Schwarzbild-Fix) auf iPhone bestätigt.
