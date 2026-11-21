@@ -129,3 +129,4 @@ body.trial #pos { display: none !important; }
 #menu.maptab #menu-tabs, #menu.maptab #menu-close { zoom: .85; }
 #travel-bar { font-size: 13px; white-space: nowrap; }
 #travel-bar .btn { min-height: 38px; font-size: 14px; }
+#loading .ltxt { position: absolute; left: 0; right: 0; bottom: 16%; text-align: center; color: #f4ecd8; font: 600 22px Georgia, serif; text-shadow: 0 2px 6px rgba(0,0,0,.8); letter-spacing: 1px; }
