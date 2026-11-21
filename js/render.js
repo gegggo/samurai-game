@@ -251,6 +251,7 @@ SW.Render = (function () {
   // ---------- Frame ----------
   const items = [];
   R.resize = function (w, h) { vign = null; vw = w; vh = h; };
+  R.resume = function () { glowSpr = null; vign = null; }; // iOS verwirft Offscreen-Canvas
   R.draw = function (c, cw, ch, time) {
     if (!shades) mkShades();
     const u = R.tile = Math.max(28, Math.round(ch / 9.5)), cam = SW.cam, p = SW.Player;

@@ -544,5 +544,6 @@ SW.Combat = (function () {
   };
 
   K.debug = function () { return S; }; // nur für Tests
+  K.resume = function () { bgk = ''; }; // Arena-Hintergrund nach iOS-Speicherbereinigung neu zeichnen
   return K;
 })();

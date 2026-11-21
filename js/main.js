@@ -28,6 +28,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   let frozenKey = '', frozenAt = 0;
   const later = () => {
     setTimeout(vpFix, 150); setTimeout(vpFix, 600);
+    ['UI', 'Render', 'Combat'].forEach(m => { try { SW[m] && SW[m].resume && SW[m].resume(); } catch (e) { /* egal */ } });
     frozenKey = ''; // Standbild hinter dem Menü neu zeichnen (iOS leert die Zeichenfläche beim Tabwechsel/Screenshot)
     last = performance.now();
     SW.Input.reset();
@@ -37,28 +38,38 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   };
   // iOS-Fehler: nach Screenshot bleibt die Seitenbreite auf Hochformat (z. B. 393 statt 852) haengen -> halber schwarzer Bildschirm.
   // Erkennung: Gerät liegt quer (window.orientation +-90), Fensterbreite aber kleiner als die lange Seite. Behebung: Viewport-Meta neu setzen, sonst Neuladen (Spielstand wird vorher gespeichert).
-  let vpTry = 0;
-  const landscapeBroken = () => typeof window.orientation === 'number' && Math.abs(window.orientation) === 90 && window.innerWidth < Math.max(screen.width, screen.height) * .8;
+  let vpTry = 0, vpForced = false;
+  const longSide = () => Math.max(screen.width, screen.height);
+  const isLandscape = () => (typeof window.orientation === 'number' && Math.abs(window.orientation) === 90) || (screen.orientation && /landscape/.test(screen.orientation.type || ''));
+  const landscapeBroken = () => isLandscape() && window.innerWidth < longSide() * .8;
+  const vpMeta = () => document.querySelector('meta[name=viewport]');
+  let vpOrig = null;
+  function vpRestore() { const m = vpMeta(); if (m && vpOrig) { m.setAttribute('content', vpOrig); } vpForced = false; frozenKey = ''; resize(); }
   function vpFix() {
-    if (!landscapeBroken()) { vpTry = 0; return; }
-    const m = document.querySelector('meta[name=viewport]'), c = m.getAttribute('content');
-    if (vpTry++ < 2) {
+    const m = vpMeta(); if (!m) return;
+    if (vpOrig === null) vpOrig = m.getAttribute('content');
+    if (!landscapeBroken()) { vpTry = 0; if (vpForced && isLandscape()) { /* Zwangsbreite bleibt, solange Querformat */ } else if (vpForced) vpRestore(); return; }
+    vpTry++;
+    if (vpTry === 1) { // Stufe 1: Skalierung minimal ändern
       m.setAttribute('content', 'width=device-width, initial-scale=1.0001, viewport-fit=cover');
-      setTimeout(() => { m.setAttribute('content', c); frozenKey = ''; resize(); }, 80);
-      return;
+      setTimeout(() => { m.setAttribute('content', vpOrig); frozenKey = ''; resize(); }, 80);
+    } else if (vpTry === 2 || vpTry === 3) { // Stufe 2: Breite fest auf lange Seite setzen
+      vpForced = true; m.setAttribute('content', 'width=' + longSide() + ', initial-scale=1, viewport-fit=cover');
+      setTimeout(() => { frozenKey = ''; resize(); }, 80);
+    } else if (vpTry > 5) { // Stufe 3: Neuladen (Spielstand vorher speichern), nicht in Schleife
+      let n = 0; try { n = +sessionStorage.getItem('sw_vp') || 0; } catch (e) { /* egal */ }
+      if (Date.now() - n < 8000) return;
+      try { sessionStorage.setItem('sw_vp', Date.now()); } catch (e) { /* egal */ }
+      try { SW.Save.save(); } catch (e) { /* egal */ }
+      location.reload();
     }
-    let n = 0; try { n = +sessionStorage.getItem('sw_vp') || 0; } catch (e) { /* egal */ }
-    if (Date.now() - n < 15000) return; // nicht in Schleife neu laden
-    try { sessionStorage.setItem('sw_vp', Date.now()); } catch (e) { /* egal */ }
-    try { SW.Save.save(); } catch (e) { /* egal */ }
-    location.reload();
   }
-  setInterval(() => { if (!document.hidden) vpFix(); }, 700);
+  setInterval(() => { if (!document.hidden) vpFix(); }, 400);
   window.addEventListener('resize', () => { frozenKey = ''; resize(); setTimeout(vpFix, 150); });
   window.addEventListener('focus', () => { frozenKey = ''; });
   window.addEventListener('orientationchange', later);
-  window.addEventListener('pageshow', later);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) later(); });
+  window.addEventListener('pageshow', () => { vpTry = 0; later(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { vpTry = 0; later(); } });
   canvas.addEventListener('contextlost', e => { e.preventDefault(); showErr('Canvas-Kontext verloren; warte auf Wiederherstellung.'); });
   canvas.addEventListener('contextrestored', later);
   if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);

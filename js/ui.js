@@ -40,7 +40,7 @@ SW.UI = (function () {
     menu.classList.toggle('maptab', k === 'map'); // Karte füllt das Panel neben der Tab-Spalte
     if (k === 'map') {
       mapC = document.createElement('canvas'); mapC.id = 'world-map'; panel.appendChild(mapC);
-      U.view.z = 1; U.view.x = SW.Player.x; U.view.y = SW.Player.y; sizeMap(); mapEvents(); drawMap();
+      U.view.z = 0; U.view.x = WW / 2; U.view.y = HH / 2; sizeMap(); mapEvents(); drawMap();
     }
     else if (SW.Menus && SW.Menus[k]) SW.Menus[k](panel);
   }
@@ -48,16 +48,39 @@ SW.UI = (function () {
   U.relabel = function () {
     [...$('menu-tabs').children].forEach(b => { b.firstChild.nodeValue = SW.t('tab_' + b.dataset.k); if (b.disabled) b.title = SW.t('locked', 4); });
   };
+  // Nach Tabwechsel/Screenshot: iOS kann Offscreen-Canvas leeren -> Übersichtsbild neu aufbauen
+  U.resume = function () {
+    try {
+      const m = W.CEN[0], x = Math.floor(m[0] / OV), y = Math.floor(m[1] / OV);
+      if (ovRow >= OSH && oc2.getImageData(x, y, 1, 1).data[3] === 0) { ovRow = 0; cb = null; oc.fillStyle = '#000'; oc.fillRect(0, 0, OSW, OSH); }
+    } catch (e) { /* egal */ }
+    if (open && tab === 'map' && mapC) { sizeMap(); drawMap(); }
+  };
   U.isOpen = () => open;
   U.open = function (k) { if (!open) toggle(true); selectTab(k); };
   // Schnellreise: Tipp auf Schrein wählt ihn, Knopf reist dorthin
   const ZMAX = 5 * Math.max(1, WW / 2400); // Zoomstufe wächst mit der Welt
-  const zmin = A => Math.min(1, A * WW / HH); // z=1: Kartenbreite = Weltbreite; min: ganze Welt sichtbar
+  // Inhaltsrahmen der Karte: Landfläche (Meer ausgenommen), damit die Karte im Panel zentriert steht
+  let cb = null;
+  function content() {
+    if (cb) return cb;
+    const fb = [0, 0, WW, HH];
+    if (ovRow < OSH) return fb; // Bild noch im Aufbau
+    try {
+      const d = oc2.getImageData(0, 0, OSW, OSH).data; let x0 = OSW, y0 = OSH, x1 = -1, y1 = -1;
+      for (let y = 0; y < OSH; y++) for (let x = 0; x < OSW; x++) { const k = (y * OSW + x) * 4; if (d[k + 3] > 0 && d[k] + d[k + 1] + d[k + 2] > 24) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+      if (x1 < 0) return fb;
+      const pad = 3; cb = [Math.max(0, (x0 - pad) * OV), Math.max(0, (y0 - pad) * OV), Math.min(WW, (x1 + 1 + pad) * OV), Math.min(HH, (y1 + 1 + pad) * OV)];
+      return cb;
+    } catch (e) { return fb; }
+  }
+  const zmin = A => { const b = content(), cw = b[2] - b[0], ch = b[3] - b[1]; return Math.min(WW / cw, A * WW / ch); }; // ganze Landfläche sichtbar
   function clampView() {
     const v = U.view, A = mapC ? mapC.height / mapC.width : 1;
     v.z = Math.max(zmin(A), Math.min(ZMAX, v.z));
-    const hx = WW / v.z / 2, hy = hx * A;
-    v.x = hx * 2 >= WW ? WW / 2 : Math.max(hx, Math.min(WW - hx, v.x)); v.y = hy * 2 >= HH ? HH / 2 : Math.max(hy, Math.min(HH - hy, v.y));
+    const hx = WW / v.z / 2, hy = hx * A, b = content();
+    v.x = hx * 2 >= b[2] - b[0] ? (b[0] + b[2]) / 2 : Math.max(b[0] + hx, Math.min(b[2] - hx, v.x));
+    v.y = hy * 2 >= b[3] - b[1] ? (b[1] + b[3]) / 2 : Math.max(b[1] + hy, Math.min(b[3] - hy, v.y));
   }
   // Zoom um einen Bildschirmpunkt (fx, fy = 0..1 im Kartenbild), Punkt bleibt unter dem Finger
   function zoomAt(f, fx, fy) {
@@ -167,7 +190,7 @@ SW.UI = (function () {
     if (!mapC) return;
     const c = mapC.getContext('2d'), s = mapC.width, hh = mapC.height, p = SW.Player, v = U.view, ppw = s / WW * v.z, d = SW.dpr || 1;
     const X = wx => (wx - v.x) * ppw + s / 2, Y = wy => (wy - v.y) * ppw + hh / 2;
-    c.fillStyle = '#0b0b0f'; c.fillRect(0, 0, s, hh);
+    c.fillStyle = '#000'; c.fillRect(0, 0, s, hh);
     c.imageSmoothingEnabled = v.z < 2.5; c.drawImage(ov2, X(0), Y(0), WW * ppw, HH * ppw);
     c.strokeStyle = 'rgba(232,224,208,.6)'; c.lineWidth = 2; c.strokeRect(1, 1, s - 2, hh - 2);
     c.font = (11 * d) + 'px sans-serif'; c.textAlign = 'center';
