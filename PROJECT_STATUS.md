@@ -1,6 +1,6 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v37 (Spielversion 0.8.1)
+**Cache-Version:** v38 (Spielversion 0.8.2)
 **Aktuelle Phase:** Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
@@ -64,6 +64,10 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geändert: `world.js`, `ui.js`, `config.js`, `lang-de.js`, `shrines-data.js`, `combat-data.js`, `items-data.js`, `index.html` (v37).
 - Geprüft (Chromium): Region 9 am Kreis, Schrein/Gegner/Truhen auf freien Kacheln, Banner/seen, Screenshot, Smoke-Test und alle 4 Bosskämpfe weiter ok, keine JS-Fehler.
 - NICHT geprüft: iPhone, Weg zum Hain per Touch, Optik/Größe (kein eigener Boden, nur Wald+Platz), Balancing.
+
+## Neu in 0.8.2 – Truhen an Hütten und Torii
+- Je Hütte (`hut`) und Torii (`lintel`) eine Truhe daneben (9 neue), automatisch aus `world.js`-Strukturen in `inventory.js`; Inhalt aus Position abgeleitet (Münzen/Kräuter/Holz/Stein/Eisen), stabile IDs `c_hut_x_y`. Keine zusätzliche Truhe, wo schon eine <8 Kacheln steht. Gerätetest Hain + Hütten-Truhen: Hain bestätigt, Truhen noch offen.
+- Geändert: `inventory.js`, `config.js`, `index.html` (v38). Geprüft (Chromium): 9 Truhen, keine Dubletten, alle auf freien Kacheln, Screenshot, Smoke-Test ok.
 
 ## Offen
 - Weitere Regionen: nur Hain (klein) vorhanden; größere Erweiterung braucht Konzept/Freigabe.
