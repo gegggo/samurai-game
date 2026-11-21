@@ -1,7 +1,7 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v35 (Spielversion 0.7.4)
-**Aktuelle Phase:** Phase 7d – Gefangene im Banditenlager, Kopfgeldjäger (umgesetzt, Gerätetest offen). 7a–7c umgesetzt. Phase 6 (Deutsch, Speichern) im Code vorhanden.
+**Cache-Version:** v36 (Spielversion 0.8.0)
+**Aktuelle Phase:** Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt, Gerätetest offen). Phase 7a–7d sind im gelieferten Stand bereits integriert; Stabilitätsprüfung durchgeführt.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
 
@@ -40,7 +40,18 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geprüft (headless Chromium 852x393): 3 Gefangene auf freien Kacheln, Jäger aus bei Karma -29, an bei -30, Quest annehmen/Wache töten/bereit, Ausliefern (Karma -10, +80 Münzen, NPC weg), Freilassen (+6), Dialog öffnet, DE-Texte vorhanden, Jäger-Kampf startet, Speichern/Neuladen (Jäger bleibt tot, Karma bleibt), Screenshot Lager mit Gefangenem + Questmarker, keine JS-Fehler.
 - NICHT geprüft: Touch/Optik auf dem iPhone, Schwierigkeit der Jäger, ob Jäger bemerkt werden (keine Ankündigung), Gefangene sind keine eigene Figur (gleiche NPC-Grafik, nur andere Farben), Balancing.
 
+## Phase 8 – Fortschrittssysteme (erste Umsetzung)
+- Bestehende Trennung beibehalten: Essence nur Skilltree; Yin/Yang = Spielstil; Karma = Auswirkungen auf die Welt. Münzen, Ressourcen und XP bleiben getrennt.
+- Geheime Techniken erweitert: Banditenanführer → Heavenly Cross; Bergwächter → Iron Will; Tempelmönch → Stillwater; Oni → Oni Wrath.
+- Jede Technik wird nach dem Boss-Sieg zunächst nur als „erhalten/gesperrt“ gespeichert. Freischaltung verlangt zusätzliche Bedingungen aus Level, positivem Karma und Yin/Yang; Stillwater verlangt ein ausgeglichenes Verhältnis.
+- Keine Essence-Kosten für geheime Techniken. Essence-Belohnungen aus Bosskämpfen bleiben Skilltree-Ressourcen.
+- Yin/Yang-Zuwachs und Essence-Zugänge gegen ungültige Werte abgesichert; Karma-Wiederholungszähler beim Laden begrenzt und bereinigt.
+- Geändert: `js/skills-data.js`, `js/skills.js`, `js/combat-data.js`, `js/progress.js`, `js/lang-de.js`, `js/config.js`, `index.html` (Cache v36).
+- Prüfung: JavaScript-Syntaxprüfung für alle JS-Dateien bestanden. Isolierter Logiktest bestanden: alle vier Bossbelohnungen verweisen auf vorhandene Geheimtechniken, alle vier können erhalten werden, alle vier werden bei erfüllten Bedingungen freischaltbar, alle vier Kampfaktionen sind vorhanden und Essence bleibt unverändert. Vorherige Phase-7-Tests aus v35 bleiben dokumentiert; ein vollständiger Browser-/Gerätetest der neuen Phase-8-Funktionen steht noch aus.
+
 ## Offen
+- Phase 8 weiter ausbauen: Weltreaktionen auf Karma systematisch für NPCs, Händler, Quests und besondere Zugänge prüfen; Yin/Yang-Boni und Belohnungsraten balancieren.
+- Phase 8: prüfen, ob alle Bossarten erreichbar sind und jede Technik genau einmal vergeben wird.
 - Weitere Aufgabentypen (Wasser, Spiegel): bewusst nicht in 7b, nur Block- und Laternenräume wiederverwendet.
 - Negatives Karma hat nur wenige Quellen (Ausliefern, Fischer-Quest); weitere (z. B. Unschuldige angreifen) nur nach Vorschlag.
 - Block-Raum: automatisches Zurücksetzen verklemmter Blöcke (bisher Reset-Knopf oder Raum verlassen).
@@ -51,4 +62,4 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Systeme getrennt: XP/Level, Skillpunkte, Essence (nur Skilltree), Karma, Yin/Yang, Münzen (Handel), Ressourcen (Handwerk/Dorf).
 
 ## Nächster Schritt
-Gerätetest 7a–7d, dann Abschluss Phase 7 / Freigabe nächster Schritt.
+Phase 8 im Browser testen (alle vier Bossbelohnungen, gesperrt/freischaltbar/ausgerüstet, Speichern/Neuladen), danach Karma-Weltreaktionen und Yin/Yang-Balancing ergänzen. Anschließend Touch-/Gerätetest auf dem iPhone.
