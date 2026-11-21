@@ -1,7 +1,7 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v31 (Spielversion 0.7.0)
-**Aktuelle Phase:** Phase 7a – Schrein-Prüfungen (umgesetzt, Gerätetest offen). Phase 6 (Deutsch, Speichern) im Code vorhanden.
+**Cache-Version:** v32 (Spielversion 0.7.1)
+**Aktuelle Phase:** Phase 7b – Prüfungen für alle 8 Schreine (umgesetzt, Gerätetest offen). Phase 6 (Deutsch, Speichern) im Code vorhanden.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
 
@@ -17,8 +17,15 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geprüft (headless Chromium 852x393): Betreten, beide Prüfungen lösbar, Belohnung, Speichern/Neuladen, Reset, Leave, falsche Laternenreihenfolge, keine JS-Fehler.
 - NICHT geprüft: Touch-Steuerung im Raum, Schiebegefühl auf dem iPhone, Optik auf dem Gerät.
 
+## Neu in 7b
+- 6 weitere Prüfungen: Berg (Steinblöcke, 3 Platten, Yin 3, Essence Common), Einsiedler (Laternen, Yin 3), Aussicht (Blöcke mit Wänden, Yin 2, Common), Fischer (Laternen, Yin 2), Ruinen (3 Blöcke/3 Platten, Yin 3, Refined). Alle nur XP, Yin/Yang, Essence, keine Münzen.
+- Duell-Prüfung Höhlenschrein (Yang 5, XP 80, 1 Refined): Kampf gegen Elitegegner direkt aus dem Schrein. Sieg = Belohnung einmalig, keine Münzen/Karma/Beute. Niederlage = erneut versuchbar.
+- Geändert: `js/trials.js` (Räume, Duell, `grant()`), `js/combat.js` (Reward-Hook für Schrein-Duell), `index.html` (v32), `js/config.js`.
+- Geprüft: Sokoban-Solver (alle Blockräume lösbar, Tür/Altar danach erreichbar), Laternenräume (Tür/Altar erreichbar), Chromium 852x393: alle 7 Räume lösen + Belohnung, Duell gewinnen (Münzen/Karma unverändert, Yang steigt), Speichern/Neuladen, keine JS-Fehler.
+- NICHT geprüft: Touch/Optik der neuen Räume auf dem iPhone, Schwierigkeit des Elite-Duells für Menschen, Balancing der Belohnungen.
+
 ## Offen
-- 7b: Prüfungen für die 6 übrigen Schreine (Berg, Einsiedler, Aussicht, Fischer, Ruinen, Höhle), Duell-Prüfung (Yang), weitere Aufgabentypen (Wasser, Spiegel).
+- Weitere Aufgabentypen (Wasser, Spiegel): bewusst nicht in 7b, nur Block- und Laternenräume wiederverwendet.
 - 7c: Nachtgegner, zeitabhängige NPCs/Quests.
 - 7d: Gefangene im Banditenlager, Kopfgeldjäger bei negativem Karma.
 - Block-Raum: automatisches Zurücksetzen verklemmter Blöcke (bisher Reset-Knopf oder Raum verlassen).
@@ -29,4 +36,4 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Systeme getrennt: XP/Level, Skillpunkte, Essence (nur Skilltree), Karma, Yin/Yang, Münzen (Handel), Ressourcen (Handwerk/Dorf).
 
 ## Nächster Schritt
-Gerätetest 7a, dann Freigabe 7b.
+Gerätetest 7a/7b, dann Freigabe 7c.
