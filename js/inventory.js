@@ -19,6 +19,14 @@ SW.Inv = (function () {
     return { x, y };
   }
   D.chests.forEach(c => { const p = free(c.x, c.y); I.chests.push({ id: c.id, x: p.x, y: p.y, rar: c.rar, give: c.give, open: false }); });
+  // Je Hütte und je Torii (Lintel) eine Truhe daneben, Inhalt aus Position abgeleitet (stabile IDs). Keine zweite Truhe, wenn schon eine nahe steht.
+  W.S.forEach(st => {
+    if (st.type !== 'hut' && st.type !== 'lintel') return;
+    const px = st.type === 'hut' ? st.x + st.w / 2 : st.x + st.w + 1.5, py = st.type === 'hut' ? st.y + st.h + 1.2 : st.y + .5;
+    if (I.chests.some(c => Math.hypot(c.x - px, c.y - py) < 8)) return;
+    const r = W.h(st.x, st.y, 55), give = r < .3 ? { coins: 40 + Math.floor(r * 200) } : r < .5 ? { item: 'herb', n: 2 } : r < .7 ? { item: 'wood', n: 4 } : r < .85 ? { item: 'stone', n: 4 } : { item: 'iron', n: 2 };
+    const p = free(px, py); I.chests.push({ id: 'c_' + st.type + '_' + st.x + '_' + st.y, x: p.x, y: p.y, rar: 'common', give, open: false });
+  });
 
   I.add = function (id, n) {
     n = n === undefined ? 1 : n;
