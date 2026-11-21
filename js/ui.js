@@ -5,7 +5,7 @@ SW.UI = (function () {
   const $ = id => document.getElementById(id);
   const TABS = [['map', 1], ['inventory', 4], ['equipment', 4], ['skills', 3], ['skilltree', 3], ['quests', 4], ['character', 3], ['karma', 3], ['settings', 1]];
   const U = { disc: new Set(), seen: new Set(), sel: null, view: { z: 1, x: 1200, y: 1200 } };
-  let cmp, posEl, posK = '', cmpK = -1, mini, mc, ov, oc, ovRow = 0, reg = -1, banner, bt = 0, menu, panel, mapC, mapT = 0, mt = 0, tab = 'map', open = false;
+  let cmp, posEl, posK = '', cmpK = -1, mini, mc, ov, oc, ov2, oc2, ovRow = 0, reg = -1, banner, bt = 0, menu, panel, mapC, mapT = 0, mt = 0, tab = 'map', open = false;
 
   U.init = function () {
     cmp = $('compass');
@@ -13,6 +13,7 @@ SW.UI = (function () {
     mini = $('mini'); mc = mini.getContext('2d'); banner = $('banner'); menu = $('menu'); panel = $('menu-panel');
     ov = document.createElement('canvas'); ov.width = ov.height = OS; oc = ov.getContext('2d');
     oc.fillStyle = '#0b0b0f'; oc.fillRect(0, 0, OS, OS);
+    ov2 = document.createElement('canvas'); ov2.width = ov2.height = OS; oc2 = ov2.getContext('2d');
     const tabs = $('menu-tabs');
     TABS.forEach(a => {
       const b = document.createElement('button'); b.textContent = SW.t('tab_' + a[0]); b.dataset.k = a[0];
@@ -104,6 +105,8 @@ SW.UI = (function () {
   const XP_REGION = 10, XP_POI = 15; // Erkundungs-XP (Platzhalter)
   function explore(n) { const m = SW.Char.addXp(n); if (m.length) showBanner(m.join(' ')); }
 
+  // Flächenfarbe je Region (Index = W.regionAt)
+  const RCOL = [[143, 160, 95], [74, 122, 58], [138, 130, 112], [58, 100, 56], [64, 112, 96], [126, 118, 108], [118, 106, 92], [140, 100, 60], [88, 78, 98], [44, 84, 56], [128, 126, 120], [88, 112, 70], [225, 232, 238], [118, 62, 42], [214, 176, 98], [205, 190, 140], [140, 124, 108]];
   // Übersichtsbild der Welt, schrittweise erzeugt (blockiert den Start nicht)
   function stepOverview(rows) {
     if (ovRow >= OS) return;
@@ -112,7 +115,18 @@ SW.UI = (function () {
       const c = W.PAL[W.terrain(i * OV + OV / 2 | 0, (ovRow + j) * OV + OV / 2 | 0)], k = (j * OS + i) * 4;
       img.data[k] = c[0]; img.data[k + 1] = c[1]; img.data[k + 2] = c[2]; img.data[k + 3] = 255;
     }
-    oc.putImageData(img, 0, ovRow); ovRow += n;
+    oc.putImageData(img, 0, ovRow);
+    // Kartenbild im Stil des World Draft: Regionen als Flächen, Wasser, Wege, heller Küstenrand (Minimap nutzt weiter das Geländebild)
+    const im2 = oc2.createImageData(OS, n), TT = W.T, h = OV / 4 | 0;
+    for (let j = 0; j < n; j++) for (let i = 0; i < OS; i++) {
+      const X0 = i * OV + OV / 2 | 0, Y0 = (ovRow + j) * OV + OV / 2 | 0, t = W.terrain(X0, Y0);
+      let c = RCOL[W.regionAt(X0, Y0)] || RCOL[0];
+      if (t === TT.DEEP) c = [32, 70, 150]; else if (t === TT.WATER) c = [58, 110, 190]; else if (t === TT.LAVA) c = [200, 70, 30]; else if (t === TT.SAND) c = [222, 204, 150];
+      else for (let q = 0; q < 4; q++) { const u = W.terrain(X0 + (q & 1 ? h : -h), Y0 + (q & 2 ? h : -h)); if (u === TT.PATH || u === TT.BRIDGE) { c = [226, 200, 140]; break; } }
+      if (i === 0 || j + ovRow === 0 || i === OS - 1 || j + ovRow === OS - 1) c = [201, 185, 138];
+      const k = (j * OS + i) * 4; im2.data[k] = c[0]; im2.data[k + 1] = c[1]; im2.data[k + 2] = c[2]; im2.data[k + 3] = 255;
+    }
+    oc2.putImageData(im2, 0, ovRow); ovRow += n;
   }
 
   function drawMini(p) {
@@ -150,13 +164,13 @@ SW.UI = (function () {
     const c = mapC.getContext('2d'), s = mapC.width, hh = mapC.height, p = SW.Player, v = U.view, W2 = SW.CFG.WORLD, ppw = s / W2 * v.z, d = SW.dpr || 1;
     const X = wx => (wx - v.x) * ppw + s / 2, Y = wy => (wy - v.y) * ppw + hh / 2;
     c.fillStyle = '#0b0b0f'; c.fillRect(0, 0, s, hh);
-    c.imageSmoothingEnabled = v.z < 2.5; c.drawImage(ov, X(0), Y(0), W2 * ppw, W2 * ppw);
+    c.imageSmoothingEnabled = v.z < 2.5; c.drawImage(ov2, X(0), Y(0), W2 * ppw, W2 * ppw);
     c.strokeStyle = 'rgba(232,224,208,.6)'; c.lineWidth = 2; c.strokeRect(1, 1, s - 2, hh - 2);
     c.font = (11 * d) + 'px sans-serif'; c.textAlign = 'center';
     // Namen: alle Regionen und Orte stehen auf der Karte, noch nicht besuchte gedämpft. Schreine bleiben an Entdeckung gebunden (Schnellreise).
-    const lab = (s, x, y, a) => { c.globalAlpha = a; c.fillStyle = 'rgba(0,0,0,.65)'; c.fillText(s, x + 1, y + 1); c.fillStyle = '#f4ecd8'; c.fillText(s, x, y); c.globalAlpha = 1; };
+    const lab = (s, x, y, a, big) => { c.globalAlpha = a; c.font = '700 ' + ((big ? 14 : 11) * d) + 'px sans-serif'; c.lineJoin = 'round'; c.lineWidth = 3 * d; c.strokeStyle = 'rgba(15,20,30,.85)'; c.strokeText(s, x, y); c.fillStyle = '#fff'; c.fillText(s, x, y); c.globalAlpha = 1; };
     const poiNames = W.POI.map(o => SW.t('poi_' + o.id));
-    for (let r = 0; r < 17; r++) { const n = SW.t('reg_' + r), m = r >= 9 && W.MINI[r - 9]; if (poiNames.indexOf(n) < 0) lab(n, X(m ? m.x : W.C[r % 3]), Y(m ? m.y : W.C[(r / 3) | 0]) - 14 * d, U.seen.has(r) ? 1 : .6); } // gleichnamige Orte nicht doppelt beschriften
+    for (let r = 0; r < 17; r++) { const n = SW.t('reg_' + r), m = r >= 9 && W.MINI[r - 9]; if (poiNames.indexOf(n) < 0) lab(n, X(m ? m.x : W.C[r % 3]), Y(m ? m.y : W.C[(r / 3) | 0]) - 14 * d, U.seen.has(r) ? 1 : .75, 1); } // gleichnamige Orte nicht doppelt beschriften
     W.POI.forEach(o => {
       const x = X(o.x), y = Y(o.y), r = 5 * d, got = U.disc.has(o.id);
       c.globalAlpha = got ? 1 : .55; c.fillStyle = got ? '#f2c14e' : 'rgba(242,193,78,.0)'; c.strokeStyle = '#f2c14e'; c.lineWidth = 1.5 * d;
