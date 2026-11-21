@@ -1,6 +1,6 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v40 (Spielversion 0.9.1)
+**Cache-Version:** v42 (Spielversion 0.9.3)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
@@ -91,6 +91,23 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geprüft (headless Chromium 852x393, Playwright): Start ohne JS-Fehler; Altstand-Migration; ungültige add/spend abgelehnt; Skill-Kosten 1/2; Regionen 10/11 (Gegner, Truhen, Schrein auf freien Kacheln in richtiger Region); BFS vom Start erreicht Schreine Garten/Marsch/Hain; Autosave bei Gebietswechsel (Position gespeichert, Format v3); Neuladen behält Essence/Position; Truhen-Essence einmalig; Skilltree-Menü zeigt nur "Essence"; DE-Texte.
 - Regression (Chromium, Kampfzustand per Skript auf Sieg gesetzt, echter reward()-Pfad): 4 Bosse (+2/3/3/4 Essence, je 1 Geheimtechnik), Elite (+2), Samurai/Gepanzerter/Nachtgegner (0, Respawn 0), Quest hermit1 (+1 einmalig), Prüfungs-Duell (+2). Alle bestanden. Hinweis: `Trials.duelWon` selbst ist nicht gegen Doppelaufruf gesichert, Einmaligkeit kommt aus `Trials.can`/`enter` (unverändert).
 - NICHT geprüft: iPhone-Touch/Optik, echter Kampf von Hand (nur Skript-Sieg), Prüfungsräume 7a/7b spielen, Performance, Spielgefühl/Schwierigkeit der neuen Regionen, Tümpel im Schilfmarsch (nur Erreichbarkeit der Schreine geprüft), Gebietswechsel-Autosave per echtem Laufen.
+
+## Neu in 0.9.2 – Map: 5 neue Regionen, 4 neue Kacheln, kleinere Minimap
+- Neue Kreisregionen (`World.MINI`, jetzt mit Radius `r`): 12 Frostpeaks (100,100 Schnee), 13 Ember Crater (2300,100 Vulkan, Lava), 14 Dust Dunes (100,2300 Wüste + Oase), 15 Sun Coast (2300,2300 Meer + Strand), 16 Karst Spires (1600,1600 hohe Felstürme). Je Schrein (Plattform in Mitte), POI, Arena, Texte EN+DE.
+- Neue Kacheln: SNOW, ASH, LAVA (blockiert), DUNE. Neues Objekt SPIRE (hoher Felsturm, solid). Schneebäume heller. Nichts entfernt (alles Bestehende passt).
+- Minimap zeigt kleineren Ausschnitt (60 statt 90 Übersichtspixel = 480 Kacheln). Weltkarte/Minimap übernehmen neue Farben automatisch (PAL).
+- Geändert: `world.js`, `render.js`, `ui.js`, `config.js`, `lang-de.js`, `shrines-data.js`, `combat-data.js`, `index.html` (v41).
+- Geprüft: Syntax aller JS; Node: alle 5 Schreine frei + vom Start erreichbar, >99 % Landfläche erreichbar; Chromium 852x393: Start, Neues Spiel, Screenshots Karst/Vulkan, keine JS-Fehler.
+- NICHT geprüft: iPhone, Küste/Frost/Dünen per Screenshot angesehen, Performance mit Spires, Balancing.
+- OFFEN: neue Regionen haben noch KEINE Gegner und KEINE Truhen (nur Schrein + POI). Kein Weg/Straße dorthin.
+
+## Neu in 0.9.3 – Große Mauer, Bergdorf, Himmelstempel
+- Große Mauer: Kachel WALL (solid), 5 Kacheln breit rund um die Welt, 12 Wachtürme (`build()`). Ersetzt den alten Fels-Rand.
+- Karst Spires umgebaut: Spires entfernt. Zwei schmale Berge (`MT` in `world.js`, `World.mtn`): Berg 1 (1560,1600) mit Bergdorf (4 Häuser), Berg 2 (1650,1600) mit Himmelstempel + Gipfelschrein `peak`. Neue Kachel STAIR (Treppe, Südseite, 49 Stufen bei Berg 2). Brücke y 1598-1599 verbindet beide Plateaus (74 Kacheln).
+- Geändert: `world.js`, `render.js`, `config.js`, `lang-de.js`, `shrines-data.js`, `index.html` (v42).
+- Geprüft: Syntax; Node-BFS: Mauer solid, Treppe/Plateaus/Brücke/Tempel/Gipfelschrein vom Start erreichbar; Chromium 852x393: Mauer+Turm, Treppe sichtbar, keine JS-Fehler.
+- NICHT geprüft: iPhone, Brücke/Dorf/Tempel im Screenshot angesehen, Performance.
+- OFFEN: Bergdorf hat keine NPCs/Händler, Tempel keine Gegner/Truhen. Berge sind flach dargestellt (graue Felsfläche, keine Höhe/Schatten).
 
 ## BALANCE-PLATZHALTER (alle vorläufig, nicht final)
 Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-data.js` (Truhen), `quests-data.js`, `trials.js`; Startwert `progress.js` (Essence); Karma-Schwelle Cross `skills-data.js`.
