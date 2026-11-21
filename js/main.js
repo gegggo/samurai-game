@@ -33,8 +33,10 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
     last = performance.now();
     SW.Input.reset();
     resize();
-    setTimeout(resize, 250);
-    setTimeout(resize, 700);
+    const rs = () => { resize(); try { SW.UI.resume(); } catch (e) { /* egal */ } };
+    setTimeout(rs, 250);
+    setTimeout(rs, 700);
+    setTimeout(rs, 1500);
   };
   // iOS-Fehler: nach Screenshot bleibt die Seitenbreite auf Hochformat (z. B. 393 statt 852) haengen -> halber schwarzer Bildschirm.
   // Erkennung: Gerät liegt quer (window.orientation +-90), Fensterbreite aber kleiner als die lange Seite. Behebung: Viewport-Meta neu setzen, sonst Neuladen (Spielstand wird vorher gespeichert).

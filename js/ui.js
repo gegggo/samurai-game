@@ -91,9 +91,24 @@ SW.UI = (function () {
   function mapTap(cx, cy) {
     const r = mapC.getBoundingClientRect(), v = U.view;
     const wx = v.x + ((cx - r.left) / r.width - .5) * WW / v.z, wy = v.y + ((cy - r.top) / r.height - .5) * r.height / r.width * WW / v.z;
-    const lim = 30 / r.width * WW / v.z; let best = null, bd = lim;
+    const lim = 38 / r.width * WW / v.z; let best = null, bd = lim;
     SW.Shrines.list.forEach(s => { if (!SW.Shrines.isFound(s.id)) return; const d = Math.hypot(s.x - wx, s.y - wy); if (d < bd) { bd = d; best = s.id; } });
-    if (best && SW.Shrines.isOn(best)) { if (SW.Shrines.travel(best)) toggle(false); return; } U.sel = best; drawMap();
+    U.sel = best; drawMap(); travelBar(best);
+  }
+  // Schnellreise: Tipp auf entdeckten Schrein -> Leiste mit Name, Reisen und Abbrechen (nur aktivierte Schreine sind Ziele)
+  function travelBar(id) {
+    const old = document.getElementById('travel-bar'); if (old) old.remove();
+    if (!id) return;
+    const on = SW.Shrines.isOn(id), bar = document.createElement('div'); bar.id = 'travel-bar';
+    const lbl = document.createElement('span'); lbl.textContent = on ? SW.t('travel_to', SW.Shrines.name(id)) : SW.t('travel_off', SW.Shrines.name(id)); bar.appendChild(lbl);
+    if (on) {
+      const go = document.createElement('button'); go.className = 'btn'; go.textContent = SW.t('travel_go');
+      go.onclick = () => { if (SW.Shrines.travel(id)) { U.sel = null; toggle(false); } else { lbl.textContent = SW.t('travel_blocked'); } };
+      bar.appendChild(go);
+    }
+    const no = document.createElement('button'); no.className = 'btn'; no.textContent = SW.t('travel_cancel'); no.onclick = () => { U.sel = null; bar.remove(); drawMap(); }; bar.appendChild(no);
+    ['pointerdown', 'pointerup'].forEach(n => bar.addEventListener(n, e => e.stopPropagation()));
+    panel.appendChild(bar);
   }
   // Karte: ein Finger = verschieben, zwei Finger = zoomen, kurzer Tipp = Schrein wählen, Mausrad = zoomen
   function mapEvents() {
@@ -203,7 +218,11 @@ SW.UI = (function () {
     const c = mapC.getContext('2d'), s = mapC.width, hh = mapC.height, p = SW.Player, v = U.view, ppw = s / WW * v.z, d = SW.dpr || 1;
     const X = wx => (wx - v.x) * ppw + s / 2, Y = wy => (wy - v.y) * ppw + hh / 2;
     c.fillStyle = '#000'; c.fillRect(0, 0, s, hh);
-    c.imageSmoothingEnabled = v.z < 2.5; c.drawImage(ov2, X(0), Y(0), WW * ppw, HH * ppw);
+    c.imageSmoothingEnabled = v.z < 2.5;
+    { // nur sichtbaren Ausschnitt des Übersichtsbildes zeichnen (riesige Zielgrößen verträgt iOS nicht, Bild wurde schwarz)
+      const sx0 = Math.max(0, (v.x - s / 2 / ppw) / OV), sy0 = Math.max(0, (v.y - hh / 2 / ppw) / OV), sx1 = Math.min(OSW, (v.x + s / 2 / ppw) / OV), sy1 = Math.min(OSH, (v.y + hh / 2 / ppw) / OV);
+      if (sx1 > sx0 && sy1 > sy0) c.drawImage(ov2, sx0, sy0, sx1 - sx0, sy1 - sy0, X(sx0 * OV), Y(sy0 * OV), (sx1 - sx0) * OV * ppw, (sy1 - sy0) * OV * ppw);
+    }
     c.strokeStyle = 'rgba(232,224,208,.6)'; c.lineWidth = 2; c.strokeRect(1, 1, s - 2, hh - 2);
     c.font = (11 * d) + 'px sans-serif'; c.textAlign = 'center';
     // Namen: alle Regionen und Orte stehen auf der Karte, noch nicht besuchte gedämpft. Schreine bleiben an Entdeckung gebunden (Schnellreise).

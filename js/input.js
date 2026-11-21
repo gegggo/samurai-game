@@ -4,8 +4,11 @@ SW.Input = (function () {
   const I = { vec: { x: 0, y: 0 }, joy: { active: false, id: -1, bx: 0, by: 0, cx: 0, cy: 0 }, RAD: 60 };
   const keys = {};
   function vecFromJoy() {
-    const j = I.joy; let dx = j.cx - j.bx, dy = j.cy - j.by; const d = Math.hypot(dx, dy);
-    if (d > I.RAD) { dx = dx / d * I.RAD; dy = dy / d * I.RAD; j.cx = j.bx + dx; j.cy = j.by + dy; }
+    const j = I.joy; let dx = j.cx - j.bx, dy = j.cy - j.by, d = Math.hypot(dx, dy);
+    if (d > I.RAD) { // Finger weiter als Radius: Joystick-Mitte wird hinterhergezogen (dynamisch)
+      const k = (d - I.RAD) / d; j.bx += dx * k; j.by += dy * k;
+      dx = j.cx - j.bx; dy = j.cy - j.by; d = Math.hypot(dx, dy);
+    }
     const m = Math.min(1, d / I.RAD);
     if (m < .15) return { x: 0, y: 0 };
     return { x: dx / (d || 1) * m, y: dy / (d || 1) * m };
