@@ -1,9 +1,16 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v53 (Spielversion 0.9.14)
+**Cache-Version:** v54 (Spielversion 0.9.15)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.15 – Weltkarte im Stil des World Draft
+- Kartenbild (`ov2` in `ui.js`) zeigt Regionen als Flächenfarben (`RCOL`), Wasser, Lava, Sand, Wege/Brücken als helle Linien, hellen Küstenrand um die Welt. Außerhalb der Welt schwarz. Beschriftung fett mit dunklem Rand, Regionsnamen größer. Minimap bleibt auf dem Geländebild (`ov`).
+- Bewusst NICHT geändert: Weltgelände und Ortskoordinaten. Die Karte zeigt die echte Welt, nicht das Draft-Layout (Inselform, Regionspositionen).
+- Geändert: `js/ui.js`, `js/config.js`, `index.html` (v54), `PROJECT_STATUS.md`. `css/main.css` unverändert seit 0.9.14.
+- Geprüft (Chromium 852x393): Karte mit Regionsfarben, Wegen, Küstenrand, keine JS-Fehler. NICHT geprüft: iPhone, Ladezeit des Kartenbilds auf dem Gerät (zweites Bild wird beim Start schrittweise erzeugt).
+- OFFEN: Draft-Layout als echte Weltform = Umbau `world.js`, nur nach Freigabe. Überlappende Beschriftungen Windspire/Sky Temple/Cloud Spire.
 
 ## 0.9.14 – Menü und Karte gleichzeitig
 - Tab-Spalte bleibt auf der Karten-Seite sichtbar, Karte füllt rechts das Panel. Vollbild-Modus `maponly` und Knopf `map-tabs` entfernt (jetzt `maptab`).
