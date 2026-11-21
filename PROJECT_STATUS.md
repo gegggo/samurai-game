@@ -1,6 +1,6 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v42 (Spielversion 0.9.3)
+**Cache-Version:** v43 (Spielversion 0.9.4)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
@@ -108,6 +108,15 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Geprüft: Syntax; Node-BFS: Mauer solid, Treppe/Plateaus/Brücke/Tempel/Gipfelschrein vom Start erreichbar; Chromium 852x393: Mauer+Turm, Treppe sichtbar, keine JS-Fehler.
 - NICHT geprüft: iPhone, Brücke/Dorf/Tempel im Screenshot angesehen, Performance.
 - OFFEN: Bergdorf hat keine NPCs/Händler, Tempel keine Gegner/Truhen. Berge sind flach dargestellt (graue Felsfläche, keine Höhe/Schatten).
+
+## Neu in 0.9.4 – Karst Spires erweitert
+- Region 16 Radius 150 -> 215. Zwei neue Berge: Windturm (Berg 3, West, 1450/1600) und Wolkenturm (Berg 4, Nord, 1560/1490). Brücken vom Bergdorf nach Ost, West, Nord (`BR` in `world.js`). Plateau Berg 2-4 = Stein.
+- Neu: 2 Schreine (`windspire`, `cloudspire`), 2 POIs, 5 Händler-NPCs (Bergdorf: general/herb/smith, Tempel: weapon, Windturm: armor), 6 Gegner (Tempel 2, Wind 2, Wolke 2), 4 Truhen. Texte EN+DE.
+- Felsen: Kantenlicht/-schatten + Risse in `render.js` (gilt für alle ROCK-Kacheln).
+- Geändert: `world.js`, `render.js`, `config.js`, `lang-de.js`, `shrines-data.js`, `shops-data.js`, `combat-data.js`, `items-data.js`, `index.html` (v43).
+- Geprüft: Syntax; Node-BFS: Schreine, NPCs, Gegner, Truhen auf freien, erreichbaren Kacheln; Brückenmitten Ost/West/Nord; Chromium 852x393: Start, Teleport, Screenshots, keine JS-Fehler.
+- NICHT geprüft: iPhone, Brücken per Screenshot, Balancing der neuen Gegner/Truhen, Performance.
+- OFFEN: keine Quest-NPCs in Karst; Händler nutzen Standardrollen.
 
 ## BALANCE-PLATZHALTER (alle vorläufig, nicht final)
 Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-data.js` (Truhen), `quests-data.js`, `trials.js`; Startwert `progress.js` (Essence); Karma-Schwelle Cross `skills-data.js`.
