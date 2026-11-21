@@ -1,9 +1,16 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v58 (Spielversion 0.9.19)
+**Cache-Version:** v59 (Spielversion 0.9.20)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.20 – Kartensymbole und Legende (Dateien gesendet, Gerätetest offen)
+- 0.9.19 (Karte zentriert, Schwarzbild-Fix) auf iPhone bestätigt.
+- Karte: alle 23 Orte immer mit Symbol (Haus = Dorf/Hütte, Tor = Tempel/Ruine/Höhle/Schrein, Zelt = Lager, Raute = sonstige Orte); unentdeckte gedämpft. Beschriftung wichtige Orte zuerst, mit Ausweichpositionen; Legende unten links (EN/DE).
+- Geändert: `js/ui.js`, `js/config.js`, `js/lang-de.js`, `index.html` (v59), `PROJECT_STATUS.md`.
+- Geprüft: `node --check`, Chromium 852x393 Karte ohne JS-Fehler. NICHT geprüft: iPhone.
+- Hinweis: Karst-Gruppe (Sky Temple, Peak Village, Wind Spire, Cloud Spire) eng, einzelne Namen erscheinen erst beim Hineinzoomen.
 
 ## 0.9.19 – Karte zentriert, Schwarzbild-Fix (Dateien gesendet, Gerätetest offen)
 - **Karte:** Start im Menü zeigt ganze Landfläche zentriert (Inhaltsrahmen aus Übersichtsbild, Meer ausgenommen). Verschieben/Zoom klemmt auf diesen Rahmen. Hintergrund einheitlich schwarz.
