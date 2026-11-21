@@ -25,7 +25,7 @@ SW.World = (function () {
   const GX = 800, GY = 800; // Region 9: Moonlit Grove (Kreis, r 80) in der Lücke zwischen Dorf, Wald und See
   // Kleine Kreisregionen (r 80): 9 Hain, 10 Steingarten, 11 Schilfmarsch. Region = Index + 9.
   // 12 Frostpeaks (Schnee), 13 Ember Crater (Vulkan), 14 Dust Dunes (Wüste), 15 Sun Coast (Küste), 16 Karst Spires (hohe Felstürme); r = Radius
-  const MINI = [{ x: 800, y: 800 }, { x: 1600, y: 800 }, { x: 800, y: 1600 }, { x: 100, y: 100, r: 190 }, { x: 2300, y: 100, r: 190 }, { x: 100, y: 2300, r: 190 }, { x: 2300, y: 2300, r: 190 }, { x: 1600, y: 1600, r: 150 }];
+  const MINI = [{ x: 800, y: 800 }, { x: 1600, y: 800 }, { x: 800, y: 1600 }, { x: 100, y: 100, r: 190 }, { x: 2300, y: 100, r: 190 }, { x: 100, y: 2300, r: 190 }, { x: 2300, y: 2300, r: 190 }, { x: 1600, y: 1600, r: 215 }];
   function regionAt(x, y) {
     for (let i = 0; i < MINI.length; i++) if ((x - MINI[i].x) * (x - MINI[i].x) + (y - MINI[i].y) * (y - MINI[i].y) < (MINI[i].r || 80) * (MINI[i].r || 80)) return 9 + i;
     const wx = x + (vn(x / 50, y / 50, 11) - .5) * 120, wy = y + (vn(x / 50, y / 50, 12) - .5) * 120;
@@ -50,13 +50,14 @@ SW.World = (function () {
     return Math.hypot(x - (RA[0] + dx * t + Math.sin(t * 14) * 18), y - (RA[1] + dy * t + Math.cos(t * 11) * 18));
   }
 
-  // Karst: zwei schmale Berge. Plateau (p = Anteil), Treppe auf der Südseite, Brücke y 1598-1599. Dorf auf Berg 1, Tempel auf Berg 2.
-  const MT = [{ x: 1560, y: 1600, rx: 18, ry: 34, p: .36 }, { x: 1650, y: 1600, rx: 22, ry: 66, p: .09 }];
-  function mtn(x, y) { // 0 Boden, 1 Fels, 2 Treppe, 3 Plateau
-    for (let i = 0; i < 2; i++) {
+  // Karst: vier schmale Berge. Plateau (p = Anteil), Treppe auf der Südseite. Dorf auf Berg 1 (Mitte), Tempel auf Berg 2 (Ost), Windturm Berg 3 (West), Wolkenturm Berg 4 (Nord).
+  const MT = [{ x: 1560, y: 1600, rx: 18, ry: 34, p: .36 }, { x: 1650, y: 1600, rx: 22, ry: 66, p: .09 }, { x: 1450, y: 1600, rx: 20, ry: 32, p: .36 }, { x: 1560, y: 1490, rx: 22, ry: 30, p: .36 }];
+  const BR = [[1561, 1649, 1598, 1599], [1451, 1559, 1598, 1599], [1559, 1560, 1491, 1597]]; // Brücken vom Dorf: Ost, West, Nord (x0, x1, y0, y1)
+  function mtn(x, y) { // 0 Boden, 1 Fels, 2 Treppe, 3 Dorf-Plateau (Gras), 4 Plateau (Stein)
+    for (let i = 0; i < MT.length; i++) {
       const m = MT[i], dx = x - m.x, dy = y - m.y, e = (dx / m.rx) * (dx / m.rx) + (dy / m.ry) * (dy / m.ry);
       if (e > 1.08) continue;
-      if (e < m.p) return 3;
+      if (e < m.p) return i ? 4 : 3;
       if (Math.abs(dx) < 2 && dy > 0) return 2;
       if (e < 1) return 1;
     }
@@ -65,8 +66,8 @@ SW.World = (function () {
   function biome(reg, x, y, m) {
     if (reg === 16) {
       const k = mtn(x, y);
-      if ((y === 1598 || y === 1599) && x > 1560 && x < 1650 && k !== 3) return T.BRIDGE;
-      if (k) return k === 1 ? T.ROCK : k === 2 ? T.STAIR : x >= 1640 ? T.STONE : T.GRASS;
+      if (k < 3 && BR.some(b => x >= b[0] && x <= b[1] && y >= b[2] && y <= b[3])) return T.BRIDGE;
+      if (k) return k === 1 ? T.ROCK : k === 2 ? T.STAIR : k === 3 ? T.GRASS : T.STONE;
     }
     const d = Math.hypot(x - m.x, y - m.y), f = fbm(x, y, 50 + reg);
     if (d < 9) return T.STONE; // Plattform um den Schrein
@@ -161,6 +162,8 @@ SW.World = (function () {
     for (let i = 600; i < N; i += 600) { add('tower', i, 1, 2, 2); add('tower', i, N - 3, 2, 2); add('tower', 1, i, 2, 2); add('tower', N - 3, i, 2, 2); } // Wachtürme an der Mauer
     [[-8, -12], [2, -12], [-8, 2], [2, 2]].forEach(o => add('house', 1560 + o[0], 1600 + o[1], 6, 5)); // Bergdorf (Berg 1)
     add('shrine', 1645, 1589, 10, 6); // Tempel (Berg 2)
+    add('shrine', 1445, 1590, 10, 6); // Windturm-Schrein (Berg 3)
+    add('tower', 1554, 1476, 2, 2); add('hut', 1566, 1478, 4, 4); // Wolkenturm (Berg 4)
     // Index
     S.forEach(s => {
       for (let bx2 = Math.floor(s.x / 32); bx2 <= Math.floor((s.x + s.w - 1) / 32); bx2++)
@@ -170,7 +173,7 @@ SW.World = (function () {
     });
     POI.push({ id: 'village', x: vx, y: vy }, { id: 'huts', x: bx - 23, y: by - 10 }, { id: 'shrine', x: sx + 10, y: sy - 8 },
       { id: 'hermit', x: C[0] - 18, y: C[1] + 17 }, { id: 'lake', x: 1200, y: 1200 }, { id: 'lookout', x: C[2] + 7, y: C[1] - 7 },
-      { id: 'falls', x: RA[0], y: RA[1] }, { id: 'ruins', x: rx, y: ry }, { id: 'camp', x: cx, y: cy }, { id: 'cave', x: kx + 10, y: ky - 11 }, { id: 'grove', x: GX, y: GY }, { id: 'garden', x: 1600, y: 800 }, { id: 'marsh', x: 800, y: 1600 }, { id: 'frost', x: 100, y: 100 }, { id: 'ember', x: 2300, y: 100 }, { id: 'dunes', x: 100, y: 2300 }, { id: 'coast', x: 2300, y: 2300 }, { id: 'karst', x: 1600, y: 1600 }, { id: 'peakvillage', x: 1560, y: 1600 }, { id: 'temple', x: 1650, y: 1595 });
+      { id: 'falls', x: RA[0], y: RA[1] }, { id: 'ruins', x: rx, y: ry }, { id: 'camp', x: cx, y: cy }, { id: 'cave', x: kx + 10, y: ky - 11 }, { id: 'grove', x: GX, y: GY }, { id: 'garden', x: 1600, y: 800 }, { id: 'marsh', x: 800, y: 1600 }, { id: 'frost', x: 100, y: 100 }, { id: 'ember', x: 2300, y: 100 }, { id: 'dunes', x: 100, y: 2300 }, { id: 'coast', x: 2300, y: 2300 }, { id: 'karst', x: 1600, y: 1600 }, { id: 'peakvillage', x: 1560, y: 1600 }, { id: 'temple', x: 1650, y: 1595 }, { id: 'windspire', x: 1450, y: 1600 }, { id: 'cloudspire', x: 1560, y: 1490 });
   }
 
   // Dauerhafte Quest-Bauten. Werden aus dem Quest-Spielstand rekonstruiert.

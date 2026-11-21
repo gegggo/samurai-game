@@ -33,6 +33,11 @@ SW.Render = (function () {
       } else if (t === T.ROCK) {
         if (W.t(x, y + 1) !== T.ROCK) { c.fillStyle = 'rgba(20,20,30,.38)'; c.fillRect(px, py + u * .62, u + 1, u * .38 + 1); }
         else if (W.h(x, y, 5) < .3) { c.fillStyle = 'rgba(255,255,255,.09)'; c.fillRect(px + u * .15, py + u * .2, u * .4, u * .12); }
+        // Berg-Details: Licht links/oben, Schatten rechts, Risse
+        if (W.t(x - 1, y) !== T.ROCK) { c.fillStyle = 'rgba(255,255,255,.16)'; c.fillRect(px, py, u * .14, u + 1); }
+        if (W.t(x + 1, y) !== T.ROCK) { c.fillStyle = 'rgba(20,20,30,.28)'; c.fillRect(px + u * .86, py, u * .14 + 1, u + 1); }
+        if (W.t(x, y - 1) !== T.ROCK) { c.fillStyle = 'rgba(255,255,255,.2)'; c.fillRect(px, py, u + 1, u * .12); }
+        if (W.h(x, y, 6) > .82) { c.strokeStyle = 'rgba(30,30,40,.4)'; c.lineWidth = Math.max(1, u * .05); c.beginPath(); c.moveTo(px + u * .3, py + u * .15); c.lineTo(px + u * .5, py + u * .5); c.lineTo(px + u * .4, py + u * .85); c.stroke(); }
       } else if (t === T.STAIR) {
         c.strokeStyle = 'rgba(40,36,30,.5)'; c.lineWidth = Math.max(1, u * .05); c.beginPath();
         for (let i = 1; i < 4; i++) { c.moveTo(px, py + u * i / 4); c.lineTo(px + u, py + u * i / 4); } c.stroke();

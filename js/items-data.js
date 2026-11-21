@@ -79,7 +79,11 @@ SW.Data = SW.Data || {};
     { id: 'c_garden1', x: 1572, y: 790, rar: 'rare', give: { ess: 1 } },
     { id: 'c_garden2', x: 1628, y: 812, rar: 'uncommon', give: { coins: 130 } },
     { id: 'c_marsh1', x: 772, y: 1590, rar: 'common', give: { item: 'herb', n: 3 } },
-    { id: 'c_marsh2', x: 828, y: 1612, rar: 'uncommon', give: { coins: 90 } }
+    { id: 'c_marsh2', x: 828, y: 1612, rar: 'uncommon', give: { coins: 90 } },
+    { id: 'c_temple1', x: 1654, y: 1612, rar: 'epic', give: { ess: 1 } },
+    { id: 'c_pv1', x: 1568, y: 1612, rar: 'uncommon', give: { coins: 100 } },
+    { id: 'c_wind1', x: 1442, y: 1612, rar: 'rare', give: { coins: 160 } },
+    { id: 'c_cloud1', x: 1566, y: 1488, rar: 'rare', give: { item: 'iron', n: 6 } }
   ];
   // Legendäre Waffen: einmalige Belohnung für den Sieg über diesen Gegner (Gegner bleiben besiegt)
   D.drops = { e_boss: 'katana_counter', e_cave: 'katana_moon', e_ruins: 'nodachi_reaper', e_warden: 'tanto_warden', e_monk: 'naginata_monk', e_oni: 'armor_oni' };

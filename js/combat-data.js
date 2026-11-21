@@ -131,6 +131,10 @@ SW.Data.spots = [
   { id: 'e_marsh1',  type: 'bandit',   x: 775,  y: 1610 },
   { id: 'e_marsh2',  type: 'swift',    x: 830,  y: 1580 },
   { id: 'e_marsh3',  type: 'ronin',    x: 800,  y: 1635 },
+  // Karst Spires: Himmelstempel (Berg 2), Windturm (Berg 3), Wolkenturm (Berg 4)
+  { id: 'e_temple1', type: 'armored', x: 1650, y: 1611 }, { id: 'e_temple2', type: 'samurai', x: 1650, y: 1583 },
+  { id: 'e_wind1',   type: 'swift',   x: 1458, y: 1612 }, { id: 'e_wind2',   type: 'spearman', x: 1442, y: 1584 },
+  { id: 'e_cloud1',  type: 'ronin',   x: 1550, y: 1496 }, { id: 'e_cloud2',  type: 'samurai',  x: 1570, y: 1494 },
   // Bosse
   { id: 'e_warden',  type: 'boss_warden', x: 370,  y: 2130 },
   { id: 'e_monk',    type: 'boss_monk',   x: 2100, y: 1300 },
