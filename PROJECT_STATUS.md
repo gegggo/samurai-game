@@ -1,7 +1,7 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v34 (Spielversion 0.7.3)
-**Aktuelle Phase:** Phase 7c – Nachtgegner und zeitabhängige NPCs/Quests (umgesetzt, Gerätetest offen). 7a/7b umgesetzt. Phase 6 (Deutsch, Speichern) im Code vorhanden.
+**Cache-Version:** v35 (Spielversion 0.7.4)
+**Aktuelle Phase:** Phase 7d – Gefangene im Banditenlager, Kopfgeldjäger (umgesetzt, Gerätetest offen). 7a–7c umgesetzt. Phase 6 (Deutsch, Speichern) im Code vorhanden.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
 
@@ -33,9 +33,16 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 
 - Fix 0.7.3: Karte – Zwei-Finger-Geste verschiebt jetzt auch (Mittelpunkt wandert) und zoomt gleichzeitig. `js/ui.js`. Geprüft per simulierten Pointer-Events (Chromium); echtes Touch auf iPhone nicht geprüft.
 
+## Neu in 7d
+- 3 Gefangene (`n_pris1-3`, Rolle `prisoner`) im Banditenlager, als Quest-NPCs (vorhandenes Quest-System, kein neuer Code für Dialog/Speichern). Quest `pris1-3`: Wache (`e_camp1/2/3`) besiegen, dann Entscheidung: Freilassen (XP 40, Karma +6) oder gegen Lösegeld ausliefern (XP 20, 80 Münzen, Karma -10). Gefangener verschwindet nach der Entscheidung (`gone`-Feld in `shops.js`, aus Quest-Status abgeleitet).
+- Kopfgeldjäger: 2 Gegnerpunkte `h_1` (Samurai), `h_2` (Gepanzert) bei Dorf, nur aktiv bei Karma <= -30 (Feld `kv`, `Combat.on`). Einmalig besiegbar, gespeichert über `defeated`. Karma -30 ist erreichbar über Ausliefern (3x -10) oder Fischer-Quest (-8).
+- Texte EN + DE. Geändert: `js/combat.js`, `combat-data.js`, `shops.js`, `quests-data.js`, `lang-de.js`, `config.js`, `index.html` (v35).
+- Geprüft (headless Chromium 852x393): 3 Gefangene auf freien Kacheln, Jäger aus bei Karma -29, an bei -30, Quest annehmen/Wache töten/bereit, Ausliefern (Karma -10, +80 Münzen, NPC weg), Freilassen (+6), Dialog öffnet, DE-Texte vorhanden, Jäger-Kampf startet, Speichern/Neuladen (Jäger bleibt tot, Karma bleibt), Screenshot Lager mit Gefangenem + Questmarker, keine JS-Fehler.
+- NICHT geprüft: Touch/Optik auf dem iPhone, Schwierigkeit der Jäger, ob Jäger bemerkt werden (keine Ankündigung), Gefangene sind keine eigene Figur (gleiche NPC-Grafik, nur andere Farben), Balancing.
+
 ## Offen
 - Weitere Aufgabentypen (Wasser, Spiegel): bewusst nicht in 7b, nur Block- und Laternenräume wiederverwendet.
-- 7d: Gefangene im Banditenlager, Kopfgeldjäger bei negativem Karma.
+- Negatives Karma hat nur wenige Quellen (Ausliefern, Fischer-Quest); weitere (z. B. Unschuldige angreifen) nur nach Vorschlag.
 - Block-Raum: automatisches Zurücksetzen verklemmter Blöcke (bisher Reset-Knopf oder Raum verlassen).
 - Phase 6 Gerätetests: Deutsch durchspielen, Performance.
 
@@ -44,4 +51,4 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 - Systeme getrennt: XP/Level, Skillpunkte, Essence (nur Skilltree), Karma, Yin/Yang, Münzen (Handel), Ressourcen (Handwerk/Dorf).
 
 ## Nächster Schritt
-Gerätetest 7a–7c, dann Freigabe 7d.
+Gerätetest 7a–7d, dann Abschluss Phase 7 / Freigabe nächster Schritt.
