@@ -294,5 +294,6 @@ SW.Render = (function () {
       c.fillStyle = 'rgba(232,224,208,.35)'; c.beginPath(); c.arc(j.cx * dpr, j.cy * dpr, 26 * dpr, 0, TAU); c.fill();
     }
   };
+  R.drawPlayer = drawPlayer;
   return R;
 })();

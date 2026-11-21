@@ -129,7 +129,7 @@ SW.Save = (function () {
   V.data = () => ({
     v: VER, gv: SW.version, char: SW.Char.dump(), ess: SW.Essence.dump(), yy: SW.YinYang.dump(), karma: SW.Karma.dump(), skills: SW.Skills.dump(),
     inv: SW.Inv ? SW.Inv.dump() : null,
-    shr: SW.Shrines ? SW.Shrines.dump() : null, q: SW.Quests ? SW.Quests.dump() : null, time: SW.Time ? SW.Time.dump() : null,
+    shr: SW.Shrines ? SW.Shrines.dump() : null, tr: SW.Trials ? SW.Trials.dump() : null, q: SW.Quests ? SW.Quests.dump() : null, time: SW.Time ? SW.Time.dump() : null,
     pos: SW.Player ? { x: Math.round(SW.Player.x * 100) / 100, y: Math.round(SW.Player.y * 100) / 100 } : null,
     defeated: SW.Combat.spots.filter(s => s.dead).map(s => s.id),
     disc: SW.UI ? [...SW.UI.disc] : [], seen: SW.UI ? [...SW.UI.seen] : []
@@ -175,6 +175,7 @@ SW.Save = (function () {
     if (SW.Inv) step(() => SW.Inv.load(d.inv));
     if (SW.Shrines) step(() => SW.Shrines.load(d.shr));
     if (SW.Quests) step(() => SW.Quests.load(d.q));
+    if (SW.Trials) step(() => SW.Trials.load(d.tr));
     if (SW.Time) step(() => SW.Time.load(d.time));
     step(() => (d.defeated || []).forEach(id => { const s = SW.Combat.spots.find(x => x.id === id); if (s) s.dead = true; }));
     if (SW.UI) step(() => { (d.disc || []).forEach(i => SW.UI.disc.add(i)); (d.seen || []).forEach(i => SW.UI.seen.add(i)); });

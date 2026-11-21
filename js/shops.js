@@ -149,8 +149,8 @@ SW.Shop = (function () {
       });
       document.body.appendChild(act);
     }
-    const busy = SW.paused || SW.Combat.active, n = busy ? null : S.near(p), sh = (busy || n || !SW.Shrines) ? null : SW.Shrines.near(p);
-    const want = (n || sh) ? 'block' : 'none', lbl = n ? T('talk') : T('pray');
+    const busy = SW.paused || SW.Combat.active || (SW.Trials && SW.Trials.active), n = busy ? null : S.near(p), sh = (busy || n || !SW.Shrines) ? null : SW.Shrines.near(p);
+    const want = (n || sh) ? 'block' : 'none', lbl = n ? T('talk') : (sh && SW.Trials && SW.Shrines.isOn(sh.id) && SW.Trials.can(sh.id)) ? T('tr_enter') : T('pray');
     if (act.style.display !== want) act.style.display = want;
     if (act.textContent !== lbl) act.textContent = lbl;
   };

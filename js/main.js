@@ -75,7 +75,9 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
     try {
       const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now; time += dt;
       if (Math.abs(canvas.clientWidth * SW.dpr - canvas.width) > 2 || Math.abs(canvas.clientHeight * SW.dpr - canvas.height) > 2) resize();
-      if (SW.Combat.active) {
+      if (SW.Trials && SW.Trials.active) {
+        SW.Input.update(); SW.Trials.update(dt, SW.Input.vec); SW.Trials.draw(ctx, canvas.width, canvas.height, time);
+      } else if (SW.Combat.active) {
         SW.Combat.update(dt); SW.Combat.draw(ctx, canvas.width, canvas.height, time);
       } else {
         if (!SW.paused) {
