@@ -94,3 +94,6 @@ body.combat #act-btn { display: none !important; }
 #cb-dodge { font-size: 11px; letter-spacing: 0; }
 #cb-ranged { left: calc(208px + env(safe-area-inset-left, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; font-size: 11px; border-color: #d8b36a; }
 #cb-s0, #cb-s1 { font-size: 9px; overflow-wrap: anywhere; hyphens: auto; }
+#pos { position: fixed; left: calc(10px + env(safe-area-inset-left, 0px)); top: calc(142px + env(safe-area-inset-top, 0px)); width: 104px; text-align: center; color: #f4ecd8; font: 600 11px Georgia, serif; letter-spacing: .02em; text-shadow: 0 1px 4px #000; pointer-events: none; }
+body.combat #pos { display: none; }
+#menu.open ~ #pos { display: none; }
