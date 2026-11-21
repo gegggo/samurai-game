@@ -14,7 +14,7 @@ html, body { margin: 0; height: 100%; background: #0b0b0f; overflow: hidden; tou
 #menu-panel > canvas { margin: auto; }
 #menu-tabs { touch-action: pan-y; }
 #menu-close { position: absolute; right: calc(10px + env(safe-area-inset-right, 0px)); top: calc(8px + env(safe-area-inset-top, 0px)); width: 48px; height: 48px; border-radius: 12px; border: 1px solid rgba(232,224,208,.45); background: rgba(11,11,15,.7); color: #e8e0d0; font-size: 22px; }
-#rotate-hint { display: none; position: fixed; inset: 0; align-items: center; justify-content: center; background: #0b0b0f; color: #e8e0d0; font: 20px sans-serif; text-align: center; z-index: 10; }
+#rotate-hint { display: none; position: fixed; inset: 0; align-items: center; justify-content: center; background: #0b0b0f; color: #e8e0d0; font: 20px sans-serif; text-align: center; z-index: 100; }
 @media (orientation: portrait) { #rotate-hint { display: flex; } }
 
 /* ---- Kampf (Phase 2) ---- */
@@ -85,7 +85,12 @@ body.combat #act-btn { display: none !important; }
 #menu, #shop, #dlg { zoom: .85; }
 
 /* Karte: volle verfügbare Fläche, ohne rechte Seitenleiste */
-#world-map { display: block; flex: 0 0 auto; max-width: 100%; max-height: 100%; touch-action: none; }
+#world-map { display: block; flex: 0 0 auto; touch-action: none; }
+#menu.maponly #menu-tabs { display: none; }
+#menu.maponly #menu-panel { padding: 0; overflow: hidden; position: relative; }
+#menu.maponly #menu-panel > canvas { margin: 0; }
+#map-tabs { position: absolute; left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(232,224,208,.5); background: rgba(11,11,15,.75); color: #e8e0d0; font-size: 15px; }
+#menu:not(.maponly) #map-tabs { display: none; }
 
 /* Dialoge / Quests (5b) */
 .dlgtext { margin: 8px 0 12px; font: 17px Georgia, serif; line-height: 1.35; }
@@ -107,6 +112,11 @@ body.trial #mini, body.trial #menu-btn, body.trial #banner, body.trial #compass,
 body.trial #pos { display: none !important; }
 
 /* Startbildschirm (Phase 6) */
+/* Ladebildschirm: Hintergrundbild + Ladeknopf unten rechts. Wird in main.js nach dem Start ausgeblendet. */
+#loading { position: fixed; inset: 0; z-index: 50; background: #0b0b0f url(../assets/images/ui/loading.jpg) center / cover no-repeat; transition: opacity .6s, visibility 0s .6s; }
+#loading.done { opacity: 0; visibility: hidden; pointer-events: none; }
+#loading .wheel { position: absolute; right: max(22px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); width: 30px; height: 30px; box-sizing: border-box; border: 4px solid rgba(20,20,24,.35); border-top-color: #f4ecd8; border-radius: 50%; animation: wheel .9s linear infinite; filter: drop-shadow(0 0 3px rgba(0,0,0,.5)); }
+@keyframes wheel { to { transform: rotate(360deg); } }
 #title { display: none; position: fixed; inset: 0; z-index: 30; align-items: center; justify-content: center; background: rgba(11,11,15,.96); color: #e8e0d0; font-family: sans-serif; zoom: .85; text-align: center; }
 #title.open { display: flex; }
 #title h1 { margin: 0 0 8px; font: 700 34px Georgia, serif; letter-spacing: .08em; }
