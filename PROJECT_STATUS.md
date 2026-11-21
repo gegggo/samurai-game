@@ -1,9 +1,17 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v60 (Spielversion 0.9.21)
+**Cache-Version:** v61 (Spielversion 0.9.22)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.22 – Schnellreise-Tipp (Ursache CSS-zoom), Schleife-Watchdog, Diagnose (Dateien gesendet, Gerätetest offen)
+- 0.9.20/0.9.21 auf iPhone bestätigt, ABER: Tipp auf Schrein/Reisen ging auf dem iPhone nicht, Halbbild schwarz nach Screenshot/Tabwechsel bei hineingezoomter Karte weiterhin.
+- **Tipp-Ursache (vermutet):** `#menu` hat `zoom: .85`. WebKit rechnet `getBoundingClientRect` unter CSS-zoom anders als Touch-Koordinaten -> Tipp trifft ca. 10-15 % daneben (Chromium verhält sich anders, deshalb im Headless-Test nicht aufgefallen). Fix: im Karten-Tab kein zoom um die Karte (`#menu.maptab { zoom: 1 }`), Tab-Spalte und Schließen-Knopf behalten `.85`.
+- **Schwarzbild:** Ursache weiter unklar. Neu: Zeichenschleife mit Watchdog (startet neu, wenn >1,5 s kein Bild), Diagnosezeile oben links (blau, `VP iw=… cw=… vv=… ow=… try=…`) erscheint bei schmalem Viewport oder stehender Schleife.
+- **Geändert:** `js/main.js`, `js/config.js`, `css/main.css`, `index.html` (v61), `PROJECT_STATUS.md`.
+- **Geprüft:** `node --check`, Chromium 852x393: Karte, Reiseleiste, Reisen ok, keine JS-Fehler. NICHT geprüft: iPhone (beide Punkte).
+- **OFFEN:** Gerätetest. Bei Schwarzbild: Screenshot der blauen Diagnosezeile (falls sichtbar) oder Meldung, dass nichts erscheint.
 
 ## 0.9.21 – Schnellreise-Leiste, Zoom-Schwarzbild, dynamischer Joystick (Dateien gesendet, Gerätetest offen)
 - **Schnellreise:** Tipp auf entdeckten Schrein wählt ihn und blendet unten auf der Karte eine Leiste ein: "Reisen nach X?" mit Reisen/Abbrechen (nur aktivierte Schreine reisbar, nicht aktivierte zeigen Hinweis). Vorher reiste Tipp sofort, ohne Bestätigung (Spec 27.5).
