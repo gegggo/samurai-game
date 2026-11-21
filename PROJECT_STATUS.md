@@ -1,7 +1,7 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v38 (Spielversion 0.8.2)
-**Aktuelle Phase:** Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
+**Cache-Version:** v39 (Spielversion 0.9.0)
+**Aktuelle Phase:** Phase 6 (Speichern/Startbildschirm, 0.9.0 umgesetzt, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
 
@@ -68,6 +68,15 @@ Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix n
 ## Neu in 0.8.2 – Truhen an Hütten und Torii
 - Je Hütte (`hut`) und Torii (`lintel`) eine Truhe daneben (9 neue), automatisch aus `world.js`-Strukturen in `inventory.js`; Inhalt aus Position abgeleitet (Münzen/Kräuter/Holz/Stein/Eisen), stabile IDs `c_hut_x_y`. Keine zusätzliche Truhe, wo schon eine <8 Kacheln steht. Gerätetest Hain + Hütten-Truhen: Hain bestätigt, Truhen noch offen.
 - Geändert: `inventory.js`, `config.js`, `index.html` (v38). Geprüft (Chromium): 9 Truhen, keine Dubletten, alle auf freien Kacheln, Screenshot, Smoke-Test ok.
+
+## Neu in 0.9.0 – Phase 6: Speichern + Startbildschirm
+- Startbildschirm (`js/title.js`, SW.Title): Fortsetzen, Spielstand laden, Neues Spiel, Sprache. Solange er offen ist, wird nichts gespeichert (`Save.hold`).
+- Speichern (`progress.js`): Umschlag {ts, pt (Spielzeit), sum (Prüfsumme), d}; Hauptstand + 4 Wiederherstellungspunkte (alle 10 min Echtzeit rückt der alte Hauptstand nach) + letzte Kopie (BAK). Defekter Hauptstand (Prüfsumme falsch) -> Sicherung, sonst Meldung + Auswahl. Alte Stände ohne Umschlag werden übernommen (Migration).
+- Laden eines Punktes = Tausch mit Hauptstand (nichts geht verloren), vorher Bestätigung mit Datum und Spielzeit. Neues Spiel: Warnung, alter Hauptstand wird Punkt 1, ältester Punkt entfällt. Einstellungen > Spielstand löschen entfernt weiterhin alles.
+- Anzeige je Stand: Stufe, Spielzeit, Datum/Uhrzeit, Region, Schreine, besiegte Gegner. Texte EN + DE.
+- Geändert: `progress.js`, `title.js` (neu), `main.js`, `config.js`, `lang-de.js`, `css/main.css`, `index.html` (v39; title.js vor main.js).
+- Geprüft (Chromium): Umschlag/Prüfsumme, Rotation, verfälschter Stand, Müll-Stand, alter Stand ohne Umschlag, Laden-Tausch, Neues Spiel mit Warnung, Speicher gesperrt ohne Absturz, Smoke, 4 Bosskämpfe, keine JS-Fehler.
+- NICHT geprüft: iPhone-Touch/Optik Startbildschirm, Safari-Speicherverhalten (Privatmodus), Performance-Messung, Loading-Screens (nur Platzhalter-Spec), Autosave bei Gebietswechsel (bisher nur Ereignisse + Position alle 5 s).
 
 ## Offen
 - Weitere Regionen: nur Hain (klein) vorhanden; größere Erweiterung braucht Konzept/Freigabe.
