@@ -1,6 +1,6 @@
 # PROJECT_STATUS
 
-**Cache-Version aktuell:** v28
+**Cache-Version aktuell:** v29
 
 **Aktueller Stand:** Phase 5c (Grobgerüst) – Dorf-Wiederaufbau Hinode umgesetzt. 5a/5b vom Nutzer als funktionierend bestätigt. 5c noch nicht auf dem Gerät getestet.
 
@@ -97,3 +97,8 @@
 - NICHT geprüft: Gerät, Balance (Fernkampf vs. Nahkampf), Schmied-Verbesserung per Hand, Aussehen der Maske auf der Spielfigur (Maske wirkt nur als Wert, keine Grafik), Skilltree-Eintrag „Shuriken-Schaden“ (Schattenkrieger) existiert noch nicht.
 
 **Karte: Ortsnamen (v28):** Alle 9 Regionsnamen und alle Orte stehen auf der Weltkarte; noch nicht besuchte gedämpft (Raute als Umriss), besuchte hell. Gleichnamige Region/Ort wird nur einmal beschriftet. Schrein-Namen rücken tiefer, damit sie den Ortsnamen nicht überdecken. Schreine bleiben an Entdeckung gebunden (Schnellreise-Regel). Geändert: ui.js, index.html. Headless-Screenshot geprüft; Gerät ungetestet. Bosse sind absichtlich nicht auf der Karte markiert.
+
+**Koordinaten + Schwarzbild-Schutz (v29):**
+- Eigene Position als „X … · Y …“ (Kacheln, Karte 0–2400) unter der Minikarte (im Spiel) und oben links im Karten-Menü. Dient zum Finden der Bosse (Koordinaten siehe oben). Im Kampf und bei offenem Menü ist die Anzeige unter der Minikarte ausgeblendet.
+- Schwarzbild nach Screenshot/Tabwechsel: Das Standbild hinter dem Menü (7a) wird bei Fokus-, Sichtbarkeits-, Größen- und Seitenwechsel neu gezeichnet und zusätzlich höchstens 1× pro Sekunde, falls iOS die Zeichenfläche leert. Headless getestet: Fläche gelöscht → nach 1,3 s wieder gefüllt. Auf dem iPhone ungetestet; wenn weiter schwarz, bitte melden, ob nur die Welt hinter dem Menü oder die ganze Seite betroffen ist.
+- Geändert: ui.js, main.js, main.css, index.html.
