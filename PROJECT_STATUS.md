@@ -1,9 +1,19 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v66 (Spielversion 0.9.27)
-**Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
+**Cache-Version:** v69 (Spielversion 0.10.0)
+**Aktuelle Phase:** 0.10.0 = Duell-Umbau Phase A (Weltkampf normale Gegner; Dateien gesendet, Gerätetest offen). Danach Phase B (Boss-Arena Ego-Pseudo-3D, noch NICHT begonnen). Davor: 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.10.0 – Duell-Umbau Phase A: Weltkampf für normale Gegner (Dateien gesendet – Gerätetest offen)
+- **Entscheidungen (Nutzer):** Normale Gegner direkt in der Welt (laufen, ausweichen, angreifen, Spezial, 2 Skill-Plätze), kein Moduswechsel. Bosse später in kleiner Arena in Ego-Pseudo-3D (Phase B, so bauen, dass später echtes 3D möglich ist). Boss-Arena: nur freier BOTW-Stil, KEINE ▲■▼/Finten/Atem-Fokus (weicht von Spec 33.6 ab, ausdrückliche Nutzerentscheidung; Kap. 33.6/Trainingsbereich 27.8 bleiben offen).
+- **Neu:** `js/worldcombat.js` (`SW.WCombat`): Aggro 5,5 Kacheln, Leine 13, Verfolgen, Angriff mit Vorwarnung (rotes „!“, lila bei unblockbar), Reichweite Schwert 1,3 / Speer 1,75. Spieler: Angriff/Kette, schwer, Spezial, Skill-Slot 0/1 (leer = Platzhalter „–“), Fernkampf, Block mit Parade, Ausweichrolle (i-Frames), Atem (stehend). Auto-Ausrichtung auf nächsten Gegner. Anzeigen Leben/Ki oben Mitte, Gegner-Lebensbalken, Schlagbogen, Schadenszahlen. Kampfbuttons nur sichtbar im Kampf (+2,5 s Nachlauf, `body.wcombat`).
+- **Regeln:** Spielerwerte/Moves/Gegnerdaten unverändert aus `combat-data.js`/`SW.Char.combat()`. Leben+Ki füllen sich außer Kampf wieder. Niederlage = Rückkehr zum Startpunkt, Gegner zurückgesetzt (wie Arena). Belohnung über `SW.Combat.grant(spot, st)` (aus `reward()` herausgelöst, gleiche Werte wie vorher). Gegner-Lebenspunkte werden nicht gespeichert.
+- **Arena bleibt für:** Gegner mit `phases` (4 Bosse) und Schrein-Duell (`K.boss(spot)`). Hinterhalt (Schattenclan) = Weltkampf (Bewegung weiter über `ambush()`).
+- **Geändert:** `js/worldcombat.js` (neu), `js/combat.js` (K.boss, K.grant, foePose/drawWorld parametrisiert, Buttons delegieren), `js/player.js` (mul, push), `js/main.js` (Update/Overlay/sync), `css/main.css`, `index.html` (v69), `js/config.js` (0.10.0), `PROJECT_STATUS.md`.
+- **Geprüft (headless Chromium 852x393, nur Rauchtest):** Start ohne JS-Fehler; Spieler nähert sich `e_train` -> Aggro, Kampfbuttons erscheinen (`body.wcombat`), Angriff per Taste J + Ausweichen X, Gegner besiegt (+12 XP), Kampf endet ohne Fehler.
+- **NICHT geprüft:** Touch-Bedienung/Button-Lage auf dem iPhone, Balancing (Gegnertempo 2,6 Kacheln/s, Reichweiten, Aggro), mehrere Gegner gleichzeitig, Parade/Block-Timing, Tod/Respawn, Fernkampf, Skill-Slots mit echtem Skill, Hinterhalt im Weltkampf, Regression Arena-Boss/Schrein-Duell, Speichern/Laden nach Kampf, mobile Querformat-Ansicht.
+- **Bekannt/offen:** Spieler-Schwertanimation fehlt (nur Schlagbogen), Gegner umgehen Hindernisse nur per Gleiten (kein Pfadfinden), Gegner-Respawn-Position nach Tod = Heimat.
 
 ## 0.9.27 – Export/Import des Spielstands (Spec 33.4) (Dateien gesendet – Gerätetest offen)
 - `SW.Save`: `exportText()`, `inspect()`, `applyImport()`, `exportName()`, `lastExport()/markExported()`, `backupDue()`. Datei = JSON `{sw:'save', fmt:1, gv, ts, sum, raw}`; `raw` = Umschlag des Hauptstands (eigene Prüfsumme), `sum` = Prüfsumme über `raw`. Import prüft Format, Prüfsumme, Version (zu neu -> abgelehnt) und ändert vorher nichts. Beim Import wird der aktuelle Stand Wiederherstellungspunkt 1 (Kopie vor dem Ersetzen), dann Neuladen.
@@ -12,7 +22,7 @@
 - **Geändert:** `js/progress.js`, `js/menus.js`, `js/title.js`, `js/lang-de.js`, `js/config.js` (0.9.27), `index.html` (v66), `PROJECT_STATUS.md`.
 - **Geprüft (headless Chromium 852x393, Playwright):** Export erzeugt gültige Datei; `inspect` erkennt manipulierte (Prüfsumme), fremde und zu neue Dateien; Import-Round-Trip (Karma 10 -> 0 wie in Datei, alter Stand in Wiederherstellungspunkt 1); UI-Upload defekter Datei zeigt Fehler, gültiger Datei zeigt Rückfrage; keine neuen JS-Fehler.
 - **Nicht geprüft:** echtes iPhone-Teilen-Menü / „In Dateien sichern“, Dateiauswahl auf iOS (Gerätetest offen).
-- **Bekannt (vorher vorhanden):** 404 auf `assets/images/ui/loading.jpg` (Datei liegt unter `assets/loading.jpg`) – Pfad im CSS/HTML prüfen, nicht angefasst.
+- **Bekannt (vorher vorhanden):** Ladebild liegt im Repo unter `assets/images/ui/loading.jpg` (Zip-Stand wich ab); Pfad inline in index.html + css/main.css so gesetzt.
 
 ## 0.9.26 – Inhalt für Frostpeaks, Ember Crater, Dust Dunes, Sun Coast (Dateien gesendet – Gerätetest offen)
 - Bisher hatten diese 4 Regionen nur Schrein + Ort. Jetzt je 3 einmalige Gegner (`e_frost1-3`, `e_ember1-3`, `e_dunes1-3`, `e_coast1-3`; Typen bandit/ronin/spearman/swift/samurai/armored, Belohnung nach Typ aus `SW.Data.rewards`) und je 2 Truhen (`c_frost1-2`, `c_ember1-2`, `c_dunes1-2`, `c_coast1-2`; nur Münzen oder Ressourcen, je genau 1 Eintrag). KEINE Essence, KEIN Elite/Boss: Essence-Bilanz (Angebot 35 / Baum 47) unverändert. Alle Zahlen Platzhalter.
