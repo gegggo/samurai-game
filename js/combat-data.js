@@ -41,6 +41,9 @@ SW.Data.enemies = {
               look: { cloth: '#5a5a62', trim: '#9a9aa2', helm: '#3a3a42', plate: '#6a6a74', legs: '#2c2c34' } },
   elite:    { hp: 150, dmg: 1.4, speed: 1.2,  gap: [.8, 1.3],  guard: .30, atk: ['slash', 'flurry', 'heavy', 'thrust'], weapon: 'sword',
               look: { cloth: '#2a2a32', trim: '#c9a23a', helm: '#1c1c22', plate: '#3a3a44', legs: '#1c1c22' } },
+  // Schattenclan (Phase 8): Hinterhalt bei schlechtem Karma, siehe combat.js ambush()
+  shadow:   { hp: 70,  dmg: 1.1, speed: 1.3,  gap: [.8, 1.3],  guard: .15, atk: ['slash', 'flurry', 'thrust', 'slash'], weapon: 'sword',
+              look: { cloth: '#1a1a22', trim: '#b3262b', hair: '#101018', mask: '#b3262b', legs: '#14141a' } },
   boss:     { hp: 260, dmg: 1.3, weapon: 'sword',
               look: { cloth: '#5b1a1a', trim: '#d1a84a', helm: '#2a1010', plate: '#7a2020', cape: '#3a0e0e', legs: '#1c1010' },
               phases: [
@@ -150,6 +153,7 @@ SW.Data.rewards = {
   swift:    { xp: 28 },
   armored:  { xp: 40 },
   elite:    { xp: 70, ess: 2, karma: 3 },
+  shadow:   { xp: 30 },
   boss:     { xp: 200, ess: 2, karma: 8, secret: 'cross' },
   boss_warden: { xp: 260, ess: 3, karma: 5, secret: 'ironwill' },
   boss_monk:   { xp: 320, ess: 3, karma: 5, secret: 'stillwater' },

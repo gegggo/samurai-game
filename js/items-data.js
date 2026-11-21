@@ -88,7 +88,7 @@ SW.Data = SW.Data || {};
   // Legendäre Waffen: einmalige Belohnung für den Sieg über diesen Gegner (Gegner bleiben besiegt)
   D.drops = { e_boss: 'katana_counter', e_cave: 'katana_moon', e_ruins: 'nodachi_reaper', e_warden: 'tanto_warden', e_monk: 'naginata_monk', e_oni: 'armor_oni' };
   // Münzen je Gegnertyp [min, max]
-  D.coins = { bandit: [6, 12], ronin: [10, 18], samurai: [18, 30], spearman: [12, 20], swift: [14, 22], armored: [22, 34], elite: [40, 60], boss: [120, 160], boss_warden: [140, 190], boss_monk: [160, 210], boss_oni: [200, 260] };
+  D.coins = { shadow: [15, 28], bandit: [6, 12], ronin: [10, 18], samurai: [18, 30], spearman: [12, 20], swift: [14, 22], armored: [22, 34], elite: [40, 60], boss: [120, 160], boss_warden: [140, 190], boss_monk: [160, 210], boss_oni: [200, 260] };
 
   const tx = {
     tab_inventory_x: 0,

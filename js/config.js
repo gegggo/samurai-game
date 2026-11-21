@@ -1,7 +1,7 @@
 'use strict';
 // Globaler Namespace, Konstanten, zentrale Texte (Sprachsystem folgt Phase 6).
 const SW = {
-  version: '0.9.5',
+  version: '0.9.6',
   CFG: { WORLD: 2400, SPEED: 5, OV: 8 },
   lang: (function () { try { const l = localStorage.getItem('sw_lang'); return l === 'de' ? 'de' : 'en'; } catch (e) { return 'en'; } })(),
   paused: false,
@@ -28,7 +28,7 @@ const SW = {
     set_save: 'Save data', set_wipe: 'Delete save', set_wipe_ask: 'Delete all progress? This cannot be undone.', set_wipe_yes: 'Delete', set_wipe_no: 'Cancel',
     set_lang: 'Language', lang_en: 'English', lang_de: 'Deutsch',
     enemy_bandit: 'Bandit', enemy_ronin: 'Ronin', enemy_samurai: 'Samurai', enemy_spearman: 'Spearman',
-    enemy_swift: 'Swift Swordsman', enemy_armored: 'Armored Warrior', enemy_elite: 'Elite Guard', enemy_boss: 'Bandit Chief', enemy_boss_warden: 'Ruin Warden', enemy_boss_monk: 'Iron Peak Monk', enemy_boss_oni: 'Cave Oni'
+    enemy_swift: 'Swift Swordsman', enemy_armored: 'Armored Warrior', enemy_elite: 'Elite Guard', enemy_boss: 'Bandit Chief', enemy_boss_warden: 'Ruin Warden', enemy_boss_monk: 'Iron Peak Monk', enemy_boss_oni: 'Cave Oni', enemy_shadow: 'Shadow Clan Assassin', amb_warn: 'Shadow Clan ambush!'
   } },
   setLang(l) {
     this.lang = l === 'de' ? 'de' : 'en';
