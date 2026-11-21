@@ -9,12 +9,17 @@
 })();
 // Diagnose-Protokoll: letzte Ereignisse (Sichtbarkeit, Größe, Ausrichtung) in localStorage, damit ein Schwarzbild nach Neustart auswertbar ist
 SW.Diag = (function () {
-  const K = 'sw_diag'; let a = [], prev = [];
-  try { prev = JSON.parse(localStorage.getItem(K) || '[]'); } catch (e) { prev = []; }
-  try { localStorage.setItem(K, '[]'); } catch (e) { /* egal */ }
-  function snap() { const vv = window.visualViewport; return 'iw' + window.innerWidth + 'x' + window.innerHeight + ' cw' + document.documentElement.clientWidth + ' vv' + (vv ? Math.round(vv.width) + '@' + vv.scale.toFixed(2) : '-') + ' o' + window.orientation + ' h' + (document.hidden ? 1 : 0); }
-  function log(ev) { a.push(new Date().toTimeString().slice(0, 8) + ' ' + ev + ' ' + snap()); if (a.length > 40) a.shift(); try { localStorage.setItem(K, JSON.stringify(a)); } catch (e) { /* egal */ } }
-  return { log, prev, snap };
+  const K = 'sw_diag', KB = 'sw_diag_bad'; let a = [], prev = [];
+  const ld = k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
+  const sv = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* egal */ } };
+  const last = ld(K); // Sitzung davor: nur archivieren, wenn BAD/STALL enthalten (kurze Normal-Sitzungen überschreiben nichts)
+  prev = ld(KB);
+  if (last.some(x => / (BAD|STALL) /.test(x))) { prev = prev.concat(['--- Sitzung ---'], last.slice(-14)).slice(-40); sv(KB, prev); }
+  sv(K, []);
+  function snap() { const vv = window.visualViewport, c = document.getElementById('game'); return 'iw' + window.innerWidth + 'x' + window.innerHeight + ' cw' + document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight + ' cv' + (c ? c.clientWidth + 'x' + c.clientHeight : '-') + ' vv' + (vv ? Math.round(vv.width) + '@' + vv.scale.toFixed(2) : '-') + ' sc' + screen.width + 'x' + screen.height + ' o' + window.orientation + ' h' + (document.hidden ? 1 : 0) + ' sa' + (navigator.standalone ? 1 : 0); }
+  function log(ev) { a.push(new Date().toTimeString().slice(0, 8) + ' ' + ev + ' ' + snap()); if (a.length > 40) a.shift(); sv(K, a); }
+  function clear() { prev.length = 0; try { localStorage.removeItem(KB); } catch (e) { /* egal */ } }
+  return { log, prev, snap, clear };
 })();
 // Fehleranzeige: zeigt JS-Fehler direkt auf dem Bildschirm (Test auf dem Handy)
 function showErr(t) {
@@ -52,14 +57,16 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   let vpTry = 0, vpForced = false;
   const longSide = () => Math.max(screen.width, screen.height);
   const isLandscape = () => (typeof window.orientation === 'number' && Math.abs(window.orientation) === 90) || (screen.orientation && /landscape/.test(screen.orientation.type || ''));
-  const landscapeBroken = () => isLandscape() && window.innerWidth < longSide() * .8;
+  const landscapeBroken = () => isLandscape() && window.innerWidth < longSide() * .8 && document.documentElement.clientWidth < longSide() * .8; // Layoutbreite (cw) muss auch schmal sein, sonst nur Drehübergang
+  let badTicks = 0;
   const vpMeta = () => document.querySelector('meta[name=viewport]');
   let vpOrig = null;
   function vpRestore() { const m = vpMeta(); if (m && vpOrig) { m.setAttribute('content', vpOrig); } vpForced = false; frozenKey = ''; resize(); }
   function vpFix() {
     const m = vpMeta(); if (!m) return;
     if (vpOrig === null) vpOrig = m.getAttribute('content');
-    if (!landscapeBroken()) { vpTry = 0; if (vpForced && isLandscape()) { /* Zwangsbreite bleibt, solange Querformat */ } else if (vpForced) vpRestore(); return; }
+    if (!landscapeBroken()) { vpTry = 0; badTicks = 0; if (vpForced && isLandscape()) { /* Zwangsbreite bleibt, solange Querformat */ } else if (vpForced) vpRestore(); return; }
+    if (++badTicks < 3) return; // erst nach ca. 1,2 s Dauerzustand eingreifen (Start-Drehung ist kurz)
     vpTry++;
     if (vpTry === 1) { // Stufe 1: Skalierung minimal ändern
       m.setAttribute('content', 'width=device-width, initial-scale=1.0001, viewport-fit=cover');
@@ -138,10 +145,11 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   let dg = null, dgUntil = 0;
   ['visibilitychange', 'pagehide', 'pageshow', 'resize', 'orientationchange', 'focus', 'blur'].forEach(n => window.addEventListener(n, () => SW.Diag.log(n)));
   ['freeze', 'resume'].forEach(n => document.addEventListener(n, () => SW.Diag.log(n)));
+  let tLast = 0; document.addEventListener('touchstart', () => { const n = Date.now(); if (n - tLast > 3000) SW.Diag.log('touch'); tLast = n; }, { passive: true, capture: true });
   let hbLast = '';
   setInterval(() => { const s = SW.Diag.snap(); if (s !== hbLast) { hbLast = s; SW.Diag.log('hb'); } }, 2000);
   setTimeout(() => { // Auswertung der letzten Sitzung: nur wenn dort ein Fehlzustand protokolliert wurde
-    if (SW.Diag.prev.some(x => / (BAD|STALL) /.test(x))) showErr('DIAG letzte Sitzung (antippen = schließen):\n' + SW.Diag.prev.slice(-16).join('\n'));
+    if (SW.Diag.prev.length) { showErr('DIAG Fehl-Sitzung (antippen = schließen):\n' + SW.Diag.prev.slice(-24).join('\n')); const eb = document.getElementById('errbox'); if (eb) { const o = eb.onclick; eb.onclick = () => { SW.Diag.clear(); o(); }; } }
   }, 2500);
   let badLog = 0;
   setInterval(() => {
