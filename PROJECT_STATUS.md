@@ -1,9 +1,15 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v52 (Spielversion 0.9.13)
+**Cache-Version:** v53 (Spielversion 0.9.14)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.14 – Menü und Karte gleichzeitig
+- Tab-Spalte bleibt auf der Karten-Seite sichtbar, Karte füllt rechts das Panel. Vollbild-Modus `maponly` und Knopf `map-tabs` entfernt (jetzt `maptab`).
+- Geändert: `js/ui.js`, `css/main.css`, `js/config.js`, `index.html` (v53), `PROJECT_STATUS.md`.
+- Geprüft (Chromium 852x393): Tabs + Karte nebeneinander, Karte 673x393, Tabwechsel Inventar -> Karte ok, keine JS-Fehler. NICHT geprüft: iPhone.
+- OFFEN: Weltlayout wie "World Draft" (Inselform, Regionen, Straßen) = Umbau von `world.js`, verschiebt Orte; nur nach Freigabe. Beschriftungen Windspire/Sky Temple/Cloud Spire überlappen auf der Karte.
 
 ## Abgeschlossen (auf iPhone bestätigt)
 Phase 0–3, 4a, 4b, 5a, 5b, 5c. Patch v30 (Siegbildschirm-Liste, Viewport-Fix nach Screenshot) bestätigt.
