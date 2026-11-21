@@ -1,7 +1,7 @@
 'use strict';
 // Globaler Namespace, Konstanten, zentrale Texte (Sprachsystem folgt Phase 6).
 const SW = {
-  version: '0.9.1',
+  version: '0.9.3',
   CFG: { WORLD: 2400, SPEED: 5, OV: 8 },
   lang: (function () { try { const l = localStorage.getItem('sw_lang'); return l === 'de' ? 'de' : 'en'; } catch (e) { return 'en'; } })(),
   paused: false,
@@ -14,6 +14,7 @@ const SW = {
     reg_0: 'Hinode Village', reg_1: 'Bamboo Forest', reg_2: 'Mountain Shrine',
     reg_3: 'Western Woods', reg_4: 'Mirror Lake', reg_5: 'Iron Peaks',
     reg_6: 'Forgotten Ruins', reg_7: 'Bandit Camp', reg_8: 'Hollow Caves', reg_9: 'Moonlit Grove', poi_grove: 'Moonlit Grove', reg_10: 'Stone Garden', reg_11: 'Reed Marsh', poi_garden: 'Stone Garden', poi_marsh: 'Reed Marsh',
+    reg_12: 'Frostpeaks', reg_13: 'Ember Crater', reg_14: 'Dust Dunes', reg_15: 'Sun Coast', reg_16: 'Karst Spires', poi_frost: 'Frostpeaks', poi_ember: 'Ember Crater', poi_dunes: 'Dust Dunes', poi_coast: 'Sun Coast', poi_karst: 'Karst Spires', poi_peakvillage: 'Peak Village', poi_temple: 'Sky Temple',
     poi_village: 'Hinode Village', poi_huts: 'Abandoned Huts', poi_shrine: 'Great Shrine',
     poi_hermit: 'Hermit Hut', poi_lake: 'Mirror Lake', poi_lookout: 'Lookout Point',
     poi_falls: 'Waterfall', poi_ruins: 'Old Temple Ruins', poi_camp: 'Bandit Camp',

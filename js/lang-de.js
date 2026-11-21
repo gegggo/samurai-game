@@ -15,6 +15,8 @@ SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
   set_lang: 'Sprache', lang_en: 'English', lang_de: 'Deutsch',
   reg_0: 'Dorf Hinode', reg_1: 'Bambuswald', reg_2: 'Bergschrein', reg_3: 'Westlicher Wald',
   reg_4: 'Spiegelsee', reg_5: 'Eisgipfel', reg_6: 'Vergessene Ruinen', reg_7: 'Banditenlager', reg_8: 'Hohlhöhlen', reg_9: 'Mondscheinhain', poi_grove: 'Mondscheinhain', shr_grove: 'Hainschrein', reg_10: 'Steingarten', reg_11: 'Schilfmarsch', poi_garden: 'Steingarten', poi_marsh: 'Schilfmarsch', shr_garden: 'Gartenschrein', shr_marsh: 'Marschschrein',
+  reg_12: 'Frostgipfel', reg_13: 'Glutkrater', reg_14: 'Staubdünen', reg_15: 'Sonnenküste', reg_16: 'Karsttürme', poi_frost: 'Frostgipfel', poi_ember: 'Glutkrater', poi_dunes: 'Staubdünen', poi_coast: 'Sonnenküste', poi_karst: 'Karsttürme',
+  shr_frost: 'Frostschrein', shr_ember: 'Kraterschrein', shr_dunes: 'Dünenschrein', shr_coast: 'Küstenschrein', shr_karst: 'Turmschrein', shr_peak: 'Gipfelschrein', poi_peakvillage: 'Bergdorf', poi_temple: 'Himmelstempel',
   poi_village: 'Dorf Hinode', poi_huts: 'Verlassene Hütten', poi_shrine: 'Großer Schrein',
   poi_hermit: 'Einsiedlerhütte', poi_lake: 'Spiegelsee', poi_lookout: 'Aussichtspunkt',
   poi_falls: 'Wasserfall', poi_ruins: 'Alte Tempelruinen', poi_camp: 'Banditenlager',

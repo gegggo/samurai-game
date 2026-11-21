@@ -24,7 +24,7 @@ SW.Render = (function () {
           c.moveTo(px + u * .6, py + u * .8); c.lineTo(px + u * .65, py + u * .6); c.stroke();
         }
         if (t === T.GRASS && W.h(x, y, 6) < .03) { c.fillStyle = W.h(x, y, 7) < .5 ? '#f2b8c6' : '#f1de7a'; c.beginPath(); c.arc(px + u * .5, py + u * .5, u * .06, 0, TAU); c.fill(); }
-      } else if (t === T.WATER || t === T.DEEP) {
+      } else if (t === T.WATER || t === T.DEEP || t === T.LAVA) {
         if (W.h(x, y, 7) < .3) {
           c.strokeStyle = 'rgba(255,255,255,.22)'; c.lineWidth = Math.max(1, u * .05); c.beginPath();
           const s = Math.sin(time * 1.4 + v * 6) * u * .12;
@@ -33,6 +33,13 @@ SW.Render = (function () {
       } else if (t === T.ROCK) {
         if (W.t(x, y + 1) !== T.ROCK) { c.fillStyle = 'rgba(20,20,30,.38)'; c.fillRect(px, py + u * .62, u + 1, u * .38 + 1); }
         else if (W.h(x, y, 5) < .3) { c.fillStyle = 'rgba(255,255,255,.09)'; c.fillRect(px + u * .15, py + u * .2, u * .4, u * .12); }
+      } else if (t === T.STAIR) {
+        c.strokeStyle = 'rgba(40,36,30,.5)'; c.lineWidth = Math.max(1, u * .05); c.beginPath();
+        for (let i = 1; i < 4; i++) { c.moveTo(px, py + u * i / 4); c.lineTo(px + u, py + u * i / 4); } c.stroke();
+      } else if (t === T.WALL) {
+        c.strokeStyle = 'rgba(50,35,25,.5)'; c.lineWidth = Math.max(1, u * .04); c.beginPath();
+        c.moveTo(px, py + u * .5); c.lineTo(px + u, py + u * .5); c.moveTo(px + u * (y & 1 ? .3 : .7), py); c.lineTo(px + u * (y & 1 ? .3 : .7), py + u * .5); c.stroke();
+        if (W.t(x, y + 1) !== T.WALL) { c.fillStyle = 'rgba(20,14,10,.4)'; c.fillRect(px, py + u * .62, u + 1, u * .38 + 1); }
       } else if (t === T.BRIDGE) {
         c.strokeStyle = 'rgba(40,25,10,.55)'; c.lineWidth = Math.max(1, u * .05); c.beginPath();
         for (let i = 1; i < 4; i++) { c.moveTo(px, py + u * i / 4); c.lineTo(px + u, py + u * i / 4); } c.stroke();
@@ -45,11 +52,11 @@ SW.Render = (function () {
   }
 
   // ---------- Objekte ----------
-  function tree(c, bx, by, u, v) {
+  function tree(c, bx, by, u, v, sn) {
     const s = .85 + v * .45, maple = v > .9;
     shadow(c, bx + u * .18, by, u * .42 * s, u * .14 * s);
     c.fillStyle = '#4a3424'; c.fillRect(bx - u * .07 * s, by - u * .45 * s, u * .14 * s, u * .45 * s);
-    const g = maple ? ['#8f3a2a', '#b04a2c', '#d0653a'] : ['#2f6b3a', '#3a8244', '#4b9a52'];
+    const g = sn ? ['#3f5f58', '#6a8c86', '#e4eef2'] : maple ? ['#8f3a2a', '#b04a2c', '#d0653a'] : ['#2f6b3a', '#3a8244', '#4b9a52'];
     for (let i = 0; i < 3; i++) {
       const w = (.62 - i * .14) * u * s, top = by - u * (1.05 + i * .5) * s, bot = by - u * (.35 + i * .5) * s;
       c.fillStyle = g[i]; c.beginPath(); c.moveTo(bx, top); c.lineTo(bx + w, bot); c.lineTo(bx - w, bot); c.closePath(); c.fill();
@@ -273,7 +280,7 @@ SW.Render = (function () {
       if (it.k === -4) { chest(c, it.s, Math.round(it.s.x * u + ox), Math.round((it.s.y + .3) * u + oy), u, time); continue; }
       if (it.k === -3) { SW.Combat.drawWorld(c, Math.round(it.s.x * u + ox), Math.round((it.s.y + .3) * u + oy), u, time, it.s); continue; }
       const bx = it.x * u + ox + u / 2, by = (it.y + .85) * u + oy, v = W.h(it.x, it.y, 12);
-      if (it.k === O.TREE) tree(c, bx, by, u, v); else if (it.k === O.BAMBOO) bamboo(c, bx, by, u, v);
+      if (it.k === O.TREE) tree(c, bx, by, u, v, W.t(it.x, it.y) === T.SNOW); else if (it.k === O.BAMBOO) bamboo(c, bx, by, u, v);
       else if (it.k === O.BOULDER) boulder(c, bx, by, u, v); else if (it.k === O.PILLAR) pillar(c, bx, by, u, v);
     }
     const tn = SW.Time.tint();

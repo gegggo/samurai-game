@@ -2,12 +2,12 @@
 // Weltgenerierung: deterministisch, Chunk-Cache. Keine Kachel-Arrays für die ganze Welt.
 SW.World = (function () {
   const N = SW.CFG.WORLD, R = N / 3, C = [R / 2, R * 1.5, R * 2.5];
-  const T = { GRASS: 0, FOREST: 1, BAMBOO: 2, ROCK: 3, WATER: 4, DEEP: 5, PATH: 6, BRIDGE: 7, SAND: 8, STONE: 9, CAVE: 10, DIRT: 11 };
+  const T = { GRASS: 0, FOREST: 1, BAMBOO: 2, ROCK: 3, WATER: 4, DEEP: 5, PATH: 6, BRIDGE: 7, SAND: 8, STONE: 9, CAVE: 10, DIRT: 11, SNOW: 12, ASH: 13, LAVA: 14, DUNE: 15, STAIR: 16, WALL: 17 };
   const O = { NONE: 0, TREE: 1, BAMBOO: 2, BOULDER: 3, PILLAR: 4 };
-  const PAL = [[98,142,70],[58,102,58],[118,150,84],[112,108,112],[58,128,168],[34,88,134],[180,150,100],[130,92,58],[214,196,146],[150,148,150],[58,52,66],[150,122,86]];
+  const PAL = [[98,142,70],[58,102,58],[118,150,84],[112,108,112],[58,128,168],[34,88,134],[180,150,100],[130,92,58],[214,196,146],[150,148,150],[58,52,66],[150,122,86],[232,238,244],[74,62,60],[226,92,34],[226,190,120],[176,170,160],[160,138,110]];
   // Regionen: 0 NW Dorf, 1 N Bambus, 2 NO Schrein, 3 W Wald, 4 Mitte See, 5 O Gebirge, 6 SW Ruinen, 7 S Banditen, 8 SO Höhlen
   const ROCKY = [2, 2, .66, 2, 2, .56, 2, 2, .58, 2, 2, 2];
-  const DENS = [.05, .34, .12, .2, .03, .07, .05, .07, .05, .14, .12, .06];
+  const DENS = [.05, .34, .12, .2, .03, .07, .05, .07, .05, .14, .12, .06, .07, .04, .02, .03, .05];
 
   function h(x, y, s) {
     let n = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1442695041)) | 0;
@@ -24,9 +24,10 @@ SW.World = (function () {
 
   const GX = 800, GY = 800; // Region 9: Moonlit Grove (Kreis, r 80) in der Lücke zwischen Dorf, Wald und See
   // Kleine Kreisregionen (r 80): 9 Hain, 10 Steingarten, 11 Schilfmarsch. Region = Index + 9.
-  const MINI = [{ x: 800, y: 800 }, { x: 1600, y: 800 }, { x: 800, y: 1600 }];
+  // 12 Frostpeaks (Schnee), 13 Ember Crater (Vulkan), 14 Dust Dunes (Wüste), 15 Sun Coast (Küste), 16 Karst Spires (hohe Felstürme); r = Radius
+  const MINI = [{ x: 800, y: 800 }, { x: 1600, y: 800 }, { x: 800, y: 1600 }, { x: 100, y: 100, r: 190 }, { x: 2300, y: 100, r: 190 }, { x: 100, y: 2300, r: 190 }, { x: 2300, y: 2300, r: 190 }, { x: 1600, y: 1600, r: 150 }];
   function regionAt(x, y) {
-    for (let i = 0; i < MINI.length; i++) if ((x - MINI[i].x) * (x - MINI[i].x) + (y - MINI[i].y) * (y - MINI[i].y) < 6400) return 9 + i;
+    for (let i = 0; i < MINI.length; i++) if ((x - MINI[i].x) * (x - MINI[i].x) + (y - MINI[i].y) * (y - MINI[i].y) < (MINI[i].r || 80) * (MINI[i].r || 80)) return 9 + i;
     const wx = x + (vn(x / 50, y / 50, 11) - .5) * 120, wy = y + (vn(x / 50, y / 50, 12) - .5) * 120;
     const cx = Math.min(2, Math.max(0, Math.floor(wx / R))), cy = Math.min(2, Math.max(0, Math.floor(wy / R)));
     return cy * 3 + cx;
@@ -49,8 +50,34 @@ SW.World = (function () {
     return Math.hypot(x - (RA[0] + dx * t + Math.sin(t * 14) * 18), y - (RA[1] + dy * t + Math.cos(t * 11) * 18));
   }
 
+  // Karst: zwei schmale Berge. Plateau (p = Anteil), Treppe auf der Südseite, Brücke y 1598-1599. Dorf auf Berg 1, Tempel auf Berg 2.
+  const MT = [{ x: 1560, y: 1600, rx: 18, ry: 34, p: .36 }, { x: 1650, y: 1600, rx: 22, ry: 66, p: .09 }];
+  function mtn(x, y) { // 0 Boden, 1 Fels, 2 Treppe, 3 Plateau
+    for (let i = 0; i < 2; i++) {
+      const m = MT[i], dx = x - m.x, dy = y - m.y, e = (dx / m.rx) * (dx / m.rx) + (dy / m.ry) * (dy / m.ry);
+      if (e > 1.08) continue;
+      if (e < m.p) return 3;
+      if (Math.abs(dx) < 2 && dy > 0) return 2;
+      if (e < 1) return 1;
+    }
+    return 0;
+  }
+  function biome(reg, x, y, m) {
+    if (reg === 16) {
+      const k = mtn(x, y);
+      if ((y === 1598 || y === 1599) && x > 1560 && x < 1650 && k !== 3) return T.BRIDGE;
+      if (k) return k === 1 ? T.ROCK : k === 2 ? T.STAIR : x >= 1640 ? T.STONE : T.GRASS;
+    }
+    const d = Math.hypot(x - m.x, y - m.y), f = fbm(x, y, 50 + reg);
+    if (d < 9) return T.STONE; // Plattform um den Schrein
+    if (reg === 12) return d > 22 && f > .64 ? T.ROCK : T.SNOW;
+    if (reg === 13) return d > 28 && f > .7 ? T.ROCK : d > 22 && f > .62 ? T.LAVA : T.ASH;
+    if (reg === 14) { const o = Math.hypot(x - m.x - 22, y - m.y); return o < 8 ? T.WATER : o < 11 ? T.GRASS : d > 30 && f > .75 ? T.ROCK : T.DUNE; } // Oase
+    if (reg === 15) { const c = Math.hypot(N - x, N - y); return c < 80 ? T.DEEP : c < 105 ? T.WATER : c < 118 || f > .62 ? T.SAND : T.GRASS; }
+    return T.GRASS; // 16 Karst
+  }
   function terrain(x, y) {
-    if (x < 3 || y < 3 || x >= N - 3 || y >= N - 3) return T.ROCK;
+    if (x < 5 || y < 5 || x >= N - 5 || y >= N - 5) return T.WALL; // Große Mauer
     const rd = roadDist(x, y), road = rd < 1.6;
     const lc = Math.hypot(x - 1200, y - 1200);
     let water = false, deep = false, ld = 999;
@@ -61,6 +88,7 @@ SW.World = (function () {
     if (ld < 275) return T.SAND;
     const reg = regionAt(x, y);
     if (reg >= 9) {
+      if (reg >= 12) return biome(reg, x, y, MINI[reg - 9]);
       const m = MINI[reg - 9], d2 = (x - m.x) * (x - m.x) + (y - m.y) * (y - m.y);
       if (reg === 9) return d2 < 64 ? T.STONE : T.FOREST;
       if (d2 < (reg === 10 ? 144 : 64)) return T.STONE; // Plattform um den Schrein
@@ -83,7 +111,7 @@ SW.World = (function () {
   // ---------- Strukturen ----------
   const S = [], B = new Map();
   function add(type, x, y, w, hh, solid) { const s = { type, x, y, w, h: hh, solid: solid !== false, v: h(x, y, 9) }; S.push(s); return s; }
-  function land(x, y) { const t = terrain(x, y); return t !== T.WATER && t !== T.DEEP && t !== T.ROCK && t !== T.BRIDGE; }
+  function land(x, y) { const t = terrain(x, y); return t !== T.WATER && t !== T.DEEP && t !== T.ROCK && t !== T.WALL && t !== T.LAVA && t !== T.BRIDGE; }
   function onLand(x, y, w, hh, dx, dy) {
     for (let i = 0; i < 40; i++) {
       if (land(x, y) && land(x + w, y) && land(x, y + hh) && land(x + w, y + hh)) break;
@@ -130,6 +158,9 @@ SW.World = (function () {
     const kx = C[2], ky = C[2];
     add('shrine', kx + 5, ky - 14, 10, 6);
     [[-8,-8],[8,8],[-8,8],[8,-8]].forEach(o => add('pillar', kx + o[0], ky + o[1], 1, 1));
+    for (let i = 600; i < N; i += 600) { add('tower', i, 1, 2, 2); add('tower', i, N - 3, 2, 2); add('tower', 1, i, 2, 2); add('tower', N - 3, i, 2, 2); } // Wachtürme an der Mauer
+    [[-8, -12], [2, -12], [-8, 2], [2, 2]].forEach(o => add('house', 1560 + o[0], 1600 + o[1], 6, 5)); // Bergdorf (Berg 1)
+    add('shrine', 1645, 1589, 10, 6); // Tempel (Berg 2)
     // Index
     S.forEach(s => {
       for (let bx2 = Math.floor(s.x / 32); bx2 <= Math.floor((s.x + s.w - 1) / 32); bx2++)
@@ -139,7 +170,7 @@ SW.World = (function () {
     });
     POI.push({ id: 'village', x: vx, y: vy }, { id: 'huts', x: bx - 23, y: by - 10 }, { id: 'shrine', x: sx + 10, y: sy - 8 },
       { id: 'hermit', x: C[0] - 18, y: C[1] + 17 }, { id: 'lake', x: 1200, y: 1200 }, { id: 'lookout', x: C[2] + 7, y: C[1] - 7 },
-      { id: 'falls', x: RA[0], y: RA[1] }, { id: 'ruins', x: rx, y: ry }, { id: 'camp', x: cx, y: cy }, { id: 'cave', x: kx + 10, y: ky - 11 }, { id: 'grove', x: GX, y: GY }, { id: 'garden', x: 1600, y: 800 }, { id: 'marsh', x: 800, y: 1600 });
+      { id: 'falls', x: RA[0], y: RA[1] }, { id: 'ruins', x: rx, y: ry }, { id: 'camp', x: cx, y: cy }, { id: 'cave', x: kx + 10, y: ky - 11 }, { id: 'grove', x: GX, y: GY }, { id: 'garden', x: 1600, y: 800 }, { id: 'marsh', x: 800, y: 1600 }, { id: 'frost', x: 100, y: 100 }, { id: 'ember', x: 2300, y: 100 }, { id: 'dunes', x: 100, y: 2300 }, { id: 'coast', x: 2300, y: 2300 }, { id: 'karst', x: 1600, y: 1600 }, { id: 'peakvillage', x: 1560, y: 1600 }, { id: 'temple', x: 1650, y: 1595 });
   }
 
   // Dauerhafte Quest-Bauten. Werden aus dem Quest-Spielstand rekonstruiert.
@@ -174,15 +205,18 @@ SW.World = (function () {
       }
     return false;
   }
-  const ZONES = [[C[2], C[0], 20, 20], [C[2], C[2], 52, 52], [C[0], C[0], 26, 20], [C[1], C[2], 24, 18], [C[0], C[2], 15, 12], [GX, GY, 10, 10], [1600, 800, 10, 10], [800, 1600, 10, 10]];
+  const ZONES = [[C[2], C[0], 20, 20], [C[2], C[2], 52, 52], [C[0], C[0], 26, 20], [C[1], C[2], 24, 18], [C[0], C[2], 15, 12], [GX, GY, 10, 10], [1600, 800, 10, 10], [800, 1600, 10, 10], [100, 100, 10, 10], [2300, 100, 10, 10], [100, 2300, 10, 10], [2300, 2300, 10, 10], [1600, 1600, 10, 10]];
   function objAt(x, y, t) {
-    if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE) return 0;
+    if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE && t !== T.SNOW && t !== T.ASH && t !== T.DUNE) return 0;
     const reg = regionAt(x, y);
+    if (reg === 16 && mtn(x, y)) return 0;
     if (h(x, y, 77) >= (t === T.CAVE ? .06 : DENS[reg])) return 0;
     for (let i = 0; i < ZONES.length; i++) { const z = ZONES[i]; if (Math.abs(x - z[0]) < z[2] && Math.abs(y - z[1]) < z[3] && t !== T.CAVE) return 0; }
     if (roadDist(x, y) < 3.5 || nearStruct(x, y, 1.5)) return 0;
     if (t === T.CAVE) return O.BOULDER;
     const r = h(x, y, 78);
+    if (reg === 12) return r < .75 ? O.TREE : O.BOULDER;
+    if (reg === 13 || reg === 14) return O.BOULDER;
     if (reg === 1) return O.BAMBOO;
     if (reg === 10) return r < .45 ? O.BOULDER : r < .7 ? O.PILLAR : O.TREE;
     if (reg === 5 || reg === 8) return r < .55 ? O.BOULDER : O.TREE;
@@ -208,8 +242,8 @@ SW.World = (function () {
   function o(x, y) { if (x < 0 || y < 0 || x >= N || y >= N) return 0; return chunk(x >> 4, y >> 4).o[(y & 15) * 16 + (x & 15)]; }
   function solid(x, y) {
     const tt = t(x, y);
-    return tt === T.ROCK || tt === T.WATER || tt === T.DEEP || o(x, y) !== 0 || structSolid(x, y);
+    return tt === T.ROCK || tt === T.WALL || tt === T.LAVA || tt === T.WATER || tt === T.DEEP || o(x, y) !== 0 || structSolid(x, y);
   }
   build();
-  return { N, T, O, PAL, S, POI, MINI, h, terrain, regionAt, t, o, solid, buildVillageFence, C, spawn: { x: C[0] + .5, y: C[0] + 3.5 } };
+  return { mtn, N, T, O, PAL, S, POI, MINI, h, terrain, regionAt, t, o, solid, buildVillageFence, C, spawn: { x: C[0] + .5, y: C[0] + 3.5 } };
 })();

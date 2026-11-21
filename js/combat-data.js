@@ -84,10 +84,12 @@ SW.Data.arenas = {
   warden:   { sky: ['#5d6a85', '#a9b0c2'], gnd: ['#6f6c66', '#3b3a36'], deco: 'ruins' },
   summit:   { sky: ['#7fa6d6', '#e6eef6'], gnd: ['#9aa3ab', '#5f666d'], deco: 'plateau' },
   oni:      { sky: ['#1b1424', '#352a42'], gnd: ['#3a3340', '#1a161e'], deco: 'cavern' },
+  ember:    { sky: ['#4a1a14', '#c0582e'], gnd: ['#4a3a36', '#1e1614'], deco: 'cavern' },
+  dunes:    { sky: ['#e8c78a', '#f6e6bf'], gnd: ['#d9b877', '#a68450'], deco: 'plateau' },
   cavern:   { sky: ['#1f1a28', '#3a3346'], gnd: ['#4a4450', '#221e28'], deco: 'cavern' }
 };
 // Region (Index wie in world.js) -> Arena
-SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', 'plateau', 'ruins', 'camp', 'cavern', 'bamboo', 'temple', 'clearing'];
+SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', 'plateau', 'ruins', 'camp', 'cavern', 'bamboo', 'temple', 'clearing', 'summit', 'ember', 'dunes', 'clearing', 'plateau'];
 // Begegnungen in der Welt (Phase 2: feste Testpunkte; echte Gegner-Spawns folgen in Phase 5).
 // Position wird beim Start auf die nächste freie Kachel gesetzt.
 SW.Data.spots = [
