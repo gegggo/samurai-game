@@ -32,23 +32,23 @@ SW.Combat = (function () {
   // Nachtgegner: nur nachts aktiv; wiederkehrende kommen mit jeder neuen Nacht zurück
   K.on = s => !s.dead && (!s.night || SW.Time.period() === 'night') && (s.kv === undefined || SW.Karma.v <= s.kv); // kv: Kopfgeldjäger erscheinen bei schlechtem Ruf
   // Schattenclan-Hinterhalt (Phase 8, wie die Yiga in BOTW): bei Karma <= -30 spawnt nach einer Wegstrecke ein Angreifer nahe dem Spieler und läuft auf ihn zu.
-  // Bleibt bis zum Tod eines der beiden: weicht der Spieler > 12 Kacheln aus (Schnellreise, Flucht, Hängenbleiben), teleportiert er sich wieder neben ihn. Nicht gespeichert, keine Karma-Belohnung. Schlechterer Ruf (<= -70) = kürzere Abstände.
+  // Bleibt bis zum Tod eines der beiden, auch wenn das Karma wieder steigt. Weicht der Spieler > 12 Kacheln aus (Flucht, Hängenbleiben), teleportiert er sich neben ihn; Schnellreise (Sprung > 5 Kacheln pro Bild) lässt ihn verschwinden. Nicht gespeichert, keine Karma-Belohnung. Schlechterer Ruf (<= -70) = kürzere Abstände.
   const AMB = { walked: 0, next: 160, last: null, t: 0 };
   function ambush(p) {
     const dt = Math.min(.05, (performance.now() - AMB.t) / 1000); AMB.t = performance.now();
     let a = K.spots.find(s => s.amb);
-    if (SW.Karma.v > -30) { if (a) K.spots.splice(K.spots.indexOf(a), 1); AMB.last = null; return; }
+    const jump = AMB.last ? Math.hypot(p.x - AMB.last.x, p.y - AMB.last.y) : 0, moved = jump; AMB.last = { x: p.x, y: p.y };
     if (a) {
       const d = Math.hypot(p.x - a.x, p.y - a.y);
-      if (a.dead) { K.spots.splice(K.spots.indexOf(a), 1); AMB.walked = 0; AMB.next = rnd(SW.Karma.v <= -70 ? 70 : 110, SW.Karma.v <= -70 ? 130 : 200); return; }
+      if (a.dead || jump > 5) { K.spots.splice(K.spots.indexOf(a), 1); AMB.walked = 0; AMB.next = rnd(SW.Karma.v <= -70 ? 70 : 110, SW.Karma.v <= -70 ? 130 : 200); return; }
       if (d > 12) { const g = rnd(0, TAU), q = free(p.x + Math.cos(g) * 8, p.y + Math.sin(g) * 8); if (Math.hypot(q.x - p.x, q.y - p.y) >= 4) { a.x = q.x; a.y = q.y; } return; }
       const sp = 3.2 * dt, nx = a.x + (p.x - a.x) / d * sp, ny = a.y + (p.y - a.y) / d * sp;
       if (!W.solid(Math.floor(nx), Math.floor(a.y))) a.x = nx;
       if (!W.solid(Math.floor(a.x), Math.floor(ny))) a.y = ny;
       return;
     }
-    if (AMB.last) AMB.walked += Math.min(1, Math.hypot(p.x - AMB.last.x, p.y - AMB.last.y)); // Schnellreise/Sprünge zählen höchstens 1 Kachel
-    AMB.last = { x: p.x, y: p.y };
+    if (SW.Karma.v > -30) return;
+    AMB.walked += Math.min(1, moved); // Schnellreise/Sprünge zählen höchstens 1 Kachel
     if (AMB.walked < AMB.next) return;
     const g = rnd(0, TAU), q = free(p.x + Math.cos(g) * 8, p.y + Math.sin(g) * 8);
     if (Math.hypot(q.x - p.x, q.y - p.y) < 4) return; // kein freier Platz in der Nähe: später erneut
@@ -201,6 +201,7 @@ SW.Combat = (function () {
     out.lv = C.addXp(R.xp);
     out.coins = SW.Inv.addCoins(SW.Inv.coinDrop(S.spot.type));
     const dr = D.drops && D.drops[S.spot.id]; if (dr && SW.Inv.add(dr, 1)) out.items.push(T('drop_got', T('it_' + dr)));
+    if (S.spot.amb && Math.random() < .1 && SW.Inv.add('katana_shadow', 1)) out.items.push(T('drop_wpn', T('it_katana_shadow'))); // Schattenclan: 10 % Waffe
     if (R.ess && !S.spot.respawn && SW.Essence.add(R.ess)) out.ess.push(R.ess + ' ' + T('ess')); // wiederkehrende Nachtgegner geben keine Essence (kein Farmen)
     if (R.karma) out.karma = SW.Karma.add('foe_' + S.spot.type, R.karma);
     if (R.secret && SW.Skills.award(R.secret)) out.secret = T('secret_got', T('sk_' + R.secret));
