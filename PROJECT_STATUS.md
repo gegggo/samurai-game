@@ -1,9 +1,18 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v62 (Spielversion 0.9.23)
+**Cache-Version:** v63 (Spielversion 0.9.24)
 **Aktuelle Phase:** 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
 
 **Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+
+## 0.9.24 – Diagnose-Protokoll repariert, Fehlalarm beim Start entfernt (Dateien gesendet – Prüfung ausstehend)
+- **Gerätetest 0.9.23 (iPhone, Home-Bildschirm-App):** Screenshot -> Bildschirm halb schwarz/blau -> Spiel reagiert auf nichts, Tabwechsel hilft nicht, nur komplett schließen + neu öffnen. DIAG-Feld erschien, enthielt aber nur 5 Zeilen (1 s): `pageshow iw393x852 cw393 o90` -> `BAD cw852 o90` -> `blur` -> `visibilitychange h1` -> `orientationchange o0`.
+- **Auswertung:** Protokoll stammt aus einer kurzen Folge-Sitzung, nicht aus der Schwarzbild-Sitzung (jeder Start löschte das Log). Die BAD-Zeile ist ein Fehlalarm: `innerWidth` 393 (Hochformat), aber Layoutbreite `cw` 852 = Drehübergang beim Start. `vpFix` griff dadurch ggf. unnötig in den Viewport ein (Meta ändern, Zwangsbreite, Neuladen). Ob diese Eingriffe das Schwarzbild mit verursachen, ist unbekannt.
+- **Änderung `js/main.js`:** (1) Log wird nur archiviert (`sw_diag_bad`), wenn die Sitzung BAD/STALL enthält; kurze Normal-Sitzungen überschreiben nichts; Schließen des roten Felds leert das Archiv. (2) `landscapeBroken` verlangt zusätzlich schmale Layoutbreite `cw`. (3) Eingriff erst nach 3 Prüfungen in Folge (ca. 1,2 s). (4) Log enthält zusätzlich Layouthöhe, Canvasgröße, Screengröße, Standalone-Flag und eine `touch`-Zeile (max. 1 je 3 s), um zu sehen, ob Berührungen im Schwarzzustand ankommen.
+- **Geändert:** `js/main.js`, `js/config.js` (0.9.24), `index.html` (v63), `PROJECT_STATUS.md`.
+- **Geprüft:** `node --check js/main.js` bestanden. NICHT ausgeführt: Browser-/Gerätetest, Diag-Logik im Browser. Schwarzbild-Ursache weiter offen.
+- **Auffall (Foto):** Spielfläche endet ca. 54 CSS-px über Bildschirmunterkante (dunkler Streifen unten) auch direkt nach Neustart. Ursache unbekannt, beobachten.
+- **NÄCHSTER SCHRITT:** Gerätetest: Screenshot bis schwarz, 5 s warten, 2x auf Bildschirm tippen, Spiel schließen, neu öffnen, rotes Feld fotografieren (muss mehrere Zeilen mit `touch` zeigen). Danach Dateien prüfen und Ursache eingrenzen.
 
 ## 0.9.23 – Reise mit Ladebild, Diagnose-Protokoll (Dateien gesendet, Gerätetest offen)
 - 0.9.22: Schnellreise-Tipp auf iPhone bestätigt (Ursache war CSS-zoom um die Karte).
