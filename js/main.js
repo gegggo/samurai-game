@@ -57,7 +57,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   let vpTry = 0, vpForced = false;
   const longSide = () => Math.max(screen.width, screen.height);
   const isLandscape = () => (typeof window.orientation === 'number' && Math.abs(window.orientation) === 90) || (screen.orientation && /landscape/.test(screen.orientation.type || ''));
-  const landscapeBroken = () => isLandscape() && window.innerWidth < longSide() * .8 && document.documentElement.clientWidth < longSide() * .8; // Layoutbreite (cw) muss auch schmal sein, sonst nur Drehübergang
+  const landscapeBroken = () => isLandscape() && window.innerWidth < longSide() * .8 && document.documentElement.clientWidth < longSide() * .8 && window.innerHeight < window.innerWidth * 1.2; // 0.12.2: Fenster höher als breit = echte Drehung ins Hochformat, kein Fehler; Layoutbreite (cw) muss auch schmal sein, sonst nur Drehübergang
   let badTicks = 0;
   const vpMeta = () => document.querySelector('meta[name=viewport]');
   let vpOrig = null;
@@ -166,9 +166,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   let tLast = 0; document.addEventListener('touchstart', () => { const n = Date.now(); if (n - tLast > 3000) SW.Diag.log('touch'); tLast = n; }, { passive: true, capture: true });
   let hbLast = '';
   setInterval(() => { const s = SW.Diag.snap(); if (s !== hbLast) { hbLast = s; SW.Diag.log('hb'); } }, 2000);
-  setTimeout(() => { // Auswertung der letzten Sitzung: nur wenn dort ein Fehlzustand protokolliert wurde
-    if (SW.Diag.prev.length) { showErr('DIAG Fehl-Sitzung (antippen = schließen):\n' + SW.Diag.prev.slice(-28).join('\n').replace(/ sc\d+x\d+/g, '').replace(/ sa\d/g, '')); const eb = document.getElementById('errbox'); if (eb) { eb.style.cssText += ';top:0;bottom:auto;max-height:100%;font-size:9px;line-height:11px'; const o = eb.onclick; eb.onclick = () => { SW.Diag.clear(); o(); }; } }
-  }, 2500);
+  // 0.12.2: rotes Diagnosefeld der letzten Sitzung entfernt (Protokoll bleibt in localStorage sw_diag_bad)
   let badLog = 0;
   setInterval(() => {
     const stalled = !document.hidden && performance.now() - lastFrameAt > 1500;
@@ -177,7 +175,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
     const bad = landscapeBroken() || stalled;
     const now = Date.now();
     if (bad) dgUntil = now + 6000;
-    if (now < dgUntil) {
+    if (false && now < dgUntil) { // 0.12.2: blaues Diagnosefeld aus
       if (!dg) { dg = document.createElement('div'); dg.style.cssText = 'position:fixed;left:0;top:0;z-index:98;background:#036;color:#fff;font:11px monospace;padding:3px;white-space:pre-wrap;pointer-events:none'; document.body.appendChild(dg); }
       const vv = window.visualViewport;
       dg.textContent = 'VP iw=' + window.innerWidth + ' cw=' + document.documentElement.clientWidth + ' vv=' + (vv ? Math.round(vv.width) + '@' + vv.scale.toFixed(2) : '-') + ' ow=' + window.orientation + ' sw=' + screen.width + 'x' + screen.height + ' try=' + vpTry + ' forced=' + vpForced + ' stalled=' + stalled + ' cv=' + canvas.clientWidth + 'x' + canvas.clientHeight;

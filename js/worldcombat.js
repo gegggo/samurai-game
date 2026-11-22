@@ -252,7 +252,7 @@ SW.WCombat = (function () {
     const breath = held.breath && !want && !P.pm && P.dodgeT <= 0 && P.hurt <= 0 && !moving;
     if (breath) P.st.breath += dt;
     P.ki = Math.min(P.kmax, P.ki + (ps.kiRegen + (breath ? 22 * ps.breathMul : 0)) * dt);
-    p.mul = P.dodgeT > 0 ? 0 : P.hurt > 0 ? .3 : P.pm ? .25 : P.block ? .5 : 1;
+    p.mul = P.dodgeT > 0 ? 0 : P.hurt > 0 ? .3 : 1; // 0.12.2: Angriff und Block bremsen das Laufen nicht mehr
     for (let i = floats.length - 1; i >= 0; i--) { floats[i].t += dt; if (floats[i].t > 1) floats.splice(i, 1); }
   };
   X.sync = function () { document.body.classList.toggle('wcombat', X.active && !SW.paused && !K.active); };
