@@ -1,8 +1,17 @@
-# PROJECT_STATUS (gekürzt, Stand 0.15.1, Cache v80)
+# PROJECT_STATUS (gekürzt, Stand 0.16.0, Cache v81)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## 0.16.0 – Phase 14 (neue Region 18: Verlassene Festung)
+- **Annahme:** Nutzer wählte Region nicht; Festung gewählt (Spec 3, billigste der offenen: Stadt/Festung). 0.15.1: Ausweichen 25 Ki + Meister (altes `shops-data.js` auf GitHub war Ursache) vom Nutzer bestätigt.
+- **Welt:** Segment `js/layout-fortress.js` (3400-5000 x 2000-3000, erzeugt von `py/make_layout_fortress.py`): Insel SO (Mitte 4180/2480), Landzunge ab Hauptinsel y~2300, Meerenge mit Brücke bei x 3600-3660. `world.js`: Biome (Steinhof, Fels, Gras), `DENS`, Zone, POI `fortress`; Bauten: Ruinenmauer 49x35 mit Südtor und Lücken, 4 Türme, Bergfried `hall` 14x8 (begehbar), 4 Säulen. **Keine `hut`/`house` ergänzt** (`village.js` zählt per Index).
+- **Inhalt (`regions-content.js`, EN+DE):** Schrein `fortress`, 3 Truhen `c_fort1-3` (Essence / 220 Münzen / 3 Eisen), 5 Gegner `e_fort1-4`, `e_fortq` (+2 Wächter automatisch), NPC `n_veteran`, Quests `fort1` (Samurai besiegen) und `fort2` (6 Eisen). Karte: Farbe + Symbol (`ui.js`), Arena `ruins` (`combat-data.js`). Werte **Platzhalter**.
+- **Getestet (headless Chromium 852x393, tatsächlich):** Start ohne JS-Fehler; BFS vom Startpunkt: Schrein, NPC, 3 Truhen, 7 Gegner erreichbar (eine Truhe lag zuerst unerreichbar, verschoben, erneut OK); Texte EN+DE vollständig; Screenshots Hof und Landzunge; Quest `fort1` annehmen/abschließen (190 Münzen einmalig, kein Doppelabschluss), `fort2` aktiv/bereit; Speichern + Fortsetzen behält Quest, Gegnerstatus, Münzen.
+- **Nicht geprüft:** Gerät/Touch, Brückenoptik, Nacht, Kampf in Region 18 von Hand, Schnellreise zum Festungsschrein, Karte, Regression Inventar/Händler/Skills diesmal nicht erneut, Wegzeit zur Festung (Landzunge ~540 Kacheln).
+- **Nicht umgesetzt:** Boss/Festungsherr (wäre neues Boss-Setup), Dorf-Wiederaufbau der Festung, Region Stadt.
+- **Geändert:** index.html (v81), js/config.js, js/world.js, js/ui.js, js/combat-data.js, js/regions-content.js, NEU js/layout-fortress.js, NEU py/make_layout_fortress.py, PROJECT_STATUS.md.
 
 ## 0.15.1 – Fixes nach Gerätetest 0.15.0
 - **Ausweichen kostet mehr Ki:** `D.dodgeKi` 10 -> 25 (**Platzhalter**, `combat-data.js`; Ki-Pool ~100, Spezial 40). Wirkt in Welt, Arena, Rückfall-Duell.
@@ -94,4 +103,4 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 - Hinweis: Ladebild liegt auf GitHub unter `assets/images/ui/loading.jpg` (lokales Zip: `assets/loading.jpg`); Zip-Datei hieß teils `js/config .js` (Leerzeichen) – Dateinamen prüfen.
 
 ## Nächster Schritt
-Gerätetest 0.15.1 (Meister sichtbar? Ausweichen 25 Ki). Dann Phase 14: Region/Phase-Umfang klären (Frage an Nutzer offen).
+Gerätetest 0.16.0 (Festung erreichen, Quests, Schnellreise). Danach Balancing-Durchgang oder Region Stadt.
