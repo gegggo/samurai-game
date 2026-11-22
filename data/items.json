@@ -1,0 +1,610 @@
+{
+ "rarities": [
+  "common",
+  "uncommon",
+  "rare",
+  "epic",
+  "legendary"
+ ],
+ "rarityCol": {
+  "common": "#b9b2a2",
+  "epic": "#b07ae0",
+  "legendary": "#f2c14e",
+  "rare": "#5aa0e0",
+  "uncommon": "#6fbf73"
+ },
+ "slots": [
+  "main",
+  "side",
+  "ranged",
+  "helm",
+  "mask",
+  "armor",
+  "gloves",
+  "boots"
+ ],
+ "items": [
+  {
+   "fx": {},
+   "id": "katana_worn",
+   "rar": "common",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Worn Katana",
+    "A battered blade. Reliable, nothing more."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "atk": 0.1
+   },
+   "id": "katana_steel",
+   "rar": "uncommon",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Steel Katana",
+    "Well-folded steel with a keen edge."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "atk": 0.18,
+    "crit": 3
+   },
+   "id": "katana_temper",
+   "rar": "rare",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Tempered Katana",
+    "Hardened edge, balanced for precise cuts."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "atk": 0.3,
+    "rec": 0.2
+   },
+   "id": "nodachi",
+   "rar": "uncommon",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Nodachi",
+    "Huge two-handed sword. Hits hard, recovers slowly."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "ambush": 0.2,
+    "atk": 0.05
+   },
+   "id": "spear",
+   "rar": "common",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Yari Spear",
+    "Punishes enemies who wind up an attack."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "atk": 0.2,
+    "parry": 0.03,
+    "rec": 0.1
+   },
+   "id": "naginata",
+   "rar": "rare",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Naginata",
+    "Curved polearm with a forgiving parry."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "crit": 2
+   },
+   "id": "tanto",
+   "rar": "common",
+   "slot": "side",
+   "type": "weapon",
+   "en": [
+    "Tanto",
+    "Short dagger. Finds weak spots."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "crit": 3,
+    "rec": -0.05
+   },
+   "id": "wakizashi",
+   "rar": "uncommon",
+   "slot": "side",
+   "type": "weapon",
+   "en": [
+    "Wakizashi",
+    "Companion blade. Quicker recovery."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "ambush": 0.15,
+    "crit": 5
+   },
+   "id": "tanto_night",
+   "rar": "epic",
+   "slot": "side",
+   "type": "weapon",
+   "en": [
+    "Night Tanto",
+    "Black dagger from the old ruins."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.3
+   },
+   "id": "hat_straw",
+   "rar": "common",
+   "slot": "helm",
+   "type": "armor",
+   "en": [
+    "Straw Hat",
+    "Keeps off the sun, and little else."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.8,
+    "hp": 4
+   },
+   "id": "helm_iron",
+   "rar": "uncommon",
+   "slot": "helm",
+   "type": "armor",
+   "en": [
+    "Iron Helm",
+    "Plain iron cap."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 1.2,
+    "dodge": 0.03,
+    "hp": 8
+   },
+   "id": "helm_kabuto",
+   "rar": "rare",
+   "slot": "helm",
+   "type": "armor",
+   "en": [
+    "Kabuto",
+    "Samurai war helmet."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.3
+   },
+   "id": "kimono",
+   "rar": "common",
+   "slot": "armor",
+   "type": "armor",
+   "en": [
+    "Travel Kimono",
+    "Simple cloth clothing."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.8,
+    "hp": 5
+   },
+   "id": "armor_light",
+   "rar": "uncommon",
+   "slot": "armor",
+   "type": "armor",
+   "en": [
+    "Light Samurai Armor",
+    "Lacquered plates, easy to move in."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 2.2,
+    "dodge": 0.15,
+    "hp": 20
+   },
+   "id": "armor_heavy",
+   "rar": "rare",
+   "slot": "armor",
+   "type": "armor",
+   "en": [
+    "Heavy Samurai Armor",
+    "Full plate. Tough, but dodging takes longer."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.2
+   },
+   "id": "gloves_cloth",
+   "rar": "common",
+   "slot": "gloves",
+   "type": "armor",
+   "en": [
+    "Cloth Wraps",
+    "Hand wraps."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "crit": 1,
+    "def": 0.5
+   },
+   "id": "kote_leather",
+   "rar": "uncommon",
+   "slot": "gloves",
+   "type": "armor",
+   "en": [
+    "Leather Kote",
+    "Supple forearm guards."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.9,
+    "hp": 4
+   },
+   "id": "kote_iron",
+   "rar": "rare",
+   "slot": "gloves",
+   "type": "armor",
+   "en": [
+    "Iron Kote",
+    "Heavy armored gauntlets."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.2
+   },
+   "id": "tabi",
+   "rar": "common",
+   "slot": "boots",
+   "type": "armor",
+   "en": [
+    "Tabi Socks",
+    "Split-toe cloth shoes."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.4,
+    "dodge": -0.04
+   },
+   "id": "boots_leather",
+   "rar": "uncommon",
+   "slot": "boots",
+   "type": "armor",
+   "en": [
+    "Leather Boots",
+    "Light and quiet."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.8,
+    "dodge": 0.05
+   },
+   "id": "boots_iron",
+   "rar": "rare",
+   "slot": "boots",
+   "type": "armor",
+   "en": [
+    "Iron Greaves",
+    "Shin guards with iron plates."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "atk": 0.22,
+    "counter": 0.5,
+    "parry": 0.04
+   },
+   "id": "katana_counter",
+   "rar": "legendary",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Counterfang",
+    "Blade of the Bandit Chief. Counter attacks hit far harder."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "ambush": 0.12,
+    "atk": 0.16,
+    "crit": 3
+   },
+   "id": "katana_shadow",
+   "rar": "rare",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Shadow Clan Blade",
+    "Dropped by Shadow Clan assassins. Light, quick to strike from behind."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "atk": 0.15,
+    "kiCost": 0.2,
+    "kiRegen": 0.3
+   },
+   "id": "katana_moon",
+   "rar": "legendary",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Moonlit Blade",
+    "Ki flows freely: techniques cost less, Ki returns faster."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "atk": 0.3,
+    "crit": 4,
+    "critDmg": 0.5,
+    "rec": 0.15
+   },
+   "id": "nodachi_reaper",
+   "rar": "legendary",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Reaper Nodachi",
+    "Slow, but every critical hit cuts deeper."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "ambush": 0.25,
+    "crit": 6,
+    "critDmg": 0.3
+   },
+   "id": "tanto_warden",
+   "rar": "legendary",
+   "slot": "side",
+   "type": "weapon",
+   "en": [
+    "Warden's Edge",
+    "Dagger of the Ruin Warden. Strikes hard from the shadows."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "atk": 0.26,
+    "counter": 0.3,
+    "parry": 0.06,
+    "rec": 0.12
+   },
+   "id": "naginata_monk",
+   "rar": "legendary",
+   "slot": "main",
+   "type": "weapon",
+   "en": [
+    "Peak Naginata",
+    "Polearm of the Iron Peak Monk. Wide parry, brutal counters."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "counter": 0.25,
+    "def": 3.2,
+    "hp": 40
+   },
+   "id": "armor_oni",
+   "rar": "legendary",
+   "slot": "armor",
+   "type": "armor",
+   "en": [
+    "Oni Plate",
+    "Lacquered plate of the Cave Oni. Tough and unforgiving."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "rdmg": 5,
+    "rrec": 0.3,
+    "rwind": 0.2
+   },
+   "id": "shuriken",
+   "rar": "common",
+   "slot": "ranged",
+   "type": "weapon",
+   "en": [
+    "Shuriken",
+    "Throwing stars. Quick, light hits from range."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "crit": 2,
+    "rdmg": 7,
+    "rrec": 0.28,
+    "rwind": 0.2
+   },
+   "id": "shuriken_steel",
+   "rar": "uncommon",
+   "slot": "ranged",
+   "type": "weapon",
+   "en": [
+    "Steel Shuriken",
+    "Balanced throwing stars. Hit harder and sometimes crit."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "rdmg": 14,
+    "rrec": 0.7,
+    "rwind": 0.5
+   },
+   "id": "bow_hankyu",
+   "rar": "rare",
+   "slot": "ranged",
+   "type": "weapon",
+   "en": [
+    "Hankyu Short Bow",
+    "Compact bow. Slow to draw, hits hard."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "crit": 3,
+    "rdmg": 19,
+    "rrec": 0.75,
+    "rwind": 0.55
+   },
+   "id": "bow_yumi",
+   "rar": "epic",
+   "slot": "ranged",
+   "type": "weapon",
+   "en": [
+    "Yumi Longbow",
+    "Tall asymmetric bow. Powerful, precise shots."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "def": 0.3
+   },
+   "id": "mask_cloth",
+   "rar": "common",
+   "slot": "mask",
+   "type": "armor",
+   "en": [
+    "Cloth Mask",
+    "Plain face wrap."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "crit": 1,
+    "def": 0.6
+   },
+   "id": "mask_oni_half",
+   "rar": "uncommon",
+   "slot": "mask",
+   "type": "armor",
+   "en": [
+    "Half Oni Mask",
+    "Fierce lacquered half mask."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {
+    "ambush": 0.08,
+    "def": 0.8,
+    "dodge": -0.03
+   },
+   "id": "mask_kitsune",
+   "rar": "rare",
+   "slot": "mask",
+   "type": "armor",
+   "en": [
+    "Kitsune Mask",
+    "Fox mask. Light on the feet, sharp for ambushes."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {},
+   "id": "wood",
+   "rar": "common",
+   "slot": null,
+   "type": "res",
+   "en": [
+    "Wood",
+    "Building material for repairs."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {},
+   "id": "iron",
+   "rar": "common",
+   "slot": null,
+   "type": "res",
+   "en": [
+    "Iron",
+    "Raw iron for the smith."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {},
+   "id": "stone",
+   "rar": "common",
+   "slot": null,
+   "type": "res",
+   "en": [
+    "Stone",
+    "Building material."
+   ],
+   "ed": "lite"
+  },
+  {
+   "fx": {},
+   "id": "herb",
+   "rar": "common",
+   "slot": null,
+   "type": "res",
+   "en": [
+    "Healing Herb",
+    "Used by healers and villagers."
+   ],
+   "ed": "lite"
+  }
+ ]
+}

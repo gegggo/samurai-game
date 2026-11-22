@@ -1,0 +1,524 @@
+{
+ "quests": [
+  {
+   "choice": [
+    {
+     "id": "free",
+     "rew": {
+      "karma": 6,
+      "xp": 40
+     }
+    },
+    {
+     "id": "sell",
+     "rew": {
+      "coins": 80,
+      "karma": -10,
+      "xp": 20
+     }
+    }
+   ],
+   "giver": "n_pris1",
+   "id": "pris1",
+   "obj": {
+    "spot": "e_camp1",
+    "type": "kill"
+   },
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "choice": [
+    {
+     "id": "free",
+     "rew": {
+      "karma": 6,
+      "xp": 40
+     }
+    },
+    {
+     "id": "sell",
+     "rew": {
+      "coins": 80,
+      "karma": -10,
+      "xp": 20
+     }
+    }
+   ],
+   "giver": "n_pris2",
+   "id": "pris2",
+   "obj": {
+    "spot": "e_camp2",
+    "type": "kill"
+   },
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "choice": [
+    {
+     "id": "free",
+     "rew": {
+      "karma": 6,
+      "xp": 40
+     }
+    },
+    {
+     "id": "sell",
+     "rew": {
+      "coins": 80,
+      "karma": -10,
+      "xp": 20
+     }
+    }
+   ],
+   "giver": "n_pris3",
+   "id": "pris3",
+   "obj": {
+    "spot": "e_camp3",
+    "type": "kill"
+   },
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "giver": "n_elder",
+   "id": "elder1",
+   "obj": {
+    "spot": "e_train",
+    "type": "kill"
+   },
+   "rew": {
+    "coins": 80,
+    "karma": 5,
+    "xp": 50
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_elder",
+   "id": "elder2",
+   "obj": {
+    "item": "wood",
+    "n": 6,
+    "type": "have"
+   },
+   "req": {
+    "done": "elder1"
+   },
+   "rew": {
+    "coins": 40,
+    "ess": 1,
+    "karma": 4,
+    "xp": 40
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_elder",
+   "id": "elder3",
+   "obj": {
+    "spot": "e_boss",
+    "type": "kill"
+   },
+   "req": {
+    "done": "elder2",
+    "karma": 10,
+    "level": 3
+   },
+   "rew": {
+    "coins": 300,
+    "ess": 2,
+    "karma": 10,
+    "xp": 150
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_elder",
+   "id": "elder4",
+   "obj": {
+    "item": "herb",
+    "n": 3,
+    "type": "have"
+   },
+   "req": {
+    "done": "elder1"
+   },
+   "rew": {
+    "coins": 30,
+    "karma": 4,
+    "xp": 40
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_elder",
+   "id": "elder5",
+   "obj": {
+    "item": "wood",
+    "n": 10,
+    "type": "have"
+   },
+   "req": {
+    "done": "elder4"
+   },
+   "rew": {
+    "coins": 60,
+    "karma": 4,
+    "xp": 60
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_elder",
+   "id": "elder6",
+   "obj": {
+    "item": "iron",
+    "n": 5,
+    "type": "have"
+   },
+   "req": {
+    "done": "elder5"
+   },
+   "rew": {
+    "coins": 80,
+    "ess": 1,
+    "karma": 4,
+    "xp": 70
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_hermit",
+   "id": "hermit1",
+   "obj": {
+    "shrine": "mountain",
+    "type": "shrine"
+   },
+   "rew": {
+    "ess": 1,
+    "karma": 3,
+    "xp": 70
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_sage",
+   "id": "sage1",
+   "obj": {
+    "shrine": "windspire",
+    "type": "shrine"
+   },
+   "rew": {
+    "ess": 1,
+    "karma": 3,
+    "xp": 90
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_watch",
+   "id": "watch1",
+   "obj": {
+    "spot": "n_quest",
+    "type": "kill"
+   },
+   "rew": {
+    "coins": 60,
+    "karma": 4,
+    "xp": 80
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "choice": [
+    {
+     "id": "free",
+     "rew": {
+      "karma": 6,
+      "xp": 40
+     }
+    },
+    {
+     "id": "sell",
+     "rew": {
+      "coins": 80,
+      "karma": -8,
+      "xp": 20
+     }
+    }
+   ],
+   "giver": "n_fisher",
+   "id": "fisher1",
+   "obj": {
+    "item": "herb",
+    "n": 2,
+    "type": "have"
+   },
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "giver": "n_trapper",
+   "id": "frost1",
+   "obj": {
+    "spot": "e_frostq",
+    "type": "kill"
+   },
+   "rew": {
+    "coins": 120,
+    "karma": 5,
+    "xp": 90
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_trapper",
+   "id": "frost2",
+   "obj": {
+    "shrine": "way1",
+    "type": "shrine"
+   },
+   "req": {
+    "done": "frost1"
+   },
+   "rew": {
+    "ess": 1,
+    "karma": 3,
+    "xp": 100
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_pilgrim",
+   "id": "ember1",
+   "obj": {
+    "spot": "e_emberq",
+    "type": "kill"
+   },
+   "rew": {
+    "coins": 150,
+    "karma": 5,
+    "xp": 110
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_pilgrim",
+   "id": "ember2",
+   "obj": {
+    "item": "iron",
+    "n": 6,
+    "type": "have"
+   },
+   "req": {
+    "done": "ember1"
+   },
+   "rew": {
+    "coins": 100,
+    "ess": 1,
+    "karma": 4,
+    "xp": 100
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_nomad",
+   "id": "dunes1",
+   "obj": {
+    "spot": "e_dunesq",
+    "type": "kill"
+   },
+   "rew": {
+    "coins": 140,
+    "karma": 5,
+    "xp": 100
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "choice": [
+    {
+     "id": "free",
+     "rew": {
+      "karma": 6,
+      "xp": 60
+     }
+    },
+    {
+     "id": "sell",
+     "rew": {
+      "coins": 90,
+      "karma": -8,
+      "xp": 30
+     }
+    }
+   ],
+   "giver": "n_nomad",
+   "id": "dunes2",
+   "obj": {
+    "item": "herb",
+    "n": 3,
+    "type": "have"
+   },
+   "req": {
+    "done": "dunes1"
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_sailor",
+   "id": "coast1",
+   "obj": {
+    "spot": "e_coastq",
+    "type": "kill"
+   },
+   "rew": {
+    "coins": 130,
+    "karma": 5,
+    "xp": 100
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_sailor",
+   "id": "coast2",
+   "obj": {
+    "item": "wood",
+    "n": 8,
+    "type": "have"
+   },
+   "req": {
+    "done": "coast1"
+   },
+   "rew": {
+    "coins": 90,
+    "ess": 1,
+    "karma": 4,
+    "xp": 90
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_climber",
+   "id": "karst1",
+   "obj": {
+    "shrine": "cloudspire",
+    "type": "shrine"
+   },
+   "rew": {
+    "karma": 3,
+    "xp": 110
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_climber",
+   "id": "karst2",
+   "obj": {
+    "spot": "e_spire5",
+    "type": "kill"
+   },
+   "req": {
+    "done": "karst1"
+   },
+   "rew": {
+    "coins": 160,
+    "ess": 1,
+    "karma": 4,
+    "xp": 120
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_gardener",
+   "id": "sakura1",
+   "obj": {
+    "spot": "e_sakuraq",
+    "type": "kill"
+   },
+   "rew": {
+    "coins": 170,
+    "karma": 5,
+    "xp": 130
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_gardener",
+   "id": "sakura2",
+   "obj": {
+    "item": "wood",
+    "n": 5,
+    "type": "have"
+   },
+   "req": {
+    "done": "sakura1"
+   },
+   "rew": {
+    "coins": 80,
+    "ess": 1,
+    "karma": 4,
+    "xp": 100
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_veteran",
+   "id": "fort1",
+   "obj": {
+    "spot": "e_fortq",
+    "type": "kill"
+   },
+   "rew": {
+    "coins": 190,
+    "karma": 5,
+    "xp": 140
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "giver": "n_veteran",
+   "id": "fort2",
+   "obj": {
+    "item": "iron",
+    "n": 6,
+    "type": "have"
+   },
+   "req": {
+    "done": "fort1"
+   },
+   "rew": {
+    "coins": 100,
+    "ess": 1,
+    "karma": 4,
+    "xp": 110
+   },
+   "ed": "lite",
+   "tier": 3
+  }
+ ]
+}

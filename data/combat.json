@@ -1,0 +1,864 @@
+{
+ "player": {
+  "atk": 1,
+  "def": 0,
+  "hp": 100,
+  "ki": 100,
+  "kiRegen": 3
+ },
+ "moves": {
+  "cleave": {
+   "anim": "heavy",
+   "dmg": 42,
+   "guardBreak": true,
+   "ki": 45,
+   "rec": 0.7,
+   "wind": 0.8
+  },
+  "counter": {
+   "dmg": 26,
+   "rec": 0.3,
+   "wind": 0.15
+  },
+  "cross": {
+   "anim": "heavy",
+   "dmg": 55,
+   "gap": 0.2,
+   "glow": "#ffe27a",
+   "guardBreak": true,
+   "hits": 2,
+   "ki": 60,
+   "rec": 0.8,
+   "wind": 0.7
+  },
+  "dblstrike": {
+   "anim": "normal",
+   "dmg": 7,
+   "gap": 0.22,
+   "hits": 2,
+   "ki": 25,
+   "rec": 0.45,
+   "wind": 0.28
+  },
+  "flurry": {
+   "anim": "quick",
+   "dmg": 5,
+   "gap": 0.16,
+   "glow": "#9a7bd8",
+   "hits": 3,
+   "ignoreGuard": true,
+   "ki": 40,
+   "rec": 0.6,
+   "wind": 0.3
+  },
+  "heavy": {
+   "dmg": 22,
+   "guardBreak": true,
+   "rec": 0.55,
+   "wind": 0.65
+  },
+  "ironwill": {
+   "anim": "special",
+   "dmg": 28,
+   "glow": "#9fc8e8",
+   "guardBreak": true,
+   "ki": 45,
+   "rec": 0.65,
+   "wind": 0.45
+  },
+  "kiwave": {
+   "anim": "special",
+   "dmg": 30,
+   "glow": "#7fd0ff",
+   "ignoreGuard": true,
+   "ki": 35,
+   "rec": 0.55,
+   "wind": 0.5
+  },
+  "mend": {
+   "anim": "special",
+   "dmg": 0,
+   "glow": "#7fe08a",
+   "heal": 0.2,
+   "ki": 40,
+   "rec": 0.6,
+   "wind": 0.4
+  },
+  "mountain": {
+   "anim": "special",
+   "dmg": 18,
+   "glow": "#9fd0a0",
+   "inv": 0.4,
+   "ki": 35,
+   "rec": 0.6,
+   "wind": 0.35
+  },
+  "normal": {
+   "dmg": 10,
+   "rec": 0.34,
+   "wind": 0.32
+  },
+  "oniwrath": {
+   "anim": "heavy",
+   "dmg": 78,
+   "gap": 0.24,
+   "glow": "#e36a55",
+   "guardBreak": true,
+   "hits": 2,
+   "ki": 75,
+   "rec": 0.95,
+   "wind": 0.85
+  },
+  "quick": {
+   "dmg": 6,
+   "rec": 0.24,
+   "wind": 0.18
+  },
+  "shadowstep": {
+   "anim": "quick",
+   "dmg": 16,
+   "glow": "#9a7bd8",
+   "inv": 0.5,
+   "ki": 25,
+   "rec": 0.35,
+   "wind": 0.15
+  },
+  "special": {
+   "dmg": 34,
+   "ki": 40,
+   "rec": 0.5,
+   "wind": 0.45
+  },
+  "stillwater": {
+   "anim": "special",
+   "dmg": 22,
+   "glow": "#70c9df",
+   "inv": 0.35,
+   "ki": 40,
+   "rec": 0.55,
+   "wind": 0.35
+  },
+  "windcut": {
+   "anim": "quick",
+   "dmg": 24,
+   "glow": "#bfe9ff",
+   "ignoreGuard": true,
+   "ki": 30,
+   "rec": 0.45,
+   "wind": 0.2
+  }
+ },
+ "attacks": {
+  "crush": {
+   "block": 0.7,
+   "dmg": 20,
+   "kind": "slash",
+   "rec": 1.1,
+   "wind": 1.25
+  },
+  "flurry": {
+   "dmg": 5,
+   "gap": 0.32,
+   "hits": 3,
+   "kind": "slash",
+   "rec": 0.9,
+   "wind": 0.6
+  },
+  "heavy": {
+   "block": 0.45,
+   "dmg": 16,
+   "kind": "slash",
+   "rec": 0.95,
+   "wind": 1.1
+  },
+  "rage": {
+   "dmg": 24,
+   "kind": "slash",
+   "rec": 1.2,
+   "unblock": true,
+   "wind": 1.4
+  },
+  "slash": {
+   "dmg": 8,
+   "kind": "slash",
+   "rec": 0.65,
+   "wind": 0.75
+  },
+  "storm": {
+   "dmg": 5,
+   "gap": 0.26,
+   "hits": 5,
+   "kind": "slash",
+   "rec": 1.1,
+   "wind": 0.7
+  },
+  "sweep": {
+   "dmg": 10,
+   "gap": 0.45,
+   "hits": 2,
+   "kind": "slash",
+   "rec": 0.8,
+   "wind": 0.85
+  },
+  "thrust": {
+   "dmg": 9,
+   "kind": "thrust",
+   "rec": 0.6,
+   "wind": 0.55
+  }
+ },
+ "enemies": {
+  "armored": {
+   "armor": 0.3,
+   "atk": [
+    "heavy",
+    "slash",
+    "heavy"
+   ],
+   "dmg": 1.3,
+   "gap": [
+    1.3,
+    2
+   ],
+   "guard": 0.35,
+   "hp": 130,
+   "look": {
+    "cloth": "#5a5a62",
+    "helm": "#3a3a42",
+    "legs": "#2c2c34",
+    "plate": "#6a6a74",
+    "trim": "#9a9aa2"
+   },
+   "speed": 0.8,
+   "weapon": "sword"
+  },
+  "bandit": {
+   "atk": [
+    "slash",
+    "slash",
+    "heavy"
+   ],
+   "dmg": 1,
+   "gap": [
+    1.4,
+    2.2
+   ],
+   "guard": 0.05,
+   "hp": 40,
+   "look": {
+    "cloth": "#6b4a2f",
+    "hair": "#1a1410",
+    "legs": "#33302b",
+    "mask": "#4a4a52",
+    "trim": "#3b2a1a"
+   },
+   "speed": 1,
+   "weapon": "sword"
+  },
+  "boss": {
+   "dmg": 1.3,
+   "hp": 260,
+   "look": {
+    "cape": "#3a0e0e",
+    "cloth": "#5b1a1a",
+    "helm": "#2a1010",
+    "legs": "#1c1010",
+    "plate": "#7a2020",
+    "trim": "#d1a84a"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "slash",
+      "slash",
+      "heavy"
+     ],
+     "gap": [
+      1.2,
+      1.8
+     ],
+     "guard": 0.15,
+     "speed": 1
+    },
+    {
+     "at": 0.66,
+     "atk": [
+      "slash",
+      "flurry",
+      "heavy",
+      "thrust"
+     ],
+     "gap": [
+      0.9,
+      1.4
+     ],
+     "guard": 0.2,
+     "speed": 1.2
+    },
+    {
+     "at": 0.33,
+     "atk": [
+      "flurry",
+      "flurry",
+      "heavy",
+      "thrust",
+      "rage"
+     ],
+     "gap": [
+      0.6,
+      1
+     ],
+     "guard": 0.1,
+     "speed": 1.4
+    }
+   ],
+   "weapon": "sword"
+  },
+  "boss_monk": {
+   "arena": "summit",
+   "dmg": 1.25,
+   "hp": 340,
+   "look": {
+    "cloth": "#c28a2e",
+    "hair": "#15110e",
+    "legs": "#5c3a1c",
+    "trim": "#6b2d1d"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "thrust",
+      "thrust",
+      "slash"
+     ],
+     "gap": [
+      1,
+      1.6
+     ],
+     "guard": 0.2,
+     "speed": 1.1
+    },
+    {
+     "at": 0.65,
+     "atk": [
+      "thrust",
+      "flurry",
+      "sweep",
+      "heavy"
+     ],
+     "gap": [
+      0.8,
+      1.3
+     ],
+     "guard": 0.3,
+     "speed": 1.25
+    },
+    {
+     "at": 0.35,
+     "atk": [
+      "flurry",
+      "storm",
+      "thrust",
+      "crush"
+     ],
+     "gap": [
+      0.55,
+      1
+     ],
+     "guard": 0.2,
+     "speed": 1.45
+    }
+   ],
+   "weapon": "spear"
+  },
+  "boss_oni": {
+   "arena": "oni",
+   "dmg": 1.5,
+   "hp": 420,
+   "look": {
+    "cape": "#1a0f22",
+    "cloth": "#2a1636",
+    "helm": "#1a0f22",
+    "legs": "#140b1a",
+    "mask": "#9a2b2b",
+    "plate": "#3b1f4a",
+    "trim": "#c43a3a"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "heavy",
+      "slash",
+      "sweep"
+     ],
+     "gap": [
+      1,
+      1.5
+     ],
+     "guard": 0.25,
+     "speed": 1.1
+    },
+    {
+     "at": 0.66,
+     "atk": [
+      "sweep",
+      "flurry",
+      "heavy",
+      "thrust"
+     ],
+     "gap": [
+      0.8,
+      1.2
+     ],
+     "guard": 0.3,
+     "speed": 1.3
+    },
+    {
+     "at": 0.4,
+     "atk": [
+      "storm",
+      "flurry",
+      "crush",
+      "rage"
+     ],
+     "gap": [
+      0.6,
+      1
+     ],
+     "guard": 0.2,
+     "speed": 1.45
+    },
+    {
+     "at": 0.2,
+     "atk": [
+      "storm",
+      "storm",
+      "rage",
+      "crush"
+     ],
+     "gap": [
+      0.45,
+      0.8
+     ],
+     "guard": 0.1,
+     "speed": 1.6
+    }
+   ],
+   "weapon": "sword"
+  },
+  "boss_warden": {
+   "arena": "warden",
+   "dmg": 1.35,
+   "hp": 300,
+   "look": {
+    "cape": "#26323f",
+    "cloth": "#3b4a5a",
+    "helm": "#20262e",
+    "legs": "#1a2028",
+    "plate": "#4d5f70",
+    "trim": "#9fd0c8"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "slash",
+      "thrust",
+      "heavy"
+     ],
+     "gap": [
+      1.1,
+      1.7
+     ],
+     "guard": 0.2,
+     "speed": 1.05
+    },
+    {
+     "at": 0.6,
+     "atk": [
+      "sweep",
+      "flurry",
+      "thrust",
+      "heavy"
+     ],
+     "gap": [
+      0.9,
+      1.4
+     ],
+     "guard": 0.25,
+     "speed": 1.2
+    },
+    {
+     "at": 0.3,
+     "atk": [
+      "sweep",
+      "flurry",
+      "flurry",
+      "rage",
+      "thrust"
+     ],
+     "gap": [
+      0.6,
+      1
+     ],
+     "guard": 0.15,
+     "speed": 1.4
+    }
+   ],
+   "weapon": "sword"
+  },
+  "elite": {
+   "atk": [
+    "slash",
+    "flurry",
+    "heavy",
+    "thrust"
+   ],
+   "dmg": 1.4,
+   "gap": [
+    0.8,
+    1.3
+   ],
+   "guard": 0.3,
+   "hp": 150,
+   "look": {
+    "cloth": "#2a2a32",
+    "helm": "#1c1c22",
+    "legs": "#1c1c22",
+    "plate": "#3a3a44",
+    "trim": "#c9a23a"
+   },
+   "speed": 1.2,
+   "weapon": "sword"
+  },
+  "ronin": {
+   "atk": [
+    "slash",
+    "thrust",
+    "slash",
+    "flurry"
+   ],
+   "dmg": 1,
+   "gap": [
+    1.1,
+    1.8
+   ],
+   "guard": 0.15,
+   "hp": 60,
+   "look": {
+    "cloth": "#56606e",
+    "hair": "#1a1a20",
+    "legs": "#2a2f3a",
+    "trim": "#2c3340"
+   },
+   "speed": 1,
+   "weapon": "sword"
+  },
+  "samurai": {
+   "atk": [
+    "slash",
+    "heavy",
+    "flurry",
+    "thrust"
+   ],
+   "dmg": 1.2,
+   "gap": [
+    1,
+    1.6
+   ],
+   "guard": 0.25,
+   "hp": 85,
+   "look": {
+    "cloth": "#8c2b27",
+    "helm": "#2a2a30",
+    "legs": "#2a2226",
+    "plate": "#6b1d1b",
+    "trim": "#d1a84a"
+   },
+   "speed": 1.05,
+   "weapon": "sword"
+  },
+  "shadow": {
+   "atk": [
+    "slash",
+    "flurry",
+    "thrust",
+    "slash"
+   ],
+   "dmg": 1.1,
+   "gap": [
+    0.8,
+    1.3
+   ],
+   "guard": 0.15,
+   "hp": 70,
+   "look": {
+    "cloth": "#1a1a22",
+    "hair": "#101018",
+    "legs": "#14141a",
+    "mask": "#b3262b",
+    "trim": "#b3262b"
+   },
+   "speed": 1.3,
+   "weapon": "sword"
+  },
+  "spearman": {
+   "atk": [
+    "thrust",
+    "thrust",
+    "heavy"
+   ],
+   "dmg": 1,
+   "gap": [
+    1,
+    1.7
+   ],
+   "guard": 0.1,
+   "hp": 60,
+   "look": {
+    "cloth": "#4d6b4a",
+    "hair": "#1a1a14",
+    "legs": "#2b3328",
+    "trim": "#2a3a28"
+   },
+   "speed": 1.1,
+   "weapon": "spear"
+  },
+  "swift": {
+   "atk": [
+    "slash",
+    "flurry",
+    "flurry",
+    "thrust"
+   ],
+   "dmg": 1,
+   "gap": [
+    0.7,
+    1.2
+   ],
+   "guard": 0.1,
+   "hp": 50,
+   "look": {
+    "cloth": "#2f3d66",
+    "hair": "#101018",
+    "legs": "#1d2440",
+    "mask": "#2f3d66",
+    "trim": "#8fa8d8"
+   },
+   "speed": 1.45,
+   "weapon": "sword"
+  }
+ },
+ "arenas": {
+  "bamboo": {
+   "deco": "bamboo",
+   "gnd": [
+    "#6a9a4a",
+    "#35602a"
+   ],
+   "sky": [
+    "#b8d8b0",
+    "#e4efc8"
+   ]
+  },
+  "camp": {
+   "deco": "camp",
+   "gnd": [
+    "#8a6a46",
+    "#4f3a24"
+   ],
+   "sky": [
+    "#c7886a",
+    "#e9c79a"
+   ]
+  },
+  "cavern": {
+   "deco": "cavern",
+   "gnd": [
+    "#4a4450",
+    "#221e28"
+   ],
+   "sky": [
+    "#1f1a28",
+    "#3a3346"
+   ]
+  },
+  "clearing": {
+   "deco": "trees",
+   "gnd": [
+    "#5f8f45",
+    "#34592b"
+   ],
+   "sky": [
+    "#9cc4d6",
+    "#dbe8c9"
+   ]
+  },
+  "dunes": {
+   "deco": "plateau",
+   "gnd": [
+    "#d9b877",
+    "#a68450"
+   ],
+   "sky": [
+    "#e8c78a",
+    "#f6e6bf"
+   ]
+  },
+  "ember": {
+   "deco": "cavern",
+   "gnd": [
+    "#4a3a36",
+    "#1e1614"
+   ],
+   "sky": [
+    "#4a1a14",
+    "#c0582e"
+   ]
+  },
+  "oni": {
+   "deco": "cavern",
+   "gnd": [
+    "#3a3340",
+    "#1a161e"
+   ],
+   "sky": [
+    "#1b1424",
+    "#352a42"
+   ]
+  },
+  "plateau": {
+   "deco": "plateau",
+   "gnd": [
+    "#8a8780",
+    "#55524d"
+   ],
+   "sky": [
+    "#8fb0cc",
+    "#d8e2ea"
+   ]
+  },
+  "ruins": {
+   "deco": "ruins",
+   "gnd": [
+    "#7d7a72",
+    "#45433e"
+   ],
+   "sky": [
+    "#7e8ca3",
+    "#bfc4c8"
+   ]
+  },
+  "summit": {
+   "deco": "plateau",
+   "gnd": [
+    "#9aa3ab",
+    "#5f666d"
+   ],
+   "sky": [
+    "#7fa6d6",
+    "#e6eef6"
+   ]
+  },
+  "temple": {
+   "deco": "temple",
+   "gnd": [
+    "#a9a49a",
+    "#6b675f"
+   ],
+   "sky": [
+    "#e8b98a",
+    "#f3e2bd"
+   ]
+  },
+  "warden": {
+   "deco": "ruins",
+   "gnd": [
+    "#6f6c66",
+    "#3b3a36"
+   ],
+   "sky": [
+    "#5d6a85",
+    "#a9b0c2"
+   ]
+  }
+ },
+ "dodgeKi": 25,
+ "regionArena": [
+  "clearing",
+  "bamboo",
+  "temple",
+  "clearing",
+  "clearing",
+  "plateau",
+  "ruins",
+  "camp",
+  "cavern",
+  "bamboo",
+  "temple",
+  "clearing",
+  "summit",
+  "ember",
+  "dunes",
+  "clearing",
+  "plateau",
+  "clearing",
+  "ruins"
+ ],
+ "rewards": {
+  "armored": {
+   "xp": 40
+  },
+  "bandit": {
+   "karma": 2,
+   "xp": 12
+  },
+  "boss": {
+   "ess": 2,
+   "karma": 8,
+   "secret": "cross",
+   "xp": 200
+  },
+  "boss_monk": {
+   "ess": 3,
+   "karma": 5,
+   "secret": "stillwater",
+   "xp": 320
+  },
+  "boss_oni": {
+   "ess": 4,
+   "karma": 6,
+   "secret": "oniwrath",
+   "xp": 420
+  },
+  "boss_warden": {
+   "ess": 3,
+   "karma": 5,
+   "secret": "ironwill",
+   "xp": 260
+  },
+  "elite": {
+   "ess": 2,
+   "karma": 3,
+   "xp": 70
+  },
+  "ronin": {
+   "xp": 20
+  },
+  "samurai": {
+   "xp": 35
+  },
+  "shadow": {
+   "xp": 30
+  },
+  "spearman": {
+   "xp": 25
+  },
+  "swift": {
+   "xp": 28
+  }
+ }
+}

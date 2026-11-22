@@ -1,1 +1,10 @@
-h
+{
+ "files": [
+  "combat.json",
+  "world.json",
+  "items.json",
+  "shops.json",
+  "quests.json",
+  "skills.json"
+ ]
+}

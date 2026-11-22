@@ -1,0 +1,413 @@
+{
+ "branches": [
+  "sm",
+  "sw",
+  "df",
+  "km"
+ ],
+ "skills": [
+  {
+   "br": "sm",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "dmg": 0.1
+   },
+   "id": "sm1",
+   "lvl": 1,
+   "req": [],
+   "tier": 1,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "br": "sm",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "rec": 0.1
+   },
+   "id": "sm2",
+   "lvl": 4,
+   "req": [
+    "sm1"
+   ],
+   "tier": 2,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "br": "sm",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "crit": 5
+   },
+   "id": "sm3",
+   "lvl": 4,
+   "req": [
+    "sm1"
+   ],
+   "tier": 2,
+   "type": "passive",
+   "yang": 25,
+   "ed": "lite"
+  },
+  {
+   "br": "sm",
+   "cost": {
+    "ess": 2,
+    "sp": 2
+   },
+   "id": "sm4",
+   "lvl": 8,
+   "move": "dblstrike",
+   "req": [
+    "sm2"
+   ],
+   "tier": 3,
+   "type": "active",
+   "yang": 30,
+   "ed": "lite"
+  },
+  {
+   "br": "sm",
+   "cost": {
+    "ess": 3,
+    "sp": 2
+   },
+   "id": "sm5",
+   "karma": 10,
+   "lvl": 12,
+   "move": "cleave",
+   "req": [
+    "sm3",
+    "sm4"
+   ],
+   "tier": 4,
+   "type": "active",
+   "yang": 40,
+   "ed": "lite"
+  },
+  {
+   "br": "sw",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "dodgeCd": 0.2
+   },
+   "id": "sw1",
+   "lvl": 1,
+   "req": [],
+   "tier": 1,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "br": "sw",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "ambush": 0.3
+   },
+   "id": "sw2",
+   "lvl": 4,
+   "req": [
+    "sw1"
+   ],
+   "tier": 2,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "br": "sw",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "breath": 0.3
+   },
+   "id": "sw4",
+   "lvl": 4,
+   "req": [
+    "sw1"
+   ],
+   "tier": 2,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "br": "sw",
+   "cost": {
+    "ess": 2,
+    "sp": 2
+   },
+   "id": "sw3",
+   "lvl": 8,
+   "move": "shadowstep",
+   "req": [
+    "sw1"
+   ],
+   "tier": 3,
+   "type": "active",
+   "yin": 30,
+   "ed": "lite"
+  },
+  {
+   "br": "sw",
+   "cost": {
+    "ess": 3,
+    "sp": 2
+   },
+   "id": "sw5",
+   "lvl": 12,
+   "move": "flurry",
+   "req": [
+    "sw2",
+    "sw3"
+   ],
+   "tier": 4,
+   "type": "active",
+   "yin": 40,
+   "ed": "lite"
+  },
+  {
+   "br": "df",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "hpFlat": 15
+   },
+   "id": "df1",
+   "lvl": 1,
+   "req": [],
+   "tier": 1,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "br": "df",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "blockMul": 0.1
+   },
+   "id": "df2",
+   "lvl": 4,
+   "req": [
+    "df1"
+   ],
+   "tier": 2,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "br": "df",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "parry": 0.1
+   },
+   "id": "df3",
+   "lvl": 4,
+   "req": [
+    "df1"
+   ],
+   "tier": 2,
+   "type": "passive",
+   "yin": 25,
+   "ed": "lite"
+  },
+  {
+   "br": "df",
+   "cost": {
+    "ess": 2,
+    "sp": 2
+   },
+   "fx": {
+    "counter": 0.4
+   },
+   "id": "df4",
+   "lvl": 8,
+   "req": [
+    "df3"
+   ],
+   "tier": 3,
+   "type": "passive",
+   "yin": 30,
+   "ed": "lite"
+  },
+  {
+   "br": "df",
+   "cost": {
+    "ess": 2,
+    "sp": 2
+   },
+   "id": "df5",
+   "karma": 10,
+   "lvl": 8,
+   "move": "mend",
+   "req": [
+    "df2"
+   ],
+   "tier": 3,
+   "type": "active",
+   "yin": 30,
+   "ed": "lite"
+  },
+  {
+   "br": "km",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "kiFlat": 20
+   },
+   "id": "km1",
+   "lvl": 1,
+   "req": [],
+   "tier": 1,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "br": "km",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "kiRegen": 0.5
+   },
+   "id": "km2",
+   "lvl": 4,
+   "req": [
+    "km1"
+   ],
+   "tier": 2,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "br": "km",
+   "cost": {
+    "ess": 1,
+    "sp": 1
+   },
+   "fx": {
+    "kiCost": 0.2
+   },
+   "id": "km3",
+   "lvl": 4,
+   "req": [
+    "km1"
+   ],
+   "tier": 2,
+   "type": "passive",
+   "ed": "lite"
+  },
+  {
+   "balance": 30,
+   "br": "km",
+   "cost": {
+    "ess": 2,
+    "sp": 2
+   },
+   "id": "km4",
+   "lvl": 8,
+   "move": "kiwave",
+   "req": [
+    "km2"
+   ],
+   "tier": 3,
+   "type": "active",
+   "ed": "lite"
+  },
+  {
+   "balance": 40,
+   "br": "km",
+   "cost": {
+    "ess": 3,
+    "sp": 2
+   },
+   "fx": {
+    "breath": 1
+   },
+   "id": "km5",
+   "karma": 20,
+   "lvl": 12,
+   "req": [
+    "km2",
+    "km3"
+   ],
+   "tier": 4,
+   "type": "passive",
+   "ed": "lite"
+  }
+ ],
+ "secrets": [
+  {
+   "id": "cross",
+   "karma": 60,
+   "lvl": 20,
+   "move": "cross",
+   "yang": 60
+  },
+  {
+   "id": "ironwill",
+   "karma": 30,
+   "lvl": 18,
+   "move": "ironwill",
+   "yin": 60
+  },
+  {
+   "balance": 60,
+   "id": "stillwater",
+   "karma": 50,
+   "lvl": 22,
+   "move": "stillwater"
+  },
+  {
+   "id": "oniwrath",
+   "karma": 70,
+   "lvl": 25,
+   "move": "oniwrath",
+   "yang": 70
+  }
+ ],
+ "scrolls": [
+  {
+   "id": "sc_wind",
+   "lvl": 6,
+   "move": "windcut",
+   "yang": 25,
+   "yin": 0
+  },
+  {
+   "id": "sc_mount",
+   "lvl": 8,
+   "move": "mountain",
+   "yang": 0,
+   "yin": 25
+  }
+ ],
+ "resetCost": 2
+}

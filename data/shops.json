@@ -1,0 +1,123 @@
+{
+ "stock": {
+  "armor": [
+   "hat_straw",
+   "mask_cloth",
+   "kimono",
+   "gloves_cloth",
+   "tabi",
+   "helm_iron",
+   "armor_light",
+   "kote_leather",
+   "boots_leather"
+  ],
+  "general": [
+   "wood",
+   "iron",
+   "stone"
+  ],
+  "herb": [
+   "herb"
+  ],
+  "weapon": [
+   "tanto",
+   "spear",
+   "wakizashi",
+   "katana_steel",
+   "nodachi",
+   "shuriken",
+   "shuriken_steel"
+  ]
+ },
+ "stockK": {
+  "armor": [
+   {
+    "id": "kote_iron",
+    "k": 30
+   },
+   {
+    "id": "boots_iron",
+    "k": 30
+   },
+   {
+    "id": "helm_kabuto",
+    "k": 70
+   }
+  ],
+  "weapon": [
+   {
+    "id": "katana_temper",
+    "k": 30
+   }
+  ]
+ },
+ "recipes": [
+  {
+   "coins": 220,
+   "id": "naginata",
+   "res": {
+    "iron": 5,
+    "wood": 4
+   }
+  },
+  {
+   "coins": 350,
+   "id": "katana_temper",
+   "res": {
+    "iron": 8,
+    "wood": 2
+   }
+  },
+  {
+   "coins": 200,
+   "id": "helm_kabuto",
+   "res": {
+    "iron": 5
+   }
+  },
+  {
+   "coins": 450,
+   "id": "armor_heavy",
+   "res": {
+    "iron": 12,
+    "wood": 3
+   }
+  },
+  {
+   "coins": 150,
+   "id": "kote_iron",
+   "res": {
+    "iron": 4
+   }
+  },
+  {
+   "coins": 150,
+   "id": "boots_iron",
+   "res": {
+    "iron": 4
+   }
+  },
+  {
+   "coins": 260,
+   "id": "bow_hankyu",
+   "res": {
+    "iron": 2,
+    "wood": 6
+   }
+  },
+  {
+   "coins": 220,
+   "id": "mask_kitsune",
+   "res": {
+    "herb": 2,
+    "iron": 3
+   }
+  }
+ ],
+ "upMax": 3,
+ "upFx": {
+  "atk": 0.05,
+  "def": 0.25,
+  "rdmg": 1
+ }
+}
