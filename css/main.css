@@ -37,8 +37,8 @@ body.wcombat #act-btn { display: none !important; }
 body.combat #compass { display: none; }
 
 /* ---- Charakter-Menüs (Phase 3) ---- */
-#cb-s0 { left: calc(124px + env(safe-area-inset-left, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
-#cb-s1 { left: calc(132px + env(safe-area-inset-left, 0px)); bottom: calc(100px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
+#cb-s0 { left: 58%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
+#cb-s1 { left: calc(58% + 72px); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
 .pn { margin: auto; width: 100%; max-width: 720px; font-size: 15px; }
 .pn h3 { margin: 10px 0 6px; font: 700 17px Georgia, serif; letter-spacing: .04em; }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0; }
