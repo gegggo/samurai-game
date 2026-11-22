@@ -193,6 +193,10 @@ SW.World = (function () {
     add('tower', K[0] - 46, K[1] - 124, 2, 2); add('hut', K[0] - 34, K[1] - 122, 4, 4); // Wolkenturm (Berg 4)
     add('tower', K[0] - 41, K[1] + 105, 2, 2); add('tower', K[0] + 149, K[1] - 3, 2, 2); // Berg 5 (Süd), Berg 6 (fern im Osten)
     if (CEN[17]) { const [ax, ay] = CEN[17]; add('shrine', ax + 5, ay - 12, 10, 6); add('hut', ax - 26, ay + 10, 4, 4); add('hut', ax + 30, ay + 14, 4, 4); } // Sakura Grove: Schrein, Gärtnerhütte, Rasthütte
+    { // 0.17.0 Phase 16: Sakura-Stadt (Edo-Stil), Hauptstraße West-Ost, 2 Hausreihen + Kaufmannshalle. Nur 'house'/'hall' (village.js zählt 'hut' per Index, Häuser 8-12 = Bergdorf).
+      for (let i = 0; i < 6; i++) { add('house', 4100 + 14 * i, 1478, 6, 5); add('house', 4107 + 14 * i, 1504, 6, 5); }
+      add('hall', 4192, 1476, 12, 7);
+    }
     if (CEN[18]) { // 0.16.0 Phase 14: Verlassene Festung (Region 18): Ruinenmauer mit Südtor und Lücken, 4 Türme, Bergfried (begehbar). Kein 'hut'/'house' hier (village.js zählt Hütten/Häuser per Index).
       const [fx, fy] = CEN[18];
       for (let dx = -24; dx <= 24; dx++) for (let dy = -17; dy <= 17; dy++) {
@@ -213,7 +217,7 @@ SW.World = (function () {
       { id: 'grove', x: CEN[9][0], y: CEN[9][1] }, { id: 'garden', x: CEN[10][0], y: CEN[10][1] }, { id: 'marsh', x: CEN[11][0], y: CEN[11][1] },
       { id: 'frost', x: CEN[12][0], y: CEN[12][1] }, { id: 'ember', x: CEN[13][0], y: CEN[13][1] }, { id: 'dunes', x: CEN[14][0], y: CEN[14][1] }, { id: 'coast', x: CEN[15][0], y: CEN[15][1] },
       { id: 'karst', x: K[0], y: K[1] }, { id: 'peakvillage', x: K[0] - 40, y: K[1] }, { id: 'temple', x: K[0] + 50, y: K[1] - 5 }, { id: 'windspire', x: K[0] - 150, y: K[1] }, { id: 'cloudspire', x: K[0] - 40, y: K[1] - 110 });
-    if (CEN[17]) POI.push({ id: 'sakura', x: CEN[17][0], y: CEN[17][1] });
+    if (CEN[17]) POI.push({ id: 'sakura', x: CEN[17][0], y: CEN[17][1] }, { id: 'sakuratown', x: 4170, y: 1491 });
     if (CEN[18]) POI.push({ id: 'fortress', x: CEN[18][0], y: CEN[18][1] });
   }
 
@@ -256,6 +260,7 @@ SW.World = (function () {
   // Keine Objekte (Bäume, Felsen) rund um Orte: [Mitte x, Mitte y, Halbbreite, Halbhöhe]
   const ZONES = [[CEN[2][0], CEN[2][1], 20, 20], [CEN[8][0], CEN[8][1], 52, 52], [CEN[0][0], CEN[0][1], 26, 20], [CEN[7][0], CEN[7][1], 24, 18], [CEN[6][0], CEN[6][1], 15, 12]];
   for (let r = 9; r <= 18; r++) if (CEN[r]) ZONES.push([CEN[r][0], CEN[r][1], 10, 10]);
+  if (CEN[17]) ZONES.push([4170, 1491, 80, 40]); // Sakura-Stadt: keine Bäume
   function objAt(x, y, t) {
     if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE && t !== T.SNOW && t !== T.ASH && t !== T.DUNE) return 0;
     const reg = regionAt(x, y);

@@ -211,7 +211,7 @@ SW.UI = (function () {
   }
 
   // Ortssymbole der Karte
-  const KIND = { village: 'v', peakvillage: 'v', fishers: 'v', hermit: 'v', huts: 'v', temple: 't', ruins: 't', cave: 't', shrine: 't', camp: 'c', fortress: 'c' };
+  const KIND = { village: 'v', peakvillage: 'v', fishers: 'v', hermit: 'v', huts: 'v', temple: 't', ruins: 't', cave: 't', shrine: 't', camp: 'c', fortress: 'c', sakuratown: 'v' };
   function poiIcon(c, k, x, y, r, got, d) {
     c.save(); c.globalAlpha = got ? 1 : .85; c.lineJoin = 'round'; c.lineWidth = 1.6 * d; c.strokeStyle = got ? '#fff' : 'rgba(15,20,30,.9)';
     c.beginPath();

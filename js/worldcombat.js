@@ -22,6 +22,8 @@ SW.WCombat = (function () {
   function say(t, col) { P.msg = t; P.msgCol = col || '#fff'; P.msgT = 1; }
   function flt(x, y, txt, col) { floats.push({ x, y, txt, col, t: 0 }); if (floats.length > 30) floats.shift(); }
   function foes() { return K.spots.filter(s => s.w && s.w.st !== 'dead'); }
+  X.lock = (function () { try { return localStorage.getItem('sw_lock') !== '0'; } catch (e) { return true; } })(); // 0.17.0 Ziel-Lock: an = Angriff/Schild zielt auf nächsten Gegner, aus = Laufrichtung
+  X.toggleLock = function () { X.lock = !X.lock; try { localStorage.setItem('sw_lock', X.lock ? '1' : '0'); } catch (e) { /* egal */ } const b = $('cb-lock'); if (b) b.classList.toggle('lk', X.lock); say(T(X.lock ? 'lock_on' : 'lock_off'), '#9cf'); };
   function nearest(maxd) {
     const p = SW.Player; let b = null, bd = maxd;
     foes().forEach(s => { if (s.w.st === 'return') return; const d = Math.hypot(s.x - p.x, s.y - p.y); if (d < bd) { bd = d; b = s; } });
@@ -40,7 +42,7 @@ SW.WCombat = (function () {
 
   // ---------- Spieleraktionen ----------
   function startMove(name) {
-    const m = D.moves[name], n = m.hits || 1, rec = Math.max(SWING + .04, m.rec * P.ps.recMul), t = nearest(3), p = SW.Player;
+    const m = D.moves[name], n = m.hits || 1, rec = Math.max(SWING + .04, m.rec * P.ps.recMul), t = X.lock ? nearest(8) : null, p = SW.Player;
     P.fa = t ? Math.atan2(t.y - p.y, t.x - p.x) : p.face; // Auto-Ausrichtung auf den nächsten Gegner
     if (Math.abs(Math.cos(P.fa)) > .1) p.dir = Math.cos(P.fa) > 0 ? 1 : -1;
     P.pm = { name, m, t: 0, hitN: 0, n, rec, end: m.wind + (n - 1) * (m.gap || 0) + SWING };
@@ -286,7 +288,7 @@ SW.WCombat = (function () {
     if (want && !P.block) { P.parryOk = P.noBlockT >= .35; P.blockT = 0; }
     if (want) { P.blockT += dt; P.noBlockT = 0; } else P.noBlockT += dt;
     P.block = want;
-    if (want) { const t = nearest(8), p0 = SW.Player; P.fa = t ? Math.atan2(t.y - p0.y, t.x - p0.x) : p0.face; } // Schild zeigt zum Gegner bzw. in Blickrichtung
+    if (want) { const t = X.lock ? nearest(8) : null, p0 = SW.Player; P.fa = t ? Math.atan2(t.y - p0.y, t.x - p0.x) : p0.face; } // Schild zeigt zum Gegner bzw. in Blickrichtung
     const moving = Math.hypot(SW.Input.vec.x, SW.Input.vec.y) > .15;
     const breath = !want && !P.pm && P.dodgeT <= 0 && P.hurt <= 0 && !moving;
     if (breath) P.st.breath += dt;

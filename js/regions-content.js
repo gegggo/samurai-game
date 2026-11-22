@@ -28,7 +28,10 @@ SW.Data = SW.Data || {};
     { id: 'n_sailor', role: 'sailor', q: true, x: 1968, y: 2616, robe: '#3a6a8a', hat: '#e8e0c8' },
     { id: 'n_climber', role: 'climber', q: true, x: 2822, y: 1935, robe: '#5a6a4a', hat: '#a89a6a' },
     { id: 'n_veteran', role: 'veteran', q: true, x: 4205, y: 2500, robe: '#7a6a5a', hat: '#2a2a30' },
-    { id: 'n_gardener', role: 'gardener', q: true, x: 4325, y: 1500, robe: '#c8789a', hat: '#f4d8e2' }
+    { id: 'n_gardener', role: 'gardener', q: true, x: 4325, y: 1500, robe: '#c8789a', hat: '#f4d8e2' },
+    { id: 'n_st_weapon', role: 'weapon', x: 4118, y: 1491, robe: '#7a2e2a', hat: '#2a2a30' }, { id: 'n_st_armor', role: 'armor', x: 4136, y: 1491, robe: '#3a4a6a', hat: '#5a5a62' },
+    { id: 'n_st_general', role: 'general', x: 4154, y: 1491, robe: '#7a6a3a', hat: '#4a3a22' }, { id: 'n_st_herb', role: 'herb', x: 4172, y: 1491, robe: '#3f6b4a', hat: '#2a4a30' },
+    { id: 'n_st_smith', role: 'smith', x: 4190, y: 1491, robe: '#5a4a44', hat: '#1c1c20' } // Sakura-Stadt (0.17.0)
   );
   const kill = (id, giver, spot, rew, req) => ({ id, giver, req, obj: { type: 'kill', spot }, rew });
   const have = (id, giver, item, n, rew, req) => ({ id, giver, req, obj: { type: 'have', item, n }, rew });
@@ -49,7 +52,7 @@ SW.Data = SW.Data || {};
     have('fort2', 'n_veteran', 'iron', 6, { coins: 100, xp: 110, ess: 1, karma: 4 }, { done: 'fort1' })
   );
   const E = {
-    reg_18: 'Abandoned Fortress', poi_fortress: 'Abandoned Fortress', shr_fortress: 'Fortress Shrine',
+    poi_sakuratown: 'Sakura Town', reg_18: 'Abandoned Fortress', poi_fortress: 'Abandoned Fortress', shr_fortress: 'Fortress Shrine',
     npc_veteran: 'Veteran', dl_veteran_neu: 'I held this wall once. Now a samurai squats in our courtyard.', dl_veteran_pos: 'Your steps are steady, wanderer. The wall remembers good soldiers.', dl_veteran_neg: 'I have seen your kind on the other side of the gate.',
     qn_fort1: 'Reclaim the Courtyard', qd_fort1: 'A samurai has claimed the fortress courtyard. Drive him out.', qo_fort1: 'Defeat the samurai in the Abandoned Fortress', qdone_fort1: 'The courtyard is ours again. Thank you.',
     qn_fort2: 'Mend the Gate', qd_fort2: 'The south gate needs iron fittings. Bring 6 iron.', qo_fort2: 'Bring iron to the veteran', qdone_fort2: 'The gate will hold again.',
@@ -74,7 +77,7 @@ SW.Data = SW.Data || {};
     qn_sakura2: 'Repair the Pavilion', qd_sakura2: 'The old pavilion leaks. Bring 5 wood.', qo_sakura2: 'Bring wood to the gardener', qdone_sakura2: 'Tea will be served under dry roofs again.'
   };
   const G = {
-    reg_18: 'Verlassene Festung', poi_fortress: 'Verlassene Festung', shr_fortress: 'Festungsschrein',
+    poi_sakuratown: 'Sakura-Stadt', reg_18: 'Verlassene Festung', poi_fortress: 'Verlassene Festung', shr_fortress: 'Festungsschrein',
     npc_veteran: 'Veteran', dl_veteran_neu: 'Ich habe diese Mauer einst gehalten. Jetzt hockt ein Samurai in unserem Hof.', dl_veteran_pos: 'Dein Schritt ist fest, Wanderer. Die Mauer erinnert sich an gute Krieger.', dl_veteran_neg: 'Deinesgleichen habe ich auf der anderen Seite des Tores gesehen.',
     qn_fort1: 'Den Hof zurückerobern', qd_fort1: 'Ein Samurai hat den Festungshof besetzt. Vertreibe ihn.', qo_fort1: 'Besiege den Samurai in der Verlassenen Festung', qdone_fort1: 'Der Hof gehört uns wieder. Danke.',
     qn_fort2: 'Das Tor flicken', qd_fort2: 'Das Südtor braucht Eisenbeschläge. Bring 6 Eisen.', qo_fort2: 'Bring Eisen zum Veteranen', qdone_fort2: 'Das Tor wird wieder halten.',
