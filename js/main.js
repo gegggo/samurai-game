@@ -90,9 +90,10 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   function fitH() {
     if (typeof window.orientation !== 'number') return;
     const vv = window.visualViewport, ih = Math.max(window.innerHeight, vv ? vv.height : 0, document.documentElement.clientHeight), sh = Math.min(screen.width, screen.height);
-    const gap = isLandscape() && ih < sh - 6 && ih > sh * .6;
+    const cv = document.getElementById('game'), chh = cv ? cv.clientHeight : sh; // 0.12.2: auch die echte Zeichenflächenhöhe prüfen (iOS meldet innerHeight manchmal richtig, Layout aber zu kurz)
+    const gap = isLandscape() && ((ih < sh - 6 && ih > sh * .6) || (!fitted && chh < sh - 6 && chh > sh * .6));
     gapTicks = gap ? gapTicks + 1 : 0;
-    const want = gapTicks >= 3 ? sh : 0;
+    const want = gapTicks >= 3 || (fitted && isLandscape()) ? sh : 0; // einmal gesetzt, bleibt die Höhe im Querformat (kein Hin und Her)
     if (want === fitted) return;
     fitted = want;
     FITIDS.forEach(id => { const e = document.getElementById(id); if (e) e.style.height = want ? want + 'px' : ''; });
