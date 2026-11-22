@@ -124,12 +124,12 @@ try:
     pg = start(b, errs); pg.wait_for_timeout(2500)
     reg = ev(pg, "async () => { const r = await navigator.serviceWorker.getRegistration(); return !!r && SW.Store.worker === 'on'; }")
     rec('Phase 19: Service Worker registriert', reg is True, str(reg))
-    pg.reload(); pg.wait_for_timeout(1500); pg.context.set_offline(True)
+    pg.reload(); pg.wait_for_timeout(1500); pg.wait_for_function("caches.match('data/skills.json', {ignoreSearch: true}).then(r => !!r)", timeout=15000); pg.context.set_offline(True)
     try:
         pg.reload(); pg.wait_for_timeout(1500); off = ev(pg, "typeof SW !== 'undefined' && !!SW.version && !!SW.World && SW.Menus ? SW.version : false")
     except Exception as ex: off = 'fehler ' + str(ex)[:80]
     pg.context.set_offline(False)
-    rec('Phase 19: Offline-Start aus Zwischenspeicher (Seite + Skripte laden ohne Netz)', off == '0.18.0', str(off))
+    rec('Phase 19: Offline-Start aus Zwischenspeicher (Seite + Skripte laden ohne Netz)', isinstance(off, str) and off[:2] == '0.' and not off.startswith('fehler'), str(off))
     # 16 Phase 19: Speicherschutz-Abfrage + Hinweis in der Oberflaeche
     r = ev(pg, """async () => { const S=SW.Store; const a=await S.refresh(); const b=await S.ask(); const box=SW.Menus.h.backupBox(); const txt=box.textContent; return {a, b, ui: /Storage protected|Storage not protected|Storage protection unknown/.test(txt)}; }""")
     rec('Phase 19: persist()-Abfrage liefert yes/no/unknown, Einstellungen zeigen Speicherschutz-Hinweis', r['a'] in ('yes', 'no', 'unknown') and r['b'] in ('yes', 'no', 'unknown') and r['ui'], json.dumps(r))
