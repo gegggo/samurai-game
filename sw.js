@@ -8,6 +8,7 @@ self.addEventListener('install', e => {
     try {
       const html = await (await fetch('index.html', { cache: 'no-cache' })).text(), urls = new Set(['./', 'index.html', 'manifest.webmanifest']);
       for (const m of html.matchAll(/(?:src|href)="([^"#]+)"|url\(([^)]+)\)/g)) { const u = (m[1] || m[2] || '').replace(/['"]/g, ''); if (u && !/^(https?:|data:|\/\/)/.test(u)) urls.add(u); }
+      try { const ix = await (await fetch('data/index.json', { cache: 'no-cache' })).json(); urls.add('data/index.json'); ix.files.forEach(f => urls.add('data/' + f)); } catch (e2) { /* Datenliste fehlt: Laufzeit-Zwischenspeicher */ }
       await Promise.allSettled([...urls].map(u => c.add(u)));
     } catch (err) { /* offline beim Installieren: Laufzeit-Zwischenspeicher füllt sich später */ }
     await self.skipWaiting();

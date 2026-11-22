@@ -1,8 +1,20 @@
-# PROJECT_STATUS (gekürzt, Stand 0.18.0, Cache v83)
+# PROJECT_STATUS (gekürzt, Stand 0.20.0, Cache v85)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## Phase 20 – Daten-Fundament (0.20.0, Cache v85) – Dateien gesendet, Gerätetest offen
+- **Freigabe:** Nutzer 22.11.2026. Phase-19-Ordner `Phase 19 Test` ins Repo gemerged (Ladebild `assets/loading.jpg` -> `assets/images/ui/loading.jpg`; `text.txt`, Export-JSON nicht übernommen).
+- **JSON-Daten:** `data/{combat,world,items,shops,quests,skills}.json` + `data/index.json` (Dateiliste). **Quelle der Wahrheit** für alle Spieldaten (spots, shrines, chests, npcs, quests, items, skills, enemies, moves …). Items tragen EN-Name/Beschreibung in `en`. `js/combat-data.js` **entfernt**; `items/shops/quests/shrines/skills-data.js`, `regions-content.js` enthalten nur noch Logik (price/upCost, itemMap) und EN-Texte.
+- **Lader:** `js/dataload.js` (synchrones XHR vor den Datenskripten, Fehlermeldung im Ladebild). `sw.js` sichert `data/*.json` vorab. Texte (EN/DE) bleiben JS (`SW.TEXT`), JSON-Texte später.
+- **Tags:** `ed: lite` (alle 733 Einträge: spots, shrines, chests, npcs, quests, items, skills) und `tier` 1-3 (spots, shrines, chests, npcs, quests; Region-Regel aus `combat.js` übernommen: Regionen 0,1,3 = 1 | 12+,5,8,16 = 3 | Rest = 2). Nur Tags, **ohne Spielwirkung**; `tierMul` = Phase 22. Verteilung spots 24/70/102, shrines 4/12/19, chests 8/14/26, npcs 8/5/18.
+- **Stabile IDs:** Strukturen `grp` (`hinode`, `peak`, `sakura`, `sakuratown`), `village.js` ohne Index.
+- **Werkzeuge:** `tools py/validate_data.py` (IDs, Verweise, EN/DE, Gruppen, `ed`/`tier`, Daten geladen), `tools py/tag_data.py` (ergänzt fehlende Tags). **Generator-Gerüst für neue Regionen: noch offen** (Teil 2). `tools py/make_layout*.py` und `move_content.py` schreiben noch die **alten JS-Daten** -> Koordinaten-Änderungen jetzt in `data/world.json`.
+- **Getestet (tatsächlich, headless Chromium 852x393):** Vergleich Daten vor/nach Umbau: alle 31 Datenschlüssel identisch, EN- und DE-Texte identisch (`items` nur +`en`); Validator 0 Fehler; `node --check` alle JS; Regression 24/24 (3 Läufe nach Testfix). **Ein Lauf schlug einmal fehl:** Offline-Test, Zwischenspeicher war noch nicht fertig (Test wartet jetzt darauf). Echter Gerätefall: offline erster Start ohne vollständigen Cache -> Fehlermeldung im Ladebild.
+- **Nicht geprüft:** iPhone/Safari (synchrones XHR im Home-Bildschirm-App-Modus), GitHub-Pages-Unterpfad, Spiel von Hand (Händler, Quests, Dorf), Ladezeit auf Gerät.
+- **Bekannt:** `tools py`-Skripte (Layout) nicht an JSON angepasst; sync-XHR ist veraltet, aber in allen Browsern nutzbar (Alternative: asynchroner Start, größerer Umbau).
+- **Nächster Schritt:** Gerätetest 0.20.0, dann Phase 20 Teil 2 (Generator-Gerüst Regionen) oder Freigabe Phase 21.
 
 ## Phase 19 – Spielstand sichern (0.18.0, Cache v83) – Dateien gesendet, Gerätetest offen
 - **Freigabe:** Nutzer 22.11.2026 (Entscheidungen siehe `docs/Langzeit.md` Kap. 11). Branch-Vorschlag: `phase-19-save`.
