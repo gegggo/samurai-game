@@ -6,7 +6,9 @@ SW.Data = SW.Data || {};
   const D = SW.Data, de = (SW.TEXT.de = SW.TEXT.de || {}), en = SW.TEXT.en;
   // Richtwerte, Positionen werden beim Start auf freie Kacheln gesetzt
   D.shrines.push({ id: 'sakura', x: 4360, y: 1486 });
+  D.shrines.push({ id: 'fortress', x: 4180, y: 2488 }); // Phase 14: Verlassene Festung (Region 18)
   D.chests.push(
+    { id: 'c_fort1', x: 4160, y: 2470, rar: 'rare', give: { ess: 1 } }, { id: 'c_fort2', x: 4215, y: 2512, rar: 'uncommon', give: { coins: 220 } }, { id: 'c_fort3', x: 4120, y: 2510, rar: 'common', give: { item: 'iron', n: 3 } },
     { id: 'c_sakura1', x: 4330, y: 1450, rar: 'rare', give: { ess: 1 } },
     { id: 'c_sakura2', x: 4440, y: 1500, rar: 'uncommon', give: { coins: 160 } },
     { id: 'c_sakura3', x: 4290, y: 1530, rar: 'common', give: { item: 'herb', n: 5 } }
@@ -14,6 +16,7 @@ SW.Data = SW.Data || {};
   D.spots.push(
     { id: 'e_frostq', type: 'armored', x: 800, y: 640 }, { id: 'e_emberq', type: 'samurai', x: 3090, y: 880 },
     { id: 'e_dunesq', type: 'swift', x: 1190, y: 2570 }, { id: 'e_coastq', type: 'ronin', x: 2040, y: 2650 },
+    { id: 'e_fort1', type: 'spearman', x: 4150, y: 2490 }, { id: 'e_fort2', type: 'ronin', x: 4215, y: 2475 }, { id: 'e_fort3', type: 'armored', x: 4180, y: 2455 }, { id: 'e_fort4', type: 'swift', x: 4110, y: 2520 }, { id: 'e_fortq', type: 'samurai', x: 4230, y: 2455 },
     { id: 'e_sakura1', type: 'swift', x: 4290, y: 1450 }, { id: 'e_sakura2', type: 'samurai', x: 4420, y: 1420 },
     { id: 'e_sakura3', type: 'spearman', x: 4300, y: 1560 }, { id: 'e_sakuraq', type: 'samurai', x: 4500, y: 1400 }
   );
@@ -24,6 +27,7 @@ SW.Data = SW.Data || {};
     { id: 'n_nomad', role: 'nomad', q: true, x: 1120, y: 2528, robe: '#b88a4a', hat: '#e8d9a8' },
     { id: 'n_sailor', role: 'sailor', q: true, x: 1968, y: 2616, robe: '#3a6a8a', hat: '#e8e0c8' },
     { id: 'n_climber', role: 'climber', q: true, x: 2822, y: 1935, robe: '#5a6a4a', hat: '#a89a6a' },
+    { id: 'n_veteran', role: 'veteran', q: true, x: 4205, y: 2500, robe: '#7a6a5a', hat: '#2a2a30' },
     { id: 'n_gardener', role: 'gardener', q: true, x: 4325, y: 1500, robe: '#c8789a', hat: '#f4d8e2' }
   );
   const kill = (id, giver, spot, rew, req) => ({ id, giver, req, obj: { type: 'kill', spot }, rew });
@@ -40,9 +44,15 @@ SW.Data = SW.Data || {};
     { id: 'karst1', giver: 'n_climber', obj: { type: 'shrine', shrine: 'cloudspire' }, rew: { xp: 110, karma: 3 } },
     kill('karst2', 'n_climber', 'e_spire5', { coins: 160, xp: 120, ess: 1, karma: 4 }, { done: 'karst1' }),
     kill('sakura1', 'n_gardener', 'e_sakuraq', { coins: 170, xp: 130, karma: 5 }),
-    have('sakura2', 'n_gardener', 'wood', 5, { coins: 80, xp: 100, ess: 1, karma: 4 }, { done: 'sakura1' })
+    have('sakura2', 'n_gardener', 'wood', 5, { coins: 80, xp: 100, ess: 1, karma: 4 }, { done: 'sakura1' }),
+    kill('fort1', 'n_veteran', 'e_fortq', { coins: 190, xp: 140, karma: 5 }),
+    have('fort2', 'n_veteran', 'iron', 6, { coins: 100, xp: 110, ess: 1, karma: 4 }, { done: 'fort1' })
   );
   const E = {
+    reg_18: 'Abandoned Fortress', poi_fortress: 'Abandoned Fortress', shr_fortress: 'Fortress Shrine',
+    npc_veteran: 'Veteran', dl_veteran_neu: 'I held this wall once. Now a samurai squats in our courtyard.', dl_veteran_pos: 'Your steps are steady, wanderer. The wall remembers good soldiers.', dl_veteran_neg: 'I have seen your kind on the other side of the gate.',
+    qn_fort1: 'Reclaim the Courtyard', qd_fort1: 'A samurai has claimed the fortress courtyard. Drive him out.', qo_fort1: 'Defeat the samurai in the Abandoned Fortress', qdone_fort1: 'The courtyard is ours again. Thank you.',
+    qn_fort2: 'Mend the Gate', qd_fort2: 'The south gate needs iron fittings. Bring 6 iron.', qo_fort2: 'Bring iron to the veteran', qdone_fort2: 'The gate will hold again.',
     reg_17: 'Sakura Grove', poi_sakura: 'Sakura Grove', shr_sakura: 'Sakura Shrine',
     npc_trapper: 'Trapper', dl_trapper_neu: 'Cold bites here. A guard in iron has taken the pass.', dl_trapper_pos: 'The snow remembers kind feet. Help me once more?', dl_trapper_neg: 'Keep your distance. The mountain does not forgive.',
     npc_pilgrim: 'Pilgrim', dl_pilgrim_neu: 'We came to the crater to pray. Raiders came after us.', dl_pilgrim_pos: 'Blessings on you, wanderer. The fire is kind today.', dl_pilgrim_neg: 'Your shadow is longer than your sword.',
@@ -64,6 +74,10 @@ SW.Data = SW.Data || {};
     qn_sakura2: 'Repair the Pavilion', qd_sakura2: 'The old pavilion leaks. Bring 5 wood.', qo_sakura2: 'Bring wood to the gardener', qdone_sakura2: 'Tea will be served under dry roofs again.'
   };
   const G = {
+    reg_18: 'Verlassene Festung', poi_fortress: 'Verlassene Festung', shr_fortress: 'Festungsschrein',
+    npc_veteran: 'Veteran', dl_veteran_neu: 'Ich habe diese Mauer einst gehalten. Jetzt hockt ein Samurai in unserem Hof.', dl_veteran_pos: 'Dein Schritt ist fest, Wanderer. Die Mauer erinnert sich an gute Krieger.', dl_veteran_neg: 'Deinesgleichen habe ich auf der anderen Seite des Tores gesehen.',
+    qn_fort1: 'Den Hof zurückerobern', qd_fort1: 'Ein Samurai hat den Festungshof besetzt. Vertreibe ihn.', qo_fort1: 'Besiege den Samurai in der Verlassenen Festung', qdone_fort1: 'Der Hof gehört uns wieder. Danke.',
+    qn_fort2: 'Das Tor flicken', qd_fort2: 'Das Südtor braucht Eisenbeschläge. Bring 6 Eisen.', qo_fort2: 'Bring Eisen zum Veteranen', qdone_fort2: 'Das Tor wird wieder halten.',
     reg_17: 'Sakura-Hain', poi_sakura: 'Sakura-Hain', shr_sakura: 'Sakura-Schrein',
     npc_trapper: 'Fallensteller', dl_trapper_neu: 'Hier beißt die Kälte. Ein Krieger in Eisen hält den Pass.', dl_trapper_pos: 'Der Schnee erinnert sich an gute Schritte. Hilfst du mir noch einmal?', dl_trapper_neg: 'Bleib fern. Der Berg vergibt nicht.',
     npc_pilgrim: 'Pilger', dl_pilgrim_neu: 'Wir kamen zum Krater, um zu beten. Räuber folgten uns.', dl_pilgrim_pos: 'Segen auf dich, Wanderer. Das Feuer ist heute gnädig.', dl_pilgrim_neg: 'Dein Schatten ist länger als dein Schwert.',

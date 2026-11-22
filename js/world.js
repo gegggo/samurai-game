@@ -6,7 +6,7 @@ SW.World = (function () {
   const PAL = [[98,142,70],[58,102,58],[118,150,84],[112,108,112],[58,128,168],[34,88,134],[180,150,100],[130,92,58],[214,196,146],[150,148,150],[58,52,66],[150,122,86],[232,238,244],[74,62,60],[226,92,34],[226,190,120],[176,170,160],[160,138,110],[0,0,0]];
   // Regionen 0-8: Dorf, Bambus, Schrein, Wald, See, Gebirge, Ruinen, Banditen, Höhlen; 9-16 siehe Namen reg_N. Mitten aus dem Layout (CEN).
   const ROCKY = [2, 2, .66, 2, 2, .56, 2, 2, .58, 2, 2, 2];
-  const DENS = [.05, .34, .12, .2, .03, .07, .05, .07, .05, .14, .12, .06, .07, .04, .02, .03, .05, .1];
+  const DENS = [.05, .34, .12, .2, .03, .07, .05, .07, .05, .14, .12, .06, .07, .04, .02, .03, .05, .1, .06];
 
   function h(x, y, s) {
     let n = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1442695041)) | 0;
@@ -91,6 +91,7 @@ SW.World = (function () {
     if (reg === 14) { const o = Math.hypot(x - m[0] - 22, y - m[1]); return o < 8 ? T.WATER : o < 11 ? T.GRASS : d > 30 && f > .75 ? T.ROCK : T.DUNE; } // Oase
     if (reg === 15) return f > .62 ? T.SAND : T.GRASS; // Sun Coast
     if (reg === 17) return f > .72 ? T.FOREST : T.GRASS; // Sakura Grove
+    if (reg === 18) return Math.abs(x - m[0]) < 24 && Math.abs(y - m[1]) < 17 ? T.STONE : d > 40 && f > .68 ? T.ROCK : T.GRASS; // Verlassene Festung: Steinhof
     return T.GRASS; // 16 Karst
   }
   // Gelände einer Landkachel je Region (procedural)
@@ -192,6 +193,16 @@ SW.World = (function () {
     add('tower', K[0] - 46, K[1] - 124, 2, 2); add('hut', K[0] - 34, K[1] - 122, 4, 4); // Wolkenturm (Berg 4)
     add('tower', K[0] - 41, K[1] + 105, 2, 2); add('tower', K[0] + 149, K[1] - 3, 2, 2); // Berg 5 (Süd), Berg 6 (fern im Osten)
     if (CEN[17]) { const [ax, ay] = CEN[17]; add('shrine', ax + 5, ay - 12, 10, 6); add('hut', ax - 26, ay + 10, 4, 4); add('hut', ax + 30, ay + 14, 4, 4); } // Sakura Grove: Schrein, Gärtnerhütte, Rasthütte
+    if (CEN[18]) { // 0.16.0 Phase 14: Verlassene Festung (Region 18): Ruinenmauer mit Südtor und Lücken, 4 Türme, Bergfried (begehbar). Kein 'hut'/'house' hier (village.js zählt Hütten/Häuser per Index).
+      const [fx, fy] = CEN[18];
+      for (let dx = -24; dx <= 24; dx++) for (let dy = -17; dy <= 17; dy++) {
+        if (Math.abs(dx) !== 24 && Math.abs(dy) !== 17) continue;
+        if (dy === 17 && Math.abs(dx) <= 3) continue; // Südtor
+        if (h(fx + dx, fy + dy, 61) > .3) add('ruinwall', fx + dx, fy + dy, 1, 1);
+      }
+      [[-27, -20], [26, -20], [-27, 18], [26, 18]].forEach(o => add('tower', fx + o[0], fy + o[1], 2, 2));
+      add('hall', fx - 7, fy - 14, 14, 8); [[-14, 4], [14, 4], [-14, -4], [14, -4]].forEach(o => add('pillar', fx + o[0], fy + o[1], 1, 1));
+    }
     { const [gx, gy] = CEN[10]; add('hall', gx - 9, gy - 19, 14, 8); [[-6, -1], [-2, -1], [6, -1]].forEach(o => add('dummy', gx + o[0], gy + o[1], 1, 1)); } // 0.14.0 Meistertempel + Trainingsplatz (Steingarten)
     // Index
     S.forEach(indexStructure);
@@ -203,6 +214,7 @@ SW.World = (function () {
       { id: 'frost', x: CEN[12][0], y: CEN[12][1] }, { id: 'ember', x: CEN[13][0], y: CEN[13][1] }, { id: 'dunes', x: CEN[14][0], y: CEN[14][1] }, { id: 'coast', x: CEN[15][0], y: CEN[15][1] },
       { id: 'karst', x: K[0], y: K[1] }, { id: 'peakvillage', x: K[0] - 40, y: K[1] }, { id: 'temple', x: K[0] + 50, y: K[1] - 5 }, { id: 'windspire', x: K[0] - 150, y: K[1] }, { id: 'cloudspire', x: K[0] - 40, y: K[1] - 110 });
     if (CEN[17]) POI.push({ id: 'sakura', x: CEN[17][0], y: CEN[17][1] });
+    if (CEN[18]) POI.push({ id: 'fortress', x: CEN[18][0], y: CEN[18][1] });
   }
 
   // Dauerhafte Quest-Bauten. Werden aus dem Quest-Spielstand rekonstruiert.
@@ -243,7 +255,7 @@ SW.World = (function () {
   }
   // Keine Objekte (Bäume, Felsen) rund um Orte: [Mitte x, Mitte y, Halbbreite, Halbhöhe]
   const ZONES = [[CEN[2][0], CEN[2][1], 20, 20], [CEN[8][0], CEN[8][1], 52, 52], [CEN[0][0], CEN[0][1], 26, 20], [CEN[7][0], CEN[7][1], 24, 18], [CEN[6][0], CEN[6][1], 15, 12]];
-  for (let r = 9; r <= 17; r++) if (CEN[r]) ZONES.push([CEN[r][0], CEN[r][1], 10, 10]);
+  for (let r = 9; r <= 18; r++) if (CEN[r]) ZONES.push([CEN[r][0], CEN[r][1], 10, 10]);
   function objAt(x, y, t) {
     if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE && t !== T.SNOW && t !== T.ASH && t !== T.DUNE) return 0;
     const reg = regionAt(x, y);

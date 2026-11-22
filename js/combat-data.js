@@ -94,7 +94,7 @@ SW.Data.arenas = {
 };
 // Region (Index wie in world.js) -> Arena
 SW.Data.dodgeKi = 25; // Platzhalter: Ki-Kosten je Ausweichrolle (Balancing offen)
-SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', 'plateau', 'ruins', 'camp', 'cavern', 'bamboo', 'temple', 'clearing', 'summit', 'ember', 'dunes', 'clearing', 'plateau', 'clearing'];
+SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', 'plateau', 'ruins', 'camp', 'cavern', 'bamboo', 'temple', 'clearing', 'summit', 'ember', 'dunes', 'clearing', 'plateau', 'clearing', 'ruins'];
 // Begegnungen in der Welt (Phase 2: feste Testpunkte; echte Gegner-Spawns folgen in Phase 5).
 // Position wird beim Start auf die nächste freie Kachel gesetzt.
 SW.Data.spots = [
