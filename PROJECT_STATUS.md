@@ -1,8 +1,12 @@
-# PROJECT_STATUS (gekürzt, Stand 0.12.2, Cache v74)
+# PROJECT_STATUS (gekürzt, Stand 0.12.3, Cache v75)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
-**Aktuell:** 0.12.2 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
+**Aktuell:** 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## 0.12.3
+- **Kampf-Layout nach Nutzerskizze:** Block (28 %) und Ausweichen darüber in der Zone rechts neben dem Joystick; Skill-Buttons darüber (21 %/+66 px, unter Minimap). Browser 852x393 gemessen/Screenshot, keine Überlappung. Hinweis: Buttons in der linken Hälfte schlucken dort den Joystick-Start (Joystick am linken Rand).
+- **Schwarzer Streifen unten (iOS):** `main.js fitH`: prüft zusätzlich die echte Canvas-Höhe, Höhe bleibt im Querformat fest (kein Hin und Her). **Nicht auf dem Gerät geprüft** (Fehler im Browser nicht auslösbar). Workaround des Nutzers: Hochformat und zurück drehen.
 
 ## 0.12.2 – Fixes nach Gerätetest (iPhone)
 - **Halber schwarzer Bildschirm + rotes/blaues Diagnosefeld:** Ursache laut Protokoll: Drehung ins Hochformat (`iw393x852`, `window.orientation` noch 90) wurde als "BAD" erkannt; Fix 2 erzwang Breite 852 -> Layouthöhe 1847 -> halber Bildschirm. `main.js`: `landscapeBroken` ignoriert Fenster höher als breit (Höhe >= 1,2x Breite); rotes (Vorsitzung) und blaues Diagnosefeld nicht mehr angezeigt (Protokoll bleibt in localStorage `sw_diag_bad`). Browser-Test: kein Fehlerfeld. **Auf dem iPhone nicht geprüft** (Fehler tritt nur beim Drehen/Screenshot auf).
