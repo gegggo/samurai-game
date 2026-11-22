@@ -188,6 +188,7 @@ SW.World = (function () {
     add('tower', K[0] - 46, K[1] - 124, 2, 2); add('hut', K[0] - 34, K[1] - 122, 4, 4); // Wolkenturm (Berg 4)
     add('tower', K[0] - 41, K[1] + 105, 2, 2); add('tower', K[0] + 149, K[1] - 3, 2, 2); // Berg 5 (Süd), Berg 6 (fern im Osten)
     if (CEN[17]) { const [ax, ay] = CEN[17]; add('shrine', ax + 5, ay - 12, 10, 6); add('hut', ax - 26, ay + 10, 4, 4); add('hut', ax + 30, ay + 14, 4, 4); } // Sakura Grove: Schrein, Gärtnerhütte, Rasthütte
+    { const [gx, gy] = CEN[10]; add('hall', gx - 9, gy - 19, 14, 8); [[-6, -1], [-2, -1], [6, -1]].forEach(o => add('dummy', gx + o[0], gy + o[1], 1, 1)); } // 0.14.0 Meistertempel + Trainingsplatz (Steingarten)
     // Index
     S.forEach(indexStructure);
     const fl = SEG[0] && SEG[0].rivers[1] ? SEG[0].rivers[1][0] : LK; // Wasserfall: Quelle des Ostflusses

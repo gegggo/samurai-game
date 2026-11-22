@@ -37,7 +37,7 @@ SW.Arena = (function () {
     { const rb = $('cb-ranged'); if (rb) rb.style.display = ps.ranged ? '' : 'none'; }
     [0, 1].forEach(i => {
       const b = $('cb-s' + i), id = SW.Skills.slots[i], on = !!(id && ps.slots[i]);
-      if (b) { b.style.display = ''; b.textContent = on ? T('sk_' + id) : '–'; b.classList.toggle('empty', !on); }
+      if (b) { b.style.display = on ? '' : 'none'; b.textContent = on ? T('sk_' + id) : ''; }
     });
     K.active = true; A.active = true; SW.paused = false; SW.Input.reset();
     document.body.classList.add('combat');

@@ -33,7 +33,7 @@ SW.WCombat = (function () {
     if (P.ps.ranged) D.moves.shot = { wind: P.ps.ranged.wind, rec: P.ps.ranged.rec, dmg: P.ps.ranged.dmg, ranged: true, anim: 'shot' };
     [0, 1].forEach(i => {
       const b = $('cb-s' + i), id = SW.Skills.slots[i], on = !!(id && P.ps.slots[i]); // 2 Skill-Plätze: leer = Platzhalter für spätere Fähigkeiten
-      if (b) { b.style.display = ''; b.textContent = on ? T('sk_' + id) : '–'; b.classList.toggle('empty', !on); }
+      if (b) { b.style.display = on ? '' : 'none'; b.textContent = on ? T('sk_' + id) : ''; }
     });
     { const rb = $('cb-ranged'); if (rb) rb.style.display = P.ps.ranged ? '' : 'none'; }
   }
@@ -76,6 +76,7 @@ SW.WCombat = (function () {
   X.press = function (k) { if (k === 'block' || k === 'breath') held[k] = true; else if (k === 'dodge') dodge(); else act(k); };
   X.release = function (k) { if (k === 'block' || k === 'breath') held[k] = false; };
 
+  let DUM = null; const dummies = () => DUM || (DUM = W.S.filter(s => s.type === 'dummy'));
   function playerHit(pm) {
     const m = pm.m, nm = pm.name, p = SW.Player, ps = P.ps;
     if (m.heal) { const h = Math.round(P.pmax * m.heal); P.php = Math.min(P.pmax, P.php + h); flt(p.x, p.y, '+' + h, '#7fe08a'); return; }
@@ -93,6 +94,14 @@ SW.WCombat = (function () {
       const dx = n.x - p.x, dy = n.y - p.y, d = Math.hypot(dx, dy); if (d > R) return;
       let da = Math.abs(Math.atan2(dy, dx) - P.fa); if (da > Math.PI) da = TAU - da;
       if (d < .8 || da <= cone) { SW.Karma.add('hit_' + n.id, -4); flt(n.x, n.y - 1.3, 'Karma -', '#e06a5a'); say(T('hit_npc'), '#e06a5a'); }
+    });
+    if (!m.heal) dummies().forEach(s => { // Puppen: Schaden anzeigen, keine Belohnung, kein Gegenschlag
+      const dx = s.x + .5 - p.x, dy = s.y + .5 - p.y, d = Math.hypot(dx, dy); if (d > R) return;
+      let da = Math.abs(Math.atan2(dy, dx) - P.fa); if (da > Math.PI) da = TAU - da;
+      if (!(d < .8 || da <= cone)) return;
+      let dmg = m.dmg * ps.atk; if (nm === 'counter') dmg *= ps.counterMul;
+      const crit = Math.random() < ps.crit; if (crit) dmg *= ps.critMul || 1.5;
+      s.fl = .25; flt(s.x + .5, s.y - .8, Math.max(1, Math.round(dmg)) + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
     });
     targets.forEach(s => {
       const w = s.w, d = def(s);
@@ -247,7 +256,10 @@ SW.WCombat = (function () {
       if (s.w && s.w.st !== 'return') engaged = true;
       if (P.php <= 0) return;
     }
-    if (engaged) { if (!X.active) { refreshPs(); X.active = true; } P.idle = 0; }
+    const dm = dummies(); let near = false;
+    for (let i = 0; i < dm.length; i++) { const d = dm[i]; if (d.fl > 0) d.fl = Math.max(0, d.fl - dt); if (Math.hypot(d.x + .5 - p.x, d.y + .5 - p.y) < 4) near = true; }
+    if (near) engaged = true; // 0.14.0 Trainingsplatz: Kampfbuttons erscheinen bei den Puppen
+    if (engaged) { if (!X.active) { refreshPs(); X.active = true; if (near) say(T('train_hint'), '#ffd27a'); } P.idle = 0; }
     else { P.idle += dt; if (X.active && P.idle > GRACE) { X.active = false; held.block = held.breath = false; P.pm = null; P.buf = null; } }
     if (!X.active) { // außerhalb des Kampfs: Leben und Ki füllen sich wieder
       P.refT += dt; if (P.refT > 1) { P.refT = 0; refreshPs(); }

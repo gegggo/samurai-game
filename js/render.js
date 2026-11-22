@@ -161,6 +161,14 @@ SW.Render = (function () {
       c.fillStyle = '#a87949'; c.fillRect(x + i * u - u * .04, y - u * .36, u * .05, u * .58);
     }
   }
+  function dummy(c, s, sx, sy, u) { // Trainingspuppe (Platzhalter bis Phase 29)
+    const x = sx + u / 2 + (s.fl > 0 ? Math.sin(s.fl * 60) * u * .06 : 0), b = sy + u * .9;
+    shadow(c, x, b, u * .4, u * .1);
+    c.fillStyle = '#6a4a2c'; c.fillRect(x - u * .07, b - u * 1.5, u * .14, u * 1.5); c.fillRect(x - u * .4, b - u * 1.15, u * .8, u * .12);
+    c.fillStyle = s.fl > 0 ? '#f2dd9a' : '#c8b070'; c.fillRect(x - u * .24, b - u * 1.3, u * .48, u * .75);
+    c.beginPath(); c.arc(x, b - u * 1.55, u * .2, 0, 6.3); c.fill();
+    c.fillStyle = '#a9442f'; c.fillRect(x - u * .24, b - u * .85, u * .48, u * .1);
+  }
   function drawStruct(c, s, ox, oy, u) {
     const sx = s.x * u + ox, sy = s.y * u + oy;
     switch (s.type) {
@@ -174,6 +182,7 @@ SW.Render = (function () {
       case 'ruinhouse': ruinhouse(c, s, sx, sy, u); break;
       case 'cage': cage(c, s, sx, sy, u); break;
       case 'pillar': pillar(c, sx + u / 2, sy + u * .85, u, s.v); break;
+      case 'dummy': dummy(c, s, sx, sy, u); break;
     }
   }
 
