@@ -1,8 +1,17 @@
-# PROJECT_STATUS (gekürzt, Stand 0.20.2, Cache v87)
+# PROJECT_STATUS (gekürzt, Stand 0.20.2, Cache v87 (Phase 20 Teil 2: nur Werkzeug))
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## Phase 20 Teil 2 – Generator-Gerüst Regionen (Version bleibt 0.20.2, kein Spielcode geändert)
+- **Freigabe:** Nutzer 22.11.2026 (0.20.2 laut Nutzer am Gerät geprüft, ohne Protokoll).
+- **Neu:** `tools/new_region.py ID REG "Name EN" "Name DE" CX CY RX RY [--link X1,Y,X2] [--tier N]`. Erzeugt `js/layout-ID.js` (Insel-Segment, optional Landstreifen + Weg zu anderer Insel), `js/region-ID.js` (Texte `reg_/poi_/shr_` EN+DE), Schrein in `data/world.json` (`ed`/`tier`), Script-Tags in `index.html`. Bricht ab bei Überlappung mit bestehendem Land oder doppelter ID. `sw.js` liest die Tags selbst.
+- **Danach manuell (je Region):** Inhalt (Gegner, Truhen, NPCs, Quests) in `data/*.json`, Bauten in `js/world.js` (Muster `if (CEN[18]) {...}`, keine `hut`/`house` wegen `village.js`), Texte ergänzen, `python3 tools/validate_data.py`, Cache-Version erhöhen. Biome/`DENS`/Kartenfarbe haben Standardwerte (Gras, 0.05, Farbe Region 0).
+- **Getestet (tatsächlich, headless Chromium):** Dummy-Region 19 bei (300,2800): Region/Gelände/Meer korrekt, Texte EN+DE und Schrein geladen, Validator 0 Fehler, keine JS-Fehler, Überlappung wird abgelehnt (2 Fälle). Dummy danach entfernt, Repo sauber.
+- **Nicht geprüft:** `--link` (Landstreifen) im Spiel, Kartenansicht der neuen Region, Gerät.
+- **Bekannt:** `tools/make_layout*.py` und `move_content.py` schreiben alte JS-Daten (nicht mehr nutzen). `tools/new_region.py` setzt keine Biome-Sonderregeln.
+- **Nächster Schritt:** Freigabe Phase 21.
 
 ## 0.20.2 – Nutzerentscheidungen nach 0.20.1
 - **Banditenlager nach Western Woods:** `world.js` neue Konstante `CAMP` (600,1500) statt `CEN[7]` (Struktur, POI `camp`, Baumfreie Zone, Dirt-Boden in Region 3). Inhalt um (-1052,-688) verschoben (`data/world.json`): `e_boss`, `e_camp1-4`, `e_x106/107`, `c_camp1/2`, `n_pris1-3`, Schrein `way9`; `tier` 1 (Regelwert Region 3). `data/combat.json`: `boss.arena = camp` (Arena bleibt Lager). Texte `elder3` EN/DE: "Western Woods". Weg Start -> Lager ~390 Kacheln (vorher ~1000). Alter Lagerplatz (Region 7) bleibt leere Dirt-Fläche.
