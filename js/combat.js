@@ -27,6 +27,20 @@ SW.Combat = (function () {
   }
   D.spots.forEach(s => { const p = free(s.x, s.y); K.spots.push({ id: s.id, type: s.type, x: p.x, y: p.y, dead: false, night: !!s.night, respawn: !!s.respawn, kv: s.kv }); });
 
+  // 0.11.0: jeder Schrein hat mindestens 2 Wächter in 22 Kacheln (fehlende werden ergänzt, feste IDs g_<schrein>_<n>, gespeichert wie alle Gegner)
+  (function () {
+    const light = ['bandit', 'ronin', 'spearman'], mid = ['ronin', 'swift', 'spearman', 'samurai'], hard = ['samurai', 'armored', 'swift', 'spearman'];
+    (SW.Data.shrines || []).forEach((sh, si) => {
+      const c = free(sh.x, sh.y);
+      let have = K.spots.filter(e => !e.night && !e.amb && Math.hypot(e.x - c.x, e.y - c.y) < 22).length;
+      const reg = W.regionAt(Math.floor(c.x), Math.floor(c.y)), L = (reg >= 12 || reg === 5 || reg === 8 || reg === 16) ? hard : (reg === 0 || reg === 1 || reg === 3) ? light : mid;
+      for (let n = 1; have < 2; n++, have++) {
+        const g = (si * 2.4 + n * 3.1) % TAU, p = free(c.x + Math.cos(g) * 6, c.y + Math.sin(g) * 6);
+        K.spots.push({ id: 'g_' + sh.id + '_' + n, type: L[(si + n) % L.length], x: p.x, y: p.y, dead: false, night: false, respawn: false, kv: undefined });
+      }
+    });
+  })();
+
   K.playerStats = function () { return SW.Char ? SW.Char.combat() : D.player; }; // echte Charakterwerte (Phase 3)
 
   // Nachtgegner: nur nachts aktiv; wiederkehrende kommen mit jeder neuen Nacht zurück
@@ -69,6 +83,7 @@ SW.Combat = (function () {
   };
 
   K.start = function (spot) {
+    if (SW.Arena && SW.Arena.start) { SW.Arena.start(spot); return; } // 0.11.0: Boss-Arena in Pseudo-3D (arena3d.js); altes Duell bleibt als Rückfall unten
     const def = D.enemies[spot.type], ps = K.playerStats(), reg = W.regionAt(Math.floor(spot.x), Math.floor(spot.y));
     S = {
       ps, spot, def, arena: def.arena || D.regionArena[reg], hp: def.hp, max: def.hp, php: ps.hp, pmax: ps.hp, ki: ps.ki, kmax: ps.ki,
@@ -252,6 +267,7 @@ SW.Combat = (function () {
   }
 
   K.update = function (dt) {
+    if (SW.Arena && SW.Arena.active) { SW.Arena.update(dt); return; }
     if (!S) return;
     S.t += dt;
     S.shake = Math.max(0, S.shake - dt); S.spark = Math.max(0, S.spark - dt); S.msgT = Math.max(0, S.msgT - dt);
@@ -269,8 +285,9 @@ SW.Combat = (function () {
     defs.forEach(d => {
       const b = document.createElement('button'); b.id = 'cb-' + d[0]; b.className = 'cb'; b.textContent = d[1] ? T(d[1]) : '';
       const wc = () => SW.WCombat && SW.WCombat.active && !K.active; // Weltkampf: gleiche Buttons, andere Logik
-      const down = e => { e.preventDefault(); b.classList.add('on'); if (wc()) SW.WCombat.press(d[0]); else if (d[2]) held[d[0]] = true; else if (d[0] === 'dodge') dodge(); else act(d[0]); };
-      const up = e => { e.preventDefault(); b.classList.remove('on'); if (SW.WCombat) SW.WCombat.release(d[0]); if (d[2]) held[d[0]] = false; };
+      const ar = () => SW.Arena && SW.Arena.active;
+      const down = e => { e.preventDefault(); b.classList.add('on'); if (ar()) SW.Arena.press(d[0]); else if (wc()) SW.WCombat.press(d[0]); else if (d[2]) held[d[0]] = true; else if (d[0] === 'dodge') dodge(); else act(d[0]); };
+      const up = e => { e.preventDefault(); b.classList.remove('on'); if (ar()) SW.Arena.release(d[0]); if (SW.WCombat) SW.WCombat.release(d[0]); if (d[2]) held[d[0]] = false; };
       b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up);
       b.addEventListener('pointercancel', up); b.addEventListener('pointerleave', up);
       b.addEventListener('contextmenu', e => e.preventDefault());
@@ -470,6 +487,7 @@ SW.Combat = (function () {
   }
 
   // ---------- Darstellung: Frame ----------
+  K.gfx = { blade, REST, RAISE, END, BLOCK, pmix, pmT, SWING }; // von arena3d.js genutzt (Waffe in Ego-Ansicht)
   function bar(c, x, y, w, h, r, col, back) {
     c.fillStyle = back || 'rgba(0,0,0,.55)'; c.fillRect(x - 2, y - 2, w + 4, h + 4);
     c.fillStyle = col; c.fillRect(x, y, w * clamp(r, 0, 1), h);
@@ -480,6 +498,7 @@ SW.Combat = (function () {
   }
 
   K.draw = function (c, cw, ch, time) {
+    if (SW.Arena && SW.Arena.active) { SW.Arena.draw(c, cw, ch, time); return; }
     if (!S) return;
     const u = ch / 100, dpr = SW.dpr || 1, f = S.foe;
     const dod = S.dodgeT > 0 ? Math.sin(Math.PI * (1 - S.dodgeT / DODGE)) * cw * .09 * S.side : 0;
