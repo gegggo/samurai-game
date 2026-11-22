@@ -30,7 +30,6 @@ body.wcombat #act-btn { display: none !important; }
 #cb-attack { right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 92px; height: 92px; background: rgba(181,53,43,.45); }
 #cb-heavy { right: calc(126px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 72px; height: 72px; }
 #cb-special { right: calc(36px + env(safe-area-inset-right, 0px)); bottom: calc(120px + env(safe-area-inset-bottom, 0px)); width: 72px; height: 72px; border-color: #7fd0ff; }
-#cb-breath { right: calc(124px + env(safe-area-inset-right, 0px)); bottom: calc(112px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; font-size: 11px; }
 
 /* ---- Kompass ---- */
 #compass { position: fixed; left: calc(10px + env(safe-area-inset-left, 0px)); top: calc(116px + env(safe-area-inset-top, 0px)); width: 104px; text-align: center; color: #f4ecd8; font: 700 15px Georgia, serif; letter-spacing: .1em; text-shadow: 0 1px 4px #000; pointer-events: none; }
