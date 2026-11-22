@@ -1,8 +1,17 @@
-# PROJECT_STATUS (gekürzt, Stand 0.16.0, Cache v81)
+# PROJECT_STATUS (gekürzt, Stand 0.17.0, Cache v82)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## 0.17.0 – Phase 16 (Sakura-Anbindung, Sakura-Stadt, Ziel-Lock) – Dateien gesendet, Gerätetest offen
+- **Annahme:** Phase 16 = die 3 Nutzerwünsche (Phase 15 nie definiert). Stadt nach Sakura statt Hermit Hut (Hermit = Einsiedler/Wald, Sakura hat Platz + ist jetzt angebunden).
+- **Sakura-Anbindung:** `py/make_layout_sakura.py`: Landbrücke 80-96 statt 30 Kacheln breit (Meerenge x 3730-3790 ebenso breit, Brücke unverändert 3 breit) -> `js/layout-sakura.js` neu erzeugt. Karte zeigt jetzt Land statt dünner Linie.
+- **Sakura-Stadt (Edo-Stil, ohne Moderne):** `world.js`: 12 `house` (2 Reihen an der Hauptstraße, x 4100-4176) + `hall` (4192,1476), Zone ohne Bäume, POI `sakuratown` (4170,1491). Nur `house`/`hall`, keine `hut` (village.js zählt per Index). `regions-content.js`: 5 Händler `n_st_*` (Waffen, Rüstung, Allgemein, Kräuter, Schmied; Rollen/Texte wie Startdorf), Text `poi_sakuratown` EN+DE. `ui.js`: Kartensymbol Dorf. Kein Dorf-Wiederaufbau, keine Quests in der Stadt.
+- **Ziel-Lock (Weltkampf):** neuer Knopf `cb-lock` (nur Weltkampf, über Heavy), Schalter AN/AUS, gespeichert in localStorage `sw_lock`, Standard AN. AN: Angriff und Schild zielen auf nächsten Gegner bis 8 Kacheln (vorher fest 3). AUS: Angriff in Blickrichtung. Arena unberührt (hat eigenes Lock-on). Dateien: `worldcombat.js`, `combat.js`, `css/main.css`, `config.js`/`lang-de.js` (Texte).
+- **Getestet (headless Chromium 852x393, tatsächlich):** `node --check` aller JS ok; Start/Neues Spiel ohne JS-Fehler; BFS vom Startpunkt (6,7 Mio. begehbare Kacheln): Brücke, Sakura-Schrein, Gärtnerin, alle 5 Stadt-Händler, Festungsschrein und Veteran erreichbar; keine Stadt-Gebäude auf Wasser/Fels/Weg (13 Strukturen); Händler im Screenshot sichtbar; Lock-Knopf sichtbar, Tipp schaltet AN/AUS, Zustand gespeichert; Zielwinkel: Lock AN = zum Gegner (0,00), AUS = Blickrichtung (-1,57); Knöpfe überlappen nicht.
+- **Nicht geprüft:** Gerät/Touch, Kartenbild der neuen Landbrücke (kein Screenshot), Stadt-Optik von Hausreihen (nur Daten), Händler-Dialog/Kauf in der Stadt, Nacht, Regression Speichern/Quests/Inventar diesmal nicht erneut, Gegnerverhalten mit Lock am Gerät.
+- **Geändert:** index.html (v82), css/main.css, js/config.js, js/lang-de.js, js/combat.js, js/worldcombat.js, js/world.js, js/ui.js, js/regions-content.js, js/layout-sakura.js, py/make_layout_sakura.py, PROJECT_STATUS.md.
 
 ## 0.16.0 – Phase 14 (neue Region 18: Verlassene Festung)
 - **Annahme:** Nutzer wählte Region nicht; Festung gewählt (Spec 3, billigste der offenen: Stadt/Festung). 0.15.1: Ausweichen 25 Ki + Meister (altes `shops-data.js` auf GitHub war Ursache) vom Nutzer bestätigt.
@@ -103,4 +112,4 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 - Hinweis: Ladebild liegt auf GitHub unter `assets/images/ui/loading.jpg` (lokales Zip: `assets/loading.jpg`); Zip-Datei hieß teils `js/config .js` (Leerzeichen) – Dateinamen prüfen.
 
 ## Nächster Schritt
-Gerätetest 0.16.0 (Festung erreichen, Quests, Schnellreise). Danach Balancing-Durchgang oder Region Stadt.
+Gerätetest 0.17.0 (Sakura-Landbrücke, Stadt, Lock-Knopf) und 0.16.0 (Festung). Danach Balancing-Durchgang oder Region Stadt.
