@@ -11,9 +11,10 @@ def island(x, y):
     return ((x - CX) / (400 * wob)) ** 2 + ((y - CY) / (330 * wob)) ** 2 < 1
 def cell(x, y):
     if math.hypot(x - 4420, y - 1560) < 26: return LAKE                         # Teich
-    if 3730 <= x < 3790 and abs(y - 1500) < 15: return LAKE                     # Meerenge (Brücke kreuzt sie)
+    hw = 40 + 8 * math.sin(x / 37)                                              # Landbrücke 80-96 Kacheln breit
+    if 3730 <= x < 3790 and abs(y - 1500) < hw: return LAKE                     # Meerenge (Brücke kreuzt sie)
     if island(x, y): return LAND
-    if X0 <= x < 4000 and abs(y - 1500) < 15: return LAND                       # Landzunge zur Hauptinsel
+    if X0 <= x < 4000 and abs(y - 1500) < hw: return LAND                       # Landzunge zur Hauptinsel
     return 0
 def rle(r):
     out, i = [], 0
