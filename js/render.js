@@ -169,10 +169,20 @@ SW.Render = (function () {
     c.beginPath(); c.arc(x, b - u * 1.55, u * .2, 0, 6.3); c.fill();
     c.fillStyle = '#a9442f'; c.fillRect(x - u * .24, b - u * .85, u * .48, u * .1);
   }
+  function interior(c, s, sx, sy, u) { // 0.15.0 Spieler im Haus: Dach/Fassade weg, Boden + Wandring (Platzhalter bis Phase 29)
+    const P = PALS[s.type], w = s.w * u, hh = s.h * u;
+    c.fillStyle = '#7a5c3c'; c.fillRect(sx, sy, w, hh);
+    c.strokeStyle = 'rgba(0,0,0,.18)'; c.lineWidth = Math.max(1, u * .03); c.beginPath();
+    for (let i = 1; i < s.w; i++) { c.moveTo(sx + i * u, sy); c.lineTo(sx + i * u, sy + hh); } c.stroke();
+    c.fillStyle = P[2]; c.fillRect(sx, sy, w, u); c.fillRect(sx, sy, u, hh); c.fillRect(sx + w - u, sy, u, hh);
+    const d0 = (s.d0) * u, d1 = (s.d1 + 1) * u;
+    c.fillRect(sx, sy + hh - u, d0, u); c.fillRect(sx + d1, sy + hh - u, w - d1, u);
+    c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(sx + u, sy + u, w - 2 * u, u * .25);
+  }
   function drawStruct(c, s, ox, oy, u) {
     const sx = s.x * u + ox, sy = s.y * u + oy;
     switch (s.type) {
-      case 'house': case 'hall': case 'hut': case 'tower': case 'shrine': building(c, s, sx, sy, u); break;
+      case 'house': case 'hall': case 'hut': case 'tower': case 'shrine': if (s.in) interior(c, s, sx, sy, u); else building(c, s, sx, sy, u); break;
       case 'tent': tent(c, s, sx, sy, u); break;
       case 'palisade': palisade(c, s, sx, sy, u); break;
       case 'fence': fence(c, s, sx, sy, u); break;
@@ -278,7 +288,8 @@ SW.Render = (function () {
     for (let i = 0; i < W.S.length; i++) {
       const s = W.S[i];
       if (s.x + s.w < x0 - 2 || s.x > x1 + 2 || s.y + s.h < y0 - 1 || s.y - 4 > y1 + 1) continue;
-      items.push({ k: -1, s, key: s.y + s.h - .01 });
+      s.in = !!s.door && p.x > s.x && p.x < s.x + s.w && p.y > s.y && p.y < s.y + s.h; // Spieler im Haus -> Innenansicht zuerst zeichnen
+      items.push({ k: -1, s, key: s.in ? s.y - 100 : s.y + s.h - .01 });
       if (GLOWTYPES[s.type]) glows.push(s.x + s.w / 2, s.y + s.h - .4, s.type === 'tent' ? 2.4 : 3.2);
     }
     const sp = SW.Combat.spots;

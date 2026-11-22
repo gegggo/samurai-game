@@ -86,6 +86,7 @@ SW.Arena = (function () {
   function dodge() {
     if (!S || S.state !== 'fight' || S.dodgeCd > 0 || S.hurt > 0) return;
     if (S.pm && S.pm.t < S.pm.end) return;
+    { const kc = Math.ceil(D.dodgeKi * S.ps.kiCostMul); if (S.ki < kc) { say(T('combat_noki'), '#8cf'); return; } S.ki -= kc; }
     const v = SW.Input.vec, c = Math.cos(S.yaw), s = Math.sin(S.yaw);
     let f = -v.y, r = v.x; if (Math.hypot(f, r) < .2) { f = -1; r = 0; } // ohne Richtung: nach hinten
     const m = Math.hypot(f, r); f /= m; r /= m;

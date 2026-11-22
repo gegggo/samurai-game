@@ -152,6 +152,7 @@ SW.Combat = (function () {
   function dodge() {
     if (!S || S.state !== 'fight' || S.dodgeCd > 0 || S.hurt > 0) return;
     if (S.pm && S.pm.t < S.pm.end) return; // nicht mitten aus dem Schlag heraus
+    { const kc = Math.ceil(D.dodgeKi * S.ps.kiCostMul); if (S.ki < kc) { say(T('combat_noki'), '#8cf'); return; } S.ki -= kc; }
     S.pm = null; S.buf = null; S.chain = 0; S.dodgeT = DODGE; S.dodgeCd = .9 * S.ps.dodgeCdMul; S.side = -S.side; S.breath = false;
   }
 

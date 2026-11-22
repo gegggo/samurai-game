@@ -132,7 +132,11 @@ SW.World = (function () {
 
   // ---------- Strukturen ----------
   const S = [], B = new Map(), bk = (bx, by) => bx + by * 1000;
-  function add(type, x, y, w, hh, solid) { const s = { type, x, y, w, h: hh, solid: solid !== false, v: h(x, y, 9) }; S.push(s); return s; }
+  function add(type, x, y, w, hh, solid) {
+    const s = { type, x, y, w, h: hh, solid: solid !== false, v: h(x, y, 9) };
+    if (s.solid && w >= 4 && hh >= 3 && (type === 'house' || type === 'hall' || type === 'hut' || type === 'shrine')) { s.door = true; s.d0 = Math.floor((w - 1) / 2); s.d1 = Math.floor(w / 2); } // 0.15.0 begehbar: Wandring solid, Tür unten Mitte, Innenraum frei
+    S.push(s); return s;
+  }
   function land(x, y) { const t = terrain(x, y); return t !== T.WATER && t !== T.DEEP && t !== T.ROCK && t !== T.WALL && t !== T.LAVA && t !== T.BRIDGE && t !== T.SEA; }
   function onLand(x, y, w, hh, dx, dy) {
     for (let i = 0; i < 40; i++) {
@@ -222,7 +226,11 @@ SW.World = (function () {
   function structSolid(x, y) {
     const l = B.get(bk(x >> 5, y >> 5));
     if (!l) return false;
-    for (let i = 0; i < l.length; i++) { const s = l[i]; if (s.solid && x >= s.x && x < s.x + s.w && y >= s.y && y < s.y + s.h) return true; }
+    for (let i = 0; i < l.length; i++) { const s = l[i]; if (s.solid && x >= s.x && x < s.x + s.w && y >= s.y && y < s.y + s.h) {
+      if (!s.door) return true;
+      const dx = x - s.x, dy = y - s.y;
+      if ((dx === 0 || dy === 0 || dx === s.w - 1 || dy === s.h - 1) && !(dy === s.h - 1 && dx >= s.d0 && dx <= s.d1)) return true;
+    } }
     return false;
   }
   function nearStruct(x, y, m) {

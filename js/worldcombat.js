@@ -71,6 +71,7 @@ SW.WCombat = (function () {
     if (m > .2) { P.dx = v.x / m; P.dy = v.y / m; }
     else if (t) { const d = Math.hypot(p.x - t.x, p.y - t.y) || 1; P.dx = (p.x - t.x) / d; P.dy = (p.y - t.y) / d; } // ohne Richtung: vom Gegner weg
     else { P.dx = -Math.cos(p.face); P.dy = -Math.sin(p.face); }
+    { const kc = Math.ceil(D.dodgeKi * P.ps.kiCostMul); if (P.ki < kc) { say(T('combat_noki'), '#8cf'); return; } P.ki -= kc; }
     P.pm = null; P.buf = null; P.chain = 0; P.dodgeT = DODGE; P.dodgeCd = .9 * P.ps.dodgeCdMul;
   }
   X.press = function (k) { if (k === 'block' || k === 'breath') held[k] = true; else if (k === 'dodge') dodge(); else act(k); };
@@ -285,6 +286,7 @@ SW.WCombat = (function () {
     if (want && !P.block) { P.parryOk = P.noBlockT >= .35; P.blockT = 0; }
     if (want) { P.blockT += dt; P.noBlockT = 0; } else P.noBlockT += dt;
     P.block = want;
+    if (want) { const t = nearest(8), p0 = SW.Player; P.fa = t ? Math.atan2(t.y - p0.y, t.x - p0.x) : p0.face; } // Schild zeigt zum Gegner bzw. in Blickrichtung
     const moving = Math.hypot(SW.Input.vec.x, SW.Input.vec.y) > .15;
     const breath = !want && !P.pm && P.dodgeT <= 0 && P.hurt <= 0 && !moving;
     if (breath) P.st.breath += dt;

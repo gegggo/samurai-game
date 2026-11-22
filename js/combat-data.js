@@ -93,6 +93,7 @@ SW.Data.arenas = {
   cavern:   { sky: ['#1f1a28', '#3a3346'], gnd: ['#4a4450', '#221e28'], deco: 'cavern' }
 };
 // Region (Index wie in world.js) -> Arena
+SW.Data.dodgeKi = 10; // Platzhalter: Ki-Kosten je Ausweichrolle (Balancing offen)
 SW.Data.regionArena = ['clearing', 'bamboo', 'temple', 'clearing', 'clearing', 'plateau', 'ruins', 'camp', 'cavern', 'bamboo', 'temple', 'clearing', 'summit', 'ember', 'dunes', 'clearing', 'plateau', 'clearing'];
 // Begegnungen in der Welt (Phase 2: feste Testpunkte; echte Gegner-Spawns folgen in Phase 5).
 // Position wird beim Start auf die nächste freie Kachel gesetzt.
