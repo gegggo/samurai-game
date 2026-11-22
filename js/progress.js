@@ -271,7 +271,7 @@ SW.Save = (function () {
     if (SW.Quests) step(() => SW.Quests.load(d.q));
     if (SW.Trials) step(() => SW.Trials.load(d.tr));
     if (SW.Time) step(() => SW.Time.load(d.time));
-    step(() => (d.defeated || []).forEach(id => { const s = SW.Combat.spots.find(x => x.id === id); if (s) s.dead = true; }));
+    step(() => (d.defeated || []).forEach(id => { const s = SW.Combat.spot(id); if (s) s.dead = true; }));
     if (SW.UI) step(() => { (d.disc || []).forEach(i => SW.UI.disc.add(i)); (d.seen || []).forEach(i => SW.UI.seen.add(i)); });
     step(() => {
       const q = d.pos, W = SW.World;

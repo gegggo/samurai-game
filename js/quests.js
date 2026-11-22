@@ -8,7 +8,7 @@ SW.Quests = (function () {
   Q.get = get;
   const npc = id => SW.Shop.npcs.find(n => n.id === id) || null;
   const tone = () => SW.Karma.v >= 30 ? 'pos' : SW.Karma.v <= -30 ? 'neg' : 'neu';
-  const spot = id => SW.Combat.spots.find(s => s.id === id) || null;
+  const spot = id => SW.Combat.spot(id);
   const banner = t => { if (SW.UI) SW.UI.banner(t); };
 
   Q.refuses = () => SW.Karma.v <= -30; // schlechter Ruf: Dorfältester gibt keine neuen Quests
