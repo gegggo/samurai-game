@@ -69,6 +69,9 @@ SW.Combat = (function () {
     K.spots.push({ id: 'amb', type: 'shadow', x: q.x, y: q.y, dead: false, night: false, respawn: false, amb: true });
     if (SW.UI && SW.UI.banner) SW.UI.banner(T('amb_warn'));
   }
+  // Index id -> Gegnerpunkt (Quests/Speichern); neu aufgebaut, wenn sich die Anzahl ändert. shortcut: Tausch gleicher Länge (amb) wird nicht bemerkt, amb wird nie per ID gesucht.
+  let IDX = null, IDXN = -1;
+  K.spot = id => { if (!IDX || IDXN !== K.spots.length) { IDX = new Map(); K.spots.forEach(e => IDX.set(e.id, e)); IDXN = K.spots.length; } return IDX.get(id) || null; };
   K.boss = s => !!(s.trial || (D.enemies[s.type] && D.enemies[s.type].phases)); // Arena-Gegner (Boss/Schrein-Duell)
   K.check = function (p) {
     if (K.active) return;

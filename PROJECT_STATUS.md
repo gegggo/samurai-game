@@ -1,8 +1,16 @@
-# PROJECT_STATUS (gekürzt, Stand 0.20.2, Cache v87 (Phase 20 Teil 2: nur Werkzeug))
+# PROJECT_STATUS (gekürzt, Stand 0.21.0, Cache v88)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## Phase 21 – Performance + Tests (0.21.0, Cache v88) – Dateien gesendet, Gerätetest offen
+- **Freigabe:** Nutzer 22.11.2026. Entscheidungen: Spawn-Gitter nur bei Bedarf (nicht gebaut); `docs/` bleibt aus dem Repo; Render-Trennung (Teil D) weggelassen (nur Doku, Nutzer: unnötig).
+- **Geändert:** `js/combat.js` neu `K.spot(id)` (Index ID -> Gegnerpunkt, baut sich bei geänderter Anzahl neu auf); `js/quests.js` und `js/progress.js` nutzen ihn statt linearer Suche. `js/config.js` 0.21.0, `index.html` v88.
+- **Tests (`tests/regression.py`, jetzt 33):** +9: Truhe einmalig, Händler kaufen/verkaufen, Schmied-Upgrade, Schnellreise, Multitouch (Joystick + 2. Finger), Questkette elder7-9->3, Banditenlager per BFS erreichbar, Gegner-Index, Daten-Validator. Offline-Test wartet jetzt auf alle Datendateien + Kernskripte im Zwischenspeicher (vorher Flackern).
+- **Getestet (tatsächlich, headless Chromium 852x393):** Regression 33/33 (1 Lauf). Frame-Zeit: 232 vs. 1232 Gegner je 16,6 ms (60-fps-Grenze, kein Engpass; kein iPhone). `input.js` gelesen: keine Änderung nötig.
+- **Nicht geprüft / weiter offen:** iPhone-Leistung; Boss-Arena/Niederlage + Rückkehr, Kampfbuttons, Safe Areas, Dorf-Wiederaufbau, Tag/Nacht, Karte (weiter nur manuell); Spawn-Gitter erst, wenn Gerät/Mehrinhalt es braucht.
+- **Nächster Schritt:** Gerätetest 0.21.0, dann Freigabe Phase 22 (Balance-Kern).
 
 ## Phase 20 Teil 2 – Generator-Gerüst Regionen (Version bleibt 0.20.2, kein Spielcode geändert)
 - **Freigabe:** Nutzer 22.11.2026 (0.20.2 laut Nutzer am Gerät geprüft, ohne Protokoll).

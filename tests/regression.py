@@ -124,7 +124,7 @@ try:
     pg = start(b, errs); pg.wait_for_timeout(2500)
     reg = ev(pg, "async () => { const r = await navigator.serviceWorker.getRegistration(); return !!r && SW.Store.worker === 'on'; }")
     rec('Phase 19: Service Worker registriert', reg is True, str(reg))
-    pg.reload(); pg.wait_for_timeout(1500); pg.wait_for_function("caches.match('data/skills.json', {ignoreSearch: true}).then(r => !!r)", timeout=15000); pg.context.set_offline(True)
+    pg.reload(); pg.wait_for_timeout(1500); pg.wait_for_function("fetch('data/index.json').then(r => r.json()).then(j => Promise.all(j.files.concat(['../js/world.js', '../js/combat.js']).map(f => caches.match(f.startsWith('..') ? f.slice(3) : 'data/' + f, {ignoreSearch: true})))).then(a => a.every(x => !!x))", timeout=20000); pg.context.set_offline(True)
     try:
         pg.reload(); pg.wait_for_timeout(1500); off = ev(pg, "typeof SW !== 'undefined' && !!SW.version && !!SW.World && SW.Menus ? SW.version : false")
     except Exception as ex: off = 'fehler ' + str(ex)[:80]
@@ -133,6 +133,39 @@ try:
     # 16 Phase 19: Speicherschutz-Abfrage + Hinweis in der Oberflaeche
     r = ev(pg, """async () => { const S=SW.Store; const a=await S.refresh(); const b=await S.ask(); const box=SW.Menus.h.backupBox(); const txt=box.textContent; return {a, b, ui: /Storage protected|Storage not protected|Storage protection unknown/.test(txt)}; }""")
     rec('Phase 19: persist()-Abfrage liefert yes/no/unknown, Einstellungen zeigen Speicherschutz-Hinweis', r['a'] in ('yes', 'no', 'unknown') and r['b'] in ('yes', 'no', 'unknown') and r['ui'], json.dumps(r))
+    # 17 Phase 21: Truhe nur einmal
+    pg = start(b, errs)
+    r = ev(pg, """() => { const I = SW.Inv, c = I.chests.find(x => x.give && x.give.coins && !x.open), c0 = I.coins; const a = I.open(c), c1 = I.coins, b2 = I.open(c); return { a, b2, d: c1 - c0, d2: I.coins - c1 }; }""")
+    rec('Phase 21: Truhe oeffnet einmal, zweites Oeffnen ohne Wirkung', r['a'] and not r['b2'] and r['d'] > 0 and r['d2'] == 0, json.dumps(r))
+    # 18 Haendler kaufen/verkaufen
+    r = ev(pg, """() => { const S = SW.Shop, I = SW.Inv; S.cur = null; const id = S.list('herb')[0]; I.coins = 0; const poor = S.buy(id); I.addCoins(5000); const c0 = I.coins, n0 = I.bag[id] || 0; const buy = S.buy(id), n1 = I.bag[id] || 0, c1 = I.coins; const sell = S.sell(id); return { id, poor, buy, paid: c0 - c1, got: n1 - n0, sell, back: I.coins - c1, n2: I.bag[id] || 0, n0 }; }""")
+    rec('Phase 21: Haendler: zu arm = kein Kauf, Kauf zieht Preis ab, Verkauf gibt Muenzen zurueck', r['poor'] is False and r['buy'] and r['paid'] > 0 and r['got'] == 1 and r['sell'] and r['back'] > 0 and r['n2'] == r['n0'], json.dumps(r))
+    # 19 Schmied: Upgrade braucht Muenzen + Eisen
+    r = ev(pg, """() => { const S = SW.Shop, I = SW.Inv, id = SW.Data.items.find(x => x.type === 'weapon').id; I.add(id, 1); I.coins = 0; I.bag.iron = 0; const no = S.upgrade(id); I.coins = 99999; I.bag.iron = 99; const l0 = I.lvl(id), ok = S.upgrade(id); return { no, ok, l0, l1: I.lvl(id), coins: I.coins < 99999, iron: I.bag.iron < 99 }; }""")
+    rec('Phase 21: Schmied: ohne Muenzen/Eisen kein Upgrade, mit Mitteln +1 Stufe und Kosten abgezogen', r['no'] is False and r['ok'] and r['l1'] == r['l0'] + 1 and r['coins'] and r['iron'], json.dumps(r))
+    # 20 Schnellreise
+    r = ev(pg, """() => { const S = SW.Shrines, id = SW.Data.shrines.find(x => x.id !== 'village').id, off = S.travel(id); S.activate(id); const ok = S.travel(id), s = S.get(id), p = SW.Player; return { off, ok, d: Math.hypot(p.x - s.x, p.y - s.y) }; }""")
+    rec('Phase 21: Schnellreise: nur zu erweckten Schreinen, Ankunft am Schrein', r['off'] is False and r['ok'] and r['d'] < 2.5, json.dumps(r))
+    # 21 Multitouch: zweiter Finger stoert Joystick nicht, rechte Seite startet keinen
+    r = ev(pg, """() => { const el = document.querySelector('canvas'), I = SW.Input, ev = (t, id, x, y) => el.dispatchEvent(new PointerEvent(t, { pointerId: id, clientX: x, clientY: y, bubbles: true, cancelable: true }));
+      I.reset(); const W = window.innerWidth; ev('pointerdown', 1, 80, 200); ev('pointermove', 1, 140, 200); ev('pointerdown', 2, 60, 250); ev('pointermove', 2, 10, 10); ev('pointerdown', 3, W - 50, 200);
+      I.update(); const a = { id: I.joy.id, x: I.vec.x > .3 }; ev('pointerup', 2, 60, 250); const still = I.joy.active; ev('pointerup', 1, 140, 200); return { a, still, end: I.joy.active }; }""")
+    rec('Phase 21: Multitouch: Joystick bleibt bei 1. Finger, 2. Finger/rechte Seite ohne Wirkung, Loslassen stoppt', r['a']['id'] == 1 and r['a']['x'] and r['still'] and not r['end'], json.dumps(r))
+    # 22 Questkette elder2 -> 7 -> 8 -> 9 -> 3
+    r = ev(pg, """() => { const Q = SW.Quests, S = () => ['elder7', 'elder8', 'elder9', 'elder3'].map(i => Q.status(i)).join(','); SW.Karma.add('t', 20); SW.Char.addXp(3000); const o = [S()]; Q.st.elder1 = 'done'; Q.st.elder2 = 'done'; o.push(S()); Q.st.elder7 = 'done'; o.push(S()); Q.st.elder8 = 'done'; o.push(S()); Q.st.elder9 = 'done'; o.push(S()); return o; }""")
+    rec('Phase 21: Questkette elder7-9 schaltet elder3 erst nach elder9 frei', r == ['locked,locked,locked,locked', 'avail,locked,locked,locked', 'done,avail,locked,locked', 'done,done,avail,locked', 'done,done,done,avail'], json.dumps(r))
+    # 23 Lager in Western Woods erreichbar (BFS vom Start)
+    r = ev(pg, """() => { const W = SW.World, ids = ['e_boss', 'e_camp1', 'e_camp2', 'e_camp3', 'e_camp4', 'e_x65'], pts = {}; SW.Combat.spots.forEach(s => { if (ids.includes(s.id)) pts[s.id] = [s.x, s.y]; }); SW.Data.chests.forEach(c => { if (c.id.startsWith('c_camp')) pts[c.id] = [c.x, c.y]; }); const sh = SW.Shrines.get('way9'); pts.way9 = [sh.x, sh.y];
+      const seen = new Set(), q = [[884, 1175]], k = (x, y) => x * 4000 + y; seen.add(k(884, 1175)); let n = 0;
+      while (q.length && n < 6e6) { const [x, y] = q.pop(); n++; for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + a, Y = y + b; if (X < 250 || X > 1100 || Y < 1000 || Y > 1750 || seen.has(k(X, Y))) continue; seen.add(k(X, Y)); if (!W.solid(X + .5, Y + .5)) q.push([X, Y]); } }
+      const bad = Object.keys(pts).filter(id => { const [x, y] = pts[id]; for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) if (seen.has(k(Math.floor(x) + a, Math.floor(y) + b)) && !W.solid(Math.floor(x) + a + .5, Math.floor(y) + b + .5)) return false; return true; }); return { bad, n: Object.keys(pts).length }; }""")
+    rec('Phase 21: Banditenlager (Boss, Gegner, Truhen, Schrein) vom Start erreichbar', not r['bad'] and r['n'] >= 9, json.dumps(r))
+    # 24 Gegner-Index
+    r = ev(pg, "() => { const K = SW.Combat, s = K.spots[5]; return K.spot(s.id) === s && K.spot('gibt_es_nicht') === null; }")
+    rec('Phase 21: Gegner-Index (Combat.spot) findet Punkt per ID, unbekannte ID = null', r is True, str(r))
+    # 25 Daten-Validator
+    v = subprocess.run([sys.executable, 'tools/validate_data.py'], capture_output=True, text=True)
+    rec('Phase 21: Daten-Validator 0 Fehler', v.returncode == 0, v.stdout.strip().splitlines()[-1] if v.stdout.strip() else v.stderr[-100:])
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:
