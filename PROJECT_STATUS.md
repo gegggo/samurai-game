@@ -1,8 +1,15 @@
-# PROJECT_STATUS (gekürzt, Stand 0.14.0, Cache v78)
+# PROJECT_STATUS (gekürzt, Stand 0.15.0, Cache v79)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
-**Aktuell:** 0.14.0 = Phase 12 (Dateien gesendet, Browser-Test bestanden, Gerätetest offen). 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
+**Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Dateien gesendet, Browser-Test teilweise, Gerätetest offen). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## 0.15.0 – Fixes nach Gerätetest 0.14.0
+- **Block-Schild:** Bogen stand an veralteter Richtung (nur eine Seite, teils hinter dem Spieler). `worldcombat.js`: beim Blocken zeigt `P.fa` zum nächsten Gegner (8 Kacheln) sonst in Blickrichtung. Block-Logik selbst war richtungslos und blieb unverändert. Arena unberührt.
+- **Häuser begehbar (alle `house`/`hall`/`hut`/`shrine`, w>=4, h>=3):** `world.js add()` setzt `door/d0/d1`; `structSolid`: nur Wandring solid, Tür unten Mitte (1 Kachel bei ungerader, 2 bei gerader Breite), Innenraum frei. `render.js`: Spieler im Haus -> Innenansicht (`interior()`, Boden + Wandring, Platzhalter) wird zuerst gezeichnet, Dach/Fassade verschwinden. Meister steht im Tempel (2289.5, 996.5). Türme (`tower`) und Quest-Zäune unverändert.
+- **Ausweichen kostet Ki:** `D.dodgeKi = 10` (**Platzhalter**, `combat-data.js`) x Ki-Kostenfaktor; zu wenig Ki -> Meldung, kein Ausweichen. In `worldcombat.js`, `arena3d.js`, `combat.js` (Rückfall).
+- **Getestet (headless Chromium):** Start ohne JS-Fehler (nur Favicon-404); Tür begehbar, Wand/Ring solid, Innenraum frei (Kollisionsabfrage); per Tastatur durch die Tür hinein bis zur Rückwand und seitlich bis zur Wand (Position gemessen); Innenansicht + Meister + Talk-Button (Screenshot). **Nicht geprüft:** Ki-Abzug beim Ausweichen (nur Code, `node`-Syntax), Block-Bogen-Richtung (nur Code), andere Häuser (Dörfer, Hütten, Schreine) einzeln, Kamera/Beleuchtung innen nachts, Gegner/NPCs in Gebäuden, Regression Speichern/Quests/Inventar, Gerät.
+- **Bekannt:** Innenraum kleiner Hütten nur 2x1-2x2 Kacheln; Innenansicht springt beim Betreten (kein Übergang); Dorf-Wiederaufbau-Zustand `dmg` zeigt innen nichts.
 
 ## 0.14.0 – Phase 12 (Meistertempel + Trainingsplatz)
 - **Meistertempel im Steingarten** (Region 10, Mitte-Nord, Zentrum X 2292 / Y 1012): `world.js` Halle `hall` (2283,993, 14x8) + 3 Trainingspuppen `dummy` (2286/2290/2298, 1011). Meister `n_master` von Startdorf nach (2290.5, 1002.5) (`shops-data.js`). Texte angepasst (Schriftrolle: "Meister im Tempel des Steingartens", EN+DE).
@@ -81,4 +88,4 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 - Hinweis: Ladebild liegt auf GitHub unter `assets/images/ui/loading.jpg` (lokales Zip: `assets/loading.jpg`); Zip-Datei hieß teils `js/config .js` (Leerzeichen) – Dateinamen prüfen.
 
 ## Nächster Schritt
-Gerätetest 0.14.0 (Tempel, Puppen, Meister-Dialog). Danach Phase 14 (neue Region) oder Balancing.
+Gerätetest 0.15.0 (Haus betreten, Block-Bogen, Ki beim Ausweichen). Danach Phase 14 (neue Region) oder Balancing.
