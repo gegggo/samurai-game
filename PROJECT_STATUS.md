@@ -1,9 +1,18 @@
 # PROJECT_STATUS
 
-**Cache-Version:** v70 (Spielversion 0.10.1)
-**Aktuelle Phase:** 0.10.1 (Balken-Fix + mehr Gegner/Schreine) auf Basis von 0.10.0 = Duell-Umbau Phase A (Weltkampf normale Gegner; Dateien gesendet, Gerätetest offen). Danach Phase B (Boss-Arena Ego-Pseudo-3D, noch NICHT begonnen). Davor: 0.9.1 = Balancing-Runde (Essence vereinheitlicht, Karma/Yin-Yang geprüft, Autosave Gebietswechsel, 2 neue Regionen). Status: Dateien gesendet, Browser-Tests bestanden, Gerätetest offen. Davor Phase 6 (0.9.0, Gerätetest offen). Davor Phase 8 – Fortschrittssysteme (erste Erweiterung umgesetzt). Phase 7a–7d integriert und im Browser stabil geprüft (siehe unten), Gerätetest offen.
+**Cache-Version:** v71 (Spielversion 0.11.0)
+**Aktuelle Phase:** 0.11.0 = Phase B (Boss-Arena Ego-Pseudo-3D) + Wächter-Fix. Status: Dateien gesendet, Browser-Rauchtest bestanden, Gerätetest offen.
 
-**Repository:** `index.html` im Root, `css/main.css`, JavaScript unter `js/`, Spezifikation unter `docs/`.
+## 0.11.0 – Phase B: Boss-Arena + Wächter an jedem Schrein (Dateien gesendet – Gerätetest offen)
+- **Hinweis:** `arena3d.js` aus der abgebrochenen Sitzung lag NICHT im Zip (Limit). Neu geschrieben, nicht identisch mit dem abgebrochenen Entwurf.
+- **Wächter-Fix:** `combat.js`: jeder Schrein bekommt mind. 2 Gegner in 22 Kacheln (fehlende als `g_<schrein>_<n>`, feste IDs, gespeichert wie alle Gegner, einmalig). Vorher hatten nur die `way*`-Schreine Wächter; alte Schreine (z. B. `dunes`) hatten keine. Jetzt +31 Gegner (214 gesamt).
+- **Boss-Arena:** neu `js/arena3d.js` (`SW.Arena`): runde Arena (Radius 9), Ego-Ansicht Pseudo-3D (Projektion, Wandsegmente, Bodenringe), Lock-on auf Boss, freie Bewegung (Joystick vor/zurück/kreisen), Ausweichrolle in Stickrichtung, Block/Parade, Angriffe/Spezial/Skill-Slots/Fernkampf, Boss-KI (Annähern, Kreisen, Angriff mit Vorwarnung, Reichweite -> weglaufen = Treffer geht ins Leere), Bossphasen, Belohnung über `K.grant` bzw. `Trials.duelWon`. KEINE ▲■▼/Finten/Atem-Fokus (Nutzerentscheidung). Simulation und Ansicht getrennt (`proj()`/`draw*` nur Kamera + Positionen) für späteren echten 3D-Ausbau.
+- **Eingriffe:** `combat.js` (`K.start/update/draw` delegieren an Arena, Buttons routen, `K.gfx` exportiert Waffenzeichnung). Altes Duell bleibt als Rückfall im Code.
+- **Geändert/neu:** `js/arena3d.js` (neu), `js/combat.js`, `js/config.js` (0.11.0), `index.html` (v71, arena3d.js nach worldcombat.js), `PROJECT_STATUS.md`.
+- **Geprüft (headless Chromium 852x393):** Start ohne JS-Fehler; jeder Schrein hat >= 2 Gegner in 24 Kacheln; Aggro am Schrein startet Weltkampf; Boss `e_boss` per Berührung -> Arena, Kampf mit Tasten (W, J, K) gewonnen, Rückkehr in Welt; zweiter Lauf: Niederlage -> Rückkehr in Welt ohne Fehler. Keine JS-Fehler. `node --check` alle JS ok.
+- **NICHT geprüft:** iPhone/Touch (Joystick + Buttons in Arena), Balancing, Bosse warden/monk/oni, Schrein-Duell (`trial`), Speichern nach Boss, Optik/Größe (Boss bei Nähe sehr groß), Gegnerdichte/Gefühl.
+- **Bekannt:** Wandsegmente hinter/neben der Kamera werden verworfen (kein Near-Clipping); Boss-Mini-Lebensbalken doppelt zur HUD-Leiste; Gegner-Pfadfinden und Schwertanimation (Welt) weiter offen.
+- **Nächster Schritt:** Gerätetest 0.11.0 (Wächter an Schreinen, Boss-Arena per Touch), dann Freigabe/Anpassungen.
 
 ## 0.10.1 – Schwarzer Balken unten + mehr Inhalt auf der Karte (Dateien gesendet – Gerätetest offen)
 - **iOS-Balken unten:** `main.js` `fitH()`: nur iOS + Querformat; ist die Layout-Höhe 3 Prüfungen (ca. 1,2 s) in Folge > 6 px kleiner als die kurze Bildschirmseite, bekommen `game, cbt, menu, shop, dlg, title` die feste Höhe der kurzen Seite; sonst zurück auf automatisch. Ursache nicht reproduzierbar (nur Screenshot vom Gerät), Fix ist eine Gegenmaßnahme -> auf dem iPhone beobachten. Diagnose-Protokoll zeigt `fitH`/`fitH0`.
