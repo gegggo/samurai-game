@@ -1,8 +1,20 @@
-# PROJECT_STATUS (gekürzt, Stand 0.12.3, Cache v75)
+# PROJECT_STATUS (gekürzt, Stand 0.13.0, Cache v77)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
-**Aktuell:** 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
+**Aktuell:** 0.13.0 = Phase 11 + 13 (Dateien gesendet, Prüfung ausstehend, Gerätetest offen). Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## 0.13.0 – Phase 11 (Atem automatisch) + Phase 13 (A*)
+- **Atem automatisch (Nutzerwunsch):** kein Button. `worldcombat.js`/`combat.js`: Atem = nicht blocken/angreifen/ausweichen/getroffen (Welt zusätzlich: nicht laufen); `arena3d.js`: zusätzlich Joystick in Ruhe. Ki-Regen +22*breathMul und Yin-Statistik wie zuvor. Skilltexte `sw4`/`km5` (`skills-data.js`, `lang-de.js`) und Yin-Hinweis (`menus.js`, `lang-de.js`) auf "ruhig stehen" umformuliert. **Balance-Platzhalter:** Ki-Regen im Stand jetzt immer aktiv -> evtl. zu stark, am Gerät prüfen.
+- **A* für Welt-Gegner:** `worldcombat.js astar()` (Gitter um Start/Ziel, 8 Richtungen, keine Eckenschnitte, max 900 Knoten, Neuberechnung alle 0,6 s nur ohne Sichtlinie); kein Weg -> alter Umweg (0.12.0) bleibt Rückfall.
+- **Geändert:** js/worldcombat.js, js/combat.js, js/arena3d.js, js/skills-data.js, js/lang-de.js, js/menus.js, js/config.js, index.html (v77), PROJECT_STATUS.md.
+- **Getestet (tatsächlich):** node-Syntaxprüfung aller geänderten JS (ok); A* isoliert in node (Pfad um Wand mit Lücke gefunden, vollständig blockiert -> null, 200 Suchen = 118 ms). **Nicht getestet:** Spiel im Browser, Gegner im echten Spiel, Auto-Atem im Kampf, Arena, Gerät, Regression (Speichern/Quests/Inventar).
+- **Nicht umgesetzt (Zeit):** Phase 12 Trainingsbereich, Phase 14 neue Region, Balancing-Durchgang.
+
+## 0.12.4
+- **Breathe-Button entfernt** (Nutzerwunsch): `js/combat.js` (Button-Liste), `css/main.css` (`#cb-breath`), `js/config.js` (Version), `index.html` (v76). Syntax `combat.js` geprüft (node); Gerätetest offen.
+- **Bewusst belassen:** Atem-Logik (Taste B, Ki-Regen, Yin) und Skills `sw4`, `km5` (Atem-Bonus) -> auf Touch nicht mehr auslösbar. **Entscheidung offen:** Skills umbauen/entfernen.
+- **Bekannt, vom Nutzer vorerst ignoriert:** schwarzes/blaues Bild und schwarzer Balken unten (iOS) treten weiter auf. Nutzer: alles andere getestet, Buttons, Gegner-Spawn, Laufen OK (Gerät).
 
 ## 0.12.3
 - **Kampf-Layout nach Nutzerskizze:** Block (28 %) und Ausweichen darüber in der Zone rechts neben dem Joystick; Skill-Buttons darüber (21 %/+66 px, unter Minimap). Browser 852x393 gemessen/Screenshot, keine Überlappung. Hinweis: Buttons in der linken Hälfte schlucken dort den Joystick-Start (Joystick am linken Rand).
@@ -61,4 +73,4 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 - Hinweis: Ladebild liegt auf GitHub unter `assets/images/ui/loading.jpg` (lokales Zip: `assets/loading.jpg`); Zip-Datei hieß teils `js/config .js` (Leerzeichen) – Dateinamen prüfen.
 
 ## Nächster Schritt
-Gerätetest 0.12.1 durch Nutzer, Fehler melden.
+Prüfung 0.13.0: Browser-Test (Weltkampf, Arena, Gegner um Felsen) + Gerätetest. Danach Phase 12 (Trainingsbereich) oder 14 (Region).
