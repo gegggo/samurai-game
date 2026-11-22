@@ -25,8 +25,8 @@ body.wcombat #act-btn { display: none !important; }
 .cb.empty { opacity: .35; }
 .cb { position: absolute; pointer-events: auto; border-radius: 50%; border: 2px solid rgba(232,224,208,.55); background: rgba(11,11,15,.5); color: #f4ecd8; font: 600 13px Georgia, serif; letter-spacing: .03em; padding: 0; touch-action: none; -webkit-tap-highlight-color: transparent; }
 .cb.on { background: rgba(181,53,43,.7); border-color: #fff; }
-#cb-block { left: 57%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 80px; height: 80px; }
-#cb-dodge { left: calc(57% + 88px); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; }
+#cb-block { left: 28%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); width: 80px; height: 80px; }
+#cb-dodge { left: calc(28% + 8px); bottom: calc(112px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; }
 #cb-attack { right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 92px; height: 92px; background: rgba(181,53,43,.45); }
 #cb-heavy { right: calc(126px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 72px; height: 72px; }
 #cb-special { right: calc(36px + env(safe-area-inset-right, 0px)); bottom: calc(120px + env(safe-area-inset-bottom, 0px)); width: 72px; height: 72px; border-color: #7fd0ff; }
@@ -37,8 +37,8 @@ body.wcombat #act-btn { display: none !important; }
 body.combat #compass { display: none; }
 
 /* ---- Charakter-Menüs (Phase 3) ---- */
-#cb-s0 { left: 57%; bottom: calc(104px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
-#cb-s1 { left: calc(57% + 66px); bottom: calc(104px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
+#cb-s0 { left: 21%; bottom: calc(205px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
+#cb-s1 { left: calc(21% + 66px); bottom: calc(205px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; font-size: 10px; border-color: #9a7bd8; line-height: 1.1; }
 .pn { margin: auto; width: 100%; max-width: 720px; font-size: 15px; }
 .pn h3 { margin: 10px 0 6px; font: 700 17px Georgia, serif; letter-spacing: .04em; }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0; }
