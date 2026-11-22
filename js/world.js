@@ -28,6 +28,7 @@ SW.World = (function () {
     for (let y = 0; y < s.h; y++) { let x = 0; rows[y].split(',').forEach(tk => { const p = tk.split('*'), n = p[1] ? +p[1] : 1; g.fill(parseInt(p[0], 36), y * s.w + x, y * s.w + x + n); x += n; }); }
     return { x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1, c: s.cell, w: s.w, g, centers: s.centers || {}, roads: s.roads || [], rivers: s.rivers || [] };
   });
+  const CAMP = [600, 1500]; // 0.20.2: Banditenlager in Western Woods (vorher CEN[7])
   const CEN = []; // Regionsmitte je Region (Mirror Lake = Seemitte). Strukturen und Inhalte hängen daran.
   SEG.forEach(s => Object.keys(s.centers).forEach(k => { CEN[+k] = s.centers[k]; }));
   function code(x, y) {
@@ -108,6 +109,7 @@ SW.World = (function () {
     if (reg === 6 && Math.abs(dx) < 12 && Math.abs(dy) < 9) return T.STONE;
     if (reg === 8 && d2 < 2500) return T.CAVE;
     if (reg === 7 && Math.abs(dx) < 21 && Math.abs(dy) < 15) return T.DIRT;
+    if (reg === 3 && Math.abs(x - CAMP[0]) < 21 && Math.abs(y - CAMP[1]) < 15) return T.DIRT;
     if (reg === 0 && Math.abs(dx) < 7 && Math.abs(dy) < 7) return T.DIRT;
     if (ROCKY[reg] < 1 && Math.hypot(dx, dy) > 45 && rd > 3 && fbm(x, y, 5) > ROCKY[reg]) return T.ROCK;
     if (reg === 1) return T.BAMBOO;
@@ -174,7 +176,7 @@ SW.World = (function () {
     }
     [[-7,-5],[7,-5],[-7,5],[7,5]].forEach(o => add('pillar', rx + o[0], ry + o[1], 1, 1));
     [[-35,-20],[28,15],[-30,22]].forEach(o => add('ruinhouse', rx + o[0], ry + o[1], 5, 4));
-    const [cx, cy] = CEN[7];                       // Bandit Camp
+    const [cx, cy] = CAMP;                         // Bandit Camp (Western Woods)
     add('palisade', cx - 21, cy - 15, 19, 1); add('palisade', cx + 3, cy - 15, 19, 1);
     add('palisade', cx - 21, cy + 15, 19, 1); add('palisade', cx + 3, cy + 15, 19, 1);
     add('palisade', cx - 21, cy - 14, 1, 11); add('palisade', cx - 21, cy + 4, 1, 11);
@@ -258,7 +260,7 @@ SW.World = (function () {
     return false;
   }
   // Keine Objekte (Bäume, Felsen) rund um Orte: [Mitte x, Mitte y, Halbbreite, Halbhöhe]
-  const ZONES = [[CEN[2][0], CEN[2][1], 20, 20], [CEN[8][0], CEN[8][1], 52, 52], [CEN[0][0], CEN[0][1], 26, 20], [CEN[7][0], CEN[7][1], 24, 18], [CEN[6][0], CEN[6][1], 15, 12]];
+  const ZONES = [[CEN[2][0], CEN[2][1], 20, 20], [CEN[8][0], CEN[8][1], 52, 52], [CEN[0][0], CEN[0][1], 26, 20], [CAMP[0], CAMP[1], 24, 18], [CEN[6][0], CEN[6][1], 15, 12]];
   for (let r = 9; r <= 18; r++) if (CEN[r]) ZONES.push([CEN[r][0], CEN[r][1], 10, 10]);
   if (CEN[17]) ZONES.push([4170, 1491, 80, 40]); // Sakura-Stadt: keine Bäume
   function objAt(x, y, t) {

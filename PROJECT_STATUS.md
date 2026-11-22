@@ -1,8 +1,21 @@
-# PROJECT_STATUS (gekürzt, Stand 0.20.0, Cache v85)
+# PROJECT_STATUS (gekürzt, Stand 0.20.2, Cache v87)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## 0.20.2 – Nutzerentscheidungen nach 0.20.1
+- **Banditenlager nach Western Woods:** `world.js` neue Konstante `CAMP` (600,1500) statt `CEN[7]` (Struktur, POI `camp`, Baumfreie Zone, Dirt-Boden in Region 3). Inhalt um (-1052,-688) verschoben (`data/world.json`): `e_boss`, `e_camp1-4`, `e_x106/107`, `c_camp1/2`, `n_pris1-3`, Schrein `way9`; `tier` 1 (Regelwert Region 3). `data/combat.json`: `boss.arena = camp` (Arena bleibt Lager). Texte `elder3` EN/DE: "Western Woods". Weg Start -> Lager ~390 Kacheln (vorher ~1000). Alter Lagerplatz (Region 7) bleibt leere Dirt-Fläche.
+- **3 Mini-Quests (nur Daten, tier 1):** `elder7` (Ronin `e_x83` nördlich), `elder8` (Schrein `grove`), `elder9` (Späher `e_x65`); Kette `elder2` -> 7 -> 8 -> 9; `elder3` verlangt jetzt `done: elder9` (+ Level 3, Karma 10). Texte EN (`quests-data.js`) + DE (`lang-de.js`).
+- **Quest-Punkt Karte:** unverändert. Nutzer: nur bei fernen Zielen, nicht bei "Bring"-Quests (so ist es schon).
+- **Getestet (headless Chromium 852x393):** Validator 0 Fehler; BFS vom Start: Boss, Lagergegner, Truhen, Gefangene, Schrein `way9`, `e_x65` erreichbar; Questkette 2->7->8->9->3 schaltet korrekt frei; Karten-Ziel `e_boss` bei (600.5,1508.5); Screenshot Lager (Palisade, Dirt-Boden); Regression 24/24 (2 Läufe; 1 Lauf mit einem Offline/XHR-Fehler, bekanntes Flackern des Zwischenspeicher-Tests).
+- **Nicht geprüft:** iPhone; Bosskampf von Hand im Lager; Schnellreise `way9`; BFS zu `e_x83` und `grove` (außerhalb Suchbereich); Gefangenen-Quests von Hand; Regionsname beim Lager zeigt jetzt "Western Woods".
+- **Phase 26 (vorgemerkt auf Nutzerwunsch):** Tutorial-Insel / gesteuerter Einstieg (neue Region + Skript) zusammen mit der Hauptquest.
+
+## 0.20.1 – Fix nach Gerätetest 0.20.0
+- **Startgegner weiter weg:** `e_train` (Quest `elder1`) von y 1180 auf 1190 (`data/world.json`); Startpunkt (884.5, 1175.5) -> Abstand 5 -> 15 Kacheln. Schrein-Wächter `g_village_1/2` stehen 10 Kacheln entfernt (Aggro 5,5). Geprüft: Spawn-Abstände per Browser, Terrain (885,1190) begehbar.
+- **Gerätetest 0.20.0:** Start, Karte (Screenshot), Version v0.20.0 sichtbar -> Spiel lädt am iPhone mit JSON-Daten.
+- **Offen (Nutzerwünsche, nicht umgesetzt):** (2) Tutorial-Insel/BOTW-Einstieg = neue Region + Skript, Vorschlag nach Generator-Gerüst; (3) Schwarz/blau-Bild nach Screenshot: Websites können iOS nicht an eine Ausrichtung binden (kein Orientation-Lock in Safari/Brave) -> echte Lösung erst mit Capacitor-App; (4) Quest-Markierung auf Karte **existiert bereits** (grüner Punkt, nur bei angenommener Quest), einfachere/nähere Quests = Inhalt, Entscheidung offen.
 
 ## Phase 20 – Daten-Fundament (0.20.0, Cache v85) – Dateien gesendet, Gerätetest offen
 - **Freigabe:** Nutzer 22.11.2026. Phase-19-Ordner `Phase 19 Test` ins Repo gemerged (Ladebild `assets/loading.jpg` -> `assets/images/ui/loading.jpg`; `text.txt`, Export-JSON nicht übernommen).

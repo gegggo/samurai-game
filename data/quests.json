@@ -118,13 +118,67 @@
   },
   {
    "giver": "n_elder",
+   "id": "elder7",
+   "obj": {
+    "spot": "e_x83",
+    "type": "kill"
+   },
+   "req": {
+    "done": "elder2"
+   },
+   "rew": {
+    "coins": 50,
+    "karma": 3,
+    "xp": 60
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_elder",
+   "id": "elder8",
+   "obj": {
+    "shrine": "grove",
+    "type": "shrine"
+   },
+   "req": {
+    "done": "elder7"
+   },
+   "rew": {
+    "coins": 40,
+    "karma": 3,
+    "xp": 50
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_elder",
+   "id": "elder9",
+   "obj": {
+    "spot": "e_x65",
+    "type": "kill"
+   },
+   "req": {
+    "done": "elder8"
+   },
+   "rew": {
+    "coins": 70,
+    "karma": 3,
+    "xp": 80
+   },
+   "ed": "lite",
+   "tier": 1
+  },
+  {
+   "giver": "n_elder",
    "id": "elder3",
    "obj": {
     "spot": "e_boss",
     "type": "kill"
    },
    "req": {
-    "done": "elder2",
+    "done": "elder9",
     "karma": 10,
     "level": 3
    },

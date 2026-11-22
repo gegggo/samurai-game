@@ -313,7 +313,8 @@
      "speed": 1.4
     }
    ],
-   "weapon": "sword"
+   "weapon": "sword",
+   "arena": "camp"
   },
   "boss_monk": {
    "arena": "summit",
