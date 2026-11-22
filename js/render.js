@@ -57,11 +57,11 @@ SW.Render = (function () {
   }
 
   // ---------- Objekte ----------
-  function tree(c, bx, by, u, v, sn) {
+  function tree(c, bx, by, u, v, sn, pk) {
     const s = .85 + v * .45, maple = v > .9;
     shadow(c, bx + u * .18, by, u * .42 * s, u * .14 * s);
     c.fillStyle = '#4a3424'; c.fillRect(bx - u * .07 * s, by - u * .45 * s, u * .14 * s, u * .45 * s);
-    const g = sn ? ['#3f5f58', '#6a8c86', '#e4eef2'] : maple ? ['#8f3a2a', '#b04a2c', '#d0653a'] : ['#2f6b3a', '#3a8244', '#4b9a52'];
+    const g = sn ? ['#3f5f58', '#6a8c86', '#e4eef2'] : pk ? ['#b8607e', '#e48eaa', '#f8c8d8'] : maple ? ['#8f3a2a', '#b04a2c', '#d0653a'] : ['#2f6b3a', '#3a8244', '#4b9a52'];
     for (let i = 0; i < 3; i++) {
       const w = (.62 - i * .14) * u * s, top = by - u * (1.05 + i * .5) * s, bot = by - u * (.35 + i * .5) * s;
       c.fillStyle = g[i]; c.beginPath(); c.moveTo(bx, top); c.lineTo(bx + w, bot); c.lineTo(bx - w, bot); c.closePath(); c.fill();
@@ -243,6 +243,11 @@ SW.Render = (function () {
     c.fillStyle = '#c9b57a'; c.fillRect(sx - u * .2, by - u * .55, u * .4, u * .08);
     c.strokeStyle = '#1b1b1f'; c.lineWidth = u * .07; c.beginPath(); c.moveTo(sx - d * u * .22, by - u * .5 + u * .05); c.lineTo(sx + d * u * .38, by - u * .5 - u * .22); c.stroke();
     c.strokeStyle = '#c9b57a'; c.lineWidth = u * .03; c.beginPath(); c.moveTo(sx - d * u * .22, by - u * .45); c.lineTo(sx - d * u * .3, by - u * .42); c.stroke();
+    const sq = SW.WCombat && SW.WCombat.swingQ && SW.WCombat.swingQ(); // 0.12.0 Schwerthieb: Klinge schwingt in einem Bogen (Platzhalter bis Phase 29)
+    if (sq) {
+      const ag = sq.a - 1.1 + sq.q * 2.2, hx = sx + d * u * .1, hy = by - u * .55;
+      c.strokeStyle = '#e6ecf2'; c.lineWidth = u * .07; c.beginPath(); c.moveTo(hx, hy); c.lineTo(hx + Math.cos(ag) * u * .85, hy + Math.sin(ag) * u * .5 - u * .1); c.stroke();
+    }
     c.fillStyle = '#e3bf9a'; c.beginPath(); c.arc(sx, by - u * 1.08, u * .13, 0, TAU); c.fill();
     c.fillStyle = '#17141a'; c.beginPath(); c.arc(sx, by - u * 1.12, u * .135, Math.PI, 0); c.fill();
     c.beginPath(); c.arc(sx - d * u * .1, by - u * 1.28, u * .07, 0, TAU); c.fill();
@@ -286,7 +291,7 @@ SW.Render = (function () {
       if (it.k === -4) { chest(c, it.s, Math.round(it.s.x * u + ox), Math.round((it.s.y + .3) * u + oy), u, time); continue; }
       if (it.k === -3) { SW.Combat.drawWorld(c, Math.round(it.s.x * u + ox), Math.round((it.s.y + .3) * u + oy), u, time, it.s); continue; }
       const bx = it.x * u + ox + u / 2, by = (it.y + .85) * u + oy, v = W.h(it.x, it.y, 12);
-      if (it.k === O.TREE) tree(c, bx, by, u, v, W.t(it.x, it.y) === T.SNOW); else if (it.k === O.BAMBOO) bamboo(c, bx, by, u, v);
+      if (it.k === O.TREE) tree(c, bx, by, u, v, W.t(it.x, it.y) === T.SNOW, W.regionAt(it.x, it.y) === 17); else if (it.k === O.BAMBOO) bamboo(c, bx, by, u, v);
       else if (it.k === O.BOULDER) boulder(c, bx, by, u, v); else if (it.k === O.PILLAR) pillar(c, bx, by, u, v);
     }
     const tn = SW.Time.tint();

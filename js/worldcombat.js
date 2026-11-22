@@ -4,6 +4,7 @@
 // Bosse und Schrein-Duelle bleiben in der Arena (combat.js, Phase B). Gegnerdaten, Moves, Belohnungen kommen aus combat-data.js / combat.js.
 SW.WCombat = (function () {
   const W = SW.World, D = SW.Data, K = SW.Combat, TAU = 6.2832, SWING = .18, DODGE = .38, RAD = .28;
+  SW.TEXT.en.hit_npc = 'You struck a bystander!'; SW.TEXT.de = SW.TEXT.de || {}; SW.TEXT.de.hit_npc = 'Du hast Unbeteiligte getroffen!';
   const AGGRO = 5.5, LEASH = 13, GRACE = 2.5; // Tiefen in Kacheln; GRACE = Sekunden, die die Kampfbuttons nach dem letzten Gegner bleiben
   const X = { active: false };
   const held = { block: false, breath: false };
@@ -87,6 +88,12 @@ SW.WCombat = (function () {
       return d < .8 || da <= cone;
     });
     if (m.ranged && targets.length > 1) targets.sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y)).length = 1;
+    if (!m.ranged && !m.heal) SW.Shop.npcs.forEach(n => { // 0.12.0 Phase 10: Zivilisten treffen = negatives Karma (je NPC, wiederholt nur halb)
+      if (!SW.Shop.on(n)) return;
+      const dx = n.x - p.x, dy = n.y - p.y, d = Math.hypot(dx, dy); if (d > R) return;
+      let da = Math.abs(Math.atan2(dy, dx) - P.fa); if (da > Math.PI) da = TAU - da;
+      if (d < .8 || da <= cone) { SW.Karma.add('hit_' + n.id, -4); flt(n.x, n.y - 1.3, 'Karma -', '#e06a5a'); say(T('hit_npc'), '#e06a5a'); }
+    });
     targets.forEach(s => {
       const w = s.w, d = def(s);
       let dmg = m.dmg * ps.atk;
@@ -158,10 +165,18 @@ SW.WCombat = (function () {
     if (SW.UI && SW.UI.banner) SW.UI.banner(T('combat_defeat'));
     SW.Save.save();
   }
+  function los(x, y, tx, ty) { const n = Math.ceil(Math.hypot(tx - x, ty - y) / .4); for (let i = 1; i < n; i++) if (!freeAt(x + (tx - x) * i / n, y + (ty - y) * i / n)) return false; return true; }
   function moveFoe(s, tx, ty, sp, dt) {
     const dx = tx - s.x, dy = ty - s.y, d = Math.hypot(dx, dy); if (d < .01) return;
-    const k = Math.min(d, sp * dt) / d, nx = s.x + dx * k, ny = s.y + dy * k;
-    if (freeAt(nx, s.y)) s.x = nx; if (freeAt(s.x, ny)) s.y = ny;
+    const k = Math.min(d, sp * dt) / d, nx = s.x + dx * k, ny = s.y + dy * k, ox = s.x, oy = s.y, step = d * k, w = s.w;
+    if (w && w.det > 0) { // 0.12.0 Umweg: gerade an der Wand entlang laufen, bis die Sichtlinie zum Ziel frei ist (max 3 s), dann wieder direkt
+      w.det -= dt; const px = s.x + Math.cos(w.da) * step, py = s.y + Math.sin(w.da) * step;
+      if (freeAt(px, py)) { s.x = px; s.y = py; } else { w.det = 0; w.side = -w.side; }
+      if (los(s.x, s.y, tx, ty)) w.det = 0;
+    } else {
+      if (freeAt(nx, s.y)) s.x = nx; if (freeAt(s.x, ny)) s.y = ny;
+      if (w && Math.hypot(s.x - ox, s.y - oy) < step * .5) { w.side = w.side || (Math.random() < .5 ? 1 : -1); w.da = Math.atan2(dy, dx) + w.side * 1.57; w.det = 3; } // festhängen -> Umweg starten (kein A*)
+    }
     K.spots.forEach(o => { if (o !== s && o.w && o.w.st !== 'dead') { const ex = s.x - o.x, ey = s.y - o.y, ed = Math.hypot(ex, ey); if (ed < .7 && ed > .001) { const a = s.x + ex / ed * .6 * dt * 3, b = s.y + ey / ed * .6 * dt * 3; if (freeAt(a, s.y)) s.x = a; if (freeAt(s.x, b)) s.y = b; } } });
   }
   function foeUpdate(s, dt) {
@@ -267,6 +282,7 @@ SW.WCombat = (function () {
     c.restore();
   };
   X.pose = function () { return P; }; // nur für Tests
+  X.swingQ = () => X.active && P.swing > 0 ? { q: 1 - P.swing / SWING, a: P.fa } : null; // 0.12.0 Schnittstelle für die Schwertanimation (render.js)
   window.addEventListener('keydown', e => {
     if (!X.active || K.active || SW.paused) return; const k = e.key.toLowerCase();
     if (k === ' ') { held.block = true; e.preventDefault(); } else if (k === 'b') held.breath = true;

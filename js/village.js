@@ -15,7 +15,18 @@ SW.Village = (function () {
     { id: 'v_3', at: 5, x: 875.5, y: 1179.5, robe: '#7a4a5a', hat: '#2a2a30' }
   ];
   const houses = () => W.S.filter(s => s.type === 'house').slice(0, 8); // die 8 Dorfhäuser (zuerst erzeugt)
+  // 0.12.0 Phase 10: Peak Village (Karst) und Sakura-Hain, Stufe nur aus Quest-Status: Häuser beschädigt bis Abschluss, Bewohner kehren zurück
+  const SIDE = [{ id: 'peak', houses: () => W.S.filter(s => s.type === 'house').slice(8, 12), q1: 'karst1', q2: 'karst2', folk: { id: 'v_p1', x: 2822, y: 1930, robe: '#6a7a5a', hat: '#a89a6a' } },
+    { id: 'sakura', houses: () => W.S.filter(s => s.type === 'hut').slice(-2), q1: 'sakura1', q2: 'sakura2', folk: { id: 'v_s1', x: 4330, y: 1496, robe: '#d890aa', hat: '#f4d8e2' } }];
+  V.side = id => { const d = SIDE.find(x => x.id === id); return done(d.q2) ? 2 : done(d.q1) ? 1 : 0; };
+  function applySide() {
+    SIDE.forEach(d => {
+      const st = V.side(d.id); d.houses().forEach(s => { s.dmg = st < 2; });
+      if (st >= 1 && !SW.Shop.npcs.some(n => n.id === d.folk.id)) { const p = SW.Shop.free(d.folk.x, d.folk.y); SW.Shop.npcs.push({ id: d.folk.id, role: 'villager', q: false, amb: true, x: p.x, y: p.y, robe: d.folk.robe, hat: d.folk.hat }); }
+    });
+  }
   function apply() {
+    applySide();
     const fixed = V.stage >= 5 ? 8 : V.stage >= 3 ? 4 : 0;
     houses().forEach((s, i) => { s.dmg = i >= fixed; });
     FOLK.forEach(f => {
@@ -33,8 +44,11 @@ SW.Village = (function () {
     const H = SW.Menus.h, el = H.el, add = H.add, c = el('div', 'card');
     add(c, add(el('div', 'row'), el('b', '', T('vg_title')), el('span', 'chip', T('vg_' + V.stage))));
     add(c, el('div', 'dim', V.stage >= 5 ? T('vg_done') : T('vg_next') + ': ' + T('vgn_' + V.stage)));
+    SIDE.forEach(d => add(c, el('div', 'dim', T('vgs_' + d.id) + ': ' + T('vgs_' + V.side(d.id)))));
     return c;
   };
+  Object.assign(SW.TEXT.en, { vgs_peak: 'Peak Village', vgs_sakura: 'Sakura Grove', vgs_0: 'Damaged', vgs_1: 'Recovering', vgs_2: 'Restored' });
+  Object.assign(SW.TEXT.de, { vgs_peak: 'Bergdorf', vgs_sakura: 'Sakura-Hain', vgs_0: 'Beschädigt', vgs_1: 'Erholt sich', vgs_2: 'Wiederhergestellt' });
   V.update(false);
   return V;
 })();
