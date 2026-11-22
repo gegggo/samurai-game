@@ -10,7 +10,7 @@ SW.Data = SW.Data || {};
     { id: 'n_armor', role: 'armor', x: 879.5, y: 1171.5, robe: '#3a4a6a', hat: '#5a5a62' },
     { id: 'n_general', role: 'general', x: 889.5, y: 1171.5, robe: '#7a6a3a', hat: '#4a3a22' },
     { id: 'n_herb', role: 'herb', x: 895.5, y: 1171.5, robe: '#3f6b4a', hat: '#2a4a30' },
-    { id: 'n_master', role: 'master', x: 882.5, y: 1164.5, robe: '#d9d2bd', hat: '#20202a' }, // Meister: entziffert Schriftrollen (Yin/Yang)
+    { id: 'n_master', role: 'master', x: 2289.5, y: 996.5, robe: '#d9d2bd', hat: '#20202a' }, // Meister: entziffert Schriftrollen (Yin/Yang)
     { id: 'n_smith', role: 'smith', x: 901.5, y: 1171.5, robe: '#5a4a44', hat: '#1c1c20' },
     // Karst Spires: Bergdorf (Berg 1), Himmelstempel (Berg 2), Windturm (Berg 3). Gleiche Händlerrollen wie im Startdorf.
     { id: 'n_pv_general', role: 'general', x: 2815.5, y: 1928.5, robe: '#6a5a3a', hat: '#3a2a1a' },
