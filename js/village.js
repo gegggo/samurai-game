@@ -14,10 +14,10 @@ SW.Village = (function () {
     { id: 'v_2', at: 3, x: 893.5, y: 1178.5, robe: '#4a6a7a', hat: '#c8b070' },
     { id: 'v_3', at: 5, x: 875.5, y: 1179.5, robe: '#7a4a5a', hat: '#2a2a30' }
   ];
-  const houses = () => W.S.filter(s => s.type === 'house').slice(0, 8); // die 8 Dorfhäuser (zuerst erzeugt)
+  const houses = () => W.S.filter(s => s.grp === 'hinode'); // die 8 Dorfhäuser (Gruppen-ID `grp`, Phase 20: kein Index mehr)
   // 0.12.0 Phase 10: Peak Village (Karst) und Sakura-Hain, Stufe nur aus Quest-Status: Häuser beschädigt bis Abschluss, Bewohner kehren zurück
-  const SIDE = [{ id: 'peak', houses: () => W.S.filter(s => s.type === 'house').slice(8, 12), q1: 'karst1', q2: 'karst2', folk: { id: 'v_p1', x: 2822, y: 1930, robe: '#6a7a5a', hat: '#a89a6a' } },
-    { id: 'sakura', houses: () => W.S.filter(s => s.type === 'hut').slice(-2), q1: 'sakura1', q2: 'sakura2', folk: { id: 'v_s1', x: 4330, y: 1496, robe: '#d890aa', hat: '#f4d8e2' } }];
+  const SIDE = [{ id: 'peak', houses: () => W.S.filter(s => s.grp === 'peak'), q1: 'karst1', q2: 'karst2', folk: { id: 'v_p1', x: 2822, y: 1930, robe: '#6a7a5a', hat: '#a89a6a' } },
+    { id: 'sakura', houses: () => W.S.filter(s => s.grp === 'sakura'), q1: 'sakura1', q2: 'sakura2', folk: { id: 'v_s1', x: 4330, y: 1496, robe: '#d890aa', hat: '#f4d8e2' } }];
   V.side = id => { const d = SIDE.find(x => x.id === id); return done(d.q2) ? 2 : done(d.q1) ? 1 : 0; };
   function applySide() {
     SIDE.forEach(d => {

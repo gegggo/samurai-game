@@ -4,46 +4,7 @@
 SW.Data = SW.Data || {};
 (function () {
   const D = SW.Data;
-  // NPCs im Startdorf (Position wird beim Start auf freie Kachel gesetzt)
-  D.npcs = [
-    { id: 'n_weapon', role: 'weapon', x: 873.5, y: 1171.5, robe: '#7a2e2a', hat: '#2a2a30' },
-    { id: 'n_armor', role: 'armor', x: 879.5, y: 1171.5, robe: '#3a4a6a', hat: '#5a5a62' },
-    { id: 'n_general', role: 'general', x: 889.5, y: 1171.5, robe: '#7a6a3a', hat: '#4a3a22' },
-    { id: 'n_herb', role: 'herb', x: 895.5, y: 1171.5, robe: '#3f6b4a', hat: '#2a4a30' },
-    { id: 'n_master', role: 'master', x: 2289.5, y: 996.5, robe: '#d9d2bd', hat: '#20202a' }, // Meister: entziffert Schriftrollen (Yin/Yang)
-    { id: 'n_smith', role: 'smith', x: 901.5, y: 1171.5, robe: '#5a4a44', hat: '#1c1c20' },
-    // Karst Spires: Bergdorf (Berg 1), Himmelstempel (Berg 2), Windturm (Berg 3). Gleiche Händlerrollen wie im Startdorf.
-    { id: 'n_pv_general', role: 'general', x: 2815.5, y: 1928.5, robe: '#6a5a3a', hat: '#3a2a1a' },
-    { id: 'n_pv_herb', role: 'herb', x: 2826.5, y: 1928.5, robe: '#4a7a5a', hat: '#2a4a30' },
-    { id: 'n_pv_smith', role: 'smith', x: 2817.5, y: 1942.5, robe: '#5a4a44', hat: '#1c1c20' },
-    { id: 'n_pv_weapon', role: 'weapon', x: 2910.5, y: 1930.5, robe: '#c28a2e', hat: '#6b2d1d' },
-    { id: 'n_pv_armor', role: 'armor', x: 2710.5, y: 1944.5, robe: '#3a4a6a', hat: '#5a5a62' }
-  ];
-  // Warenangebot (unbegrenzt). Seltene Ausrüstung gibt es nur beim Schmied; Legendäres nie im Handel.
-  D.stock = {
-    weapon: ['tanto', 'spear', 'wakizashi', 'katana_steel', 'nodachi', 'shuriken', 'shuriken_steel'],
-    armor: ['hat_straw', 'mask_cloth', 'kimono', 'gloves_cloth', 'tabi', 'helm_iron', 'armor_light', 'kote_leather', 'boots_leather'],
-    general: ['wood', 'iron', 'stone'],
-    herb: ['herb']
-  };
-  // Karma-Ware (Phase 8): zusätzliche Ware ab Karma k (30 = Honored, 70 = Revered)
-  D.stockK = {
-    weapon: [{ id: 'katana_temper', k: 30 }],
-    armor: [{ id: 'kote_iron', k: 30 }, { id: 'boots_iron', k: 30 }, { id: 'helm_kabuto', k: 70 }]
-  };
-  // Schmied: Herstellung (Münzen + Ressourcen)
-  D.recipes = [
-    { id: 'naginata', coins: 220, res: { iron: 5, wood: 4 } },
-    { id: 'katana_temper', coins: 350, res: { iron: 8, wood: 2 } },
-    { id: 'helm_kabuto', coins: 200, res: { iron: 5 } },
-    { id: 'armor_heavy', coins: 450, res: { iron: 12, wood: 3 } },
-    { id: 'kote_iron', coins: 150, res: { iron: 4 } },
-    { id: 'boots_iron', coins: 150, res: { iron: 4 } },
-    { id: 'bow_hankyu', coins: 260, res: { wood: 6, iron: 2 } },
-    { id: 'mask_kitsune', coins: 220, res: { iron: 3, herb: 2 } }
-  ];
-  D.upMax = 3;
-  D.upFx = { atk: .05, def: .25, rdmg: 1 }; // Bonus je Verbesserungsstufe: Waffen Schaden, Rüstung Verteidigung
+  // Daten (NPCs, Waren, Rezepte, Stufen) liegen seit Phase 20 in data/shops.json und data/world.json.
   const base = { common: 40, uncommon: 120, rare: 320, epic: 800, legendary: 0 };
   const res = { wood: 12, iron: 30, stone: 10, herb: 15 };
   D.price = function (id) {

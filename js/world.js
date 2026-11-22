@@ -149,7 +149,7 @@ SW.World = (function () {
   const POI = [];
   function build() {
     const [vx, vy] = CEN[0];                       // Hinode Village
-    [[-18,-11],[-10,-11],[6,-11],[13,-11],[-18,5],[-10,5],[6,5],[13,5]].forEach(o => add('house', vx + o[0], vy + o[1], 6, 5));
+    [[-18,-11],[-10,-11],[6,-11],[13,-11],[-18,5],[-10,5],[6,5],[13,5]].forEach(o => add('house', vx + o[0], vy + o[1], 6, 5).grp = 'hinode');
     const [bx, by] = CEN[1];                       // Bamboo Forest: verlassene Hütten
     [[-25,-12],[18,8],[-30,10]].forEach(o => add('hut', bx + o[0], by + o[1], 4, 4));
     const [sx, sy] = CEN[2];                       // Mountain Shrine
@@ -187,14 +187,14 @@ SW.World = (function () {
     const [kx, ky] = CEN[8];                       // Hollow Caves: Höhlentempel
     add('shrine', kx + 5, ky - 14, 10, 6);
     [[-8,-8],[8,8],[-8,8],[8,-8]].forEach(o => add('pillar', kx + o[0], ky + o[1], 1, 1));
-    [[-8, -12], [2, -12], [-8, 2], [2, 2]].forEach(o => add('house', K[0] - 40 + o[0], K[1] + o[1], 6, 5)); // Bergdorf (Berg 1)
+    [[-8, -12], [2, -12], [-8, 2], [2, 2]].forEach(o => add('house', K[0] - 40 + o[0], K[1] + o[1], 6, 5).grp = 'peak'); // Bergdorf (Berg 1)
     add('shrine', K[0] + 45, K[1] - 11, 10, 6); // Tempel (Berg 2)
     add('shrine', K[0] - 155, K[1] - 10, 10, 6); // Windturm-Schrein (Berg 3)
     add('tower', K[0] - 46, K[1] - 124, 2, 2); add('hut', K[0] - 34, K[1] - 122, 4, 4); // Wolkenturm (Berg 4)
     add('tower', K[0] - 41, K[1] + 105, 2, 2); add('tower', K[0] + 149, K[1] - 3, 2, 2); // Berg 5 (Süd), Berg 6 (fern im Osten)
-    if (CEN[17]) { const [ax, ay] = CEN[17]; add('shrine', ax + 5, ay - 12, 10, 6); add('hut', ax - 26, ay + 10, 4, 4); add('hut', ax + 30, ay + 14, 4, 4); } // Sakura Grove: Schrein, Gärtnerhütte, Rasthütte
-    { // 0.17.0 Phase 16: Sakura-Stadt (Edo-Stil), Hauptstraße West-Ost, 2 Hausreihen + Kaufmannshalle. Nur 'house'/'hall' (village.js zählt 'hut' per Index, Häuser 8-12 = Bergdorf).
-      for (let i = 0; i < 6; i++) { add('house', 4100 + 14 * i, 1478, 6, 5); add('house', 4107 + 14 * i, 1504, 6, 5); }
+    if (CEN[17]) { const [ax, ay] = CEN[17]; add('shrine', ax + 5, ay - 12, 10, 6); add('hut', ax - 26, ay + 10, 4, 4).grp = 'sakura'; add('hut', ax + 30, ay + 14, 4, 4).grp = 'sakura'; } // Sakura Grove: Schrein, Gärtnerhütte, Rasthütte
+    { // 0.17.0 Phase 16: Sakura-Stadt (Edo-Stil), Hauptstraße West-Ost, 2 Hausreihen + Kaufmannshalle. Gruppe sakuratown (village.js nutzt Gruppen-IDs, kein Index).
+      for (let i = 0; i < 6; i++) { add('house', 4100 + 14 * i, 1478, 6, 5).grp = 'sakuratown'; add('house', 4107 + 14 * i, 1504, 6, 5).grp = 'sakuratown'; }
       add('hall', 4192, 1476, 12, 7);
     }
     if (CEN[18]) { // 0.16.0 Phase 14: Verlassene Festung (Region 18): Ruinenmauer mit Südtor und Lücken, 4 Türme, Bergfried (begehbar). Kein 'hut'/'house' hier (village.js zählt Hütten/Häuser per Index).

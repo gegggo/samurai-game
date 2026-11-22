@@ -4,53 +4,7 @@
 SW.Data = SW.Data || {};
 (function () {
   const D = SW.Data, de = (SW.TEXT.de = SW.TEXT.de || {}), en = SW.TEXT.en;
-  // Richtwerte, Positionen werden beim Start auf freie Kacheln gesetzt
-  D.shrines.push({ id: 'sakura', x: 4360, y: 1486 });
-  D.shrines.push({ id: 'fortress', x: 4180, y: 2488 }); // Phase 14: Verlassene Festung (Region 18)
-  D.chests.push(
-    { id: 'c_fort1', x: 4160, y: 2470, rar: 'rare', give: { ess: 1 } }, { id: 'c_fort2', x: 4215, y: 2512, rar: 'uncommon', give: { coins: 220 } }, { id: 'c_fort3', x: 4120, y: 2510, rar: 'common', give: { item: 'iron', n: 3 } },
-    { id: 'c_sakura1', x: 4330, y: 1450, rar: 'rare', give: { ess: 1 } },
-    { id: 'c_sakura2', x: 4440, y: 1500, rar: 'uncommon', give: { coins: 160 } },
-    { id: 'c_sakura3', x: 4290, y: 1530, rar: 'common', give: { item: 'herb', n: 5 } }
-  );
-  D.spots.push(
-    { id: 'e_frostq', type: 'armored', x: 800, y: 640 }, { id: 'e_emberq', type: 'samurai', x: 3090, y: 880 },
-    { id: 'e_dunesq', type: 'swift', x: 1190, y: 2570 }, { id: 'e_coastq', type: 'ronin', x: 2040, y: 2650 },
-    { id: 'e_fort1', type: 'spearman', x: 4150, y: 2490 }, { id: 'e_fort2', type: 'ronin', x: 4215, y: 2475 }, { id: 'e_fort3', type: 'armored', x: 4180, y: 2455 }, { id: 'e_fort4', type: 'swift', x: 4110, y: 2520 }, { id: 'e_fortq', type: 'samurai', x: 4230, y: 2455 },
-    { id: 'e_sakura1', type: 'swift', x: 4290, y: 1450 }, { id: 'e_sakura2', type: 'samurai', x: 4420, y: 1420 },
-    { id: 'e_sakura3', type: 'spearman', x: 4300, y: 1560 }, { id: 'e_sakuraq', type: 'samurai', x: 4500, y: 1400 }
-  );
-  // Quest-NPCs (q: true). Rollen: trapper, pilgrim, nomad, sailor, climber, gardener
-  D.npcs.push(
-    { id: 'n_trapper', role: 'trapper', q: true, x: 726, y: 712, robe: '#6a7a8a', hat: '#e4eef2' },
-    { id: 'n_pilgrim', role: 'pilgrim', q: true, x: 3020, y: 832, robe: '#8a3a2a', hat: '#3a2a26' },
-    { id: 'n_nomad', role: 'nomad', q: true, x: 1120, y: 2528, robe: '#b88a4a', hat: '#e8d9a8' },
-    { id: 'n_sailor', role: 'sailor', q: true, x: 1968, y: 2616, robe: '#3a6a8a', hat: '#e8e0c8' },
-    { id: 'n_climber', role: 'climber', q: true, x: 2822, y: 1935, robe: '#5a6a4a', hat: '#a89a6a' },
-    { id: 'n_veteran', role: 'veteran', q: true, x: 4205, y: 2500, robe: '#7a6a5a', hat: '#2a2a30' },
-    { id: 'n_gardener', role: 'gardener', q: true, x: 4325, y: 1500, robe: '#c8789a', hat: '#f4d8e2' },
-    { id: 'n_st_weapon', role: 'weapon', x: 4118, y: 1491, robe: '#7a2e2a', hat: '#2a2a30' }, { id: 'n_st_armor', role: 'armor', x: 4136, y: 1491, robe: '#3a4a6a', hat: '#5a5a62' },
-    { id: 'n_st_general', role: 'general', x: 4154, y: 1491, robe: '#7a6a3a', hat: '#4a3a22' }, { id: 'n_st_herb', role: 'herb', x: 4172, y: 1491, robe: '#3f6b4a', hat: '#2a4a30' },
-    { id: 'n_st_smith', role: 'smith', x: 4190, y: 1491, robe: '#5a4a44', hat: '#1c1c20' } // Sakura-Stadt (0.17.0)
-  );
-  const kill = (id, giver, spot, rew, req) => ({ id, giver, req, obj: { type: 'kill', spot }, rew });
-  const have = (id, giver, item, n, rew, req) => ({ id, giver, req, obj: { type: 'have', item, n }, rew });
-  D.quests.push(
-    kill('frost1', 'n_trapper', 'e_frostq', { coins: 120, xp: 90, karma: 5 }),
-    { id: 'frost2', giver: 'n_trapper', req: { done: 'frost1' }, obj: { type: 'shrine', shrine: 'way1' }, rew: { xp: 100, ess: 1, karma: 3 } },
-    kill('ember1', 'n_pilgrim', 'e_emberq', { coins: 150, xp: 110, karma: 5 }),
-    have('ember2', 'n_pilgrim', 'iron', 6, { coins: 100, xp: 100, ess: 1, karma: 4 }, { done: 'ember1' }),
-    kill('dunes1', 'n_nomad', 'e_dunesq', { coins: 140, xp: 100, karma: 5 }),
-    { id: 'dunes2', giver: 'n_nomad', req: { done: 'dunes1' }, obj: { type: 'have', item: 'herb', n: 3 }, choice: [{ id: 'free', rew: { xp: 60, karma: 6 } }, { id: 'sell', rew: { xp: 30, coins: 90, karma: -8 } }] },
-    kill('coast1', 'n_sailor', 'e_coastq', { coins: 130, xp: 100, karma: 5 }),
-    have('coast2', 'n_sailor', 'wood', 8, { coins: 90, xp: 90, ess: 1, karma: 4 }, { done: 'coast1' }),
-    { id: 'karst1', giver: 'n_climber', obj: { type: 'shrine', shrine: 'cloudspire' }, rew: { xp: 110, karma: 3 } },
-    kill('karst2', 'n_climber', 'e_spire5', { coins: 160, xp: 120, ess: 1, karma: 4 }, { done: 'karst1' }),
-    kill('sakura1', 'n_gardener', 'e_sakuraq', { coins: 170, xp: 130, karma: 5 }),
-    have('sakura2', 'n_gardener', 'wood', 5, { coins: 80, xp: 100, ess: 1, karma: 4 }, { done: 'sakura1' }),
-    kill('fort1', 'n_veteran', 'e_fortq', { coins: 190, xp: 140, karma: 5 }),
-    have('fort2', 'n_veteran', 'iron', 6, { coins: 100, xp: 110, ess: 1, karma: 4 }, { done: 'fort1' })
-  );
+  // Daten (Schreine, Truhen, Gegnerpunkte, NPCs, Quests) liegen seit Phase 20 in data/*.json; hier nur noch Texte.
   const E = {
     poi_sakuratown: 'Sakura Town', reg_18: 'Abandoned Fortress', poi_fortress: 'Abandoned Fortress', shr_fortress: 'Fortress Shrine',
     npc_veteran: 'Veteran', dl_veteran_neu: 'I held this wall once. Now a samurai squats in our courtyard.', dl_veteran_pos: 'Your steps are steady, wanderer. The wall remembers good soldiers.', dl_veteran_neg: 'I have seen your kind on the other side of the gate.',
