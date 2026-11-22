@@ -175,7 +175,7 @@ SW.Arena = (function () {
     if (want && !S.block) { S.parryOk = S.noBlockT >= .35; S.blockT = 0; }
     if (want) { S.blockT += dt; S.noBlockT = 0; } else S.noBlockT += dt;
     S.block = want; S.bl = clamp(S.bl + (want ? 1 : -1) * dt * 9, 0, 1);
-    S.breath = held.breath && !want && !S.pm && S.dodgeT <= 0 && S.hurt <= 0;
+    S.breath = !want && !S.pm && S.dodgeT <= 0 && S.hurt <= 0 && Math.hypot(SW.Input.vec.x, SW.Input.vec.y) <= .15; // Atem automatisch bei Stillstand
     if (S.breath) S.st.breath += dt;
     S.ki = Math.min(S.kmax, S.ki + (ps.kiRegen + (S.breath ? 22 * ps.breathMul : 0)) * dt);
 

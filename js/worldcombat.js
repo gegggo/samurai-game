@@ -166,7 +166,32 @@ SW.WCombat = (function () {
     SW.Save.save();
   }
   function los(x, y, tx, ty) { const n = Math.ceil(Math.hypot(tx - x, ty - y) / .4); for (let i = 1; i < n; i++) if (!freeAt(x + (tx - x) * i / n, y + (ty - y) * i / n)) return false; return true; }
+  // 0.13.0 A*: Gitter um Start/Ziel (Rand 6), 8 Richtungen ohne Ecken schneiden, max 900 Knoten; null = kein Weg -> alter Umweg
+  function astar(sx, sy, tx, ty) {
+    const x0 = Math.floor(Math.min(sx, tx)) - 6, y0 = Math.floor(Math.min(sy, ty)) - 6, w = Math.floor(Math.abs(sx - tx)) + 13, h = Math.floor(Math.abs(sy - ty)) + 13;
+    if (w * h > 1600) return null;
+    const id = (i, j) => (j - y0) * w + (i - x0), ok = (i, j) => i >= x0 && j >= y0 && i < x0 + w && j < y0 + h && freeAt(i + .5, j + .5);
+    const si = Math.floor(sx), sj = Math.floor(sy), ti = Math.floor(tx), tj = Math.floor(ty);
+    if (!ok(ti, tj)) return null;
+    const g = new Map([[id(si, sj), 0]]), from = new Map(), open = [[0, si, sj]], done = new Set(); let n = 0;
+    while (open.length && n++ < 900) {
+      let b = 0; for (let k = 1; k < open.length; k++) if (open[k][0] < open[b][0]) b = k;
+      const [, ci, cj] = open.splice(b, 1)[0], cid = id(ci, cj); if (done.has(cid)) continue; done.add(cid);
+      if (ci === ti && cj === tj) { const r = []; for (let c = cid; c !== undefined && c !== id(si, sj); c = from.get(c)) r.push([x0 + c % w + .5, y0 + Math.floor(c / w) + .5]); return r.reverse(); }
+      for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) {
+        if (!di && !dj) continue; const ni = ci + di, nj = cj + dj; if (!ok(ni, nj) || (di && dj && (!ok(ci + di, cj) || !ok(ci, cj + dj)))) continue;
+        const nid = id(ni, nj), ng = g.get(cid) + (di && dj ? 1.41 : 1); if (g.has(nid) && g.get(nid) <= ng) continue;
+        g.set(nid, ng); from.set(nid, cid); open.push([ng + Math.hypot(ti - ni, tj - nj), ni, nj]);
+      }
+    }
+    return null;
+  }
   function moveFoe(s, tx, ty, sp, dt) {
+    if (s.w && !los(s.x, s.y, tx, ty)) { // 0.13.0: kein Sichtkontakt -> A*-Pfad (alle .6 s neu), Waypoint als Ziel
+      const w0 = s.w; w0.pt = (w0.pt || 0) - dt;
+      if (w0.pt <= 0) { w0.pth = astar(s.x, s.y, tx, ty); w0.pt = .6; }
+      if (w0.pth && w0.pth.length) { while (w0.pth.length > 1 && Math.hypot(w0.pth[0][0] - s.x, w0.pth[0][1] - s.y) < .35) w0.pth.shift(); tx = w0.pth[0][0]; ty = w0.pth[0][1]; w0.det = 0; }
+    } else if (s.w) s.w.pth = null;
     const dx = tx - s.x, dy = ty - s.y, d = Math.hypot(dx, dy); if (d < .01) return;
     const k = Math.min(d, sp * dt) / d, nx = s.x + dx * k, ny = s.y + dy * k, ox = s.x, oy = s.y, step = d * k, w = s.w;
     if (w && w.det > 0) { // 0.12.0 Umweg: gerade an der Wand entlang laufen, bis die Sichtlinie zum Ziel frei ist (max 3 s), dann wieder direkt
@@ -249,7 +274,7 @@ SW.WCombat = (function () {
     if (want) { P.blockT += dt; P.noBlockT = 0; } else P.noBlockT += dt;
     P.block = want;
     const moving = Math.hypot(SW.Input.vec.x, SW.Input.vec.y) > .15;
-    const breath = held.breath && !want && !P.pm && P.dodgeT <= 0 && P.hurt <= 0 && !moving;
+    const breath = !want && !P.pm && P.dodgeT <= 0 && P.hurt <= 0 && !moving;
     if (breath) P.st.breath += dt;
     P.ki = Math.min(P.kmax, P.ki + (ps.kiRegen + (breath ? 22 * ps.breathMul : 0)) * dt);
     p.mul = P.dodgeT > 0 ? 0 : P.hurt > 0 ? .3 : 1; // 0.12.2: Angriff und Block bremsen das Laufen nicht mehr

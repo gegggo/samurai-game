@@ -252,7 +252,7 @@ SW.Combat = (function () {
     if (want && !S.block) { S.parryOk = S.noBlockT >= .35; S.blockT = 0; }
     if (want) { S.blockT += dt; S.noBlockT = 0; } else S.noBlockT += dt;
     S.block = want; S.bl = clamp(S.bl + (want ? 1 : -1) * dt * 9, 0, 1);
-    S.breath = held.breath && !want && !S.pm && S.dodgeT <= 0 && S.hurt <= 0;
+    S.breath = !want && !S.pm && S.dodgeT <= 0 && S.hurt <= 0;
     if (S.breath) S.st.breath += dt;
     S.ki = Math.min(S.kmax, S.ki + (ps.kiRegen + (S.breath ? 22 * ps.breathMul : 0)) * dt);
 
@@ -281,7 +281,7 @@ SW.Combat = (function () {
   K.init = function () {
     const box = $('cbt');
     const defs = [['block', 'combat_block', 'hold'], ['dodge', 'combat_dodge'], ['attack', 'combat_attack'],
-                  ['heavy', 'combat_heavy'], ['special', 'combat_special'], ['breath', 'combat_breath', 'hold'], ['s0', ''], ['s1', ''], ['ranged', 'combat_ranged']];
+                  ['heavy', 'combat_heavy'], ['special', 'combat_special'], ['s0', ''], ['s1', ''], ['ranged', 'combat_ranged']];
     defs.forEach(d => {
       const b = document.createElement('button'); b.id = 'cb-' + d[0]; b.className = 'cb'; b.textContent = d[1] ? T(d[1]) : '';
       const wc = () => SW.WCombat && SW.WCombat.active && !K.active; // Weltkampf: gleiche Buttons, andere Logik

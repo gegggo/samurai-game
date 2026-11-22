@@ -167,5 +167,5 @@ Object.assign(SW.TEXT.en, {
   st_hp: 'Life', st_ki: 'Ki', st_atk: 'Attack', st_def: 'Defense', st_end: 'Endurance', st_crit: 'Crit chance',
   kr_neutral: 'Neutral', kr_honored: 'Honored', kr_revered: 'Revered', kr_distrusted: 'Distrusted', kr_despised: 'Despised',
   kr_hint: 'Helping others and stopping bandits raises Karma. Repeating the same deed counts less each time.',
-  yy_hint: 'Yang grows through heavy attacks and techniques. Yin grows through parries, dodges, blocks and breathing. Each fight counts only a little. Spent when learning skilltree skills.'
+  yy_hint: 'Yang grows through heavy attacks and techniques. Yin grows through parries, dodges, blocks and standing calm in a fight. Each fight counts only a little. Spent when learning skilltree skills.'
 });
