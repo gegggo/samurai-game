@@ -4,6 +4,14 @@
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
 
+## Phase 17 – Regressionstests (Spec 33.5), kein Spielcode geändert (Version bleibt 0.17.0)
+- **Annahme:** Nutzer: „Mach das was du für wichtig hältst“ -> Empfehlung E (vor Balancing und Phase 29). 0.17.0 (Phase 16) vom Nutzer auf Gerät getestet: OK.
+- **Neu:** `tests/regression.py` (Aufruf im Repo-Root: `python3 tests/regression.py`; startet eigenen Server, headless Chromium 852x393, Playwright). 15 Prüfungen, Exitcode 1 bei Fehlern.
+- **Ergebnis (tatsächlich ausgeführt, 15/15 bestanden):** Speichern/Laden (Münzen, Level, XP, Essence, Karma, Yin); Kopie vor Überschreiben; beschädigter Hauptstand -> Kopie, kein Absturz; Neues Spiel -> Wiederherstellungspunkt, Hauptstand leer; Wiederherstellen; Export/Import (gültig ok, manipuliert/ungültig abgewiesen, Stand unverändert); Inventar (add/remove/ausrüsten/ablegen, ungültige Mengen, Überzahlung); Quest (annehmen, bereit, abschließen, Belohnung einmalig, Gegenstand abgegeben, Status nach Neuladen); Fortschritt (XP/Level/Skill-/Attributpunkte, Essence nicht überbuchbar, Karma-Wiederholung halbiert, Yin/Yang 0-100); Skilltree (bucht Skillpunkt+Essence einmal, nicht doppelt lernbar, Karma unangetastet); Weltkampf (Lock AN/AUS, Ausweichen 25 Ki, bei zu wenig Ki gesperrt); Joystick (links dynamisch, Loslassen, Deadzone, rechts kein Joystick); POI/Schreine vorhanden; keine JS-Fehler.
+- **Testfehler beim Bau (nicht Spielfehler):** Item-Liste ist Array; 2 Wiederherstellungspunkte nach Neues Spiel sind korrekt. Kein Spielfehler gefunden.
+- **NICHT abgedeckt (offen):** Truhen einmalig öffnen, Händler kaufen/verkaufen, Schmied, Schnellreise, Boss-Arena/Bossphasen, Niederlage + Rückkehr, Kampfbuttons erscheinen/verschwinden, Touch-Multitouch (Joystick + Aktion gleichzeitig), Safe Areas, Dorf-Wiederaufbau, Tag/Nacht, Karte. Alles auf iPhone: weiterhin nur manuell. Simulation per Maus/Pointer ist **kein** Gerätetest.
+- **Geändert:** NEU tests/regression.py, PROJECT_STATUS.md.
+
 ## 0.17.0 – Phase 16 (Sakura-Anbindung, Sakura-Stadt, Ziel-Lock) – Dateien gesendet, Gerätetest offen
 - **Annahme:** Phase 16 = die 3 Nutzerwünsche (Phase 15 nie definiert). Stadt nach Sakura statt Hermit Hut (Hermit = Einsiedler/Wald, Sakura hat Platz + ist jetzt angebunden).
 - **Sakura-Anbindung:** `py/make_layout_sakura.py`: Landbrücke 80-96 statt 30 Kacheln breit (Meerenge x 3730-3790 ebenso breit, Brücke unverändert 3 breit) -> `js/layout-sakura.js` neu erzeugt. Karte zeigt jetzt Land statt dünner Linie.
@@ -112,4 +120,4 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 - Hinweis: Ladebild liegt auf GitHub unter `assets/images/ui/loading.jpg` (lokales Zip: `assets/loading.jpg`); Zip-Datei hieß teils `js/config .js` (Leerzeichen) – Dateinamen prüfen.
 
 ## Nächster Schritt
-Gerätetest 0.17.0 (Sakura-Landbrücke, Stadt, Lock-Knopf) und 0.16.0 (Festung). Danach Balancing-Durchgang oder Region Stadt.
+0.17.0 auf Gerät bestätigt. Vorschlag: Balancing-Durchgang (Nutzer legt Werte fest; Platzhalter-Liste unten) und Tests um Truhen/Händler/Schnellreise/Boss erweitern, danach Phase 29. Danach Balancing-Durchgang oder Region Stadt.
