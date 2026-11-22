@@ -166,6 +166,14 @@ try:
     # 25 Daten-Validator
     v = subprocess.run([sys.executable, 'tools/validate_data.py'], capture_output=True, text=True)
     rec('Phase 21: Daten-Validator 0 Fehler', v.returncode == 0, v.stdout.strip().splitlines()[-1] if v.stdout.strip() else v.stderr[-100:])
+    # 26 Phase 22: balance.json (Cap, XP-Kurve, tierMul)
+    r = ev(pg, """() => { const C = SW.Char, K = SW.Combat, B = SW.Data.balance; let sum = 0; for (let l = 1; l < C.MAX; l++) sum += C.need(l);
+      const e = K.spots.find(s => s.tier === 3 && s.type !== 'boss' && !K.boss(s)); const st = SW.Data.skills || {};
+      return { max: C.MAX, n10: C.need(10), sum, t1: K.tm({ tier: 1 }).hp, t3: K.tm({ tier: 3 }).hp, none: K.tm({}).hp, ed: B.edition, sec: SW.Data.secrets.map(x => x.lvl).every(l => l <= C.MAX) }; }""")
+    rec('Phase 22: Cap 50 (Lite), need = 36*l (gesamt 44 100), tierMul 1 / 1,5 / ohne Tier = 1, Geheimtechnik-Level <= Cap', r['max'] == 50 and r['n10'] == 360 and r['sum'] == 44100 and r['t1'] == 1 and r['t3'] == 1.5 and r['none'] == 1 and r['sec'], json.dumps(r))
+    # 27 Phase 22: tierMul wirkt auf Belohnung und Gegner-Leben
+    r = ev(pg, """() => { const K = SW.Combat, x = K.spots.find(s => s.type === 'bandit' && !K.boss(s)), C = SW.Char; const R = SW.Data.rewards.bandit.xp; const out = []; [1, 3].forEach(t => { x.tier = t; C.level = 1; C.xp = 0; out.push(K.grant(x, { }).xp); }); return { out, R }; }""")
+    rec('Phase 22: tierMul: Tier 3 gibt 1,5 x XP gegenueber Tier 1', r['out'][0] == r['R'] and r['out'][1] == round(r['R'] * 1.5), json.dumps(r))
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:

@@ -19,6 +19,7 @@ JS = r"""() => {
     ['qn_', 'qd_', 'qo_', 'qdone_'].forEach(p => tx(p + q.id, 'Quest')); });
   D.chests.forEach(c => { const g = c.give || {}; if (g.item && !its.has(g.item)) E.push('Truhe ' + c.id + ': Item fehlt ' + g.item); });
   D.skills.forEach(s => (s.req || []).forEach(r => { if (!sk.has(r)) E.push('Skill ' + s.id + ': Voraussetzung fehlt ' + r); }));
+  if (!D.balance || !D.balance.tierMul || !D.balance.editions || !D.balance.editions[D.balance.edition] || !(D.balance.xpMul > 0)) E.push('balance.json unvollstaendig');
   if (!SW.dataOk) E.push('Daten-Lader: data/*.json nicht geladen');
   [['spots', D.spots, 1], ['shrines', D.shrines, 1], ['chests', D.chests, 1], ['npcs', D.npcs, 1], ['quests', D.quests, 1], ['items', D.items, 0], ['skills', D.skills, 0]].forEach(([n, l, t]) => l.forEach(o => {
     if (o.ed !== 'lite' && o.ed !== 'pc') E.push('Tag ed fehlt/ungueltig: ' + n + ' ' + o.id);

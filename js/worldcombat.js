@@ -156,7 +156,7 @@ SW.WCombat = (function () {
   function strike(s) {
     const w = s.w, A = w.atk, d = def(s), ps = P.ps, p = SW.Player;
     w.sw = SWING; w.hits--;
-    const dist = Math.hypot(p.x - s.x, p.y - s.y), dmg = Math.max(1, A.dmg * (d.dmg || 1) - ps.def);
+    const dist = Math.hypot(p.x - s.x, p.y - s.y), dmg = Math.max(1, A.dmg * (d.dmg || 1) * K.tm(s).dmg - ps.def);
     if (dist > reach(s) + .45) { /* Fehlschlag: Spieler ist außer Reichweite */ }
     else if (P.dodgeT > 0 || P.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); P.ki = Math.min(P.kmax, P.ki + 3); P.st.dodge++; }
     else if (P.block && !A.unblock && P.parryOk && P.blockT <= ps.parry) {
@@ -221,7 +221,7 @@ SW.WCombat = (function () {
     const dist = Math.hypot(p.x - s.x, p.y - s.y);
     if (!w) {
       if (dist > (s.amb ? 8 : AGGRO) || P.php <= 0) return;
-      w = s.w = { hp: d.hp, max: d.hp, st: 'chase', t: 0, dur: 1, wait: 1, atk: null, hits: 0, guarding: false, flash: 0, sw: 0, hx: s.x, hy: s.y, dir: 1 };
+      w = s.w = { hp: Math.round(d.hp * K.tm(s).hp), max: Math.round(d.hp * K.tm(s).hp), st: 'chase', t: 0, dur: 1, wait: 1, atk: null, hits: 0, guarding: false, flash: 0, sw: 0, hx: s.x, hy: s.y, dir: 1 };
     }
     w.flash = Math.max(0, w.flash - dt); w.sw = Math.max(0, w.sw - dt); w.t += dt;
     if (Math.abs(p.x - s.x) > .05) w.dir = p.x > s.x ? 1 : -1;

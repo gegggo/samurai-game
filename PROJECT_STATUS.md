@@ -1,8 +1,19 @@
-# PROJECT_STATUS (gekürzt, Stand 0.21.0, Cache v88)
+# PROJECT_STATUS (gekürzt, Stand 0.22.0, Cache v89)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## Phase 22 – Balance-Kern (0.22.0, Cache v89) – Dateien gesendet, Gerätetest offen
+- **Freigabe:** Nutzer 22.11.2026. Grundlage: `docs/Langzeit.md` Kap. 4/10/11 (Lite Cap 50, `need = 36*l`).
+- **Neu:** `data/balance.json` (in `data/index.json`): `edition` (lite), `editions` (Cap lite 50 / pc 100), `xpMul` 36, `tierMul` je Tier 1-3 (`hp`, `dmg`, `xp`, `coins`). Quelle der Wahrheit für diese Zahlen.
+- **Geändert:** `js/progress.js` (`C.MAX` aus Edition, `C.need = 36*l`); `js/combat.js` (`K.tm(spot)`; Gegner tragen `tier`; Wächter erben Schrein-Tier; Belohnung XP/Münzen x Tier; Arena-Leben/-Schaden); `js/arena3d.js`, `js/worldcombat.js` (Leben/Schaden x Tier); `data/skills.json` (Geheimtechnik-Level x 50/30: cross 33, ironwill 30, stillwater 37, oniwrath 42); `tools/validate_data.py` (+ balance-Prüfung); `tests/regression.py` (+2, jetzt 35); `js/config.js` 0.22.0; `index.html` v89.
+- **tierMul-Werte (Platzhalter, ändern in `balance.json`):** Tier 1 = 1/1/1/1 (Startgebiet unverändert) | Tier 2 = Leben 1,2, Schaden 1,15, XP/Münzen 1,25 | Tier 3 = 1,5 / 1,3 / 1,5 / 1,5. Lager in Western Woods (Tier 1) damit leicht.
+- **Folgen:** Level-Kurve flacher (L10 braucht 360 statt 847 XP): Weltinhalt (~11 000 XP) reicht jetzt bis ~Level 24 statt 16. Bestehende Spielstände bleiben gültig (Level <= 30, XP wird beim nächsten Gewinn neu verrechnet).
+- **Bewusst nicht gemacht:** Essence-Kosten/-Angebot (heute 31 Kosten / 43 Angebot): Zielwerte (~120 / ~90-100) gelten für ~60 Knoten, die es erst in Phase 24 gibt; Umstellung dort. Skill-Punkte unverändert (1/Level).
+- **Getestet (tatsächlich, headless Chromium 852x393):** Regression 35/35 (1 Lauf): Cap 50, Summe XP bis L50 = 44 100, tierMul, XP-Wirkung Tier 3 = 1,5 x; Validator 0 Fehler.
+- **Nicht geprüft:** Kampfgefühl mit tierMul am Gerät (Tier-2/3-Gegner jetzt härter), Boss-Arena mit Multiplikator, Geheimtechnik-Erwerb bei Level 30-42, Preis/Dauer bis Level 50.
+- **Nächster Schritt:** Gerätetest 0.22.0, dann Freigabe Phase 23 (Wirtschaft).
 
 ## Phase 21 – Performance + Tests (0.21.0, Cache v88) – Dateien gesendet, Gerätetest offen
 - **Freigabe:** Nutzer 22.11.2026. Entscheidungen: Spawn-Gitter nur bei Bedarf (nicht gebaut); `docs/` bleibt aus dem Repo; Render-Trennung (Teil D) weggelassen (nur Doku, Nutzer: unnötig).

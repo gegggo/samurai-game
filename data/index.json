@@ -5,6 +5,7 @@
   "items.json",
   "shops.json",
   "quests.json",
-  "skills.json"
+  "skills.json",
+  "balance.json"
  ]
 }
