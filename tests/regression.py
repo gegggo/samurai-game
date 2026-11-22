@@ -92,6 +92,47 @@ try:
     # 11 Karte/Schnellreise-Daten
     r = ev(pg, "() => ({poi: SW.World.POI.length, shr: SW.Data.shrines.length, off: SW.World.POI.every(o => !SW.World.solid(Math.floor(o.x), Math.floor(o.y)) || true)})")
     rec('Welt: POI und Schreine vorhanden', r['poi'] > 20 and r['shr'] > 20, json.dumps(r))
+    # 12 Phase 19: Speicher-Schnittstelle SW.Store
+    pg = start(b, errs)
+    r = ev(pg, """() => { const o={}, S=SW.Store; S.setItem('t19','x'); o.rt=S.getItem('t19')==='x'; S.removeItem('t19'); o.rm=S.getItem('t19')===null;
+      const mem={}; S.backend={getItem:k=>k in mem?mem[k]:null,setItem:(k,v)=>{mem[k]=String(v)},removeItem:k=>{delete mem[k]}};
+      localStorage.removeItem('sw_progress_v1'); SW.Save.save(); o.inMem=!!mem['sw_progress_v1']; o.notLocal=localStorage.getItem('sw_progress_v1')===null; S.backend=null; return o; }""")
+    rec('Phase 19: SW.Store (get/set/remove) + Speicher austauschbar, SW.Save schreibt ueber die Schnittstelle', r['rt'] and r['rm'] and r['inMem'] and r['notLocal'], json.dumps(r))
+    # 13 Phase 19: Migration alter Formate + Ablehnung zu neuer Version
+    pg = start(b, errs)
+    ev(pg, "SW.Char.level=7; SW.Char.xp=5; SW.Inv.addCoins(321); SW.Save.save()")
+    ev(pg, "() => { const d=SW.Save.data(); d.v=1; delete d.pos; localStorage.setItem('sw_progress_v1', JSON.stringify(d)); localStorage.removeItem('sw_progress_v1_bak'); }")
+    cont(pg); a = ev(pg, "[SW.Char.level, SW.Inv.coins, SW.Save.has()]")
+    rec('Phase 19: alter Spielstand v1 (ohne Umschlag, ohne Position) laedt vollstaendig', a == [7, 321, True], str(a))
+    ev(pg, "() => { const d=SW.Save.data(); d.v=2; localStorage.setItem('sw_progress_v1', JSON.stringify(d)); }")
+    cont(pg); a = ev(pg, "[SW.Char.level, SW.Inv.coins]")
+    rec('Phase 19: Spielstand v2 laedt und wird auf v3 gehoben', a == [7, 321], str(a))
+    r = ev(pg, """() => { const o={}, d=SW.Save.data(); d.v=99; const raw=JSON.stringify(d); ['sw_progress_v1_bak','sw_progress_v1_future'].forEach(k=>localStorage.removeItem(k)); for(let i=0;i<4;i++) localStorage.removeItem('sw_progress_v1_rp'+i);
+      localStorage.setItem('sw_progress_v1', raw); o.has=SW.Save.has(); SW.Save.save(); o.kept=localStorage.getItem('sw_progress_v1_future')===raw; o.flag=SW.Save.future(); o.mainValid=JSON.parse(localStorage.getItem('sw_progress_v1')).e===1; return o; }""")
+    rec('Phase 19: Stand mit zu neuer Version wird nicht geladen und beim Speichern NICHT zerstoert (liegt in sw_progress_v1_future)', r['has'] is False and r['kept'] and r['flag'] and r['mainValid'], json.dumps(r))
+    ev(pg, "() => { const d=SW.Save.data(); d.v=99; localStorage.setItem('sw_progress_v1', JSON.stringify(d)); localStorage.removeItem('sw_progress_v1_future'); SW.Save.hold = true; }")
+    e0 = len(errs); pg.reload(); pg.wait_for_timeout(1000)
+    r = ev(pg, "() => { const o={has:SW.Save.has(), dmg:SW.Save.damaged===true}; try { SW.Save.newGame(); } catch (e) {} return o; }")
+    pg.wait_for_timeout(1200); fut = ev(pg, "localStorage.getItem('sw_progress_v1_future') !== null")
+    rec('Phase 19: zu neuer Stand + Neues Spiel: kein Absturz, alter Stand bleibt erhalten', r['has'] is False and r['dmg'] and fut and len(errs) == e0, json.dumps(r) + ' fut=%s' % fut)
+    # 14 Phase 19: PWA-Dateien
+    r = ev(pg, """async () => { const o={}; const m=await fetch('manifest.webmanifest'); o.mf=m.status; const j=await m.json(); o.name=j.name; o.start=j.start_url; o.icons=[];
+      for (const i of j.icons) { const r=await fetch(i.src); o.icons.push(r.status+':'+i.sizes); } const s=await fetch('sw.js'); o.sw=s.status; const a=await fetch('assets/images/icons/apple-touch-icon.png'); o.apple=a.status;
+      o.link=!!document.querySelector('link[rel=manifest]'); o.meta=!!document.querySelector('meta[name=apple-mobile-web-app-capable]'); return o; }""")
+    rec('Phase 19: Manifest, Icons, sw.js, apple-touch-icon erreichbar; Links im HTML', r['mf'] == 200 and r['name'] and r['sw'] == 200 and r['apple'] == 200 and all(x.startswith('200') for x in r['icons']) and r['link'] and r['meta'], json.dumps(r))
+    # 15 Phase 19: Service Worker + Offline-Start
+    pg = start(b, errs); pg.wait_for_timeout(2500)
+    reg = ev(pg, "async () => { const r = await navigator.serviceWorker.getRegistration(); return !!r && SW.Store.worker === 'on'; }")
+    rec('Phase 19: Service Worker registriert', reg is True, str(reg))
+    pg.reload(); pg.wait_for_timeout(1500); pg.context.set_offline(True)
+    try:
+        pg.reload(); pg.wait_for_timeout(1500); off = ev(pg, "typeof SW !== 'undefined' && !!SW.version && !!SW.World && SW.Menus ? SW.version : false")
+    except Exception as ex: off = 'fehler ' + str(ex)[:80]
+    pg.context.set_offline(False)
+    rec('Phase 19: Offline-Start aus Zwischenspeicher (Seite + Skripte laden ohne Netz)', off == '0.18.0', str(off))
+    # 16 Phase 19: Speicherschutz-Abfrage + Hinweis in der Oberflaeche
+    r = ev(pg, """async () => { const S=SW.Store; const a=await S.refresh(); const b=await S.ask(); const box=SW.Menus.h.backupBox(); const txt=box.textContent; return {a, b, ui: /Storage protected|Storage not protected|Storage protection unknown/.test(txt)}; }""")
+    rec('Phase 19: persist()-Abfrage liefert yes/no/unknown, Einstellungen zeigen Speicherschutz-Hinweis', r['a'] in ('yes', 'no', 'unknown') and r['b'] in ('yes', 'no', 'unknown') and r['ui'], json.dumps(r))
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:

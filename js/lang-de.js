@@ -14,6 +14,8 @@ SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
   t_new_ask: 'Neues Spiel beginnen? Dein aktueller Stand wird Wiederherstellungspunkt 1. Der älteste Wiederherstellungspunkt wird gelöscht.',
   t_broken: 'Der Hauptspielstand ist beschädigt. Wähle einen Wiederherstellungspunkt oder beginne ein neues Spiel.',
   set_save: 'Spielstand', set_wipe: 'Spielstand löschen', set_wipe_ask: 'Gesamten Fortschritt löschen? Das lässt sich nicht rückgängig machen.', set_wipe_yes: 'Löschen', set_wipe_no: 'Abbrechen',
+  pv_yes: 'Speicher geschützt: der Browser behält deinen Spielstand.', pv_no: 'Speicher nicht geschützt: der Browser kann ihn löschen. Füge das Spiel zum Home-Bildschirm hinzu und exportiere regelmäßig.', pv_unknown: 'Speicherschutz unbekannt. Bitte regelmäßig exportieren.',
+  pv_ios: 'Hinweis: Die Home-Bildschirm-App hat einen eigenen Speicher. Erst in Safari exportieren, dann in der App importieren.',
   back: 'Zurück', bk_title: 'Sicherung', bk_hint: 'Export speichert deinen Fortschritt als Datei (Teilen-Menü → In Dateien sichern). Mach das regelmäßig: der Browser kann lokale Daten löschen.', bk_last: 'Letzter Export', bk_never: 'nie',
   bk_export: 'Spielstand exportieren', bk_import: 'Spielstand importieren', bk_due: 'Zeit für eine Sicherung: bitte Spielstand exportieren.', bk_none: 'Kein gültiger Spielstand zum Exportieren.',
   bk_shared: 'Spielstand exportiert.', bk_dl: 'Spielstanddatei heruntergeladen.', bk_cancel: 'Export abgebrochen.', bk_bad: 'Das ist keine gültige Samurai-Wanderer-Spielstanddatei.',
