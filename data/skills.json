@@ -367,14 +367,14 @@
   {
    "id": "cross",
    "karma": 60,
-   "lvl": 20,
+   "lvl": 33,
    "move": "cross",
    "yang": 60
   },
   {
    "id": "ironwill",
    "karma": 30,
-   "lvl": 18,
+   "lvl": 30,
    "move": "ironwill",
    "yin": 60
   },
@@ -382,13 +382,13 @@
    "balance": 60,
    "id": "stillwater",
    "karma": 50,
-   "lvl": 22,
+   "lvl": 37,
    "move": "stillwater"
   },
   {
    "id": "oniwrath",
    "karma": 70,
-   "lvl": 25,
+   "lvl": 42,
    "move": "oniwrath",
    "yang": 70
   }

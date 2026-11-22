@@ -25,7 +25,7 @@ SW.Arena = (function () {
     const def = D.enemies[spot.type], ps = K.playerStats(), reg = W.regionAt(Math.floor(spot.x), Math.floor(spot.y));
     const name = def.arena || D.regionArena[reg] || 'clearing';
     S = {
-      spot, def, ps, ar: D.arenas[name] || D.arenas.clearing, state: 'intro', t: 0, phase: 0, hp: def.hp, max: def.hp,
+      spot, def, ps, ar: D.arenas[name] || D.arenas.clearing, state: 'intro', t: 0, phase: 0, hp: Math.round(def.hp * K.tm(spot).hp), max: Math.round(def.hp * K.tm(spot).hp),
       php: ps.hp, pmax: ps.hp, ki: ps.ki, kmax: ps.ki, px: -6, py: 0, yaw: 0, pm: null, buf: null, chain: 0, chainT: 0, counterT: 0,
       block: false, blockT: 0, noBlockT: 1, parryOk: false, bl: 0, dodgeT: 0, dodgeCd: 0, dvx: 1, dvy: 0, invT: 0, hurt: 0, shake: 0, spark: 0,
       breath: false, msg: '', msgT: 0, msgCol: '#fff', floats: [], rew: null, fswing: 0, bob: 0,
@@ -145,7 +145,7 @@ SW.Arena = (function () {
   function foeStrike() {
     const f = S.boss, At = f.atk, ps = S.ps, p = ph();
     S.fswing = SWING; f.hits--;
-    const dmg = Math.max(1, At.dmg * (S.def.dmg || 1) - ps.def);
+    const dmg = Math.max(1, At.dmg * (S.def.dmg || 1) * K.tm(S.spot).dmg - ps.def);
     if (dist() > REACH() + .7) { /* Spieler ist weggelaufen: Angriff geht ins Leere */ }
     else if (S.dodgeT > 0 || S.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); S.ki = Math.min(S.kmax, S.ki + 3); S.st.dodge++; }
     else if (S.block && !At.unblock && S.parryOk && S.blockT <= ps.parry) {

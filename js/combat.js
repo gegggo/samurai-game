@@ -25,7 +25,7 @@ SW.Combat = (function () {
     }
     return { x, y };
   }
-  D.spots.forEach(s => { const p = free(s.x, s.y); K.spots.push({ id: s.id, type: s.type, x: p.x, y: p.y, dead: false, night: !!s.night, respawn: !!s.respawn, kv: s.kv }); });
+  D.spots.forEach(s => { const p = free(s.x, s.y); K.spots.push({ id: s.id, type: s.type, x: p.x, y: p.y, dead: false, night: !!s.night, respawn: !!s.respawn, kv: s.kv, tier: s.tier }); });
 
   // 0.11.0: jeder Schrein hat mindestens 2 Wächter in 22 Kacheln (fehlende werden ergänzt, feste IDs g_<schrein>_<n>, gespeichert wie alle Gegner)
   (function () {
@@ -36,7 +36,7 @@ SW.Combat = (function () {
       const reg = W.regionAt(Math.floor(c.x), Math.floor(c.y)), L = (reg >= 12 || reg === 5 || reg === 8 || reg === 16) ? hard : (reg === 0 || reg === 1 || reg === 3) ? light : mid;
       for (let n = 1; have < 2; n++, have++) {
         const g = (si * 2.4 + n * 3.1) % TAU, p = free(c.x + Math.cos(g) * 6, c.y + Math.sin(g) * 6);
-        K.spots.push({ id: 'g_' + sh.id + '_' + n, type: L[(si + n) % L.length], x: p.x, y: p.y, dead: false, night: false, respawn: false, kv: undefined });
+        K.spots.push({ id: 'g_' + sh.id + '_' + n, type: L[(si + n) % L.length], x: p.x, y: p.y, dead: false, night: false, respawn: false, kv: undefined, tier: sh.tier });
       }
     });
   })();
@@ -72,6 +72,8 @@ SW.Combat = (function () {
   // Index id -> Gegnerpunkt (Quests/Speichern); neu aufgebaut, wenn sich die Anzahl ändert. shortcut: Tausch gleicher Länge (amb) wird nicht bemerkt, amb wird nie per ID gesucht.
   let IDX = null, IDXN = -1;
   K.spot = id => { if (!IDX || IDXN !== K.spots.length) { IDX = new Map(); K.spots.forEach(e => IDX.set(e.id, e)); IDXN = K.spots.length; } return IDX.get(id) || null; };
+  const TM = { hp: 1, dmg: 1, xp: 1, coins: 1 };
+  K.tm = s => (D.balance.tierMul || {})[s && s.tier] || TM; // Multiplikatoren je Gegner-Tier (data/balance.json)
   K.boss = s => !!(s.trial || (D.enemies[s.type] && D.enemies[s.type].phases)); // Arena-Gegner (Boss/Schrein-Duell)
   K.check = function (p) {
     if (K.active) return;
@@ -89,7 +91,7 @@ SW.Combat = (function () {
     if (SW.Arena && SW.Arena.start) { SW.Arena.start(spot); return; } // 0.11.0: Boss-Arena in Pseudo-3D (arena3d.js); altes Duell bleibt als Rückfall unten
     const def = D.enemies[spot.type], ps = K.playerStats(), reg = W.regionAt(Math.floor(spot.x), Math.floor(spot.y));
     S = {
-      ps, spot, def, arena: def.arena || D.regionArena[reg], hp: def.hp, max: def.hp, php: ps.hp, pmax: ps.hp, ki: ps.ki, kmax: ps.ki,
+      ps, spot, def, arena: def.arena || D.regionArena[reg], hp: Math.round(def.hp * K.tm(spot).hp), max: Math.round(def.hp * K.tm(spot).hp), php: ps.hp, pmax: ps.hp, ki: ps.ki, kmax: ps.ki,
       st: { heavy: 0, special: 0, counter: 0, parry: 0, dodge: 0, block: 0, breath: 0 }, rew: null, invT: 0,
       state: 'intro', t: 0, phase: 0, pm: null, buf: null, chain: 0, chainT: 0,
       block: false, blockT: 0, noBlockT: 1, parryOk: false, bl: 0, dodgeT: 0, dodgeCd: 0, side: 1,
@@ -201,7 +203,7 @@ SW.Combat = (function () {
   function foeStrike() {
     const f = S.foe, A = f.atk, ps = S.ps, p = ph();
     S.fswing = SWING; f.hits--;
-    const dmg = Math.max(1, A.dmg * (S.def.dmg || 1) - ps.def);
+    const dmg = Math.max(1, A.dmg * (S.def.dmg || 1) * K.tm(S.spot).dmg - ps.def);
     if (S.dodgeT > 0 || S.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); S.ki = Math.min(S.kmax, S.ki + 3); S.st.dodge++; }
     else if (S.block && !A.unblock && S.parryOk && S.blockT <= ps.parry) {
       S.st.parry++;
@@ -221,9 +223,9 @@ SW.Combat = (function () {
   }
   // Belohnung für einen besiegten Gegner (Arena und Weltkampf): spot = Gegnerpunkt, st = Kampfstatistik für Yin/Yang
   function grant(spot, st) {
-    const R = D.rewards[spot.type] || { xp: 10 }, C = SW.Char, out = { xp: R.xp, coins: 0, items: [], ess: [], karma: 0, secret: null, lv: [], yy: { yin: 0, yang: 0 } };
-    out.lv = C.addXp(R.xp);
-    out.coins = SW.Inv.addCoins(SW.Inv.coinDrop(spot.type));
+    const R = D.rewards[spot.type] || { xp: 10 }, C = SW.Char, xp = Math.round(R.xp * K.tm(spot).xp), out = { xp, coins: 0, items: [], ess: [], karma: 0, secret: null, lv: [], yy: { yin: 0, yang: 0 } };
+    out.lv = C.addXp(xp);
+    out.coins = SW.Inv.addCoins(Math.round(SW.Inv.coinDrop(spot.type) * K.tm(spot).coins));
     const dr = D.drops && D.drops[spot.id]; if (dr && SW.Inv.add(dr, 1)) out.items.push(T('drop_got', T('it_' + dr)));
     if (spot.amb && Math.random() < .1 && SW.Inv.add('katana_shadow', 1)) out.items.push(T('drop_wpn', T('it_katana_shadow'))); // Schattenclan: 10 % Waffe
     if (R.ess && !spot.respawn && SW.Essence.add(R.ess)) out.ess.push(R.ess + ' ' + T('ess')); // wiederkehrende Nachtgegner geben keine Essence (kein Farmen)

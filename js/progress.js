@@ -3,10 +3,11 @@
 // SW.Char (XP, Level, Werte) | SW.Essence (nur Skilltree) | SW.YinYang (Spielstil) | SW.Karma (Ruf) | SW.Save (Speichern)
 // Alle Zahlen sind Platzhalter bis zum Balancing.
 SW.Char = (function () {
-  const C = { level: 1, xp: 0, sp: 1, ap: 0, pts: { hp: 0, ki: 0, atk: 0, def: 0, end: 0, crit: 0 }, MAX: 30 };
+  const BAL = SW.Data.balance;
+  const C = { level: 1, xp: 0, sp: 1, ap: 0, pts: { hp: 0, ki: 0, atk: 0, def: 0, end: 0, crit: 0 }, MAX: BAL.editions[BAL.edition].cap }; // Cap je Edition (data/balance.json)
   const PER = { hp: 8, ki: 5, atk: .6, def: 1, end: 1, crit: .5 }; // Wert je Attributpunkt
   C.PER = PER;
-  C.need = l => Math.round(30 * Math.pow(l, 1.45));
+  C.need = l => BAL.xpMul * l; // 36*l: Level 50 = 44 100 XP gesamt
   C.base = function () {
     const L = C.level - 1, P = C.pts;
     return {
