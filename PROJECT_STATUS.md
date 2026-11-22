@@ -1,8 +1,30 @@
-# PROJECT_STATUS (gekürzt, Stand 0.17.0, Cache v82)
+# PROJECT_STATUS (gekürzt, Stand 0.18.0, Cache v83)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## Phase 19 – Spielstand sichern (0.18.0, Cache v83) – Dateien gesendet, Gerätetest offen
+- **Freigabe:** Nutzer 22.11.2026 (Entscheidungen siehe `docs/Langzeit.md` Kap. 11). Branch-Vorschlag: `phase-19-save`.
+- **Neu:** `js/store.js` (`SW.Store`: austauschbare Speicher-Schnittstelle, Spec 32.1; `persist()`-Abfrage; Service-Worker-Registrierung), `sw.js` (Netz zuerst, Zwischenspeicher nur offline; Dateiliste automatisch aus `index.html`), `manifest.webmanifest`, `assets/images/icons/*.png` (**Platzhalter-Icons** aus Ladebild). `index.html`: Manifest, apple-touch-icon, Meta-Tags, `store.js`, alle `?v=83`.
+- **Geändert:** `js/progress.js` (`SW.Save` nutzt nur noch `SW.Store`; **neu:** Stand mit zu neuer Formatversion wird nie überschrieben/gelöscht, liegt in `sw_progress_v1_future`; `V.future()`), `js/menus.js` + `js/lang-de.js` (Speicherschutz-Hinweis im Backup-Feld EN+DE), `js/config.js` (0.18.0), `tests/regression.py` (+9 Tests).
+- **Getestet (tatsächlich, headless Chromium 852x393):** Regression **24/24 bestanden** (15 alte + 9 neu: Store austauschbar, Altstand v1/v2 lädt, zu neuer Stand bleibt erhalten, Manifest/Icons/sw.js erreichbar, Service Worker registriert, **Offline-Start aus Zwischenspeicher**, persist-Abfrage + UI-Hinweis). `node --check` aller geänderten JS ok. Screenshot Einstellungen Querformat ok. Keine JS-Fehler.
+- **Nicht geprüft:** iPhone/Safari (Home-Bildschirm-App, `persist()`-Ergebnis in Safari, Vollbild/Schwarzer-Balken-Verhalten im Standalone-Modus), GitHub-Pages-Unterpfad, Android, Capacitor (nur Entscheidung offen), Icon-Optik.
+- **Wichtig (iOS):** Home-Bildschirm-App hat **eigenen Speicher** (nicht der aus Safari). Vor dem ersten Start der App: in Safari **exportieren**, in der App **importieren** (Hinweis steht in Einstellungen).
+- **Bekannt:** Headless-Chromium meldet `persist()` = no (kein Nutzerprofil); echter Wert nur am Gerät. Die ältere Version würde einen zu neuen Stand nicht laden (Neues Spiel/Speichern nur mit Sicherung).
+- **Nächster Schritt:** Gerätetest 0.18.0, dann Freigabe Phase 20 (Daten-Fundament: JSON-Lader, stabile IDs, `tier`/`ed`, Validator).
+
+## Langzeit-Plan (Nutzerfrage 100–200 h, Lite/PC/3D) – nur Dokument, kein Code
+- **Aktualisiert 22.11.2026:** `docs/Langzeit.md` v3 (ersetzt LANGZEIT_PLAN.md): Lite Cap 50 / PC Cap 100+, Ryō, PC-Welt 40–50 km², Phasenplan 19–33, Nutzerentscheidungen Kap. 11.
+- **Alt:** `docs/LANGZEIT_PLAN.md` (Spielzeit-Modell, Balance-Vorschlag Cap 60 / XP `4*l^1.6`, Essence ~180 Angebot / ~260 Kosten, Sammelfunde + Wiederholbares als **Vorschlag neuer Systeme**, Safari-Speicherrisiko, Lite = Build-Schalter, PC-Wrapper, 3D = three.js-Prototyp erst nach 2D, Phasen 19–24+).
+- **Offen:** Nutzerentscheidungen (Kapitel 8 des Plans). Zeiten/Aufwand sind Schätzungen.
+
+## Phase 18 – Balancing-Auswertung (kein Spielcode geändert, Version 0.17.0)
+- **Neu:** `docs/BALANCING.md` (Angebot/Bedarf XP, Essence, Münzen; Vorschläge; zentrale Platzhalter-Liste). Datenauswertung tatsächlich ausgeführt (Chromium).
+- **Befunde:** Welt gibt ~10 900 XP, Level 30 braucht 48 857 -> max. Level ~16; geheime Techniken (Lvl 18-25) unerreichbar; Essence ~43 gegen 31 Kosten (zu reichlich); Baum 28 SP, bei Lvl 16 nur 16 SP.
+- **Offen (Nutzerentscheidung):** XP-Kurve, Essence-Menge/Kosten, Skillpunkte. Nichts wird ohne Freigabe geändert (keine erfundenen Zahlen).
+- **Nicht geprüft:** Kampfschwierigkeit, Schmiedekosten, Ki-Regen, Boss-HP.
+- **Geändert:** NEU docs/BALANCING.md, PROJECT_STATUS.md.
 
 ## Phase 17 – Regressionstests (Spec 33.5), kein Spielcode geändert (Version bleibt 0.17.0)
 - **Annahme:** Nutzer: „Mach das was du für wichtig hältst“ -> Empfehlung E (vor Balancing und Phase 29). 0.17.0 (Phase 16) vom Nutzer auf Gerät getestet: OK.
@@ -120,4 +142,4 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 - Hinweis: Ladebild liegt auf GitHub unter `assets/images/ui/loading.jpg` (lokales Zip: `assets/loading.jpg`); Zip-Datei hieß teils `js/config .js` (Leerzeichen) – Dateinamen prüfen.
 
 ## Nächster Schritt
-0.17.0 auf Gerät bestätigt. Vorschlag: Balancing-Durchgang (Nutzer legt Werte fest; Platzhalter-Liste unten) und Tests um Truhen/Händler/Schnellreise/Boss erweitern, danach Phase 29. Danach Balancing-Durchgang oder Region Stadt.
+Gerätetest 0.18.0 (Phase 19), dann Phase 20 laut `docs/Langzeit.md` Kap. 10. Davor gelisteter Stand: 0.17.0 auf Gerät bestätigt.
