@@ -136,6 +136,9 @@ SW.Menus = (function () {
       box.innerHTML = '';
       add(box, el('b', '', T('bk_title')), el('div', 'dim', T('bk_hint') + ' ' + T('bk_last') + ': ' + lastD()), add(el('div', 'row'), btn(T('bk_export'), 'pri', doExport), btn(T('bk_import'), '', () => inp.click())), msg, inp);
       if (S.backupDue()) say('bk_due', 'no');
+      const ST = SW.Store, pv = el('div', 'dim'); add(box, pv); // Phase 19: Speicherschutz-Hinweis
+      const showPv = () => { pv.textContent = T('pv_' + ST.state) + (ST.ios && !ST.standalone ? ' ' + T('pv_ios') : ''); };
+      showPv(); ST.refresh().then(showPv);
     }
     build(); return box;
   }
@@ -159,6 +162,8 @@ SW.Menus = (function () {
 })();
 
 Object.assign(SW.TEXT.en, {
+  pv_yes: 'Storage protected: the browser keeps your save.', pv_no: 'Storage not protected: the browser may delete it. Add the game to your Home Screen and export regularly.', pv_unknown: 'Storage protection unknown. Export regularly.',
+  pv_ios: 'Note: the Home Screen app has its own storage. Export in Safari first, then import in the app.',
   back: 'Back', bk_title: 'Backup', bk_hint: 'Export saves your progress as a file (Share menu → Save to Files). Do this regularly: the browser can delete local data.', bk_last: 'Last export', bk_never: 'never',
   bk_export: 'Export save', bk_import: 'Import save', bk_due: 'Time for a backup: please export your save.', bk_none: 'No valid save to export.',
   bk_shared: 'Save exported.', bk_dl: 'Save file downloaded.', bk_cancel: 'Export cancelled.', bk_bad: 'This is not a valid Samurai Wanderer save file.',

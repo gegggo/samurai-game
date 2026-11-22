@@ -128,7 +128,7 @@ SW.Karma = (function () {
 // Sicherheit: vor jedem Schreiben wird der letzte gültige Stand als Kopie gesichert; defekter Stand (Prüfsumme falsch) fällt auf die Kopie zurück.
 // Hauptstand + 4 rotierende Wiederherstellungspunkte (alle 10 min Echtzeit rückt der alte Hauptstand nach). Alte Stände ohne Umschlag werden übernommen.
 SW.Save = (function () {
-  const KEY = 'sw_progress_v1', BAK = 'sw_progress_v1_bak', RP = 'sw_progress_v1_rp', NRP = 4, GAP = 600000, VER = 3, V = {};
+  const KEY = 'sw_progress_v1', BAK = 'sw_progress_v1_bak', FUT = 'sw_progress_v1_future', RP = 'sw_progress_v1_rp', NRP = 4, GAP = 600000, VER = 3, V = {};
   let tmr = 0, acc = 0, lp = null, wiped = false, pt = 0;
   const hash = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return h >>> 0; };
   V.data = () => ({
@@ -143,16 +143,17 @@ SW.Save = (function () {
     if (tmr) { clearTimeout(tmr); tmr = 0; } // zuerst entriegeln, sonst blockiert ein verworfener Timer (hold) alle späteren touch()
     if (wiped || V.hold) return; // hold: Startbildschirm offen, noch nichts überschreiben
     try {
-      const old = localStorage.getItem(KEY), d = JSON.stringify(V.data());
-      if (old && unpack(old)) { localStorage.setItem(BAK, old); rotate(old, false); } // defekten Stand nie als Kopie sichern
-      localStorage.setItem(KEY, JSON.stringify({ e: 1, ts: Date.now(), pt: Math.floor(pt), sum: hash(d), d }));
+      const old = SW.Store.getItem(KEY), d = JSON.stringify(V.data());
+      keep(old);
+      if (old && unpack(old)) { SW.Store.setItem(BAK, old); rotate(old, false); } // defekten Stand nie als Kopie sichern
+      SW.Store.setItem(KEY, JSON.stringify({ e: 1, ts: Date.now(), pt: Math.floor(pt), sum: hash(d), d }));
       if (SW.Player) lp = { x: SW.Player.x, y: SW.Player.y };
     } catch (e) { /* Speicher gesperrt oder voll */ }
   };
   // Spielstand löschen (beide Kopien); danach wird nichts mehr geschrieben, die Seite lädt neu. Sprache bleibt.
   V.clear = function () {
     wiped = true; if (tmr) { clearTimeout(tmr); tmr = 0; }
-    try { localStorage.removeItem(KEY); localStorage.removeItem(BAK); for (let i = 0; i < NRP; i++) localStorage.removeItem(RP + i); } catch (e) { /* Speicher gesperrt */ }
+    try { SW.Store.removeItem(KEY); SW.Store.removeItem(BAK); SW.Store.removeItem(FUT); for (let i = 0; i < NRP; i++) SW.Store.removeItem(RP + i); } catch (e) { /* Speicher gesperrt */ }
     location.reload();
   };
   V.touch = function () { if (!tmr) tmr = setTimeout(V.save, 500); };
@@ -177,19 +178,23 @@ SW.Save = (function () {
       const d = migrate(o); return d ? { ts: 0, pt: 0, d } : null;
     } catch (e) { return null; }
   }
-  function read(key) { try { const r = localStorage.getItem(key); return r ? unpack(r) : null; } catch (e) { return null; } }
+  // Phase 19: Stand mit NEUERER Formatversion (z. B. spätere Edition) darf von dieser Version nie überschrieben oder gelöscht werden -> eigener Platz
+  function future(raw) { try { const o = JSON.parse(raw), d = o && o.e === 1 && typeof o.d === 'string' ? JSON.parse(o.d) : o; return !!d && typeof d.v === 'number' && d.v > VER; } catch (e) { return false; } }
+  function keep(raw) { if (raw && future(raw) && !unpack(raw) && SW.Store.getItem(FUT) !== raw) SW.Store.setItem(FUT, raw); }
+  V.future = () => { try { return !!SW.Store.getItem(FUT); } catch (e) { return false; } };
+  function read(key) { try { const r = SW.Store.getItem(key); return r ? unpack(r) : null; } catch (e) { return null; } }
   // Alten Hauptstand in die Wiederherstellungspunkte schieben (nur wenn force oder seit 10 min kein neuer Punkt)
   function rotate(old, force) {
     const tk = RP + '_t';
-    if (!force && Date.now() - Number(localStorage.getItem(tk) || 0) < GAP) return;
-    for (let i = NRP - 1; i > 0; i--) { const v = localStorage.getItem(RP + (i - 1)); if (v) localStorage.setItem(RP + i, v); }
-    localStorage.setItem(RP + 0, old); localStorage.setItem(tk, String(Date.now()));
+    if (!force && Date.now() - Number(SW.Store.getItem(tk) || 0) < GAP) return;
+    for (let i = NRP - 1; i > 0; i--) { const v = SW.Store.getItem(RP + (i - 1)); if (v) SW.Store.setItem(RP + i, v); }
+    SW.Store.setItem(RP + 0, old); SW.Store.setItem(tk, String(Date.now()));
   }
   // Liste für die Auswahl: Hauptstand + Wiederherstellungspunkte (nur vorhandene), mit Kurzinfo
   V.slots = function () {
     const out = [];
     [KEY].concat([0, 1, 2, 3].map(i => RP + i)).forEach((k, i) => {
-      let raw = null; try { raw = localStorage.getItem(k); } catch (e) { /* gesperrt */ }
+      let raw = null; try { raw = SW.Store.getItem(k); } catch (e) { /* gesperrt */ }
       if (!raw) return;
       const r = unpack(raw), d = r && r.d, q = d && d.pos, W = SW.World;
       out.push({ key: k, main: i === 0, n: i, ok: !!r, ts: r ? r.ts : 0, pt: r ? (d.pt || r.pt) : 0, lvl: r ? (d.char && d.char.level) || 1 : 0,
@@ -200,25 +205,25 @@ SW.Save = (function () {
   // Tausch: Wiederherstellungspunkt wird Hauptstand, alter Hauptstand nimmt dessen Platz ein (nichts geht verloren). Danach Neuladen.
   V.restore = function (key) {
     try {
-      const sel = localStorage.getItem(key), cur = localStorage.getItem(KEY);
+      const sel = SW.Store.getItem(key), cur = SW.Store.getItem(KEY);
       if (key === KEY || !sel || !unpack(sel)) return false;
       wiped = true; if (tmr) { clearTimeout(tmr); tmr = 0; }
-      if (cur) localStorage.setItem(key, cur); else localStorage.removeItem(key);
-      localStorage.setItem(KEY, sel);
+      if (cur) SW.Store.setItem(key, cur); else SW.Store.removeItem(key);
+      SW.Store.setItem(KEY, sel);
     } catch (e) { return false; }
     location.reload(); return true;
   };
   // Neues Spiel: aktueller Hauptstand wird Wiederherstellungspunkt 1 (ältester Punkt entfällt), dann leerer Start.
   V.newGame = function () {
     wiped = true; if (tmr) { clearTimeout(tmr); tmr = 0; }
-    try { const cur = localStorage.getItem(KEY); if (cur && unpack(cur)) rotate(cur, true); localStorage.removeItem(KEY); localStorage.removeItem(BAK); } catch (e) { /* gesperrt */ }
+    try { const cur = SW.Store.getItem(KEY); keep(cur); if (cur && unpack(cur)) rotate(cur, true); SW.Store.removeItem(KEY); SW.Store.removeItem(BAK); } catch (e) { /* gesperrt */ }
     location.reload();
   };
   // Export/Import (Phase 0.9.27): Spielstand als JSON-Datei {sw, fmt, gv, ts, sum, raw}; raw = Umschlag des Hauptstands (eigene Prüfsumme), sum = Prüfsumme über raw.
   const LX = 'sw_last_export', FMT = 1, DAY = 86400000;
   V.exportText = function () {
     if (!wiped && !V.hold) V.save(); // aktuellen Stand zuerst schreiben (Startbildschirm: gespeicherter Stand)
-    let raw = null; try { raw = localStorage.getItem(KEY); if (!raw || !unpack(raw)) raw = localStorage.getItem(BAK); } catch (e) { return null; }
+    let raw = null; try { raw = SW.Store.getItem(KEY); if (!raw || !unpack(raw)) raw = SW.Store.getItem(BAK); } catch (e) { return null; }
     if (!raw || !unpack(raw)) return null;
     return JSON.stringify({ sw: 'save', fmt: FMT, gv: SW.version, ts: Date.now(), sum: hash(raw), raw });
   };
@@ -238,15 +243,15 @@ SW.Save = (function () {
   V.applyImport = function (text) {
     const r = V.inspect(text); if (!r.ok) return false;
     try {
-      const cur = localStorage.getItem(KEY);
+      const cur = SW.Store.getItem(KEY);
       wiped = true; if (tmr) { clearTimeout(tmr); tmr = 0; }
-      if (cur && unpack(cur)) rotate(cur, true);
-      localStorage.setItem(KEY, r.raw); localStorage.removeItem(BAK);
+      keep(cur); if (cur && unpack(cur)) rotate(cur, true);
+      SW.Store.setItem(KEY, r.raw); SW.Store.removeItem(BAK);
     } catch (e) { wiped = false; return false; }
     location.reload(); return true;
   };
-  V.lastExport = () => { try { return Number(localStorage.getItem(LX)) || 0; } catch (e) { return 0; } };
-  V.markExported = () => { try { localStorage.setItem(LX, String(Date.now())); } catch (e) { /* gesperrt */ } };
+  V.lastExport = () => { try { return Number(SW.Store.getItem(LX)) || 0; } catch (e) { return 0; } };
+  V.markExported = () => { try { SW.Store.setItem(LX, String(Date.now())); } catch (e) { /* gesperrt */ } };
   // Hinweis zum Sichern: Spielstand vorhanden und seit 7 Tagen (bzw. noch nie bei >30 min Spielzeit) nicht exportiert
   V.backupDue = function () {
     const le = V.lastExport(), r = read(KEY) || read(BAK); if (!r) return false;
@@ -256,7 +261,7 @@ SW.Save = (function () {
   const step = fn => { try { fn(); } catch (e) { /* ein defekter Teil darf den Rest nicht blockieren */ } };
   V.load = function () {
     const r = read(KEY) || read(BAK), d = r && r.d;
-    V.damaged = !r && !!(function () { try { return localStorage.getItem(KEY); } catch (e) { return null; } })();
+    V.damaged = !r && !!(function () { try { return SW.Store.getItem(KEY); } catch (e) { return null; } })();
     if (!d) return;
     pt = d.pt || r.pt || 0;
     step(() => SW.Char.load(d.char)); step(() => SW.Essence.load(d.ess)); step(() => SW.YinYang.load(d.yy));
