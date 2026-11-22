@@ -1,8 +1,14 @@
-# PROJECT_STATUS (gekürzt, Stand 0.15.0, Cache v79)
+# PROJECT_STATUS (gekürzt, Stand 0.15.1, Cache v80)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
-**Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Dateien gesendet, Browser-Test teilweise, Gerätetest offen). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
+**Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## 0.15.1 – Fixes nach Gerätetest 0.15.0
+- **Ausweichen kostet mehr Ki:** `D.dodgeKi` 10 -> 25 (**Platzhalter**, `combat-data.js`; Ki-Pool ~100, Spezial 40). Wirkt in Welt, Arena, Rückfall-Duell.
+- **Meister fehlt im Tempel (Nutzermeldung, Nacht):** NICHT reproduziert. Headless Chromium, frisches Spiel, Spieler (2290,997): Meister bei (2289.5,996.5) sichtbar, Tag und Nacht (Screenshots), keine JS-Fehler. Vermutung (ungeprüft): altes `shops-data.js`/Cache auf Gerät oder GitHub. Prüfen: `js/shops-data.js` Zeile `n_master` x 2289.5, y 996.5.
+- **Getestet:** `node`-Syntax nicht erneut nötig (nur Zahl/Version); Start ohne JS-Fehler. **Nicht geprüft:** Gerät, Ausweich-Gefühl mit 25 Ki.
+- **Geändert:** js/combat-data.js, js/config.js, index.html (v80), PROJECT_STATUS.md.
 
 ## 0.15.0 – Fixes nach Gerätetest 0.14.0
 - **Block-Schild:** Bogen stand an veralteter Richtung (nur eine Seite, teils hinter dem Spieler). `worldcombat.js`: beim Blocken zeigt `P.fa` zum nächsten Gegner (8 Kacheln) sonst in Blickrichtung. Block-Logik selbst war richtungslos und blieb unverändert. Arena unberührt.
@@ -88,4 +94,4 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 - Hinweis: Ladebild liegt auf GitHub unter `assets/images/ui/loading.jpg` (lokales Zip: `assets/loading.jpg`); Zip-Datei hieß teils `js/config .js` (Leerzeichen) – Dateinamen prüfen.
 
 ## Nächster Schritt
-Gerätetest 0.15.0 (Haus betreten, Block-Bogen, Ki beim Ausweichen). Danach Phase 14 (neue Region) oder Balancing.
+Gerätetest 0.15.1 (Meister sichtbar? Ausweichen 25 Ki). Dann Phase 14: Region/Phase-Umfang klären (Frage an Nutzer offen).
