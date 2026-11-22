@@ -1,8 +1,16 @@
-# PROJECT_STATUS (gekürzt, Stand 0.13.0, Cache v77)
+# PROJECT_STATUS (gekürzt, Stand 0.14.0, Cache v78)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
-**Aktuell:** 0.13.0 = Phase 11 + 13 (Dateien gesendet, Prüfung ausstehend, Gerätetest offen). Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
+**Aktuell:** 0.14.0 = Phase 12 (Dateien gesendet, Browser-Test bestanden, Gerätetest offen). 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## 0.14.0 – Phase 12 (Meistertempel + Trainingsplatz)
+- **Meistertempel im Steingarten** (Region 10, Mitte-Nord, Zentrum X 2292 / Y 1012): `world.js` Halle `hall` (2283,993, 14x8) + 3 Trainingspuppen `dummy` (2286/2290/2298, 1011). Meister `n_master` von Startdorf nach (2290.5, 1002.5) (`shops-data.js`). Texte angepasst (Schriftrolle: "Meister im Tempel des Steingartens", EN+DE).
+- **Trainingsplatz:** `worldcombat.js`: Nähe < 4 Kacheln zu einer Puppe schaltet Kampfmodus/Buttons ein, Hinweis `train_hint`. Treffer (Bogen wie bei Gegnern, inkl. Krit/Konter) zeigen Schaden, Puppe wackelt (`render.js dummy()`), kein Gegenschlag, keine XP/Karma/Belohnung. Puppen solid. Platzhaltergrafik (Phase 29).
+- **Skill-Buttons** `cb-s0/1` werden ausgeblendet, solange der Slot leer ist (`worldcombat.js`, `arena3d.js`).
+- **Nicht umgesetzt:** Duell-Symbole ▲■▼/Finten (Spec 33.6, vom Nutzer zurückgestellt); Scroll-Entziffern bleibt wie bisher.
+- **Getestet (headless Chromium 852x393, tatsächlich):** Start ohne JS-Fehler (nur Favicon-404); 3 Puppen solid an Sollposition; Halle vorhanden; Meister an neuer Position sichtbar (Screenshot); Skill-Buttons `none` bei leeren Slots, `cb-breath` existiert nicht; Kampfmodus startet bei Puppe; Strike/Heavy treffen Puppe (Wackeln `fl` > 0). Nicht geprüft: Meister-Dialog/Entziffern am neuen Ort, Halle von nahem (Screenshot nur Südteil), Gerät/Touch, Karte/Schnellreise-Symbol Tempel, Regression Speichern/Quests/Inventar diesmal nicht erneut, Laufweg vom Startdorf zum Tempel nicht per BFS geprüft.
+- **Bekannt:** alte Spielstände: Meister steht dort ohne Zutun neu (Position nicht gespeichert). Garten-Gegner `e_garden*` und Wächter stehen nah am Tempel.
 
 ## 0.13.0 – Phase 11 (Atem automatisch) + Phase 13 (A*)
 - **Atem automatisch (Nutzerwunsch):** kein Button. `worldcombat.js`/`combat.js`: Atem = nicht blocken/angreifen/ausweichen/getroffen (Welt zusätzlich: nicht laufen); `arena3d.js`: zusätzlich Joystick in Ruhe. Ki-Regen +22*breathMul und Yin-Statistik wie zuvor. Skilltexte `sw4`/`km5` (`skills-data.js`, `lang-de.js`) und Yin-Hinweis (`menus.js`, `lang-de.js`) auf "ruhig stehen" umformuliert. **Balance-Platzhalter:** Ki-Regen im Stand jetzt immer aktiv -> evtl. zu stark, am Gerät prüfen.
@@ -73,4 +81,4 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 - Hinweis: Ladebild liegt auf GitHub unter `assets/images/ui/loading.jpg` (lokales Zip: `assets/loading.jpg`); Zip-Datei hieß teils `js/config .js` (Leerzeichen) – Dateinamen prüfen.
 
 ## Nächster Schritt
-Prüfung 0.13.0: Browser-Test (Weltkampf, Arena, Gegner um Felsen) + Gerätetest. Danach Phase 12 (Trainingsbereich) oder 14 (Region).
+Gerätetest 0.14.0 (Tempel, Puppen, Meister-Dialog). Danach Phase 14 (neue Region) oder Balancing.
