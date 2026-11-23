@@ -1,6 +1,6 @@
 'use strict';
-// Skilltree-Daten (Phase 3). Werte sind Platzhalter bis zum Balancing.
-// Kosten: sp = Skillpunkte, ess = Essence (Zahl, nur hier verwendbar). Gesamt 31 Essence = ganzer Baum bezahlbar (Angebot 35; BALANCE-PLATZHALTER). Yin/Yang: Felder yin/yang/balance werden beim Lernen verbraucht (Gleichgewicht: halber Wert je Seite). Passive wirken immer, aktive werden ausgerüstet.
+// Skilltree-Texte (Phase 24). Die 90 Lite-Knoten liegen in data/skills.json.
+// Neue Knoten nutzen Namen/Beschreibungen direkt aus data/skills.json. Essence bleibt Skilltree-exklusiv.
 (function () {
   const c = (sp, ess) => ({ sp, ess });
   // Daten (Äste, Skills, Techniken, Schriftrollen, Zusatz-Moves) liegen seit Phase 20 in data/skills.json und data/combat.json.

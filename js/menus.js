@@ -2,7 +2,7 @@
 // Menüseiten (Phase 3): Character, Skills, Skilltree, Karma & Yin-Yang. Aufruf aus ui.js: SW.Menus[tab](panel).
 SW.Menus = (function () {
   const M = {}, T = (k, n) => SW.t(k, n);
-  let br = 'sm', sel = null;
+  let br = 'sm', sel = null, skillQuery = '', skillFilter = 'all', mapScale = 1, mapX = 0, mapY = 0;
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
   const add = (p, ...c) => { c.forEach(x => { if (x) p.appendChild(x); }); return p; };
   const refresh = () => SW.UI.refresh();
@@ -65,27 +65,109 @@ SW.Menus = (function () {
 
   M.skilltree = function (p) {
     const S = SW.Skills, E = SW.Essence, root = page(p, T('tab_skilltree'));
-    const head = el('div', 'row'); add(head, el('span', 'chip', T('sp') + ': ' + SW.Char.sp));
-    add(head, el('span', 'chip ess', T('ess') + ' ' + E.n));
+    const head = el('div', 'row');
+    add(head, el('span', 'chip', T('sp') + ': ' + SW.Char.sp), el('span', 'chip ess', T('ess') + ' ' + E.n));
     add(root, head);
-    const brs = el('div', 'row');
+    const brs = el('div', 'row skill-branches');
     SW.Data.branches.forEach(b => add(brs, btn(T('br_' + b), b === br ? 'pri' : '', () => { br = b; sel = null; refresh(); })));
     add(root, brs);
-    const list = S.nodes.filter(n => n.br === br).sort((a, b) => a.tier - b.tier);
-    if (!sel || !list.some(n => n.id === sel)) sel = list[0].id;
-    const split = el('div', 'split'), col = el('div', 'nodes'), det = el('div', 'detail');
-    list.forEach(n => {
-      const st = S.learned[n.id] ? 'done' : S.can(n.id) ? 'av' : '';
-      const b = el('button', 'node ' + st + (sel === n.id ? ' sel' : ''), (S.learned[n.id] ? '✓ ' : '') + T('sk_' + n.id) + '  ·  ' + n.tier + ' · ' + T(n.type));
-      b.onclick = () => { sel = n.id; refresh(); };
-      add(col, b);
+    const tools = el('div', 'row skill-tools'), search = el('input', 'skill-search');
+    search.type = 'search'; search.placeholder = 'Fähigkeit suchen…'; search.value = skillQuery;
+    search.oninput = () => {
+      skillQuery = search.value.toLowerCase();
+      viewport.querySelectorAll('.skill-node').forEach(b => { b.hidden = !(b.dataset.search || '').includes(skillQuery) && (skillFilter === 'all' || b.dataset.type === skillFilter); });
+    };
+    const filter = document.createElement('select'); filter.className = 'skill-filter';
+    [['all','Alle'],['passive','Passiv'],['active','Aktiv'],['special','Spezial']].forEach(([v,t]) => { const o=document.createElement('option'); o.value=v; o.textContent=t; filter.appendChild(o); });
+    filter.value = skillFilter; filter.onchange = () => { skillFilter = filter.value; refresh(); };
+    add(tools, search, filter); add(root, tools);
+
+    const viewport = el('div', 'skill-viewport'), canvas = el('div', 'skill-canvas');
+    canvas.style.transform = `translate(${mapX}px,${mapY}px) scale(${mapScale})`;
+    const matches = n => (!skillQuery || (n.name + ' ' + n.desc).toLowerCase().includes(skillQuery.toLowerCase())) &&
+      (skillFilter === 'all' || n.type === skillFilter);
+    const branchNodes = S.nodes.filter(n => n.br === br), specials = S.specials.filter(n => n.br === br);
+    const selected = [...branchNodes, ...specials].find(n => n.id === sel);
+    if (!selected) sel = (branchNodes.find(matches) || specials.find(matches) || branchNodes[0] || specials[0] || {}).id;
+    const tree = el('div', 'skill-branch-tree');
+    add(tree, el('h4','',T('br_'+br)));
+    const lines = [];
+    for (let line=1; line<=5; line++) {
+      const row=el('div','skill-line');
+      const nodes=branchNodes.filter(n=>n.type==='passive' && n.line===line).sort((a,b)=>a.rank-b.rank);
+      nodes.forEach(n=>{
+        const state=S.learned[n.id]?'done':S.can(n.id)?'av':'';
+        const b=btn((S.learned[n.id]?'✓ ':'')+n.name,'skill-node '+state+(sel===n.id?' sel':''),()=>{sel=n.id;refresh();});
+        b.title=n.desc; b.dataset.search=(n.name+' '+n.desc).toLowerCase(); b.dataset.type=n.type; b.hidden=!matches(n); add(row,b);
+      });
+      if(nodes.length) { lines.push(row); add(tree,row); }
+    }
+    const actives=branchNodes.filter(n=>n.type==='active');
+    const activeRow=el('div','skill-line skill-active-line');
+    actives.forEach(n=>{
+      const state=S.learned[n.id]?'done':S.can(n.id)?'av':'';
+      const b=btn((S.learned[n.id]?'✓ ':'')+n.name,'skill-node active-node '+state+(sel===n.id?' sel':''),()=>{sel=n.id;refresh();});
+      b.title=n.desc; b.dataset.search=(n.name+' '+n.desc).toLowerCase(); b.dataset.type=n.type; b.hidden=!matches(n); add(activeRow,b);
     });
-    const n = S.node(sel);
-    add(det, el('h3', '', T('sk_' + n.id)), el('div', 'chip', T(n.type)), el('div', 'dim', T('skd_' + n.id)));
-    if (S.learned[n.id]) add(det, el('div', 'ok', '✓ ' + T('learned')));
-    else add(det, reqRows(S.reqs(n.id)), btn(T('learn'), 'pri', () => { S.learn(n.id); refresh(); }, !S.can(n.id)));
-    add(split, col, det); add(root, split);
-    add(root, btn(T('reset') + ' (' + S.resetText() + ')', '', () => { if (confirm(T('reset_ask'))) { S.reset(); refresh(); } }, !S.spent || !SW.Essence.has(S.resetCost())));
+    add(tree,el('h4','','Aktive Techniken')); add(tree,activeRow);
+    if (specials.length) {
+      add(tree,el('h4','','Spezialfähigkeiten'));
+      const sr=el('div','skill-line skill-special-line');
+      specials.forEach(n=>{
+        const state=S.specialLearned[n.id]?'done':S.canSpecial(n.id)?'av':'';
+        const b=btn((S.specialLearned[n.id]?'✓ ':'')+n.name,'skill-node special-node '+state+(sel===n.id?' sel':''),()=>{sel=n.id;refresh();});
+        b.title=n.desc; b.dataset.search=(n.name+' '+n.desc).toLowerCase(); b.dataset.type='special'; b.hidden=!matches({...n,type:'special'}); add(sr,b);
+      });
+      add(tree,sr);
+    }
+    add(canvas,tree); add(viewport,canvas); add(root,viewport);
+    const links=(SW.Data.crossLinks||[]).filter(x=>x.from===br||x.to===br);
+    if(links.length){const cross=el('div','skill-crosslinks');add(cross,el('b','','Verbindungen zu anderen Ästen:'));
+      links.forEach(x=>add(cross,el('span','chip',T('br_'+(x.from===br?x.to:x.from))+' · '+x.label)));
+      add(root,cross);
+    }
+    const detail=el('div','skill-detail');
+    const n=[...branchNodes,...specials].find(x=>x.id===sel);
+    if(n) {
+      add(detail,el('h3','',n.name),el('div','dim',n.desc));
+      if(n.type==='special') {
+        const req=S.specialReqs(n.id);
+        add(detail,el('span','chip','Spezialfähigkeit · '+(S.specialLearned[n.id]?'Freigeschaltet':'Gesperrt')));
+        add(detail,el('div','dim','Freischaltung ist vorbereitet; der eigentliche Spezialeffekt wird später integriert.'));
+        if(S.specialLearned[n.id]) add(detail,el('div','ok','✓ Freigeschaltet'));
+        else add(detail,reqRows(req),btn('Freischalten','pri',()=>{S.unlockSpecial(n.id);refresh();},!S.canSpecial(n.id)));
+      } else {
+        add(detail,el('div','chip',n.type==='active'?'Aktive Technik':'Passive Fähigkeit'));
+        if(n.type==='active') add(detail,el('div','dim','Grundgerüst: nutzt vorerst eine vorhandene Kampfaktion; individuelle Technik-Effekte folgen später.'));
+        if(S.learned[n.id]) add(detail,el('div','ok','✓ '+T('learned')));
+        else add(detail,reqRows(S.reqs(n.id)),btn(T('learn')+' · '+n.cost.sp+' SP / '+n.cost.ess+' Essence','pri',()=>{S.learn(n.id);refresh();},!S.can(n.id)));
+      }
+    }
+    add(root,detail);
+    add(root,btn(T('reset')+' ('+S.resetText()+')','',()=>{if(confirm(T('reset_ask'))){S.reset();refresh();}},!S.spent||!SW.Essence.has(S.resetCost())));
+
+    // iPhone: ein Finger verschiebt, zwei Finger zoomen. Keine Abhängigkeit von Zusatzbibliotheken.
+    const pts=new Map(); let start=null, pinch=0;
+    const moveMap = () => {
+      if(pts.size===1&&start){const a=[...pts.values()][0];mapX=start.ox+a.x-start.x;mapY=start.oy+a.y-start.y;}
+      else if(pts.size===2){const a=[...pts.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch>0)mapScale=Math.max(.65,Math.min(1.8,mapScale*d/pinch));pinch=d;}
+      canvas.style.transform=`translate(${mapX}px,${mapY}px) scale(${mapScale})`;
+    };
+    // Touch separat behandeln, damit das Verschieben keine Node-Taps verschluckt.
+    viewport.addEventListener('touchstart',e=>{
+      pts.clear();Array.from(e.touches).forEach((t,i)=>pts.set(i,{x:t.clientX,y:t.clientY}));
+      if(pts.size===1){const a=[...pts.values()][0];start={x:a.x,y:a.y,ox:mapX,oy:mapY};}
+      if(pts.size===2){const a=[...pts.values()];pinch=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);start=null;}
+    },{passive:false});
+    viewport.addEventListener('touchmove',e=>{
+      e.preventDefault();pts.clear();Array.from(e.touches).forEach((t,i)=>pts.set(i,{x:t.clientX,y:t.clientY}));moveMap();
+    },{passive:false});
+    const touchEnd=e=>{pts.clear();Array.from(e.touches).forEach((t,i)=>pts.set(i,{x:t.clientX,y:t.clientY}));pinch=0;start=null;if(pts.size===1){const a=[...pts.values()][0];start={x:a.x,y:a.y,ox:mapX,oy:mapY};}};
+    viewport.addEventListener('touchend',touchEnd);viewport.addEventListener('touchcancel',touchEnd);
+    viewport.onpointerdown=e=>{if(e.pointerType==='touch')return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===1)start={x:e.clientX,y:e.clientY,ox:mapX,oy:mapY};};
+    viewport.onpointermove=e=>{if(e.pointerType==='touch'||!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moveMap();};
+    const end=e=>{if(e.pointerType==='touch')return;pts.delete(e.pointerId);if(!pts.size)start=null;};
+    viewport.onpointerup=end;viewport.onpointercancel=end;
   };
 
   M.karma = function (p) {

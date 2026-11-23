@@ -2,7 +2,7 @@
 // Skilltree-Logik (Phase 3): Lernen, Voraussetzungen, Ausrüsten, Zurücksetzen, geheime Techniken.
 SW.Skills = (function () {
   const D = SW.Data, T = (k, n) => SW.t(k, n);
-  const S = { nodes: D.skills, learned: {}, spent: 0, slots: [null, null], sec: {}, scr: {}, notified: {} };
+  const S = { nodes: D.skills, specials: D.specials || [], learned: {}, specialLearned: {}, specialQuest: {}, spent: 0, slots: [null, null], sec: {}, scr: {}, notified: {} };
   S.node = id => S.nodes.find(n => n.id === id);
   const secDef = id => D.secrets.find(s => s.id === id);
   const scrDef = id => D.scrolls.find(s => s.id === id);
@@ -21,7 +21,27 @@ SW.Skills = (function () {
     r.push({ ok: SW.Essence.has(n.cost.ess), text: costTxt(n.cost.ess) });
     return r;
   };
-  S.can = id => !S.learned[id] && S.reqs(id).every(x => x.ok);
+  S.can = id => !S.learned[id] && !!S.node(id) && S.reqs(id).every(x => x.ok);
+  S.special = id => S.specials.find(n => n.id === id);
+  S.specialReqs = function (id) {
+    const n = S.special(id); if (!n) return [];
+    const r = [{ ok: SW.Char.level >= n.lvl, text: T('req_lvl', n.lvl) }];
+    (n.req || []).forEach(p => r.push({ ok: !!S.learned[p], text: T('req_skill', p) }));
+    if (n.unlock === 'karma') r.push({ ok: SW.Karma.v >= n.karma, text: T('req_karma', n.karma) });
+    if (n.unlock === 'yinyang') r.push({ ok: SW.YinYang.balanced(n.balance), text: T('req_balance', n.balance) });
+    if (n.unlock === 'quest') r.push({ ok: !!S.specialQuest[n.quest], text: 'Spezialquest abgeschlossen' });
+    return r;
+  };
+  S.canSpecial = id => !!S.special(id) && !S.specialLearned[id] && S.specialReqs(id).every(x => x.ok);
+  S.unlockSpecial = function (id) {
+    if (!S.canSpecial(id)) return false;
+    S.specialLearned[id] = 1; SW.Save.touch(); return true;
+  };
+  // Quest-Systeme melden hier den Abschluss der drei Spezialquests.
+  S.markSpecialQuest = function (id) {
+    if (!['sm_will', 'sw_escape', 'km_enlightenment'].includes(id)) return false;
+    S.specialQuest[id] = 1; SW.Save.touch(); return true;
+  };
   S.learn = function (id) {
     if (!S.can(id)) return false;
     const n = S.node(id);
@@ -35,7 +55,7 @@ SW.Skills = (function () {
 
   // Summe aller Passiv-Effekte
   S.fx = function () {
-    const f = { dmg: 0, rec: 0, crit: 0, dodgeCd: 0, ambush: 0, breath: 0, hpFlat: 0, kiFlat: 0, kiRegen: 0, kiCost: 0, blockMul: .2, parry: 0, counter: 0 };
+    const f = { dmg: 0, rec: 0, crit: 0, dodgeCd: 0, ambush: 0, breath: 0, hpFlat: 0, kiFlat: 0, kiRegen: 0, kiCost: 0, blockMul: .2, parry: 0, counter: 0, range: 0, move: 0, healWin: 0, kiDodge: 0, dodgeWindow: 0, knockback: 0, damageReduction: 0, kiDamage: 0 };
     S.nodes.forEach(n => {
       if (n.type !== 'passive' || !S.learned[n.id]) return;
       for (const k in n.fx) { if (k === 'blockMul') f.blockMul = Math.min(f.blockMul, n.fx[k]); else f[k] += n.fx[k]; }
@@ -119,14 +139,17 @@ SW.Skills = (function () {
     });
   };
 
-  S.dump = () => ({ learned: Object.assign({}, S.learned), spent: S.spent, slots: S.slots.slice(), sec: Object.assign({}, S.sec), scr: Object.assign({}, S.scr) });
+  S.dump = () => ({ learned: Object.assign({}, S.learned), specialLearned: Object.assign({}, S.specialLearned), specialQuest: Object.assign({}, S.specialQuest), spent: S.spent, slots: S.slots.slice(), sec: Object.assign({}, S.sec), scr: Object.assign({}, S.scr) });
   S.load = function (d) {
     if (!d) return;
-    S.learned = {}; S.sec = {}; S.scr = {};
+    S.learned = {}; S.specialLearned = {}; S.specialQuest = {}; S.sec = {}; S.scr = {};
     for (const id in (d.learned || {})) if (S.node(id)) S.learned[id] = 1;
+    for (const id in (d.specialLearned || {})) if (S.special(id)) S.specialLearned[id] = 1;
+    for (const id in (d.specialQuest || {})) if (['sm_will', 'sw_escape', 'km_enlightenment'].includes(id) && d.specialQuest[id]) S.specialQuest[id] = 1;
     for (const id in (d.sec || {})) if (secDef(id) && (d.sec[id] === 1 || d.sec[id] === 2)) S.sec[id] = d.sec[id];
     for (const id in (d.scr || {})) if (scrDef(id) && (d.scr[id] === 1 || d.scr[id] === 2)) S.scr[id] = d.scr[id];
-    S.spent = typeof d.spent === 'number' && d.spent >= 0 ? d.spent : 0;
+    // Alte Skilltree-IDs werden absichtlich verworfen; SP-Ausgaben aus dem neuen Baum neu berechnen.
+    S.spent = S.nodes.reduce((sum, n) => sum + (S.learned[n.id] ? n.cost.sp : 0), 0);
     S.slots = [0, 1].map(i => { const id = d.slots && d.slots[i]; return id && S.moveOf(id) ? id : null; });
   };
   return S;
