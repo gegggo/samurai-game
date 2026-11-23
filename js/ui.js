@@ -223,6 +223,11 @@ SW.UI = (function () {
       const x = (o.x / OV - sx) * k, y = (o.y / OV - sy) * k, r = w * .04;
       mc.fillStyle = '#6fd36f'; mc.strokeStyle = '#000'; mc.lineWidth = 1.5; mc.beginPath(); mc.arc(x, y, r, 0, 6.2832); mc.fill(); mc.stroke();
     });
+    U.pins.forEach((q, i) => { // Markierung wie auf der Karte (gelb, Nummer)
+      const x = (q.x / OV - sx) * k, y = (q.y / OV - sy) * k, r = w * .05;
+      mc.fillStyle = '#f2c14e'; mc.strokeStyle = '#000'; mc.lineWidth = 1.5; mc.beginPath(); mc.arc(x, y, r, 0, 6.2832); mc.fill(); mc.stroke();
+      mc.font = '700 ' + Math.round(r * 1.5) + 'px sans-serif'; mc.textAlign = 'center'; mc.textBaseline = 'middle'; mc.fillStyle = '#000'; mc.fillText(String(i + 1), x, y + 1);
+    });
     mc.font = '700 ' + Math.round(w * .13) + 'px Georgia, serif'; mc.textAlign = 'center'; mc.textBaseline = 'middle';
     [[0, w / 2, w * .1], [2, w * .9, w / 2], [4, w / 2, w * .9], [6, w * .1, w / 2]].forEach(d => {
       const s = SW.t('dir_' + d[0]); mc.fillStyle = 'rgba(0,0,0,.7)'; mc.fillText(s, d[1] + 1, d[2] + 1);
