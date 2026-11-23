@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Daten-Validator (Phase 20). Aufruf im Repo-Root: python3 "tools py/validate_data.py"
 Headless Chromium. Prueft IDs, Verweise, EN/DE-Texte, Strukturgruppen. Exitcode 1 bei Fehlern. Kein Geraetetest."""
-import subprocess, sys, time, json
+import subprocess, sys, time, json, shutil
 from playwright.sync_api import sync_playwright
 srv = subprocess.Popen([sys.executable, '-m', 'http.server', '8126'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
 JS = r"""() => {
@@ -20,6 +20,9 @@ JS = r"""() => {
   D.chests.forEach(c => { const g = c.give || {}; if (g.item && !its.has(g.item)) E.push('Truhe ' + c.id + ': Item fehlt ' + g.item); });
   D.skills.forEach(s => (s.req || []).forEach(r => { if (!sk.has(r)) E.push('Skill ' + s.id + ': Voraussetzung fehlt ' + r); }));
   if (!D.balance || !D.balance.tierMul || !D.balance.editions || !D.balance.editions[D.balance.edition] || !(D.balance.xpMul > 0)) E.push('balance.json unvollstaendig');
+  if (!D.balance.upgradeMax || D.balance.upgradeMax.lite !== 3 || D.balance.upgradeMax.pc !== 10) E.push('balance.json upgradeMax unvollstaendig');
+  if (!D.balance.priceFactor || !(D.balance.priceFactor.lite > 0) || !(D.balance.priceFactor.pc > 0)) E.push('balance.json priceFactor unvollstaendig');
+  if (!D.balance.ironDrop || [1,2,3].some(t => { const d=D.balance.ironDrop[t]; return !d || !(d.chance >= 0 && d.chance <= 1) || !(d.min >= 1) || d.max < d.min; })) E.push('balance.json ironDrop unvollstaendig');
   if (!SW.dataOk) E.push('Daten-Lader: data/*.json nicht geladen');
   [['spots', D.spots, 1], ['shrines', D.shrines, 1], ['chests', D.chests, 1], ['npcs', D.npcs, 1], ['quests', D.quests, 1], ['items', D.items, 0], ['skills', D.skills, 0]].forEach(([n, l, t]) => l.forEach(o => {
     if (o.ed !== 'lite' && o.ed !== 'pc') E.push('Tag ed fehlt/ungueltig: ' + n + ' ' + o.id);
@@ -30,7 +33,7 @@ JS = r"""() => {
 }"""
 try:
     with sync_playwright() as p:
-        b = p.chromium.launch(); pg = b.new_page(viewport={'width': 852, 'height': 393}); errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
+        b = p.chromium.launch(executable_path=shutil.which('chromium')) if shutil.which('chromium') else p.chromium.launch(); pg = b.new_page(viewport={'width': 852, 'height': 393}); errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
         pg.goto('http://localhost:8126/index.html'); pg.wait_for_timeout(1500); r = pg.evaluate(JS); b.close()
 finally: srv.terminate()
 print(json.dumps(r['n']))
