@@ -1,34 +1,59 @@
 {
- "balance": {
-  "edition": "lite",
-  "editions": {
-   "lite": {
-    "cap": 50
-   },
-   "pc": {
-    "cap": 100
-   }
-  },
-  "xpMul": 36,
-  "tierMul": {
-   "1": {
-    "hp": 1,
-    "dmg": 1,
-    "xp": 1,
-    "coins": 1
-   },
-   "2": {
-    "hp": 1.2,
-    "dmg": 1.15,
-    "xp": 1.25,
-    "coins": 1.25
-   },
-   "3": {
-    "hp": 1.7,
-    "dmg": 1.5,
-    "xp": 1.5,
-    "coins": 1.5
-   }
+  "balance": {
+    "edition": "lite",
+    "editions": {
+      "lite": {
+        "cap": 50
+      },
+      "pc": {
+        "cap": 100
+      }
+    },
+    "xpMul": 36,
+    "tierMul": {
+      "1": {
+        "hp": 1,
+        "dmg": 1,
+        "xp": 1,
+        "coins": 1
+      },
+      "2": {
+        "hp": 1.2,
+        "dmg": 1.15,
+        "xp": 1.25,
+        "coins": 1.25
+      },
+      "3": {
+        "hp": 1.7,
+        "dmg": 1.5,
+        "xp": 1.5,
+        "coins": 1.5
+      }
+    },
+    "priceFactor": {
+      "lite": 1,
+      "pc": 3
+    },
+    "upgradeMax": {
+      "lite": 3,
+      "pc": 10
+    },
+    "ironDrop": {
+      "1": {
+        "chance": 0.08,
+        "min": 1,
+        "max": 1
+      },
+      "2": {
+        "chance": 0.15,
+        "min": 1,
+        "max": 2
+      },
+      "3": {
+        "chance": 0.25,
+        "min": 1,
+        "max": 2
+      }
+    }
   }
- }
 }
