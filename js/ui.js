@@ -259,7 +259,8 @@ SW.UI = (function () {
     c.imageSmoothingEnabled = v.z < 2.5;
     { // nur sichtbaren Ausschnitt des Übersichtsbildes zeichnen (riesige Zielgrößen verträgt iOS nicht, Bild wurde schwarz)
       const sx0 = Math.max(0, (v.x - s / 2 / ppw) / OV), sy0 = Math.max(0, (v.y - hh / 2 / ppw) / OV), sx1 = Math.min(OSW, (v.x + s / 2 / ppw) / OV), sy1 = Math.min(OSH, (v.y + hh / 2 / ppw) / OV);
-      if (sx1 > sx0 && sy1 > sy0) c.drawImage(ov2, sx0, sy0, sx1 - sx0, sy1 - sy0, X(sx0 * OV), Y(sy0 * OV), (sx1 - sx0) * OV * ppw, (sy1 - sy0) * OV * ppw);
+      const dr = im => c.drawImage(im, sx0, sy0, sx1 - sx0, sy1 - sy0, X(sx0 * OV), Y(sy0 * OV), (sx1 - sx0) * OV * ppw, (sy1 - sy0) * OV * ppw);
+      if (sx1 > sx0 && sy1 > sy0) { dr(ov2); if (v.z > 2) { c.globalAlpha = Math.min(1, (v.z - 2) / 1.5); dr(ov); c.globalAlpha = 1; } } // beim Hineinzoomen Gelände-Detail wie Minimap einblenden (genauer Marker setzen)
     }
     c.strokeStyle = 'rgba(232,224,208,.6)'; c.lineWidth = 2; c.strokeRect(1, 1, s - 2, hh - 2);
     c.font = (11 * d) + 'px sans-serif'; c.textAlign = 'center';
