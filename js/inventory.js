@@ -87,6 +87,7 @@ SW.Inv = (function () {
     if (fx.parry) o.push(T('fx_parry', Math.round(fx.parry * 1000)));
     if (fx.rdmg) o.push(T('fx_rdmg', r1(fx.rdmg)));
     if (fx.rrec) o.push(T('fx_rrec', r1(fx.rrec)));
+    if (fx.rwind) o.push(T('fx_rwind', p(fx.rwind)));
     return o;
   };
 

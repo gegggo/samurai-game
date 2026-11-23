@@ -44,14 +44,14 @@ SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
   kr_neutral: 'Neutral', kr_honored: 'Geehrt', kr_revered: 'Verehrt', kr_distrusted: 'Beargwöhnt', kr_despised: 'Verachtet',
   kr_hint: 'Anderen helfen und Banditen aufhalten erhöht das Karma. Dieselbe Tat zählt jedes Mal weniger.',
   yy_hint: 'Yang wächst durch schwere Angriffe und Techniken. Yin wächst durch Paraden, Ausweichen, Blocken und ruhiges Stehen im Kampf. Jeder Kampf zählt nur wenig. Wird beim Lernen von Skilltree-Fähigkeiten verbraucht.',
-  coins: 'Münzen', empty: 'Leer', none: 'Kein Bonus', talk: 'Sprechen', max_lvl: 'Maximale Stufe',
+  coins: 'Ryō', empty: 'Leer', none: 'Kein Bonus', talk: 'Sprechen', max_lvl: 'Maximale Stufe',
   map_zoom_hint: 'Zwei Finger: zoomen. Ein Finger: verschieben.',
   sp: 'Fähigkeitspunkte', ap: 'Attributpunkte', lvl: 'Stufe'
 });
 
 // Chunk 2 (Phase 6a-2): Gegenstände, Ausrüstung, Händler, Schmied, Skills, Essence.
 Object.assign(SW.TEXT.de, {
-  bag_empty: 'Dein Beutel ist leer. Öffne Truhen, um Gegenstände zu finden.', unequip: 'Ablegen', found: 'Gefunden:', found_coins: '{n} Münzen',
+  bag_empty: 'Dein Beutel ist leer. Öffne Truhen, um Gegenstände zu finden.', unequip: 'Ablegen', found: 'Gefunden:', found_coins: '{n} Ryō',
   rar_common: 'Gewöhnlich', rar_uncommon: 'Ungewöhnlich', rar_rare: 'Selten', rar_epic: 'Episch', rar_legendary: 'Legendär',
   ty_weapon: 'Waffe', ty_armor: 'Rüstung', ty_res: 'Ressource', equipped_total: 'Gesamter Ausrüstungsbonus',
   eqs_main: 'Hauptwaffe', eqs_side: 'Nebenwaffe', eqs_helm: 'Helm', eqs_armor: 'Rüstung', eqs_gloves: 'Handschuhe', eqs_boots: 'Schuhe',
@@ -90,12 +90,12 @@ Object.assign(SW.TEXT.de, {
   it_stone: 'Stein', itd_stone: 'Baumaterial.', it_herb: 'Heilkraut', itd_herb: 'Wird von Heilern und Dorfbewohnern gebraucht.',
   buy: 'Kaufen', sell: 'Verkaufen', shop_upgrade: 'Verbessern', shop_craft: 'Herstellen', craft: 'Herstellen', upgrade: 'Verbessern',
   cannot_sell: 'Nicht verkäuflich', nothing_sell: 'Nichts zu verkaufen.', cost: 'Kosten', owned: 'Besitz',
-  up_hint_w: 'Pro Stufe: Schaden +5%.', up_hint_a: 'Pro Stufe: Verteidigung +0,25.',
+  up_hint_w: 'Pro Stufe: Schaden +5%.', up_hint_a: 'Pro Stufe: Verteidigung +0,25.', drop_iron: 'Eisen gefunden: ×{n}', fx_rwind: 'Fernkampf-Ausholen -{n}%',
   no_upgrade: 'Du besitzt keine Waffe oder Rüstung zum Verbessern.',
   npc_weapon: 'Waffenhändler', npc_armor: 'Rüstungshändler', npc_general: 'Allgemeiner Händler', npc_herb: 'Kräuterhändlerin', npc_smith: 'Schmied',
   hi_weapon: 'Feine Klingen für einen wandernden Schwertkämpfer.', hi_armor: 'Gute Rüstung hält dich am Leben.',
   hi_general: 'Holz, Eisen, Stein. Was immer du brauchst.', hi_herb: 'Kräuter für Heiler und Kranke.',
-  hi_smith: 'Ich schmiede und verbessere Ausrüstung. Bring Eisen und Münzen.',
+  hi_smith: 'Ich schmiede und verbessere Ausrüstung. Bring Eisen und Ryō.',
   drop_got: 'Legendärer Gegenstand: {n}', npc_elder: 'Dorfältester', npc_hermit: 'Einsiedler', npc_fisher: 'Fischer', npc_watch: 'Nachtwächter',
   dl_watch_neu: 'Ruhige Nächte sind selten. Südlich des Dorfes streift nach Einbruch der Dunkelheit etwas umher.',
   dl_watch_pos: 'Hinode schläft ruhiger mit dir. Hilfst du mir heute Nacht noch einmal?',
@@ -206,7 +206,7 @@ Object.assign(SW.TEXT.de, {
 
 // Phase 4c: Fernkampf und Masken
 Object.assign(SW.TEXT.de, {
-  eqs_ranged: 'Fernkampfwaffe', eqs_mask: 'Maske', fx_rdmg: 'Fernkampfschaden {n}', fx_rrec: 'Abklingzeit {n} s',
+  eqs_ranged: 'Fernkampfwaffe', eqs_mask: 'Maske', fx_rdmg: 'Fernkampfschaden {n}', fx_rrec: 'Abklingzeit {n} s', fx_rwind: 'Fernkampf-Ausholen -{n}%',
   it_shuriken: 'Shuriken', itd_shuriken: 'Wurfsterne. Schnelle, leichte Treffer aus der Distanz.',
   it_shuriken_steel: 'Stahl-Shuriken', itd_shuriken_steel: 'Ausgewogene Wurfsterne. Treffen härter und manchmal kritisch.',
   it_bow_hankyu: 'Hankyu-Kurzbogen', itd_bow_hankyu: 'Kompakter Bogen. Langsam gespannt, trifft hart.',

@@ -11,8 +11,8 @@ SW.Data = SW.Data || {};
 
   const tx = {
     tab_inventory_x: 0,
-    drop_wpn: 'Dropped: {n}', coins: 'Coins', bag_empty: 'Your bag is empty. Open chests to find items.', unequip: 'Unequip', empty: 'Empty',
-    found: 'Found:', found_coins: '{n} coins', rar_common: 'Common', rar_uncommon: 'Uncommon', rar_rare: 'Rare', rar_epic: 'Epic', rar_legendary: 'Legendary',
+    drop_wpn: 'Dropped: {n}', coins: 'Ryō', bag_empty: 'Your bag is empty. Open chests to find items.', unequip: 'Unequip', empty: 'Empty',
+    found: 'Found:', found_coins: '{n} Ryō', rar_common: 'Common', rar_uncommon: 'Uncommon', rar_rare: 'Rare', rar_epic: 'Epic', rar_legendary: 'Legendary',
     ty_weapon: 'Weapon', ty_armor: 'Armor', ty_res: 'Resource', equipped_total: 'Total equipment bonus', none: 'No bonus',
     eqs_main: 'Main weapon', eqs_side: 'Side weapon', eqs_ranged: 'Ranged weapon', eqs_mask: 'Mask', eqs_helm: 'Helm', eqs_armor: 'Armor', eqs_gloves: 'Gloves', eqs_boots: 'Boots',
     fx_atk: 'Damage +{n}%', fx_crit: 'Crit chance +{n}%', fx_hp: 'Life +{n}', fx_def: 'Defense +{n}',

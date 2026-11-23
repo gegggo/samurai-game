@@ -227,6 +227,12 @@ SW.Combat = (function () {
     out.lv = C.addXp(xp);
     out.coins = SW.Inv.addCoins(Math.round(SW.Inv.coinDrop(spot.type) * K.tm(spot).coins));
     const dr = D.drops && D.drops[spot.id]; if (dr && SW.Inv.add(dr, 1)) out.items.push(T('drop_got', T('it_' + dr)));
+    // Phase 23: Eisen-Drops nach Gegner-Tier; Chance/Menge zentral in balance.json.
+    const ironCfg = (D.balance.ironDrop || {})[spot.tier] || (D.balance.ironDrop || {})[1];
+    if (ironCfg && Math.random() < ironCfg.chance) {
+      const n = ironCfg.min + Math.floor(Math.random() * (ironCfg.max - ironCfg.min + 1));
+      if (SW.Inv.add('iron', n)) out.items.push(T('drop_iron', n));
+    }
     if (spot.amb && Math.random() < .1 && SW.Inv.add('katana_shadow', 1)) out.items.push(T('drop_wpn', T('it_katana_shadow'))); // Schattenclan: 10 % Waffe
     if (R.ess && !spot.respawn && SW.Essence.add(R.ess)) out.ess.push(R.ess + ' ' + T('ess')); // wiederkehrende Nachtgegner geben keine Essence (kein Farmen)
     if (R.karma) out.karma = SW.Karma.add('foe_' + spot.type, R.karma);

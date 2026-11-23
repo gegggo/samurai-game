@@ -50,13 +50,14 @@ SW.Shop = (function () {
     const l = I.lvl(id), c = D.upCost(id, l);
     I.spend(c.coins); I.remove('iron', c.iron); I.up[id] = l + 1; SW.Save.touch(); return true;
   };
+  S.recipePrice = r => Math.round(r.coins * (D.priceFactor || 1));
   S.canCraft = function (r) {
-    if (I.coins < r.coins) return false;
+    if (I.coins < S.recipePrice(r)) return false;
     return Object.keys(r.res).every(k => (I.bag[k] || 0) >= r.res[k]);
   };
   S.craft = function (r) {
     if (!S.canCraft(r)) return false;
-    I.spend(r.coins); for (const k in r.res) I.remove(k, r.res[k]);
+    I.spend(S.recipePrice(r)); for (const k in r.res) I.remove(k, r.res[k]);
     return I.add(r.id, 1);
   };
   S.on = n => (!n.night || SW.Time.period() === 'night') && (n.kmin === undefined || SW.Karma.v >= n.kmin) && !(n.gone && SW.Quests && SW.Quests.st[n.gone] === 'done'); // Nacht-NPCs nur nachts; gone = weg nach Quest
@@ -141,7 +142,7 @@ SW.Shop = (function () {
       D.recipes.forEach(rc => {
         const r = add(el('div', 'row card'), nameChip(rc.id), info(rc.id));
         if (I.owned(rc.id)) add(r, el('span', 'dim', T('owned')));
-        add(r, el('span', 'dim', T('cost') + ': ' + rc.coins + ' ' + T('coins') + (Object.keys(rc.res).length ? ', ' + costTxt(rc.res) : '')));
+        add(r, el('span', 'dim', T('cost') + ': ' + S.recipePrice(rc) + ' ' + T('coins') + (Object.keys(rc.res).length ? ', ' + costTxt(rc.res) : '')));
         add(r, btn(T('craft'), 'pri', () => { S.craft(rc); render(); }, !S.canCraft(rc)));
         add(body, r);
       });
