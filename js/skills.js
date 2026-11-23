@@ -2,7 +2,7 @@
 // Skilltree-Logik (Phase 3): Lernen, Voraussetzungen, Ausrüsten, Zurücksetzen, geheime Techniken.
 SW.Skills = (function () {
   const D = SW.Data, T = (k, n) => SW.t(k, n);
-  const S = { nodes: D.skills, specials: D.specials || [], learned: {}, specialLearned: {}, specialQuest: {}, spent: 0, slots: [null, null], sec: {}, scr: {}, notified: {} };
+  const S = { nodes: D.skills, specials: D.specials || [], learned: {}, specialLearned: {}, specialQuest: {}, spent: 0, slots: [null, null], sec: {}, scr: {}, notified: {}, taught: false };
   S.node = id => S.nodes.find(n => n.id === id);
   const secDef = id => D.secrets.find(s => s.id === id);
   const scrDef = id => D.scrolls.find(s => s.id === id);
@@ -21,7 +21,7 @@ SW.Skills = (function () {
     r.push({ ok: SW.Essence.has(n.cost.ess), text: costTxt(n.cost.ess) });
     return r;
   };
-  S.can = id => !S.learned[id] && !!S.node(id) && S.reqs(id).every(x => x.ok);
+  S.can = id => S.taught && !S.learned[id] && !!S.node(id) && S.reqs(id).every(x => x.ok);
   S.special = id => S.specials.find(n => n.id === id);
   S.specialReqs = function (id) {
     const n = S.special(id); if (!n) return [];
@@ -32,7 +32,7 @@ SW.Skills = (function () {
     if (n.unlock === 'quest') r.push({ ok: !!S.specialQuest[n.quest], text: 'Spezialquest abgeschlossen' });
     return r;
   };
-  S.canSpecial = id => !!S.special(id) && !S.specialLearned[id] && S.specialReqs(id).every(x => x.ok);
+  S.canSpecial = id => S.taught && !!S.special(id) && !S.specialLearned[id] && S.specialReqs(id).every(x => x.ok);
   S.unlockSpecial = function (id) {
     if (!S.canSpecial(id)) return false;
     S.specialLearned[id] = 1; SW.Save.touch(); return true;
@@ -139,10 +139,12 @@ SW.Skills = (function () {
     });
   };
 
-  S.dump = () => ({ learned: Object.assign({}, S.learned), specialLearned: Object.assign({}, S.specialLearned), specialQuest: Object.assign({}, S.specialQuest), spent: S.spent, slots: S.slots.slice(), sec: Object.assign({}, S.sec), scr: Object.assign({}, S.scr) });
+  S.dump = () => ({ learned: Object.assign({}, S.learned), specialLearned: Object.assign({}, S.specialLearned), specialQuest: Object.assign({}, S.specialQuest), spent: S.spent, slots: S.slots.slice(), sec: Object.assign({}, S.sec), scr: Object.assign({}, S.scr), taught: S.taught ? 1 : 0 });
+  S.teach = function () { if (!S.taught) { S.taught = true; SW.Save.touch(); } }; // Meister hat Skilltree erklärt
   S.load = function (d) {
     if (!d) return;
     S.learned = {}; S.specialLearned = {}; S.specialQuest = {}; S.sec = {}; S.scr = {};
+    S.taught = d.taught === 1 || Object.keys(d.learned || {}).length > 0 || Object.keys(d.specialLearned || {}).length > 0; // alte Stände mit Skills nicht aussperren
     for (const id in (d.learned || {})) if (S.node(id)) S.learned[id] = 1;
     for (const id in (d.specialLearned || {})) if (S.special(id)) S.specialLearned[id] = 1;
     for (const id in (d.specialQuest || {})) if (['sm_will', 'sw_escape', 'km_enlightenment'].includes(id) && d.specialQuest[id]) S.specialQuest[id] = 1;

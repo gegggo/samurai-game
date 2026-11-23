@@ -65,6 +65,7 @@ SW.Menus = (function () {
 
   M.skilltree = function (p) {
     const S = SW.Skills, E = SW.Essence, root = page(p, T('tab_skilltree'));
+    if (!S.taught) { add(root, el('div', 'card', T('st_need_master'))); return; }
     const head = el('div', 'row');
     add(head, el('span', 'chip', T('sp') + ': ' + SW.Char.sp), el('span', 'chip ess', T('ess') + ' ' + E.n));
     add(root, head);
@@ -148,10 +149,15 @@ SW.Menus = (function () {
 
     // iPhone: ein Finger verschiebt, zwei Finger zoomen. Keine Abhängigkeit von Zusatzbibliotheken.
     const pts=new Map(); let start=null, pinch=0;
+    const clampMap = () => { // Limit: Baum darf nie aus dem Fenster geschoben werden
+      const vw = viewport.clientWidth, vh = viewport.clientHeight, cw = canvas.offsetWidth * mapScale, ch = canvas.offsetHeight * mapScale;
+      mapX = Math.min(0, Math.max(Math.min(0, vw - cw), mapX)); mapY = Math.min(0, Math.max(Math.min(0, vh - ch), mapY));
+    };
+    requestAnimationFrame(() => { clampMap(); canvas.style.transform = `translate(${mapX}px,${mapY}px) scale(${mapScale})`; });
     const moveMap = () => {
       if(pts.size===1&&start){const a=[...pts.values()][0];mapX=start.ox+a.x-start.x;mapY=start.oy+a.y-start.y;}
       else if(pts.size===2){const a=[...pts.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch>0)mapScale=Math.max(.65,Math.min(1.8,mapScale*d/pinch));pinch=d;}
-      canvas.style.transform=`translate(${mapX}px,${mapY}px) scale(${mapScale})`;
+      clampMap(); canvas.style.transform=`translate(${mapX}px,${mapY}px) scale(${mapScale})`;
     };
     // Touch separat behandeln, damit das Verschieben keine Node-Taps verschluckt.
     viewport.addEventListener('touchstart',e=>{

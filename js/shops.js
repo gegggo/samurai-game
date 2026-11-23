@@ -88,6 +88,8 @@ SW.Shop = (function () {
   // Meister: gefundene Schriftrollen gegen Yin/Yang entziffern (Daten: SW.Data.scrolls)
   function masterBody() {
     const K = SW.Skills, list = SW.Data.scrolls.filter(s => K.scr[s.id]);
+    const first = !K.taught; K.teach();
+    if (first) add(body, el('div', 'card', T('master_teach')));
     add(body, el('div', 'dim', T('hi_master')));
     if (!list.length) add(body, el('div', 'dim', T('master_none')));
     list.forEach(s => {

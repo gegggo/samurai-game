@@ -134,7 +134,7 @@ Object.assign(SW.TEXT.de, {
   sk_sc_wind: 'Windschnitt', skd_sc_wind: 'Schriftrollen-Technik. Schneller Schnitt, der die Deckung ignoriert. Kostet Ki.',
   sk_sc_mount: 'Berghut', skd_sc_mount: 'Schriftrollen-Technik. Gefestigter Hieb mit kurzer Unverwundbarkeit. Kostet Ki.',
   scr_unread: 'Alte Schriftrolle (nicht lesbar)', scr_found: 'eine alte Schriftrolle. Der Meister im Tempel des Steingartens kann sie lesen.',
-  npc_master: 'Meister', train_hint: 'Trainingsplatz: Die Puppen schlagen nicht zurück.', hi_master: 'Bring mir alte Schriftrollen. Ich lese sie, du zahlst mit Yin und Yang.', master_none: 'Du trägst keine Schriftrollen.', decipher: 'Entziffern',
+  npc_master: 'Meister', train_hint: 'Trainingsplatz: Die Puppen schlagen nicht zurück.', hi_master: 'Bring mir alte Schriftrollen. Ich lese sie, du zahlst mit Yin und Yang.', master_none: 'Du trägst keine Schriftrollen.', decipher: 'Entziffern', st_need_master: 'Skilltree gesperrt. Besuche den Meister im Tempel des Steingartens, damit er ihn dir erklärt.', master_teach: 'Der Meister erklärt: Skillpunkte und Essence öffnen den Skilltree. Vier Wege: Schwertmeister, Schattenkrieger, Verteidiger, Ki-Meister. Passive Fähigkeiten wachsen in drei Stufen, aktive Techniken füllen zwei Slots, Spezialfähigkeiten brauchen Zusatzbedingungen (Level, Karma, Yin/Yang oder Quests). Öffne den Skilltree im Menü. Skilltree freigeschaltet.',
   cost_yin: 'Yin {n} (wird verbraucht)', cost_yang: 'Yang {n} (wird verbraucht)', cost_balance: 'Ausgeglichen, beide {n}+ (je Seite die Hälfte wird verbraucht)',
   req_lvl: 'Stufe {n}', req_yin: 'Yin {n}+', req_yang: 'Yang {n}+', req_karma: 'Karma {n}+',
   req_balance: 'Yin und Yang ausgeglichen, beide {n}+', req_sp: '{n} Fähigkeitspunkt(e)',

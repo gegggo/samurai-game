@@ -37,7 +37,7 @@
     sk_sc_wind: 'Wind Cut', skd_sc_wind: 'Scroll technique. A fast cut that ignores guard. Costs Ki.',
     sk_sc_mount: 'Mountain Guard', skd_sc_mount: 'Scroll technique. A braced strike with a brief moment of invulnerability. Costs Ki.',
     scr_unread: 'Old scroll (cannot read it)', scr_found: 'an old scroll. The Master in the Stone Garden temple can read it.',
-    npc_master: 'Master', train_hint: 'Training yard: the dummies do not strike back.', hi_master: 'Bring me old scrolls. I read them, you pay with Yin and Yang.', master_none: 'You carry no scrolls.', decipher: 'Decipher',
+    npc_master: 'Master', train_hint: 'Training yard: the dummies do not strike back.', hi_master: 'Bring me old scrolls. I read them, you pay with Yin and Yang.', master_none: 'You carry no scrolls.', decipher: 'Decipher', st_need_master: 'Skilltree locked. Visit the Master in the Stone Garden temple to learn how it works.', master_teach: 'The Master explains: Skill points and Essence open the Skilltree. Four paths: Sword Master, Shadow Warrior, Defender, Ki Master. Passive skills grow in three ranks, active techniques fill two slots, special skills need extra conditions (level, karma, Yin/Yang or quests). Open the Skilltree from the menu. Skilltree unlocked.',
     cost_yin: 'Yin {n} (spent)', cost_yang: 'Yang {n} (spent)', cost_balance: 'Balanced, both {n}+ (half is spent from each)',
     req_lvl: 'Level {n}', req_skill: '{n}', req_yin: 'Yin {n}+', req_yang: 'Yang {n}+', req_karma: 'Karma {n}+',
     req_balance: 'Yin and Yang balanced, both {n}+', req_sp: '{n} skill point(s)', req_ess: '{n}',
