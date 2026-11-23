@@ -134,3 +134,34 @@ body.trial #pos { display: none !important; }
 #travel-bar { font-size: 13px; white-space: nowrap; }
 #travel-bar .btn { min-height: 38px; font-size: 14px; }
 #loading .ltxt { position: absolute; left: 0; right: 0; bottom: 16%; text-align: center; color: #f4ecd8; font: 600 22px Georgia, serif; text-shadow: 0 2px 6px rgba(0,0,0,.8); letter-spacing: 1px; }
+
+
+/* Phase 24: Skilltree-Grundgerüst */
+.skill-tools { align-items: center; gap: 8px; margin: 8px 0; }
+.skill-search, .skill-filter { min-width: 0; padding: 8px; border: 1px solid #786b56; border-radius: 7px; background: #171619; color: #eee5d5; font: 13px sans-serif; }
+.skill-search { flex: 1; }
+.skill-filter { width: 92px; }
+.skill-viewport { position: relative; height: min(42vh, 290px); min-height: 190px; overflow: hidden; border: 1px solid rgba(200,162,74,.35); border-radius: 9px; background: rgba(8,8,11,.55); touch-action: none; }
+.skill-canvas { position: absolute; left: 0; top: 0; transform-origin: top left; padding: 12px; will-change: transform; }
+.skill-branch-tree { min-width: 620px; color: #e8e0d0; }
+.skill-branch-tree h4 { margin: 5px 0 8px; color: #d9b86b; font: 600 13px sans-serif; }
+.skill-line { display: flex; align-items: center; gap: 14px; min-height: 45px; margin: 5px 0; padding-left: 14px; border-left: 2px solid rgba(200,162,74,.45); }
+.skill-node { position: relative; min-width: 145px; min-height: 34px; padding: 6px 9px; border: 1px solid #5a5145; border-radius: 7px; background: #242126; color: #ddd3c2; font: 12px sans-serif; }
+.skill-node:not(:last-child)::after { content: ''; position: absolute; left: 100%; top: 50%; width: 14px; border-top: 1px solid #786b56; }
+.skill-node.av { border-color: #c8a24a; color: #f4d88e; }
+.skill-node.done { border-color: #628d69; color: #a9d6a9; background: #1b2920; }
+.skill-node.sel { outline: 2px solid #e0bd69; outline-offset: 1px; }
+.active-node { background: #252d37; }
+.special-node { background: #352a1d; border-color: #a37b3e; }
+.skill-detail { margin: 9px 0; padding: 10px; border: 1px solid rgba(200,162,74,.3); border-radius: 8px; background: rgba(10,10,13,.55); }
+.skill-detail h3 { margin: 0 0 5px; font-size: 15px; }
+.skill-detail .dim { margin-bottom: 8px; }
+.skill-detail .reqs { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 8px 0; }
+.skill-detail .reqs > div { font-size: 11px; }
+.skill-node[hidden] { display: none; }
+@media (max-width: 600px) {
+  .skill-viewport { height: 34vh; min-height: 170px; }
+  .skill-node { min-width: 132px; font-size: 11px; }
+}
+
+.skill-crosslinks { display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin:7px 0; font-size:11px; color:#c8bda9; }
