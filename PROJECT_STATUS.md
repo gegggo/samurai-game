@@ -4,6 +4,13 @@
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
 
+## 0.22.2 – Marker auf Minimap (Cache v91) – Dateien gesendet, Prüfung ausstehend
+- **Gerätetest 0.22.1 (Nutzer):** Block rechts OK, Tier 3 passt erstmal. Wunsch: Marker auch auf Minimap.
+- **Geändert:** `js/ui.js` `drawMini`: gelber Kreis mit Nummer je Marker (`U.pins`), wie auf der Karte. `js/config.js` 0.22.2, `index.html` v91.
+- **Getestet (tatsächlich, headless Chromium):** Regression 36/36 (1 Lauf), `node --check ui.js` ok.
+- **Nicht geprüft:** Marker-Zeichnung auf Minimap (kein eigener Test/Screenshot), iPhone.
+- **Nächster Schritt:** Regression + Gerätetest 0.22.2, dann Freigabe Phase 23 (Wirtschaft).
+
 ## 0.22.1 – Nutzerwünsche nach Gerätetest (Cache v90) – Dateien gesendet
 - **Nutzer-Rückmeldung:** Tier 2 (Moonlit Grove) und Tier 3 (Frostpeaks) besiegt, Tier 3 zu leicht. Block-Button beim Laufen unpraktisch. Karten-Markierungen gewünscht (Zelda-Stil).
 - **Tier 3 stärker:** `data/balance.json` tierMul 3: Leben 1,5 -> 1,7, Schaden 1,3 -> 1,5 (~+15 %). Tier 1/2 unverändert. XP/Münzen Tier 3 bleiben 1,5.
