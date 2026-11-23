@@ -73,7 +73,7 @@ try:
     ok = r['lv'] and r['sp'] and r['ap'] and not r['over'] and r['same'] and not r['neg'] and not r['nan'] and r['half'] and r['yyOk'] and r['pt'] and r['hpUp'] and r['apDown']
     rec('Fortschritt: XP/Level/Skillpunkte/Attributpunkte, Essence nicht ueberbuchbar, Karma-Wiederholung halbiert, Yin/Yang im Bereich', ok, json.dumps(r))
     # 8 Skilltree
-    r = ev(pg, """() => { const S=SW.Skills, C=SW.Char, E=SW.Essence, o={}; const n=S.nodes.find(n=>!n.req&&!(n.reqs&&n.reqs.length)&&n.cost&&!n.yin&&!n.yang&&!n.balance&&!n.karma&&!n.lvl)||S.nodes.find(n=>S.can(n.id));
+    r = ev(pg, """() => { const S=SW.Skills; S.teach(); const C=SW.Char, E=SW.Essence, o={}; const n=S.nodes.find(n=>!n.req&&!(n.reqs&&n.reqs.length)&&n.cost&&!n.yin&&!n.yang&&!n.balance&&!n.karma&&!n.lvl)||S.nodes.find(n=>S.can(n.id));
       if(!n) return {none:true}; C.sp=5; E.n=99; C.level=Math.max(C.level,25); SW.Karma.v=100; SW.YinYang.yin=60; SW.YinYang.yang=60;
       const id=(S.nodes.find(n=>S.can(n.id))||n).id; const nd=S.node(id); const sp0=C.sp, e0=E.n; o.id=id; o.can=S.can(id); o.learn=S.learn(id); o.sp=sp0-C.sp===nd.cost.sp; o.ess=e0-E.n===nd.cost.ess; o.again=S.learn(id);
       const kv=SW.Karma.v; o.karmaKept=kv===100; return o; }""")

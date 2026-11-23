@@ -14,7 +14,7 @@ SW.YinYang = {
 SW.Save = { touch() {} };
 SW.UI = { banner() {} };
 vm.runInNewContext(fs.readFileSync('js/skills.js', 'utf8'), { SW });
-const S = SW.Skills;
+const S = SW.Skills; S.teach();
 if (S.nodes.length !== 80 || S.specials.length !== 10) throw new Error('wrong node count');
 for (const id of ['sm_p1_1', 'sm_p1_2', 'sm_p1_3', 'sm_p5_1', 'sm_a5']) {
   if (!S.learn(id)) throw new Error('cannot learn ' + id);
