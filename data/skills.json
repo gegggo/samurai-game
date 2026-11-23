@@ -1,413 +1,1827 @@
 {
- "branches": [
-  "sm",
-  "sw",
-  "df",
-  "km"
- ],
- "skills": [
-  {
-   "br": "sm",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "dmg": 0.1
-   },
-   "id": "sm1",
-   "lvl": 1,
-   "req": [],
-   "tier": 1,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "br": "sm",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "rec": 0.1
-   },
-   "id": "sm2",
-   "lvl": 4,
-   "req": [
-    "sm1"
-   ],
-   "tier": 2,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "br": "sm",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "crit": 5
-   },
-   "id": "sm3",
-   "lvl": 4,
-   "req": [
-    "sm1"
-   ],
-   "tier": 2,
-   "type": "passive",
-   "yang": 25,
-   "ed": "lite"
-  },
-  {
-   "br": "sm",
-   "cost": {
-    "ess": 2,
-    "sp": 2
-   },
-   "id": "sm4",
-   "lvl": 8,
-   "move": "dblstrike",
-   "req": [
-    "sm2"
-   ],
-   "tier": 3,
-   "type": "active",
-   "yang": 30,
-   "ed": "lite"
-  },
-  {
-   "br": "sm",
-   "cost": {
-    "ess": 3,
-    "sp": 2
-   },
-   "id": "sm5",
-   "karma": 10,
-   "lvl": 12,
-   "move": "cleave",
-   "req": [
-    "sm3",
-    "sm4"
-   ],
-   "tier": 4,
-   "type": "active",
-   "yang": 40,
-   "ed": "lite"
-  },
-  {
-   "br": "sw",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "dodgeCd": 0.2
-   },
-   "id": "sw1",
-   "lvl": 1,
-   "req": [],
-   "tier": 1,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "br": "sw",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "ambush": 0.3
-   },
-   "id": "sw2",
-   "lvl": 4,
-   "req": [
-    "sw1"
-   ],
-   "tier": 2,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "br": "sw",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "breath": 0.3
-   },
-   "id": "sw4",
-   "lvl": 4,
-   "req": [
-    "sw1"
-   ],
-   "tier": 2,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "br": "sw",
-   "cost": {
-    "ess": 2,
-    "sp": 2
-   },
-   "id": "sw3",
-   "lvl": 8,
-   "move": "shadowstep",
-   "req": [
-    "sw1"
-   ],
-   "tier": 3,
-   "type": "active",
-   "yin": 30,
-   "ed": "lite"
-  },
-  {
-   "br": "sw",
-   "cost": {
-    "ess": 3,
-    "sp": 2
-   },
-   "id": "sw5",
-   "lvl": 12,
-   "move": "flurry",
-   "req": [
-    "sw2",
-    "sw3"
-   ],
-   "tier": 4,
-   "type": "active",
-   "yin": 40,
-   "ed": "lite"
-  },
-  {
-   "br": "df",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "hpFlat": 15
-   },
-   "id": "df1",
-   "lvl": 1,
-   "req": [],
-   "tier": 1,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "br": "df",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "blockMul": 0.1
-   },
-   "id": "df2",
-   "lvl": 4,
-   "req": [
-    "df1"
-   ],
-   "tier": 2,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "br": "df",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "parry": 0.1
-   },
-   "id": "df3",
-   "lvl": 4,
-   "req": [
-    "df1"
-   ],
-   "tier": 2,
-   "type": "passive",
-   "yin": 25,
-   "ed": "lite"
-  },
-  {
-   "br": "df",
-   "cost": {
-    "ess": 2,
-    "sp": 2
-   },
-   "fx": {
-    "counter": 0.4
-   },
-   "id": "df4",
-   "lvl": 8,
-   "req": [
-    "df3"
-   ],
-   "tier": 3,
-   "type": "passive",
-   "yin": 30,
-   "ed": "lite"
-  },
-  {
-   "br": "df",
-   "cost": {
-    "ess": 2,
-    "sp": 2
-   },
-   "id": "df5",
-   "karma": 10,
-   "lvl": 8,
-   "move": "mend",
-   "req": [
-    "df2"
-   ],
-   "tier": 3,
-   "type": "active",
-   "yin": 30,
-   "ed": "lite"
-  },
-  {
-   "br": "km",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "kiFlat": 20
-   },
-   "id": "km1",
-   "lvl": 1,
-   "req": [],
-   "tier": 1,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "br": "km",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "kiRegen": 0.5
-   },
-   "id": "km2",
-   "lvl": 4,
-   "req": [
-    "km1"
-   ],
-   "tier": 2,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "br": "km",
-   "cost": {
-    "ess": 1,
-    "sp": 1
-   },
-   "fx": {
-    "kiCost": 0.2
-   },
-   "id": "km3",
-   "lvl": 4,
-   "req": [
-    "km1"
-   ],
-   "tier": 2,
-   "type": "passive",
-   "ed": "lite"
-  },
-  {
-   "balance": 30,
-   "br": "km",
-   "cost": {
-    "ess": 2,
-    "sp": 2
-   },
-   "id": "km4",
-   "lvl": 8,
-   "move": "kiwave",
-   "req": [
-    "km2"
-   ],
-   "tier": 3,
-   "type": "active",
-   "ed": "lite"
-  },
-  {
-   "balance": 40,
-   "br": "km",
-   "cost": {
-    "ess": 3,
-    "sp": 2
-   },
-   "fx": {
-    "breath": 1
-   },
-   "id": "km5",
-   "karma": 20,
-   "lvl": 12,
-   "req": [
-    "km2",
-    "km3"
-   ],
-   "tier": 4,
-   "type": "passive",
-   "ed": "lite"
-  }
- ],
- "secrets": [
-  {
-   "id": "cross",
-   "karma": 60,
-   "lvl": 33,
-   "move": "cross",
-   "yang": 60
-  },
-  {
-   "id": "ironwill",
-   "karma": 30,
-   "lvl": 30,
-   "move": "ironwill",
-   "yin": 60
-  },
-  {
-   "balance": 60,
-   "id": "stillwater",
-   "karma": 50,
-   "lvl": 37,
-   "move": "stillwater"
-  },
-  {
-   "id": "oniwrath",
-   "karma": 70,
-   "lvl": 42,
-   "move": "oniwrath",
-   "yang": 70
-  }
- ],
- "scrolls": [
-  {
-   "id": "sc_wind",
-   "lvl": 6,
-   "move": "windcut",
-   "yang": 25,
-   "yin": 0
-  },
-  {
-   "id": "sc_mount",
-   "lvl": 8,
-   "move": "mountain",
-   "yang": 0,
-   "yin": 25
-  }
- ],
- "resetCost": 2
+  "branches": [
+    "sm",
+    "sw",
+    "df",
+    "km"
+  ],
+  "skills": [
+    {
+      "id": "sm_p1_1",
+      "br": "sm",
+      "type": "passive",
+      "line": 1,
+      "rank": 1,
+      "name": "Durchschlagskraft I",
+      "desc": "Schwertschaden 5%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "dmg": 0.05
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p1_2",
+      "br": "sm",
+      "type": "passive",
+      "line": 1,
+      "rank": 2,
+      "name": "Durchschlagskraft II",
+      "desc": "Schwertschaden 10%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sm_p1_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "dmg": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p1_3",
+      "br": "sm",
+      "type": "passive",
+      "line": 1,
+      "rank": 3,
+      "name": "Durchschlagskraft III",
+      "desc": "Schwertschaden 15%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sm_p1_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "dmg": 0.15
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p2_1",
+      "br": "sm",
+      "type": "passive",
+      "line": 2,
+      "rank": 1,
+      "name": "Kampfgeschick I",
+      "desc": "Kürzere Erholungszeit 5%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "rec": 0.05
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p2_2",
+      "br": "sm",
+      "type": "passive",
+      "line": 2,
+      "rank": 2,
+      "name": "Kampfgeschick II",
+      "desc": "Kürzere Erholungszeit 10%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sm_p2_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "rec": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p2_3",
+      "br": "sm",
+      "type": "passive",
+      "line": 2,
+      "rank": 3,
+      "name": "Kampfgeschick III",
+      "desc": "Kürzere Erholungszeit 15%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sm_p2_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "rec": 0.15
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p3_1",
+      "br": "sm",
+      "type": "passive",
+      "line": 3,
+      "rank": 1,
+      "name": "Präzisionsschnitt I",
+      "desc": "Kritische Trefferchance 3%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "crit": 3
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p3_2",
+      "br": "sm",
+      "type": "passive",
+      "line": 3,
+      "rank": 2,
+      "name": "Präzisionsschnitt II",
+      "desc": "Kritische Trefferchance 6%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sm_p3_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "crit": 6
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p3_3",
+      "br": "sm",
+      "type": "passive",
+      "line": 3,
+      "rank": 3,
+      "name": "Präzisionsschnitt III",
+      "desc": "Kritische Trefferchance 9%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sm_p3_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "crit": 9
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p4_1",
+      "br": "sm",
+      "type": "passive",
+      "line": 4,
+      "rank": 1,
+      "name": "Weiter Schnitt I",
+      "desc": "Angriffsreichweite 5%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "range": 0.05
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p4_2",
+      "br": "sm",
+      "type": "passive",
+      "line": 4,
+      "rank": 2,
+      "name": "Weiter Schnitt II",
+      "desc": "Angriffsreichweite 10%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sm_p4_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "range": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p4_3",
+      "br": "sm",
+      "type": "passive",
+      "line": 4,
+      "rank": 3,
+      "name": "Weiter Schnitt III",
+      "desc": "Angriffsreichweite 15%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sm_p4_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "range": 0.15
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p5_1",
+      "br": "sm",
+      "type": "passive",
+      "line": 5,
+      "rank": 1,
+      "name": "Blutrausch I",
+      "desc": "Heilung nach gewonnenem Kampf 2%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "healWin": 0.02
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p5_2",
+      "br": "sm",
+      "type": "passive",
+      "line": 5,
+      "rank": 2,
+      "name": "Blutrausch II",
+      "desc": "Heilung nach gewonnenem Kampf 4%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sm_p5_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "healWin": 0.04
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_p5_3",
+      "br": "sm",
+      "type": "passive",
+      "line": 5,
+      "rank": 3,
+      "name": "Blutrausch III",
+      "desc": "Heilung nach gewonnenem Kampf 6%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sm_p5_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "healWin": 0.06
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sm_a1",
+      "br": "sm",
+      "type": "active",
+      "name": "Doppelschlag",
+      "desc": "Aktive Technik: Doppelschlag. Verbraucht Ki.",
+      "lvl": 5,
+      "tier": 4,
+      "req": [
+        "sm_p1_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 3
+      },
+      "move": "dblstrike",
+      "ed": "lite"
+    },
+    {
+      "id": "sm_a2",
+      "br": "sm",
+      "type": "active",
+      "name": "Eisenspalter",
+      "desc": "Aktive Technik: Eisenspalter. Verbraucht Ki.",
+      "lvl": 10,
+      "tier": 5,
+      "req": [
+        "sm_p2_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 3
+      },
+      "move": "cleave",
+      "ed": "lite"
+    },
+    {
+      "id": "sm_a3",
+      "br": "sm",
+      "type": "active",
+      "name": "Drachenstoß",
+      "desc": "Aktive Technik: Drachenstoß. Verbraucht Ki.",
+      "lvl": 15,
+      "tier": 6,
+      "req": [
+        "sm_p3_1"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 4
+      },
+      "move": "heavy",
+      "ed": "lite"
+    },
+    {
+      "id": "sm_a4",
+      "br": "sm",
+      "type": "active",
+      "name": "Wirbelklinge",
+      "desc": "Aktive Technik: Wirbelklinge. Verbraucht Ki.",
+      "lvl": 25,
+      "tier": 7,
+      "req": [
+        "sm_p4_1"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 4
+      },
+      "move": "flurry",
+      "ed": "lite"
+    },
+    {
+      "id": "sm_a5",
+      "br": "sm",
+      "type": "active",
+      "name": "Blitz-Iaido",
+      "desc": "Aktive Technik: Blitz-Iaido. Verbraucht Ki.",
+      "lvl": 30,
+      "tier": 8,
+      "req": [
+        "sm_p5_1"
+      ],
+      "cost": {
+        "sp": 4,
+        "ess": 5
+      },
+      "move": "quick",
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p1_1",
+      "br": "sw",
+      "type": "passive",
+      "line": 1,
+      "rank": 1,
+      "name": "Leichtfüßigkeit I",
+      "desc": "Bewegungstempo 3%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "move": 0.03
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p1_2",
+      "br": "sw",
+      "type": "passive",
+      "line": 1,
+      "rank": 2,
+      "name": "Leichtfüßigkeit II",
+      "desc": "Bewegungstempo 6%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sw_p1_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "move": 0.06
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p1_3",
+      "br": "sw",
+      "type": "passive",
+      "line": 1,
+      "rank": 3,
+      "name": "Leichtfüßigkeit III",
+      "desc": "Bewegungstempo 9%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sw_p1_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "move": 0.09
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p2_1",
+      "br": "sw",
+      "type": "passive",
+      "line": 2,
+      "rank": 1,
+      "name": "Ausweichmeister I",
+      "desc": "Kürzere Ausweich-Abklingzeit 5%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "dodgeCd": 0.05
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p2_2",
+      "br": "sw",
+      "type": "passive",
+      "line": 2,
+      "rank": 2,
+      "name": "Ausweichmeister II",
+      "desc": "Kürzere Ausweich-Abklingzeit 10%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sw_p2_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "dodgeCd": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p2_3",
+      "br": "sw",
+      "type": "passive",
+      "line": 2,
+      "rank": 3,
+      "name": "Ausweichmeister III",
+      "desc": "Kürzere Ausweich-Abklingzeit 15%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sw_p2_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "dodgeCd": 0.15
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p3_1",
+      "br": "sw",
+      "type": "passive",
+      "line": 3,
+      "rank": 1,
+      "name": "Jägerinstinkt I",
+      "desc": "Hinterhaltsschaden 10%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "ambush": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p3_2",
+      "br": "sw",
+      "type": "passive",
+      "line": 3,
+      "rank": 2,
+      "name": "Jägerinstinkt II",
+      "desc": "Hinterhaltsschaden 20%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sw_p3_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "ambush": 0.2
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p3_3",
+      "br": "sw",
+      "type": "passive",
+      "line": 3,
+      "rank": 3,
+      "name": "Jägerinstinkt III",
+      "desc": "Hinterhaltsschaden 30%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sw_p3_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "ambush": 0.3
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p4_1",
+      "br": "sw",
+      "type": "passive",
+      "line": 4,
+      "rank": 1,
+      "name": "Schattenregeneration I",
+      "desc": "Ki nach Ausweichen 5%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "kiDodge": 0.05
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p4_2",
+      "br": "sw",
+      "type": "passive",
+      "line": 4,
+      "rank": 2,
+      "name": "Schattenregeneration II",
+      "desc": "Ki nach Ausweichen 10%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sw_p4_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "kiDodge": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p4_3",
+      "br": "sw",
+      "type": "passive",
+      "line": 4,
+      "rank": 3,
+      "name": "Schattenregeneration III",
+      "desc": "Ki nach Ausweichen 15%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sw_p4_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "kiDodge": 0.15
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p5_1",
+      "br": "sw",
+      "type": "passive",
+      "line": 5,
+      "rank": 1,
+      "name": "Schattenreflex I",
+      "desc": "Längeres Ausweichfenster 5%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "dodgeWindow": 0.05
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p5_2",
+      "br": "sw",
+      "type": "passive",
+      "line": 5,
+      "rank": 2,
+      "name": "Schattenreflex II",
+      "desc": "Längeres Ausweichfenster 10%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "sw_p5_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "dodgeWindow": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_p5_3",
+      "br": "sw",
+      "type": "passive",
+      "line": 5,
+      "rank": 3,
+      "name": "Schattenreflex III",
+      "desc": "Längeres Ausweichfenster 15%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "sw_p5_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "dodgeWindow": 0.15
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "sw_a1",
+      "br": "sw",
+      "type": "active",
+      "name": "Schattenritt",
+      "desc": "Aktive Technik: Schattenritt. Verbraucht Ki.",
+      "lvl": 5,
+      "tier": 4,
+      "req": [
+        "sw_p1_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 3
+      },
+      "move": "shadowstep",
+      "ed": "lite"
+    },
+    {
+      "id": "sw_a2",
+      "br": "sw",
+      "type": "active",
+      "name": "Schattenhagel",
+      "desc": "Aktive Technik: Schattenhagel. Verbraucht Ki.",
+      "lvl": 10,
+      "tier": 5,
+      "req": [
+        "sw_p2_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 3
+      },
+      "move": "flurry",
+      "ed": "lite"
+    },
+    {
+      "id": "sw_a3",
+      "br": "sw",
+      "type": "active",
+      "name": "Trugbild",
+      "desc": "Aktive Technik: Trugbild. Verbraucht Ki.",
+      "lvl": 15,
+      "tier": 6,
+      "req": [
+        "sw_p3_1"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 4
+      },
+      "move": "special",
+      "ed": "lite"
+    },
+    {
+      "id": "sw_a4",
+      "br": "sw",
+      "type": "active",
+      "name": "Falkensturz",
+      "desc": "Aktive Technik: Falkensturz. Verbraucht Ki.",
+      "lvl": 25,
+      "tier": 7,
+      "req": [
+        "sw_p4_1"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 4
+      },
+      "move": "heavy",
+      "ed": "lite"
+    },
+    {
+      "id": "sw_a5",
+      "br": "sw",
+      "type": "active",
+      "name": "Rauchklinge",
+      "desc": "Aktive Technik: Rauchklinge. Verbraucht Ki.",
+      "lvl": 30,
+      "tier": 8,
+      "req": [
+        "sw_p5_1"
+      ],
+      "cost": {
+        "sp": 4,
+        "ess": 5
+      },
+      "move": "quick",
+      "ed": "lite"
+    },
+    {
+      "id": "df_p1_1",
+      "br": "df",
+      "type": "passive",
+      "line": 1,
+      "rank": 1,
+      "name": "Eisenhaut I",
+      "desc": "Maximale Lebenspunkte 10.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "hpFlat": 10
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p1_2",
+      "br": "df",
+      "type": "passive",
+      "line": 1,
+      "rank": 2,
+      "name": "Eisenhaut II",
+      "desc": "Maximale Lebenspunkte 20.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "df_p1_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "hpFlat": 20
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p1_3",
+      "br": "df",
+      "type": "passive",
+      "line": 1,
+      "rank": 3,
+      "name": "Eisenhaut III",
+      "desc": "Maximale Lebenspunkte 30.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "df_p1_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "hpFlat": 30
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p2_1",
+      "br": "df",
+      "type": "passive",
+      "line": 2,
+      "rank": 1,
+      "name": "Standfestigkeit I",
+      "desc": "Weniger Rückstoß 10%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "knockback": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p2_2",
+      "br": "df",
+      "type": "passive",
+      "line": 2,
+      "rank": 2,
+      "name": "Standfestigkeit II",
+      "desc": "Weniger Rückstoß 20%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "df_p2_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "knockback": 0.2
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p2_3",
+      "br": "df",
+      "type": "passive",
+      "line": 2,
+      "rank": 3,
+      "name": "Standfestigkeit III",
+      "desc": "Weniger Rückstoß 30%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "df_p2_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "knockback": 0.3
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p3_1",
+      "br": "df",
+      "type": "passive",
+      "line": 3,
+      "rank": 1,
+      "name": "Meisterparade I",
+      "desc": "Längeres Paradefenster 5%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "parry": 0.05
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p3_2",
+      "br": "df",
+      "type": "passive",
+      "line": 3,
+      "rank": 2,
+      "name": "Meisterparade II",
+      "desc": "Längeres Paradefenster 10%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "df_p3_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "parry": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p3_3",
+      "br": "df",
+      "type": "passive",
+      "line": 3,
+      "rank": 3,
+      "name": "Meisterparade III",
+      "desc": "Längeres Paradefenster 15%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "df_p3_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "parry": 0.15
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p4_1",
+      "br": "df",
+      "type": "passive",
+      "line": 4,
+      "rank": 1,
+      "name": "Gegenangriff I",
+      "desc": "Konterschaden 10%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "counter": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p4_2",
+      "br": "df",
+      "type": "passive",
+      "line": 4,
+      "rank": 2,
+      "name": "Gegenangriff II",
+      "desc": "Konterschaden 20%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "df_p4_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "counter": 0.2
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p4_3",
+      "br": "df",
+      "type": "passive",
+      "line": 4,
+      "rank": 3,
+      "name": "Gegenangriff III",
+      "desc": "Konterschaden 30%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "df_p4_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "counter": 0.3
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p5_1",
+      "br": "df",
+      "type": "passive",
+      "line": 5,
+      "rank": 1,
+      "name": "Zäher Körper I",
+      "desc": "Weniger eingehender Schaden 3%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "damageReduction": 0.03
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p5_2",
+      "br": "df",
+      "type": "passive",
+      "line": 5,
+      "rank": 2,
+      "name": "Zäher Körper II",
+      "desc": "Weniger eingehender Schaden 6%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "df_p5_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "damageReduction": 0.06
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_p5_3",
+      "br": "df",
+      "type": "passive",
+      "line": 5,
+      "rank": 3,
+      "name": "Zäher Körper III",
+      "desc": "Weniger eingehender Schaden 9%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "df_p5_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "damageReduction": 0.09
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "df_a1",
+      "br": "df",
+      "type": "active",
+      "name": "Regeneration",
+      "desc": "Aktive Technik: Regeneration. Verbraucht Ki.",
+      "lvl": 5,
+      "tier": 4,
+      "req": [
+        "df_p1_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 3
+      },
+      "move": "mend",
+      "ed": "lite"
+    },
+    {
+      "id": "df_a2",
+      "br": "df",
+      "type": "active",
+      "name": "Bergwacht",
+      "desc": "Aktive Technik: Bergwacht. Verbraucht Ki.",
+      "lvl": 10,
+      "tier": 5,
+      "req": [
+        "df_p2_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 3
+      },
+      "move": "special",
+      "ed": "lite"
+    },
+    {
+      "id": "df_a3",
+      "br": "df",
+      "type": "active",
+      "name": "Perfekte Parade",
+      "desc": "Aktive Technik: Perfekte Parade. Verbraucht Ki.",
+      "lvl": 15,
+      "tier": 6,
+      "req": [
+        "df_p3_1"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 4
+      },
+      "move": "counter",
+      "ed": "lite"
+    },
+    {
+      "id": "df_a4",
+      "br": "df",
+      "type": "active",
+      "name": "Erdbrecher",
+      "desc": "Aktive Technik: Erdbrecher. Verbraucht Ki.",
+      "lvl": 25,
+      "tier": 7,
+      "req": [
+        "df_p4_1"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 4
+      },
+      "move": "heavy",
+      "ed": "lite"
+    },
+    {
+      "id": "df_a5",
+      "br": "df",
+      "type": "active",
+      "name": "Unnachgiebiger Konter",
+      "desc": "Aktive Technik: Unnachgiebiger Konter. Verbraucht Ki.",
+      "lvl": 30,
+      "tier": 8,
+      "req": [
+        "df_p5_1"
+      ],
+      "cost": {
+        "sp": 4,
+        "ess": 5
+      },
+      "move": "counter",
+      "ed": "lite"
+    },
+    {
+      "id": "km_p1_1",
+      "br": "km",
+      "type": "passive",
+      "line": 1,
+      "rank": 1,
+      "name": "Ki-Reservoir I",
+      "desc": "Maximales Ki 10%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "kiFlat": 10
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p1_2",
+      "br": "km",
+      "type": "passive",
+      "line": 1,
+      "rank": 2,
+      "name": "Ki-Reservoir II",
+      "desc": "Maximales Ki 20%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "km_p1_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "kiFlat": 20
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p1_3",
+      "br": "km",
+      "type": "passive",
+      "line": 1,
+      "rank": 3,
+      "name": "Ki-Reservoir III",
+      "desc": "Maximales Ki 30%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "km_p1_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "kiFlat": 30
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p2_1",
+      "br": "km",
+      "type": "passive",
+      "line": 2,
+      "rank": 1,
+      "name": "Innere Ruhe I",
+      "desc": "Ki-Regeneration 10%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "kiRegen": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p2_2",
+      "br": "km",
+      "type": "passive",
+      "line": 2,
+      "rank": 2,
+      "name": "Innere Ruhe II",
+      "desc": "Ki-Regeneration 20%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "km_p2_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "kiRegen": 0.2
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p2_3",
+      "br": "km",
+      "type": "passive",
+      "line": 2,
+      "rank": 3,
+      "name": "Innere Ruhe III",
+      "desc": "Ki-Regeneration 30%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "km_p2_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "kiRegen": 0.3
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p3_1",
+      "br": "km",
+      "type": "passive",
+      "line": 3,
+      "rank": 1,
+      "name": "Ki-Kontrolle I",
+      "desc": "Geringere Ki-Kosten 5%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "kiCost": 0.05
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p3_2",
+      "br": "km",
+      "type": "passive",
+      "line": 3,
+      "rank": 2,
+      "name": "Ki-Kontrolle II",
+      "desc": "Geringere Ki-Kosten 10%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "km_p3_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "kiCost": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p3_3",
+      "br": "km",
+      "type": "passive",
+      "line": 3,
+      "rank": 3,
+      "name": "Ki-Kontrolle III",
+      "desc": "Geringere Ki-Kosten 15%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "km_p3_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "kiCost": 0.15
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p4_1",
+      "br": "km",
+      "type": "passive",
+      "line": 4,
+      "rank": 1,
+      "name": "Geistige Stärke I",
+      "desc": "Technikschaden 5%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "kiDamage": 0.05
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p4_2",
+      "br": "km",
+      "type": "passive",
+      "line": 4,
+      "rank": 2,
+      "name": "Geistige Stärke II",
+      "desc": "Technikschaden 10%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "km_p4_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "kiDamage": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p4_3",
+      "br": "km",
+      "type": "passive",
+      "line": 4,
+      "rank": 3,
+      "name": "Geistige Stärke III",
+      "desc": "Technikschaden 15%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "km_p4_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "kiDamage": 0.15
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p5_1",
+      "br": "km",
+      "type": "passive",
+      "line": 5,
+      "rank": 1,
+      "name": "Himmelsatem I",
+      "desc": "Ki-Regeneration im Stillstand 10%.",
+      "lvl": 1,
+      "tier": 1,
+      "req": [],
+      "cost": {
+        "sp": 1,
+        "ess": 1
+      },
+      "fx": {
+        "breath": 0.1
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p5_2",
+      "br": "km",
+      "type": "passive",
+      "line": 5,
+      "rank": 2,
+      "name": "Himmelsatem II",
+      "desc": "Ki-Regeneration im Stillstand 20%.",
+      "lvl": 10,
+      "tier": 2,
+      "req": [
+        "km_p5_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 2
+      },
+      "fx": {
+        "breath": 0.2
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_p5_3",
+      "br": "km",
+      "type": "passive",
+      "line": 5,
+      "rank": 3,
+      "name": "Himmelsatem III",
+      "desc": "Ki-Regeneration im Stillstand 30%.",
+      "lvl": 20,
+      "tier": 3,
+      "req": [
+        "km_p5_2"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 3
+      },
+      "fx": {
+        "breath": 0.3
+      },
+      "ed": "lite"
+    },
+    {
+      "id": "km_a1",
+      "br": "km",
+      "type": "active",
+      "name": "Ki-Welle",
+      "desc": "Aktive Technik: Ki-Welle. Verbraucht Ki.",
+      "lvl": 5,
+      "tier": 4,
+      "req": [
+        "km_p1_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 3
+      },
+      "move": "kiwave",
+      "ed": "lite"
+    },
+    {
+      "id": "km_a2",
+      "br": "km",
+      "type": "active",
+      "name": "Donneratem",
+      "desc": "Aktive Technik: Donneratem. Verbraucht Ki.",
+      "lvl": 10,
+      "tier": 5,
+      "req": [
+        "km_p2_1"
+      ],
+      "cost": {
+        "sp": 2,
+        "ess": 3
+      },
+      "move": "special",
+      "ed": "lite"
+    },
+    {
+      "id": "km_a3",
+      "br": "km",
+      "type": "active",
+      "name": "Gezeitenstoß",
+      "desc": "Aktive Technik: Gezeitenstoß. Verbraucht Ki.",
+      "lvl": 15,
+      "tier": 6,
+      "req": [
+        "km_p3_1"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 4
+      },
+      "move": "counter",
+      "ed": "lite"
+    },
+    {
+      "id": "km_a4",
+      "br": "km",
+      "type": "active",
+      "name": "Seelenfluss",
+      "desc": "Aktive Technik: Seelenfluss. Verbraucht Ki.",
+      "lvl": 25,
+      "tier": 7,
+      "req": [
+        "km_p4_1"
+      ],
+      "cost": {
+        "sp": 3,
+        "ess": 4
+      },
+      "move": "mend",
+      "ed": "lite"
+    },
+    {
+      "id": "km_a5",
+      "br": "km",
+      "type": "active",
+      "name": "Himmelsurteil",
+      "desc": "Aktive Technik: Himmelsurteil. Verbraucht Ki.",
+      "lvl": 30,
+      "tier": 8,
+      "req": [
+        "km_p5_1"
+      ],
+      "cost": {
+        "sp": 4,
+        "ess": 5
+      },
+      "move": "heavy",
+      "ed": "lite"
+    }
+  ],
+  "specials": [
+    {
+      "id": "sm_s1",
+      "br": "sm",
+      "name": "Meister der Klinge",
+      "desc": "Perfekte Treffer verursachen zusätzlichen Schaden.",
+      "unlock": "tree",
+      "req": [
+        "sm_p1_3",
+        "sm_a5"
+      ],
+      "lvl": 30
+    },
+    {
+      "id": "sm_s2",
+      "br": "sm",
+      "name": "Klingenkette",
+      "desc": "Treffer verlängern mögliche Angriffskombos.",
+      "unlock": "tree",
+      "req": [
+        "sm_p2_3",
+        "sm_a4"
+      ],
+      "lvl": 30
+    },
+    {
+      "id": "sm_s3",
+      "br": "sm",
+      "name": "Unbezwingbarer Wille",
+      "desc": "Übersteht einmal pro Kampf einen tödlichen Treffer.",
+      "unlock": "quest",
+      "quest": "sm_will",
+      "lvl": 35
+    },
+    {
+      "id": "sw_s1",
+      "br": "sw",
+      "name": "Lautloser Jäger",
+      "desc": "Verringert die Entdeckungsreichweite von Gegnern.",
+      "unlock": "karma",
+      "karma": 60,
+      "lvl": 30
+    },
+    {
+      "id": "sw_s2",
+      "br": "sw",
+      "name": "Fluchtmeister",
+      "desc": "Erhöht kurzzeitig das Tempo nach erfolgreichem Ausweichen.",
+      "unlock": "quest",
+      "quest": "sw_escape",
+      "lvl": 30
+    },
+    {
+      "id": "df_s1",
+      "br": "df",
+      "name": "Letzter Widerstand",
+      "desc": "Gewährt bei wenig Leben vorübergehend mehr Verteidigung.",
+      "unlock": "tree",
+      "req": [
+        "df_p1_3",
+        "df_a5"
+      ],
+      "lvl": 30
+    },
+    {
+      "id": "df_s2",
+      "br": "df",
+      "name": "Unerschütterlich",
+      "desc": "Perfekte Paraden können nicht unterbrochen werden.",
+      "unlock": "karma",
+      "karma": 60,
+      "lvl": 30
+    },
+    {
+      "id": "km_s1",
+      "br": "km",
+      "name": "Ki-Überladung",
+      "desc": "Erhöht vorübergehend das maximale Ki.",
+      "unlock": "tree",
+      "req": [
+        "km_p1_3",
+        "km_a5"
+      ],
+      "lvl": 30
+    },
+    {
+      "id": "km_s2",
+      "br": "km",
+      "name": "Spirituelle Resonanz",
+      "desc": "Yin-Yang-Gleichgewicht verstärkt Ki-Boni.",
+      "unlock": "yinyang",
+      "balance": 70,
+      "lvl": 35
+    },
+    {
+      "id": "km_s3",
+      "br": "km",
+      "name": "Erleuchtung",
+      "desc": "Erhöht vorübergehend Ki-Regeneration und Technikstärke.",
+      "unlock": "quest",
+      "quest": "km_enlightenment",
+      "lvl": 40
+    }
+  ],
+  "secrets": [
+    {
+      "id": "cross",
+      "karma": 60,
+      "lvl": 33,
+      "move": "cross",
+      "yang": 60
+    },
+    {
+      "id": "ironwill",
+      "karma": 30,
+      "lvl": 30,
+      "move": "ironwill",
+      "yin": 60
+    },
+    {
+      "balance": 60,
+      "id": "stillwater",
+      "karma": 50,
+      "lvl": 37,
+      "move": "stillwater"
+    },
+    {
+      "id": "oniwrath",
+      "karma": 70,
+      "lvl": 42,
+      "move": "oniwrath",
+      "yang": 70
+    }
+  ],
+  "scrolls": [
+    {
+      "id": "sc_wind",
+      "lvl": 6,
+      "move": "windcut",
+      "yang": 25,
+      "yin": 0
+    },
+    {
+      "id": "sc_mount",
+      "lvl": 8,
+      "move": "mountain",
+      "yang": 0,
+      "yin": 25
+    }
+  ],
+  "resetCost": 2,
+  "crossLinks": [
+    {
+      "from": "sm",
+      "to": "df",
+      "via": "df_p4_1",
+      "label": "Gegenangriff I"
+    },
+    {
+      "from": "sm",
+      "to": "sw",
+      "via": "sm_p2_1",
+      "label": "Kampfgeschick I"
+    },
+    {
+      "from": "sw",
+      "to": "km",
+      "via": "sw_p4_1",
+      "label": "Schattenregeneration I"
+    },
+    {
+      "from": "df",
+      "to": "km",
+      "via": "df_p2_1",
+      "label": "Standfestigkeit I"
+    }
+  ]
 }
