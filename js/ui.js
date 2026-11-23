@@ -4,7 +4,7 @@ SW.UI = (function () {
   const W = SW.World, OV = SW.CFG.OV, WW = W.WIDTH, HH = W.HEIGHT, OSW = Math.ceil(WW / OV), OSH = Math.ceil(HH / OV); // Kartenbild skaliert mit CFG.W/H (OV wächst mit der Welt)
   const $ = id => document.getElementById(id);
   const TABS = [['map', 1], ['inventory', 4], ['equipment', 4], ['skills', 3], ['skilltree', 3], ['quests', 4], ['character', 3], ['karma', 3], ['settings', 1]];
-  const U = { disc: new Set(), seen: new Set(), sel: null, view: { z: 1, x: WW / 2, y: HH / 2 } };
+  const U = { disc: new Set(), seen: new Set(), sel: null, pins: [], pin: null, view: { z: 1, x: WW / 2, y: HH / 2 } };
   let cmp, posEl, posK = '', cmpK = -1, mini, mc, ov, oc, ov2, oc2, ovRow = 0, reg = -1, banner, bt = 0, menu, panel, mapC, mapT = 0, mt = 0, tab = 'map', open = false;
 
   U.init = function () {
@@ -92,9 +92,33 @@ SW.UI = (function () {
     const r = mapC.getBoundingClientRect(), v = U.view;
     const wx = v.x + ((cx - r.left) / r.width - .5) * WW / v.z, wy = v.y + ((cy - r.top) / r.height - .5) * r.height / r.width * WW / v.z;
     const lim = 38 / r.width * WW / v.z; let best = null, bd = lim;
+    const pi = U.pins.findIndex(q => Math.hypot(q.x - wx, q.y - wy) < lim * .8); // Tipp auf eigene Markierung: entfernen anbieten
+    if (pi >= 0) { U.sel = null; U.pin = pi; drawMap(); travelBar(null); pinBar(pi); return; }
+    U.pin = null;
     SW.Shrines.list.forEach(s => { if (!SW.Shrines.isFound(s.id)) return; const d = Math.hypot(s.x - wx, s.y - wy); if (d < bd) { bd = d; best = s.id; } });
     U.sel = best; drawMap(); travelBar(best);
   }
+  // Karten-Markierungen (0.22.1): langes Druecken setzt einen Punkt (max. 10), Tipp darauf bietet Entfernen an. Gespeichert im Spielstand (pins).
+  const MAXPIN = 10;
+  U.longPress = function (cx, cy) {
+    const r = mapC.getBoundingClientRect(), v = U.view;
+    const wx = v.x + ((cx - r.left) / r.width - .5) * WW / v.z, wy = v.y + ((cy - r.top) / r.height - .5) * r.height / r.width * WW / v.z;
+    if (wx < 0 || wy < 0 || wx > WW || wy > HH) return;
+    if (U.pins.length >= MAXPIN) { showBanner(SW.t('pin_max')); return; }
+    U.pins.push({ x: Math.round(wx), y: Math.round(wy) }); U.pin = null; SW.Save.touch(); drawMap();
+    if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) { /* optional */ } }
+  };
+  function pinBar(i) {
+    const old = document.getElementById('travel-bar'); if (old) old.remove();
+    const q = U.pins[i], bar = document.createElement('div'); bar.id = 'travel-bar'; // gleiche Leiste/Formatierung wie Schnellreise
+    const lbl = document.createElement('span'); lbl.textContent = SW.t('pin_at', q.x + ' · Y ' + q.y); bar.appendChild(lbl);
+    const rm = document.createElement('button'); rm.className = 'btn'; rm.textContent = SW.t('pin_remove'); rm.onclick = () => { U.pins.splice(i, 1); U.pin = null; bar.remove(); SW.Save.touch(); drawMap(); }; bar.appendChild(rm);
+    const no = document.createElement('button'); no.className = 'btn'; no.textContent = SW.t('travel_cancel'); no.onclick = () => { U.pin = null; bar.remove(); drawMap(); }; bar.appendChild(no);
+    ['pointerdown', 'pointerup'].forEach(n => bar.addEventListener(n, e => e.stopPropagation()));
+    panel.appendChild(bar);
+  }
+  U.dumpPins = () => U.pins.map(q => [q.x, q.y]);
+  U.loadPins = d => { U.pins = Array.isArray(d) ? d.filter(a => Array.isArray(a) && isFinite(a[0]) && isFinite(a[1])).slice(0, MAXPIN).map(a => ({ x: +a[0], y: +a[1] })) : []; };
   // Schnellreise: Tipp auf entdeckten Schrein -> Leiste mit Name, Reisen und Abbrechen (nur aktivierte Schreine sind Ziele)
   let traveling = false;
   function travelBar(id) {
@@ -121,11 +145,11 @@ SW.UI = (function () {
   }
   // Karte: ein Finger = verschieben, zwei Finger = zoomen, kurzer Tipp = Schrein wählen, Mausrad = zoomen
   function mapEvents() {
-    const c = mapC, P = new Map(); let moved = 0, multi = false, last = 0, lm = null;
+    const c = mapC, P = new Map(); let moved = 0, multi = false, last = 0, lm = null, lpT = 0, lp = false;
     const span = () => { const a = [...P.values()]; return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) || 1; };
     const mid = () => { const a = [...P.values()]; return { x: (a[0].x + a[1].x) / 2, y: (a[0].y + a[1].y) / 2 }; };
     c.style.touchAction = 'none';
-    c.addEventListener('pointerdown', e => { try { c.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } P.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (P.size === 1) { moved = 0; multi = false; } else { multi = true; last = span(); lm = mid(); } e.preventDefault(); });
+    c.addEventListener('pointerdown', e => { try { c.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } P.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (P.size === 1) { moved = 0; multi = false; lp = false; clearTimeout(lpT); const sx = e.clientX, sy = e.clientY; lpT = setTimeout(() => { if (P.size === 1 && !multi && moved <= 8) { lp = true; U.longPress(sx, sy); } }, 550); } else { multi = true; clearTimeout(lpT); last = span(); lm = mid(); } e.preventDefault(); });
     c.addEventListener('pointermove', e => {
       const p = P.get(e.pointerId); if (!p) return;
       const r = c.getBoundingClientRect(), v = U.view, W2 = WW;
@@ -138,8 +162,8 @@ SW.UI = (function () {
       if (moved > 8) { v.x -= dx / r.width * W2 / v.z; v.y -= dy / r.width * W2 / v.z; clampView(); drawMap(); }
     });
     const end = e => {
-      const had = P.has(e.pointerId); P.delete(e.pointerId);
-      if (had && !multi && P.size === 0 && moved <= 8 && e.type === 'pointerup') mapTap(e.clientX, e.clientY);
+      const had = P.has(e.pointerId); P.delete(e.pointerId); clearTimeout(lpT);
+      if (had && !multi && !lp && P.size === 0 && moved <= 8 && e.type === 'pointerup') mapTap(e.clientX, e.clientY);
       if (P.size === 0) multi = false;
     };
     c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
@@ -262,6 +286,12 @@ SW.UI = (function () {
     });
     if (SW.Quests) SW.Quests.targets().forEach(o => {
       c.fillStyle = '#6fd36f'; c.strokeStyle = '#000'; c.lineWidth = 1.5 * d; c.beginPath(); c.arc(X(o.x), Y(o.y), 6 * d, 0, 6.2832); c.fill(); c.stroke();
+    });
+    U.pins.forEach((q, i) => { // Markierung: gelber Tropfen mit Nummer
+      const x = X(q.x), y = Y(q.y), r = 8 * d; c.fillStyle = '#f2c14e'; c.strokeStyle = '#1a1a1a'; c.lineWidth = 1.5 * d;
+      c.beginPath(); c.arc(x, y - r * 1.5, r, 0, 6.2832); c.moveTo(x - r * .7, y - r * .9); c.lineTo(x, y); c.lineTo(x + r * .7, y - r * .9); c.fill(); c.stroke();
+      c.fillStyle = '#1a1a1a'; c.font = 'bold ' + (10 * d) + 'px sans-serif'; c.fillText(String(i + 1), x, y - r * 1.5 + 3.5 * d);
+      if (U.pin === i) { c.strokeStyle = '#fff'; c.lineWidth = 2.5 * d; c.beginPath(); c.arc(x, y - r * 1.5, r * 1.6, 0, 6.2832); c.stroke(); }
     });
     c.fillStyle = '#e0452f'; c.strokeStyle = '#fff'; c.lineWidth = 2 * d; c.beginPath(); c.arc(X(p.x), Y(p.y), 5 * d, 0, 6.2832); c.fill(); c.stroke();
     // eigene Position als Koordinaten (Kacheln, Weltmaß CFG.W x CFG.H)
