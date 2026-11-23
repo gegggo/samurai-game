@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regressionstests (Spec 33.5) im headless Chromium 852x393. Aufruf (im Repo-Root): python3 tests/regression.py
 Startet selbst einen lokalen Server. Ergebnis je Test: PASS / FAIL + Kurzergebnis. Kein Geraetetest."""
-import subprocess, sys, time, json
+import subprocess, sys, time, json, shutil
 from playwright.sync_api import sync_playwright
 srv = subprocess.Popen([sys.executable, '-m', 'http.server', '8124'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
 URL = 'http://localhost:8124/index.html'; R = []
@@ -14,7 +14,7 @@ def cont(pg):
 def ev(pg, js): return pg.evaluate(js)
 try:
   with sync_playwright() as p:
-    b = p.chromium.launch(); errs = []
+    b = p.chromium.launch(executable_path=shutil.which('chromium')) if shutil.which('chromium') else p.chromium.launch(); errs = []
     # 1 Speichern + Laden
     pg = start(b, errs)
     ev(pg, "SW.Inv.addCoins(123); SW.Char.addXp(200); SW.Essence.add(3); SW.Karma.add('t1', 10); SW.YinYang.gain('yin', 5); SW.Save.save();")
@@ -178,6 +178,17 @@ try:
     r = ev(pg, """() => { const U = SW.UI; U.loadPins([[100, 200], [300, 400], ['x', 1], 5]); const a = U.dumpPins(); U.loadPins(Array.from({ length: 30 }, (_, i) => [i, i])); const b = U.dumpPins().length; U.loadPins(undefined); const c = U.dumpPins().length;
       U.loadPins([[10, 20]]); const sv = JSON.stringify(SW.Save.data ? SW.Save.data().pins : null); const bl = document.getElementById('cb-block'), sp = document.getElementById('cb-special'); const rb = getComputedStyle(bl); return { a, b, c, sv, right: rb.right !== 'auto' && rb.left === 'auto' || parseFloat(rb.left) > innerWidth / 2 }; }""")
     rec('Phase 22.1: Markierungen laden/speichern (ungueltig verworfen, max 10, leer ok), Block-Button rechts', r['a'] == [[100, 200], [300, 400]] and r['b'] == 10 and r['c'] == 0 and r['sv'] == '[[10,20]]' and r['right'], json.dumps(r))
+    # 29 Phase 23: Editionen, Stufen und Preisfaktor
+    r = ev(pg, """() => { const B=SW.Data.balance, S=SW.Shop, D=SW.Data, id=SW.Data.items.find(x=>x.type==='weapon').id;
+      const l0=D.upMax, p0=D.priceFactor, c0=D.upCost(id,0), recipe=S.recipePrice(D.recipes[0]);
+      return { max:l0, price:p0, up:c0, recipe, cfg:B.upgradeMax, factors:B.priceFactor }; }""")
+    rec('Phase 23: Lite I-III, PC I-X; Preisfaktor zentral konfiguriert und Schmiedkosten enthalten', r['max'] == 3 and r['price'] == 1 and r['cfg']['lite'] == 3 and r['cfg']['pc'] == 10 and r['factors']['lite'] == 1 and r['factors']['pc'] == 3 and r['recipe'] == 220, json.dumps(r))
+    # 30 Phase 23: Eisen-Drop ist tierabhängig und wird dem Inventar gutgeschrieben
+    r = ev(pg, """() => { const K=SW.Combat,I=SW.Inv, old=Math.random, s=K.spots.find(x=>x.type==='bandit'&&!K.boss(x)); I.bag.iron=0; Math.random=()=>0; const out=K.grant(s,{}); Math.random=old; return { iron:I.bag.iron, items:out.items, cfg:SW.Data.balance.ironDrop }; }""")
+    rec('Phase 23: Eisen-Drops nach Tier (garantierter Testwurf) werden gutgeschrieben und angezeigt', r['iron'] >= 1 and any('Iron' in x or 'Eisen' in x for x in r['items']) and r['cfg']['1']['chance'] > 0 and r['cfg']['3']['chance'] >= r['cfg']['1']['chance'], json.dumps(r))
+    # 31 Phase 23: Effekt-Vokabular deckt alle derzeit vorhandenen Item-Effekte ab
+    r = ev(pg, """() => { const I=SW.Inv, keys=['atk','def','hp','crit','rec','dodge','ambush','counter','kiCost','kiRegen','critDmg','parry','rdmg','rwind','rrec']; const fx=I.fxLines(Object.fromEntries(keys.map(k=>[k,k==='parry'?0.1:0.1]))); return { keys, n:fx.length, wind:fx.some(x=>x.includes('wind-up')||x.includes('Ausholen')) }; }""")
+    rec('Phase 23: Effekt-Vokabular zeigt alle aktuellen Item-Effekte inklusive Fernkampf-Ausholen', r['n'] == 15 and r['wind'], json.dumps(r))
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:
