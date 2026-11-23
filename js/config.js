@@ -1,14 +1,14 @@
 'use strict';
 // Globaler Namespace, Konstanten, zentrale Texte (Sprachsystem folgt Phase 6).
 const SW = {
-  version: '0.22.0',
+  version: '0.22.1',
   CFG: { W: 5000, H: 3000, SPEED: 5, OV: 8 }, // Welt wächst nur nach rechts/unten (Ursprung oben links); neue Regionen als Segment js/layout-<name>.js
   lang: (function () { try { const l = localStorage.getItem('sw_lang'); return l === 'de' ? 'de' : 'en'; } catch (e) { return 'en'; } })(),
   paused: false,
   TEXT: { en: {
     menu: 'Menu', close: 'Close', locked: 'Coming in phase {n}',
     discovered: 'Discovered: {n}', loading: 'Mapping the land…',
-    travel_loading: 'Travelling to {n}…', travel_to: 'Travel to {n}?', travel_off: '{n} is not activated yet', travel_go: 'Travel', travel_cancel: 'Cancel', travel_blocked: 'Travel not possible now',
+    pin_max: 'Marker limit reached (10). Remove one first.', pin_at: 'Marker at X {n}', pin_remove: 'Remove marker', travel_loading: 'Travelling to {n}…', travel_to: 'Travel to {n}?', travel_off: '{n} is not activated yet', travel_go: 'Travel', travel_cancel: 'Cancel', travel_blocked: 'Travel not possible now',
     leg_village: 'Village', leg_temple: 'Temple', leg_camp: 'Camp', leg_place: 'Place',
     tab_map: 'Map', tab_inventory: 'Inventory', tab_equipment: 'Equipment', tab_skills: 'Skills',
     tab_skilltree: 'Skilltree', tab_quests: 'Quests', tab_character: 'Character',

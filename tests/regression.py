@@ -170,10 +170,14 @@ try:
     r = ev(pg, """() => { const C = SW.Char, K = SW.Combat, B = SW.Data.balance; let sum = 0; for (let l = 1; l < C.MAX; l++) sum += C.need(l);
       const e = K.spots.find(s => s.tier === 3 && s.type !== 'boss' && !K.boss(s)); const st = SW.Data.skills || {};
       return { max: C.MAX, n10: C.need(10), sum, t1: K.tm({ tier: 1 }).hp, t3: K.tm({ tier: 3 }).hp, none: K.tm({}).hp, ed: B.edition, sec: SW.Data.secrets.map(x => x.lvl).every(l => l <= C.MAX) }; }""")
-    rec('Phase 22: Cap 50 (Lite), need = 36*l (gesamt 44 100), tierMul 1 / 1,5 / ohne Tier = 1, Geheimtechnik-Level <= Cap', r['max'] == 50 and r['n10'] == 360 and r['sum'] == 44100 and r['t1'] == 1 and r['t3'] == 1.5 and r['none'] == 1 and r['sec'], json.dumps(r))
+    rec('Phase 22: Cap 50 (Lite), need = 36*l (gesamt 44 100), tierMul 1 / 1,7 / ohne Tier = 1, Geheimtechnik-Level <= Cap', r['max'] == 50 and r['n10'] == 360 and r['sum'] == 44100 and r['t1'] == 1 and r['t3'] == 1.7 and r['none'] == 1 and r['sec'], json.dumps(r))
     # 27 Phase 22: tierMul wirkt auf Belohnung und Gegner-Leben
     r = ev(pg, """() => { const K = SW.Combat, x = K.spots.find(s => s.type === 'bandit' && !K.boss(s)), C = SW.Char; const R = SW.Data.rewards.bandit.xp; const out = []; [1, 3].forEach(t => { x.tier = t; C.level = 1; C.xp = 0; out.push(K.grant(x, { }).xp); }); return { out, R }; }""")
     rec('Phase 22: tierMul: Tier 3 gibt 1,5 x XP gegenueber Tier 1', r['out'][0] == r['R'] and r['out'][1] == round(r['R'] * 1.5), json.dumps(r))
+    # 28 Phase 22.1: Karten-Markierungen (setzen, Limit, speichern, laden) + Block-Button rechts
+    r = ev(pg, """() => { const U = SW.UI; U.loadPins([[100, 200], [300, 400], ['x', 1], 5]); const a = U.dumpPins(); U.loadPins(Array.from({ length: 30 }, (_, i) => [i, i])); const b = U.dumpPins().length; U.loadPins(undefined); const c = U.dumpPins().length;
+      U.loadPins([[10, 20]]); const sv = JSON.stringify(SW.Save.data ? SW.Save.data().pins : null); const bl = document.getElementById('cb-block'), sp = document.getElementById('cb-special'); const rb = getComputedStyle(bl); return { a, b, c, sv, right: rb.right !== 'auto' && rb.left === 'auto' || parseFloat(rb.left) > innerWidth / 2 }; }""")
+    rec('Phase 22.1: Markierungen laden/speichern (ungueltig verworfen, max 10, leer ok), Block-Button rechts', r['a'] == [[100, 200], [300, 400]] and r['b'] == 10 and r['c'] == 0 and r['sv'] == '[[10,20]]' and r['right'], json.dumps(r))
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:

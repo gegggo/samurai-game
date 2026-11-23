@@ -25,7 +25,7 @@ body.wcombat #act-btn { display: none !important; }
 .cb.empty { opacity: .35; }
 .cb { position: absolute; pointer-events: auto; border-radius: 50%; border: 2px solid rgba(232,224,208,.55); background: rgba(11,11,15,.5); color: #f4ecd8; font: 600 13px Georgia, serif; letter-spacing: .03em; padding: 0; touch-action: none; -webkit-tap-highlight-color: transparent; }
 .cb.on { background: rgba(181,53,43,.7); border-color: #fff; }
-#cb-block { left: 28%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); width: 80px; height: 80px; }
+#cb-block { right: calc(6px + env(safe-area-inset-right, 0px)); bottom: calc(196px + env(safe-area-inset-bottom, 0px)); width: 76px; height: 76px; } /* 0.22.1: rechts ueber Special, damit Laufen (links) und Blocken (rechts) gleichzeitig gehen */
 #cb-dodge { left: calc(28% + 8px); bottom: calc(112px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; }
 #cb-attack { right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 92px; height: 92px; background: rgba(181,53,43,.45); }
 #cb-heavy { right: calc(126px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 72px; height: 72px; }

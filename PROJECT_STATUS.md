@@ -1,8 +1,17 @@
-# PROJECT_STATUS (gekürzt, Stand 0.22.0, Cache v89)
+# PROJECT_STATUS (gekürzt, Stand 0.22.1, Cache v90)
 
 **Repo:** `index.html` im Root, `css/main.css`, `js/*.js`, `assets/`, `docs/` (Spec). Ladereihenfolge in `index.html` (arena3d.js nach worldcombat.js, vor main.js). Spiel: Canvas 2D, keine Abhängigkeiten, GitHub Pages, iPhone Querformat.
 **Aktuell:** 0.15.0 (Fixes nach Gerätetest 0.14.0; Gerätetest laut Nutzer komplett bestanden, ohne Protokoll; Regression Speichern/Quests/Inventar dabei laut Nutzer ok). 0.14.0 = Phase 12. 0.13.0 (Phase 11+13) vom Nutzer auf Gerät getestet: alles OK. Zuvor 0.12.4 (Breathe-Button entfernt). Zuvor 0.12.3 (Fix nach Gerätetest) = Phase 8 + 9A + 9B + 10. Dateien gesendet (2 Lieferungen), Browser-Tests bestanden (Details 0.12.0), **Gerätetest offen**. Gerätetests 0.10.x/0.11.0: laut Nutzer durchgeführt (ohne Protokoll).
 **Arbeitsregeln:** nur freigegebene Phase; Dateien einzeln mit Repo-Pfad liefern; nichts als getestet melden, was nicht lief; Status nach jeder Lieferung aktualisieren.
+
+## 0.22.1 – Nutzerwünsche nach Gerätetest (Cache v90) – Dateien gesendet
+- **Nutzer-Rückmeldung:** Tier 2 (Moonlit Grove) und Tier 3 (Frostpeaks) besiegt, Tier 3 zu leicht. Block-Button beim Laufen unpraktisch. Karten-Markierungen gewünscht (Zelda-Stil).
+- **Tier 3 stärker:** `data/balance.json` tierMul 3: Leben 1,5 -> 1,7, Schaden 1,3 -> 1,5 (~+15 %). Tier 1/2 unverändert. XP/Münzen Tier 3 bleiben 1,5.
+- **Block rechts:** `css/main.css` `#cb-block` jetzt rechts über Special (76 px, Safe-Area), vorher links unter Dodge.
+- **Karten-Markierungen:** `js/ui.js`: langes Drücken (0,55 s) auf der Karte setzt gelben nummerierten Marker (max. 10); Tipp darauf -> Leiste "Markierung entfernen / Abbrechen" (gleiche Leiste wie Schnellreise). Gespeichert als `pins` im Spielstand (`js/progress.js`, additiv, alte Stände = keine Marker, kein Schema-Wechsel). Texte EN/DE (`config.js`, `lang-de.js`). Keine Anzeige auf Minimap/Kompass (offen, falls gewünscht).
+- **Getestet (tatsächlich, headless Chromium 852x393):** Regression 36/36 (1 Lauf, neuer Test: Pins laden/speichern/Limit, Block rechts); Mausklick-Test: Langdruck setzt Marker, Tipp zeigt Leiste, Entfernen leert; Screenshots Kampfansicht (Block rechts oben, überlappt nichts) und Karte (Marker sichtbar).
+- **Nicht geprüft:** Langdruck mit Finger am iPhone (Scrollen/Zoomen-Konflikt), Tier-3-Gefühl nach Buff, Block-Position auf anderen iPhone-Größen/Hochformat.
+- **Nächster Schritt:** Gerätetest 0.22.1, dann Freigabe Phase 23 (Wirtschaft).
 
 ## Phase 22 – Balance-Kern (0.22.0, Cache v89) – Dateien gesendet, Gerätetest offen
 - **Freigabe:** Nutzer 22.11.2026. Grundlage: `docs/Langzeit.md` Kap. 4/10/11 (Lite Cap 50, `need = 36*l`).

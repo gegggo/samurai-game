@@ -138,7 +138,7 @@ SW.Save = (function () {
     shr: SW.Shrines ? SW.Shrines.dump() : null, tr: SW.Trials ? SW.Trials.dump() : null, q: SW.Quests ? SW.Quests.dump() : null, time: SW.Time ? SW.Time.dump() : null,
     pos: SW.Player ? { x: Math.round(SW.Player.x * 100) / 100, y: Math.round(SW.Player.y * 100) / 100 } : null,
     defeated: SW.Combat.spots.filter(s => s.dead && !s.respawn).map(s => s.id), pt: Math.floor(pt),
-    disc: SW.UI ? [...SW.UI.disc] : [], seen: SW.UI ? [...SW.UI.seen] : []
+    disc: SW.UI ? [...SW.UI.disc] : [], seen: SW.UI ? [...SW.UI.seen] : [], pins: SW.UI ? SW.UI.dumpPins() : []
   });
   V.save = function () {
     if (tmr) { clearTimeout(tmr); tmr = 0; } // zuerst entriegeln, sonst blockiert ein verworfener Timer (hold) alle späteren touch()
@@ -273,7 +273,7 @@ SW.Save = (function () {
     if (SW.Trials) step(() => SW.Trials.load(d.tr));
     if (SW.Time) step(() => SW.Time.load(d.time));
     step(() => (d.defeated || []).forEach(id => { const s = SW.Combat.spot(id); if (s) s.dead = true; }));
-    if (SW.UI) step(() => { (d.disc || []).forEach(i => SW.UI.disc.add(i)); (d.seen || []).forEach(i => SW.UI.seen.add(i)); });
+    if (SW.UI) step(() => { (d.disc || []).forEach(i => SW.UI.disc.add(i)); (d.seen || []).forEach(i => SW.UI.seen.add(i)); SW.UI.loadPins(d.pins); });
     step(() => {
       const q = d.pos, W = SW.World;
       if (!q || !isFinite(q.x) || !isFinite(q.y) || q.x < 1 || q.y < 1 || q.x > SW.CFG.W - 1 || q.y > SW.CFG.H - 1) return;
