@@ -1,3 +1,27 @@
+## 0.24.5 – Phase 24b: Passive wirken wirklich (Cache v99) – Dateien gesendet, Prüfung ausstehend
+- **Problem:** 8 Passiv-Effekte (`range`, `move`, `healWin`, `kiDodge`, `dodgeWindow`, `knockback`, `damageReduction`, `kiDamage`) standen im Baum, wirkten aber nirgends. Stufe I/II/III skaliert schon über `fx`-Werte.
+- **Geändert:** `js/progress.js` (`Char.combat()` gibt die 8 Werte aus; `dmgRed` max 60 %), `js/worldcombat.js` (alle 8 aktiv), `js/combat.js` + `js/arena3d.js` (Boss-Arenen: `kiDmg`, `dmgRed`, `dodgeWin`, `kiDodge`, `healWin`), `js/config.js` 0.24.5, `index.html` v99.
+- **Wirkung:** Reichweite = Nahkampf-Radius x(1+range); Bewegung = Lauftempo; Heilung = % Max-Leben bei Sieg; Ki-Ausweichen = % Max-Ki bei erfolgreichem Ausweichen; Ausweichfenster = längere Rolle; Rückstoß = stärker bei schweren Treffern (x(1+3·knock)); Schadensminderung = auf jeden Treffer; Ki-Schaden = auf Techniken mit Ki-Kosten.
+- **Getestet (tatsächlich):** `node --check` 4 Dateien; Phase-24-Tests; Regression 39/39 headless Chromium (Testkopie mit `index.html` im Root); alle Passive gelernt: 8 neue Werte 0 -> 0,12–0,6, kein NaN, keine pageerror.
+- **Nicht geprüft:** Kampfgefühl, iPhone, Arena ohne `range`/`move`/`knock` (nur Welt), Zahlen sind Platzhalter.
+- **Offen:** Aktive Techniken weiter generische Moves; Spezialeffekte (`sm_s*` etc.) nicht angebunden.
+- **Nächster Schritt:** Gerätetest 0.24.5.
+
+## 0.24.4 – Skilltree-Popup + Tabs zusammengelegt (Cache v98) – Dateien gesendet, Prüfung ausstehend
+- **Geändert:** `js/menus.js` (Skilltree: Suchfeld, Filter und "Verbindungen zu anderen Ästen" entfernt; 1x Tippen = Popup mit Name/Text/Voraussetzungen/Kosten, 2x Tippen < 350 ms = lernen bzw. Spezial freischalten (`tapNode`); Skills-Seite hängt `M.character` und `M.karma` an), `css/main.css` (`.skill-pop`, `.skill-pop-x`), `js/ui.js` (Tabs `character`/`karma` aus `TABS`), `js/shrines.js` (öffnet nach Schrein `skills` statt `karma`), `js/config.js` 0.24.4, `index.html` v98.
+- **Getestet (tatsächlich):** `node --check`; Playwright 852×393: Popup erscheint, Doppeltipp kauft (SP 6 -> 5), ✕ schließt, Skills-Seite zeigt 4 Abschnitte, 6 Attribut-Buttons, keine pageerror; Screenshot Popup geprüft.
+- **Nicht geprüft:** iPhone/Touch (Doppeltipp-Timing), `tests/regression.py`, Scroll der längeren Skills-Seite.
+- **Offen:** Popup-Hinweis "Doppelklick: Learn" bei EN/DE gemischt (`T('learn')`); `lastExport`-Abbruch der Regression (aus 0.24.3) weiter ungeprüft.
+- **Nächster Schritt:** Gerätetest 0.24.4, dann Phase 24b.
+
+## 0.24.3 – Quest-Tab im Zelda-Stil (Cache v97) – Dateien gesendet, Prüfung ausstehend
+- **Geändert:** `js/quests.js` (`SW.Menus.quests`: Liste links mit Status + Geber, Details rechts; Reihenfolge bereit > aktiv > erledigt; Auswahl bleibt in `qsel`, nicht gespeichert), `css/main.css` (`.qlay/.qlist/.qrow/.qdet`), `js/config.js` 0.24.3, `index.html` v97. Keine Textänderung, Dorfkarte unter dem Layout.
+- **Getestet (tatsächlich):** `node --check`; Screenshot 852×393 mit 1 aktiver Quest (Layout ok, keine pageerror); Regression bis Offline-Start bestanden.
+- **Fehlgeschlagen/unklar:** `tests/regression.py` bricht danach ab: `lastD` in `menus.js` Z.200, `undefined.lastExport` (Test Storage-Box). Nicht von dieser Änderung (menus.js unberührt), Ursache nicht geprüft.
+- **Nicht geprüft:** iPhone, Touch, Liste mit vielen Quests (Scroll), Auswahlwechsel per Klick im Browser nur mit 1 Quest.
+- **Nicht umgesetzt:** Zelda-"Set destination" (Marker/Ziele zeigt Minimap schon), Quest-Kategorien-Tabs.
+- **Nächster Schritt:** Gerätetest 0.24.3; Regression-Abbruch `lastExport` prüfen.
+
 ## 0.24.2 – Menü-Layout + Minimap-Randmarker (Cache v96) – Dateien gesendet, Prüfung ausstehend
 - **Geändert:** `js/inventory.js` (5 Spalten, min. 20 Felder, leere Felder), `js/menus.js` (Skills: 2 breite Slot-Leisten oben, Technik-/Passiv-Kacheln 3 Spalten; Namen/Texte aus Skilltree-Daten statt fehlender `sk_*`-Keys; Ki-Chip nur bei Kosten > 0), `js/ui.js` (Minimap: Quest-Ziele und eigene Markierungen außerhalb des Kreises als Randpfeil, Markierungen mit Nummer), `css/main.css`, `js/config.js` 0.24.2, `index.html` v96.
 - **Fix nebenbei:** Skills-Seite zeigte Rohschlüssel (`sk_sm_a1`) und `Ki NaN` bei Techniken ohne Ki-Kosten (Fehler aus 0.24.0).
