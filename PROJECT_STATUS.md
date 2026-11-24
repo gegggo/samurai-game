@@ -1,3 +1,11 @@
+## 0.24.6 – Inventar+Ausrüstung zusammengelegt, Spezial-Fix (Cache v100) – Dateien gesendet, ungetestet
+- **Fix:** Spezialfähigkeiten (Skilltree) warfen `undefined is not an object (n.lvl)`: `data/skills.json` Specials haben kein `type`, Popup/Doppeltipp nahmen den Passiv-Pfad. `js/skills.js` setzt `type:'special'` beim Laden (Daten unverändert). Doppeltipp-Freischalten ging dadurch auch nie.
+- **Geändert:** `js/inventory.js` (Tab Ausrüstung entfernt; Inventar mit Kategorie-Tabs Waffe/Rüstung/Ressource, Leiste "Ausgerüstet" je Kategorie, Tippen = ablegen), `js/ui.js` (`equipment` aus `TABS`), `js/config.js` 0.24.6, `index.html` v100.
+- **Entfällt vorerst:** Anzeige "Gesamter Ausrüstungsbonus" (früher im Ausrüstungs-Tab).
+- **Geplant (später):** Icons für Kategorien-Tabs und Items (besserer Überblick, Zelda-Stil).
+- **Getestet:** nur `node --check`; keine Browser-/Gerätetests (auf Wunsch).
+- **Nächster Schritt:** Gerätetest 0.24.6 (Specials freischalten, Inventar-Tabs, Ablegen).
+
 ## 0.24.5 – Phase 24b: Passive wirken wirklich (Cache v99) – Dateien gesendet, Prüfung ausstehend
 - **Problem:** 8 Passiv-Effekte (`range`, `move`, `healWin`, `kiDodge`, `dodgeWindow`, `knockback`, `damageReduction`, `kiDamage`) standen im Baum, wirkten aber nirgends. Stufe I/II/III skaliert schon über `fx`-Werte.
 - **Geändert:** `js/progress.js` (`Char.combat()` gibt die 8 Werte aus; `dmgRed` max 60 %), `js/worldcombat.js` (alle 8 aktiv), `js/combat.js` + `js/arena3d.js` (Boss-Arenen: `kiDmg`, `dmgRed`, `dodgeWin`, `kiDodge`, `healWin`), `js/config.js` 0.24.5, `index.html` v99.
