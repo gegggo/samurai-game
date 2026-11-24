@@ -2,7 +2,7 @@
 // Skilltree-Logik (Phase 3): Lernen, Voraussetzungen, Ausrüsten, Zurücksetzen, geheime Techniken.
 SW.Skills = (function () {
   const D = SW.Data, T = (k, n) => SW.t(k, n);
-  const S = { nodes: D.skills, specials: D.specials || [], learned: {}, specialLearned: {}, specialQuest: {}, spent: 0, slots: [null, null], sec: {}, scr: {}, notified: {}, taught: false };
+  const S = { nodes: D.skills, specials: (D.specials || []).map(n => Object.assign({ type: 'special' }, n)), learned: {}, specialLearned: {}, specialQuest: {}, spent: 0, slots: [null, null], sec: {}, scr: {}, notified: {}, taught: false };
   S.node = id => S.nodes.find(n => n.id === id);
   const secDef = id => D.secrets.find(s => s.id === id);
   const scrDef = id => D.scrolls.find(s => s.id === id);

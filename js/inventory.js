@@ -1,6 +1,6 @@
 'use strict';
 // Inventar, Ausrüstung, Münzen, Truhen (Phase 4a). Namensraum SW.Inv. Münzen = Handel (Händler folgen 4b).
-// Menüseiten SW.Menus.inventory / SW.Menus.equipment (benötigt menus.js davor).
+// Menüseiten SW.Menus.inventory (mit Kategorie-Tabs und Ausrüstung) (benötigt menus.js davor).
 SW.Inv = (function () {
   const D = SW.Data, W = SW.World, TAU = 6.2832, T = (k, n) => SW.t(k, n);
   const I = { coins: 0, bag: {}, eq: { main: 'katana_worn' }, up: {}, chests: [], MAXSTACK: 999 };
@@ -132,12 +132,26 @@ SW.Inv = (function () {
   const lines = (root, fx) => { const l = I.fxLines(fx); l.forEach(s => add(root, el('div', 'ok', s))); return l.length; };
   const rarChip = d => el('span', 'chip r_' + d.rar, T('rar_' + d.rar));
 
+  let cat = 'weapon';
+  const CATS = ['weapon', 'armor', 'res']; // Zelda-Tabs; später Icons
   SW.Menus.inventory = function (p) {
     const root = page(p, T('tab_inventory'));
     add(root, add(el('div', 'row'), el('span', 'chip', T('coins') + ': ' + I.coins)));
-    const ids = Object.keys(I.bag).filter(id => I.bag[id] > 0 && it(id)).sort(cmp);
+    const tabs = el('div', 'row');
+    CATS.forEach(c => add(tabs, btn(T('ty_' + c), c === cat ? 'pri' : '', () => { cat = c; sel = null; refresh(); })));
+    add(root, tabs);
+    // Ausgerüstet: Tippen = ablegen
+    if (cat !== 'res') {
+      const eqr = el('div', 'row');
+      D.slots.filter(s => { const id = I.eq[s]; return id ? it(id).type === cat : D.items.some(x => x.slot === s && x.type === cat); }).forEach(s => {
+        const id = I.eq[s];
+        add(eqr, id ? btn(T('eqs_' + s) + ': ' + I.name(id) + ' ✕', 'r_' + it(id).rar, () => { I.unequip(s); refresh(); }) : el('span', 'chip dim', T('eqs_' + s) + ': ' + T('empty')));
+      });
+      add(root, eqr);
+    }
+    const ids = Object.keys(I.bag).filter(id => I.bag[id] > 0 && it(id) && it(id).type === cat).sort(cmp);
     if (!ids.length) { add(root, el('div', 'dim', T('bag_empty'))); return; }
-    if (!sel || !I.bag[sel]) sel = ids[0];
+    if (!sel || !I.bag[sel] || it(sel).type !== cat) sel = ids[0];
     const split = el('div', 'split inv'), grid = el('div', 'grid'), det = el('div', 'detail');
     ids.forEach(id => {
       const b = el('button', 'cell r_' + it(id).rar + (id === sel ? ' sel' : ''), I.name(id));
@@ -151,26 +165,6 @@ SW.Inv = (function () {
     lines(det, d.fx);
     if (d.slot) add(det, btn(T('equip'), 'pri', () => { I.equip(sel); refresh(); }));
     add(split, grid, det); add(root, split);
-  };
-
-  SW.Menus.equipment = function (p) {
-    const root = page(p, T('tab_equipment'));
-    D.slots.forEach(s => {
-      const id = I.eq[s], d = it(id), card = el('div', 'card');
-      const head = add(el('div', 'row'), el('b', '', T('eqs_' + s)), id ? el('span', 'chip r_' + d.rar, I.name(id)) : el('span', 'dim', T('empty')));
-      if (id) add(head, btn(T('unequip'), '', () => { I.unequip(s); refresh(); }));
-      add(card, head);
-      if (id) lines(card, d.fx);
-      const cand = I.candidates(s).sort(cmp);
-      cand.forEach(c => {
-        const cd = it(c), r = add(el('div', 'row cand'), el('span', 'chip r_' + cd.rar, I.name(c) + (I.bag[c] > 1 ? ' ×' + I.bag[c] : '')), el('span', 'dim', I.fxLines(cd.fx).join(' · ')));
-        add(r, btn(T('equip'), 'pri', () => { I.equip(c); refresh(); }));
-        add(card, r);
-      });
-      add(root, card);
-    });
-    add(root, el('h3', '', T('equipped_total')));
-    const n = lines(root, I.bonus()); if (!n) add(root, el('div', 'dim', T('none')));
   };
 
   return I;

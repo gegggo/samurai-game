@@ -3,7 +3,7 @@
 SW.UI = (function () {
   const W = SW.World, OV = SW.CFG.OV, WW = W.WIDTH, HH = W.HEIGHT, OSW = Math.ceil(WW / OV), OSH = Math.ceil(HH / OV); // Kartenbild skaliert mit CFG.W/H (OV wächst mit der Welt)
   const $ = id => document.getElementById(id);
-  const TABS = [['map', 1], ['inventory', 4], ['equipment', 4], ['skills', 3], ['skilltree', 3], ['quests', 4], ['settings', 1]];
+  const TABS = [['map', 1], ['inventory', 4], ['skills', 3], ['skilltree', 3], ['quests', 4], ['settings', 1]];
   const U = { disc: new Set(), seen: new Set(), sel: null, pins: [], pin: null, view: { z: 1, x: WW / 2, y: HH / 2 } };
   let cmp, posEl, posK = '', cmpK = -1, mini, mc, ov, oc, ov2, oc2, ovRow = 0, reg = -1, banner, bt = 0, menu, panel, mapC, mapT = 0, mt = 0, tab = 'map', open = false;
 
