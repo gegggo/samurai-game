@@ -154,6 +154,8 @@ body.trial #pos { display: none !important; }
 .active-node { background: #252d37; }
 .special-node { background: #352a1d; border-color: #a37b3e; }
 .skill-detail { margin: 9px 0; padding: 10px; border: 1px solid rgba(200,162,74,.3); border-radius: 8px; background: rgba(10,10,13,.55); }
+.skill-pop { position: fixed; right: 14px; bottom: 14px; z-index: 50; width: min(300px, 46vw); max-height: 70vh; overflow: auto; margin: 0; background: rgba(12,11,14,.97); box-shadow: 0 4px 18px #000a; }
+.skill-pop-x { position: absolute; right: 6px; top: 6px; padding: 2px 8px; }
 .skill-detail h3 { margin: 0 0 5px; font-size: 15px; }
 .skill-detail .dim { margin-bottom: 8px; }
 .skill-detail .reqs { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 8px 0; }
@@ -165,3 +167,11 @@ body.trial #pos { display: none !important; }
 }
 
 .skill-crosslinks { display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin:7px 0; font-size:11px; color:#c8bda9; }
+
+/* Quest-Menü: Liste links, Details rechts (0.24.3) */
+.qlay { display: flex; gap: 12px; align-items: flex-start; }
+.qlist { flex: 0 0 38%; display: flex; flex-direction: column; gap: 6px; }
+.qrow { text-align: left; width: 100%; }
+.qsub { font-size: 12px; opacity: .75; font-weight: 400; }
+.qdone { opacity: .6; }
+.qdet { flex: 1; min-width: 0; }
