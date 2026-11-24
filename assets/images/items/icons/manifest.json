@@ -1,0 +1,314 @@
+[
+  {
+    "id": "katana_worn",
+    "name": "Worn Katana",
+    "type": "weapon",
+    "rarity": "common",
+    "slot": "main",
+    "icon": "assets/images/items/icons/katana_worn.png"
+  },
+  {
+    "id": "katana_steel",
+    "name": "Steel Katana",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "main",
+    "icon": "assets/images/items/icons/katana_steel.png"
+  },
+  {
+    "id": "katana_temper",
+    "name": "Tempered Katana",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "main",
+    "icon": "assets/images/items/icons/katana_temper.png"
+  },
+  {
+    "id": "nodachi",
+    "name": "Nodachi",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "main",
+    "icon": "assets/images/items/icons/nodachi.png"
+  },
+  {
+    "id": "spear",
+    "name": "Yari Spear",
+    "type": "weapon",
+    "rarity": "common",
+    "slot": "main",
+    "icon": "assets/images/items/icons/spear.png"
+  },
+  {
+    "id": "naginata",
+    "name": "Naginata",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "main",
+    "icon": "assets/images/items/icons/naginata.png"
+  },
+  {
+    "id": "tanto",
+    "name": "Tanto",
+    "type": "weapon",
+    "rarity": "common",
+    "slot": "side",
+    "icon": "assets/images/items/icons/tanto.png"
+  },
+  {
+    "id": "wakizashi",
+    "name": "Wakizashi",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "side",
+    "icon": "assets/images/items/icons/wakizashi.png"
+  },
+  {
+    "id": "tanto_night",
+    "name": "Night Tanto",
+    "type": "weapon",
+    "rarity": "epic",
+    "slot": "side",
+    "icon": "assets/images/items/icons/tanto_night.png"
+  },
+  {
+    "id": "hat_straw",
+    "name": "Straw Hat",
+    "type": "armor",
+    "rarity": "common",
+    "slot": "helm",
+    "icon": "assets/images/items/icons/hat_straw.png"
+  },
+  {
+    "id": "helm_iron",
+    "name": "Iron Helm",
+    "type": "armor",
+    "rarity": "uncommon",
+    "slot": "helm",
+    "icon": "assets/images/items/icons/helm_iron.png"
+  },
+  {
+    "id": "helm_kabuto",
+    "name": "Kabuto",
+    "type": "armor",
+    "rarity": "rare",
+    "slot": "helm",
+    "icon": "assets/images/items/icons/helm_kabuto.png"
+  },
+  {
+    "id": "kimono",
+    "name": "Travel Kimono",
+    "type": "armor",
+    "rarity": "common",
+    "slot": "armor",
+    "icon": "assets/images/items/icons/kimono.png"
+  },
+  {
+    "id": "armor_light",
+    "name": "Light Samurai Armor",
+    "type": "armor",
+    "rarity": "uncommon",
+    "slot": "armor",
+    "icon": "assets/images/items/icons/armor_light.png"
+  },
+  {
+    "id": "armor_heavy",
+    "name": "Heavy Samurai Armor",
+    "type": "armor",
+    "rarity": "rare",
+    "slot": "armor",
+    "icon": "assets/images/items/icons/armor_heavy.png"
+  },
+  {
+    "id": "gloves_cloth",
+    "name": "Cloth Wraps",
+    "type": "armor",
+    "rarity": "common",
+    "slot": "gloves",
+    "icon": "assets/images/items/icons/gloves_cloth.png"
+  },
+  {
+    "id": "kote_leather",
+    "name": "Leather Kote",
+    "type": "armor",
+    "rarity": "uncommon",
+    "slot": "gloves",
+    "icon": "assets/images/items/icons/kote_leather.png"
+  },
+  {
+    "id": "kote_iron",
+    "name": "Iron Kote",
+    "type": "armor",
+    "rarity": "rare",
+    "slot": "gloves",
+    "icon": "assets/images/items/icons/kote_iron.png"
+  },
+  {
+    "id": "tabi",
+    "name": "Tabi Socks",
+    "type": "armor",
+    "rarity": "common",
+    "slot": "boots",
+    "icon": "assets/images/items/icons/tabi.png"
+  },
+  {
+    "id": "boots_leather",
+    "name": "Leather Boots",
+    "type": "armor",
+    "rarity": "uncommon",
+    "slot": "boots",
+    "icon": "assets/images/items/icons/boots_leather.png"
+  },
+  {
+    "id": "boots_iron",
+    "name": "Iron Greaves",
+    "type": "armor",
+    "rarity": "rare",
+    "slot": "boots",
+    "icon": "assets/images/items/icons/boots_iron.png"
+  },
+  {
+    "id": "katana_counter",
+    "name": "Counterfang",
+    "type": "weapon",
+    "rarity": "legendary",
+    "slot": "main",
+    "icon": "assets/images/items/icons/katana_counter.png"
+  },
+  {
+    "id": "katana_shadow",
+    "name": "Shadow Clan Blade",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "main",
+    "icon": "assets/images/items/icons/katana_shadow.png"
+  },
+  {
+    "id": "katana_moon",
+    "name": "Moonlit Blade",
+    "type": "weapon",
+    "rarity": "legendary",
+    "slot": "main",
+    "icon": "assets/images/items/icons/katana_moon.png"
+  },
+  {
+    "id": "nodachi_reaper",
+    "name": "Reaper Nodachi",
+    "type": "weapon",
+    "rarity": "legendary",
+    "slot": "main",
+    "icon": "assets/images/items/icons/nodachi_reaper.png"
+  },
+  {
+    "id": "tanto_warden",
+    "name": "Warden's Edge",
+    "type": "weapon",
+    "rarity": "legendary",
+    "slot": "side",
+    "icon": "assets/images/items/icons/tanto_warden.png"
+  },
+  {
+    "id": "naginata_monk",
+    "name": "Peak Naginata",
+    "type": "weapon",
+    "rarity": "legendary",
+    "slot": "main",
+    "icon": "assets/images/items/icons/naginata_monk.png"
+  },
+  {
+    "id": "armor_oni",
+    "name": "Oni Plate",
+    "type": "armor",
+    "rarity": "legendary",
+    "slot": "armor",
+    "icon": "assets/images/items/icons/armor_oni.png"
+  },
+  {
+    "id": "shuriken",
+    "name": "Shuriken",
+    "type": "weapon",
+    "rarity": "common",
+    "slot": "ranged",
+    "icon": "assets/images/items/icons/shuriken.png"
+  },
+  {
+    "id": "shuriken_steel",
+    "name": "Steel Shuriken",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "ranged",
+    "icon": "assets/images/items/icons/shuriken_steel.png"
+  },
+  {
+    "id": "bow_hankyu",
+    "name": "Hankyu Short Bow",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "ranged",
+    "icon": "assets/images/items/icons/bow_hankyu.png"
+  },
+  {
+    "id": "bow_yumi",
+    "name": "Yumi Longbow",
+    "type": "weapon",
+    "rarity": "epic",
+    "slot": "ranged",
+    "icon": "assets/images/items/icons/bow_yumi.png"
+  },
+  {
+    "id": "mask_cloth",
+    "name": "Cloth Mask",
+    "type": "armor",
+    "rarity": "common",
+    "slot": "mask",
+    "icon": "assets/images/items/icons/mask_cloth.png"
+  },
+  {
+    "id": "mask_oni_half",
+    "name": "Half Oni Mask",
+    "type": "armor",
+    "rarity": "uncommon",
+    "slot": "mask",
+    "icon": "assets/images/items/icons/mask_oni_half.png"
+  },
+  {
+    "id": "mask_kitsune",
+    "name": "Kitsune Mask",
+    "type": "armor",
+    "rarity": "rare",
+    "slot": "mask",
+    "icon": "assets/images/items/icons/mask_kitsune.png"
+  },
+  {
+    "id": "wood",
+    "name": "Wood",
+    "type": "res",
+    "rarity": "common",
+    "slot": null,
+    "icon": "assets/images/items/icons/wood.png"
+  },
+  {
+    "id": "iron",
+    "name": "Iron",
+    "type": "res",
+    "rarity": "common",
+    "slot": null,
+    "icon": "assets/images/items/icons/iron.png"
+  },
+  {
+    "id": "stone",
+    "name": "Stone",
+    "type": "res",
+    "rarity": "common",
+    "slot": null,
+    "icon": "assets/images/items/icons/stone.png"
+  },
+  {
+    "id": "herb",
+    "name": "Healing Herb",
+    "type": "res",
+    "rarity": "common",
+    "slot": null,
+    "icon": "assets/images/items/icons/herb.png"
+  }
+]
