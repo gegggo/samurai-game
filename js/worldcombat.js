@@ -120,7 +120,7 @@ SW.WCombat = (function () {
       if (w.st === 'rec' || w.st === 'stagger') dmg *= 1.3;
       const crit = Math.random() < ps.crit; if (crit) dmg *= ps.critMul || 1.5;
       dmg = Math.max(1, Math.round(dmg));
-      w.hp -= dmg; w.flash = .1; if (!m.ranged) P.ki = Math.min(P.kmax, P.ki + 4);
+      SW.Inv.wear(m.ranged ? ['ranged'] : ['main', 'side']); w.hp -= dmg; w.flash = .1; if (!m.ranged) P.ki = Math.min(P.kmax, P.ki + 4);
       flt(s.x, s.y - 1.2, dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
       if (heavyish && w.st === 'wind' && !(w.atk && w.atk.unblock)) { w.st = 'stagger'; w.t = 0; w.dur = .6; w.hits = 0; }
       if (heavyish) push(s, .35 * (1 + 3 * ps.knock));
