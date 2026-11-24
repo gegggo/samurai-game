@@ -68,8 +68,6 @@ body.combat #compass { display: none; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; flex: 1; min-width: 0; align-content: start; }
 .cell { min-height: 56px; padding: 4px 6px; border: 2px solid rgba(232,224,208,.3); background: rgba(255,255,255,.06); color: #e8e0d0; border-radius: 8px; font-size: 13px; line-height: 1.15; text-align: center; }
 .cell small { display: block; opacity: .8; }
-.cell .ico { display: block; margin: 0 auto; max-width: 100%; max-height: 52px; }
-.grid .grp { grid-column: 1 / -1; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; border-bottom: 1px solid rgba(232,224,208,.2); padding-top: 4px; }
 .cell.sel { background: rgba(181,53,43,.5); }
 .cell.r_common, .chip.r_common { border-color: #b9b2a2; } .cell.r_uncommon, .chip.r_uncommon { border-color: #6fbf73; }
 .cell.r_rare, .chip.r_rare { border-color: #5aa0e0; } .cell.r_epic, .chip.r_epic { border-color: #b07ae0; } .cell.r_legendary, .chip.r_legendary { border-color: #f2c14e; }
@@ -177,3 +175,38 @@ body.trial #pos { display: none !important; }
 .qsub { font-size: 12px; opacity: .75; font-weight: 400; }
 .qdone { opacity: .6; }
 .qdet { flex: 1; min-width: 0; }
+
+/* Item-Icons: echte PNGs aus assets/images/items/icons/ */
+.item-cell { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:104px; }
+.item-icon { display:block; width:56px; height:56px; object-fit:contain; image-rendering:pixelated; flex:0 0 auto; }
+.item-cell-name { display:block; max-width:100%; font-size:12px; line-height:1.12; overflow-wrap:anywhere; }
+.item-detail-head { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+.item-icon-large { width:88px; height:88px; padding:4px; border:1px solid rgba(232,224,208,.2); border-radius:8px; background:rgba(0,0,0,.2); }
+
+/* Skilltree: lesbare Skill-Karten mit eigenem Ast-Symbol und Rang */
+.skill-node { display:flex; align-items:center; gap:9px; min-width:168px; min-height:52px; padding:7px 10px; text-align:left; white-space:normal; }
+.skill-node-copy { display:flex; flex-direction:column; gap:3px; min-width:0; }
+.skill-node-name { font-size:12px; line-height:1.15; font-weight:600; }
+.skill-node-meta { font-size:10px; line-height:1.1; opacity:.7; }
+.skill-glyph { display:flex; align-items:center; justify-content:center; flex:0 0 30px; width:30px; height:30px; border-radius:7px; background:rgba(200,162,74,.13); color:#e5c77e; font:700 18px Georgia,serif; }
+.skill-node.done .skill-glyph { color:#9ed5a2; background:rgba(111,191,115,.14); }
+.skill-node.av .skill-glyph { color:#f2d27f; background:rgba(242,193,78,.16); }
+.skill-node:not(:last-child)::after { top:50%; }
+.skill-line { gap:18px; min-height:58px; margin:8px 0; }
+.skill-branch-tree { min-width:680px; }
+
+/* Questfilter: horizontal scrollbar auf kleinen Displays */
+.quest-filters { flex-wrap:nowrap; overflow-x:auto; padding:2px 0 7px; margin-bottom:8px; -webkit-overflow-scrolling:touch; }
+.quest-filters .btn { flex:0 0 auto; min-height:38px; padding:0 11px; font-size:12px; }
+.qlay { min-width:0; }
+.qlist { min-width:0; }
+.qrow { overflow-wrap:anywhere; }
+@media (max-width:600px) {
+  .item-icon { width:48px; height:48px; }
+  .item-cell { min-height:90px; }
+  .item-icon-large { width:68px; height:68px; }
+  .skill-node { min-width:150px; min-height:54px; }
+  .qlay { gap:7px; }
+  .qlist { flex-basis:42%; }
+  .qdet { font-size:12px; }
+}
