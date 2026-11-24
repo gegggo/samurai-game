@@ -2,7 +2,7 @@
 // Menüseiten (Phase 3): Character, Skills, Skilltree, Karma & Yin-Yang. Aufruf aus ui.js: SW.Menus[tab](panel).
 SW.Menus = (function () {
   const M = {}, T = (k, n) => SW.t(k, n);
-  let br = 'sm', sel = null, skillQuery = '', skillFilter = 'all', mapScale = 1, mapX = 0, mapY = 0;
+  let br = 'sm', sel = null, mapScale = 1, mapX = 0, mapY = 0;
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
   const add = (p, ...c) => { c.forEach(x => { if (x) p.appendChild(x); }); return p; };
   const refresh = () => SW.UI.refresh();
@@ -68,8 +68,17 @@ SW.Menus = (function () {
     const pg = el('div', 'sk-grid');
     ps.forEach(n => add(pg, add(el('div', 'sk-tile'), el('b', '', nm(n.id)), el('small', 'dim', ds(n.id)))));
     if (ps.length) add(root, pg);
+    M.character(p); M.karma(p); // Character + Karma/Yin-Yang sind Abschnitte der Skills-Seite
   };
 
+  let tapId = '', tapT = 0;
+  // 1x Tippen: Popup, 2x Tippen (<350 ms): kaufen
+  function tapNode(n) {
+    const S = SW.Skills, now = Date.now(), dbl = tapId === n.id && now - tapT < 350;
+    tapId = n.id; tapT = now; sel = n.id;
+    if (dbl) { if (n.type === 'special') S.unlockSpecial(n.id); else S.learn(n.id); }
+    refresh();
+  }
   M.skilltree = function (p) {
     const S = SW.Skills, E = SW.Essence, root = page(p, T('tab_skilltree'));
     if (!S.taught) { add(root, el('div', 'card', T('st_need_master'))); return; }
@@ -79,24 +88,11 @@ SW.Menus = (function () {
     const brs = el('div', 'row skill-branches');
     SW.Data.branches.forEach(b => add(brs, btn(T('br_' + b), b === br ? 'pri' : '', () => { br = b; sel = null; refresh(); })));
     add(root, brs);
-    const tools = el('div', 'row skill-tools'), search = el('input', 'skill-search');
-    search.type = 'search'; search.placeholder = 'Fähigkeit suchen…'; search.value = skillQuery;
-    search.oninput = () => {
-      skillQuery = search.value.toLowerCase();
-      viewport.querySelectorAll('.skill-node').forEach(b => { b.hidden = !(b.dataset.search || '').includes(skillQuery) && (skillFilter === 'all' || b.dataset.type === skillFilter); });
-    };
-    const filter = document.createElement('select'); filter.className = 'skill-filter';
-    [['all','Alle'],['passive','Passiv'],['active','Aktiv'],['special','Spezial']].forEach(([v,t]) => { const o=document.createElement('option'); o.value=v; o.textContent=t; filter.appendChild(o); });
-    filter.value = skillFilter; filter.onchange = () => { skillFilter = filter.value; refresh(); };
-    add(tools, search, filter); add(root, tools);
-
     const viewport = el('div', 'skill-viewport'), canvas = el('div', 'skill-canvas');
     canvas.style.transform = `translate(${mapX}px,${mapY}px) scale(${mapScale})`;
-    const matches = n => (!skillQuery || (n.name + ' ' + n.desc).toLowerCase().includes(skillQuery.toLowerCase())) &&
-      (skillFilter === 'all' || n.type === skillFilter);
     const branchNodes = S.nodes.filter(n => n.br === br), specials = S.specials.filter(n => n.br === br);
     const selected = [...branchNodes, ...specials].find(n => n.id === sel);
-    if (!selected) sel = (branchNodes.find(matches) || specials.find(matches) || branchNodes[0] || specials[0] || {}).id;
+    if (!selected) sel = null;
     const tree = el('div', 'skill-branch-tree');
     add(tree, el('h4','',T('br_'+br)));
     const lines = [];
@@ -105,8 +101,10 @@ SW.Menus = (function () {
       const nodes=branchNodes.filter(n=>n.type==='passive' && n.line===line).sort((a,b)=>a.rank-b.rank);
       nodes.forEach(n=>{
         const state=S.learned[n.id]?'done':S.can(n.id)?'av':'';
-        const b=btn((S.learned[n.id]?'✓ ':'')+n.name,'skill-node '+state+(sel===n.id?' sel':''),()=>{sel=n.id;refresh();});
-        b.title=n.desc; b.dataset.search=(n.name+' '+n.desc).toLowerCase(); b.dataset.type=n.type; b.hidden=!matches(n); add(row,b);
+        const glyph = ({sm:'⚔',sw:'影',df:'盾',km:'☯'})[n.br] || '✦';
+        const b=btn('','skill-node '+state+(sel===n.id?' sel':''),()=>tapNode(n));
+        add(b,el('span','skill-glyph',glyph),el('span','skill-node-copy',el('span','skill-node-name',(S.learned[n.id]?'✓ ':'')+n.name),el('small','skill-node-meta',(n.type==='passive'?'Passiv · Rang ':'Aktiv · ')+(n.rank||''))));
+        b.title=n.desc; b.dataset.search=(n.name+' '+n.desc).toLowerCase(); b.dataset.type=n.type; add(row,b);
       });
       if(nodes.length) { lines.push(row); add(tree,row); }
     }
@@ -114,8 +112,9 @@ SW.Menus = (function () {
     const activeRow=el('div','skill-line skill-active-line');
     actives.forEach(n=>{
       const state=S.learned[n.id]?'done':S.can(n.id)?'av':'';
-      const b=btn((S.learned[n.id]?'✓ ':'')+n.name,'skill-node active-node '+state+(sel===n.id?' sel':''),()=>{sel=n.id;refresh();});
-      b.title=n.desc; b.dataset.search=(n.name+' '+n.desc).toLowerCase(); b.dataset.type=n.type; b.hidden=!matches(n); add(activeRow,b);
+      const b=btn('','skill-node active-node '+state+(sel===n.id?' sel':''),()=>tapNode(n));
+      add(b,el('span','skill-glyph','✦'),el('span','skill-node-copy',el('span','skill-node-name',(S.learned[n.id]?'✓ ':'')+n.name),el('small','skill-node-meta','Aktive Technik')));
+      b.title=n.desc; b.dataset.search=(n.name+' '+n.desc).toLowerCase(); b.dataset.type=n.type; add(activeRow,b);
     });
     add(tree,el('h4','','Aktive Techniken')); add(tree,activeRow);
     if (specials.length) {
@@ -123,35 +122,31 @@ SW.Menus = (function () {
       const sr=el('div','skill-line skill-special-line');
       specials.forEach(n=>{
         const state=S.specialLearned[n.id]?'done':S.canSpecial(n.id)?'av':'';
-        const b=btn((S.specialLearned[n.id]?'✓ ':'')+n.name,'skill-node special-node '+state+(sel===n.id?' sel':''),()=>{sel=n.id;refresh();});
-        b.title=n.desc; b.dataset.search=(n.name+' '+n.desc).toLowerCase(); b.dataset.type='special'; b.hidden=!matches({...n,type:'special'}); add(sr,b);
+        const b=btn('','skill-node special-node '+state+(sel===n.id?' sel':''),()=>tapNode(n));
+        add(b,el('span','skill-glyph','✧'),el('span','skill-node-copy',el('span','skill-node-name',(S.specialLearned[n.id]?'✓ ':'')+n.name),el('small','skill-node-meta','Spezialfähigkeit')));
+        b.title=n.desc; b.dataset.search=(n.name+' '+n.desc).toLowerCase(); b.dataset.type='special'; add(sr,b);
       });
       add(tree,sr);
     }
     add(canvas,tree); add(viewport,canvas); add(root,viewport);
-    const links=(SW.Data.crossLinks||[]).filter(x=>x.from===br||x.to===br);
-    if(links.length){const cross=el('div','skill-crosslinks');add(cross,el('b','','Verbindungen zu anderen Ästen:'));
-      links.forEach(x=>add(cross,el('span','chip',T('br_'+(x.from===br?x.to:x.from))+' · '+x.label)));
-      add(root,cross);
-    }
-    const detail=el('div','skill-detail');
+    const detail=el('div','skill-detail skill-pop');
     const n=[...branchNodes,...specials].find(x=>x.id===sel);
     if(n) {
-      add(detail,el('h3','',n.name),el('div','dim',n.desc));
+      add(detail,btn('✕','skill-pop-x',()=>{sel=null;refresh();}),el('h3','',n.name),el('div','dim',n.desc));
       if(n.type==='special') {
         const req=S.specialReqs(n.id);
         add(detail,el('span','chip','Spezialfähigkeit · '+(S.specialLearned[n.id]?'Freigeschaltet':'Gesperrt')));
         add(detail,el('div','dim','Freischaltung ist vorbereitet; der eigentliche Spezialeffekt wird später integriert.'));
         if(S.specialLearned[n.id]) add(detail,el('div','ok','✓ Freigeschaltet'));
-        else add(detail,reqRows(req),btn('Freischalten','pri',()=>{S.unlockSpecial(n.id);refresh();},!S.canSpecial(n.id)));
+        else add(detail,reqRows(req),el('div','dim','Doppelklick: freischalten'));
       } else {
         add(detail,el('div','chip',n.type==='active'?'Aktive Technik':'Passive Fähigkeit'));
         if(n.type==='active') add(detail,el('div','dim','Grundgerüst: nutzt vorerst eine vorhandene Kampfaktion; individuelle Technik-Effekte folgen später.'));
         if(S.learned[n.id]) add(detail,el('div','ok','✓ '+T('learned')));
-        else add(detail,reqRows(S.reqs(n.id)),btn(T('learn')+' · '+n.cost.sp+' SP / '+n.cost.ess+' Essence','pri',()=>{S.learn(n.id);refresh();},!S.can(n.id)));
+        else add(detail,reqRows(S.reqs(n.id)),el('div','chip',n.cost.sp+' SP / '+n.cost.ess+' Essence'),el('div','dim','Doppelklick: '+T('learn')));
       }
     }
-    add(root,detail);
+    if(n) add(root,detail);
     add(root,btn(T('reset')+' ('+S.resetText()+')','',()=>{if(confirm(T('reset_ask'))){S.reset();refresh();}},!S.spent||!SW.Essence.has(S.resetCost())));
 
     // iPhone: ein Finger verschiebt, zwei Finger zoomen. Keine Abhängigkeit von Zusatzbibliotheken.

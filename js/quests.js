@@ -115,7 +115,7 @@ SW.Quests = (function () {
   }
   const go = v => { view = v; render(); };
   const needText = q => {
-    const r = q.req || {}, p = [];
+    const r = q.req || [], p = [];
     if (r.level) p.push(T('lvl') + ' ' + r.level);
     if (r.karma !== undefined) p.push('Karma ' + r.karma);
     return p.join(', ');
@@ -143,16 +143,16 @@ SW.Quests = (function () {
     titleEl.textContent = T('npc_' + cur.role); body.innerHTML = '';
     if (view) { detail(view); return; }
     add(body, el('div', 'dlgtext', T('dl_' + cur.role + '_' + tone())));
-    // Gruppen: Abgabe > neu > aktiv > gesperrt (nur nächste Stufe) > erledigt (nur Anzahl)
-    const mine = D.quests.filter(q => q.giver === cur.id), G = { ready: [], avail: [], active: [], locked: [], done: [] };
-    mine.forEach(q => { const s = Q.status(q.id); if (s !== 'locked' || (Q.storyOpen(q) && needText(q))) G[s].push(q); });
-    const sec = (k, h, fn) => { if (G[k].length) { add(body, el('h4', '', h)); G[k].forEach(fn); } };
-    sec('ready', T('qs_ready'), q => add(body, btn(T('q_report') + ': ' + T('qn_' + q.id), 'pri', () => go(q.id))));
-    if (Q.refuses()) { if (G.avail.length) add(body, el('div', 'no', T('q_refuse'))); }
-    else sec('avail', T('q_offer'), q => add(body, btn(T('qn_' + q.id), '', () => go(q.id))));
-    sec('active', T('qs_active'), q => add(body, el('div', 'dim', T('qn_' + q.id) + ' – ' + Q.objText(q))));
-    if (!Q.refuses()) sec('locked', T('q_locked'), q => add(body, el('div', 'dim', T('qn_' + q.id) + ' – ' + needText(q))));
-    if (G.done.length) add(body, el('div', 'dim', '✓ ' + T('qs_done') + ': ' + G.done.length));
+    const mine = D.quests.filter(q => q.giver === cur.id);
+    let refused = false;
+    mine.forEach(q => {
+      const s = Q.status(q.id);
+      if (s === 'ready') add(body, btn(T('q_report') + ': ' + T('qn_' + q.id), 'pri', () => go(q.id)));
+      else if (s === 'avail') { if (Q.refuses()) refused = true; else add(body, btn(T('q_offer') + ': ' + T('qn_' + q.id), '', () => go(q.id))); }
+      else if (s === 'active') add(body, el('div', 'dim', T('qn_' + q.id) + ' – ' + Q.objText(q)));
+      else if (Q.storyOpen(q) && !Q.refuses()) add(body, el('div', 'dim', T('qn_' + q.id) + ' – ' + T('q_locked') + ': ' + needText(q)));
+    });
+    if (refused) add(body, el('div', 'no', T('q_refuse')));
   }
   Q.open = function (n) {
     if (!n || SW.paused || SW.Combat.active) return false;
@@ -166,15 +166,22 @@ SW.Quests = (function () {
   };
 
   // ---------- Quest-Menü (Zelda-Stil: Liste links, Details rechts) ----------
-  let qsel = null;
+  let qsel = null, qfilter = 'all';
   SW.Menus.quests = function (p) {
-    const root2 = H.page(p, T('tab_quests')), rank = { ready: 0, active: 1, done: 2 };
-    const all = D.quests.filter(q => rank[Q.status(q.id)] !== undefined).sort((a, b) => rank[Q.status(a.id)] - rank[Q.status(b.id)]);
-    if (!all.length) add(root2, el('div', 'dim', T('q_none')));
+    const root2 = H.page(p, T('tab_quests')), rank = { ready: 0, active: 1, avail: 2, done: 3 };
+    // Neue Hauptquests erhalten in data/quests.json category: 'main'; ohne Angabe gelten sie als Nebenquest.
+    const questType = q => q.category === 'main' ? 'main' : 'side';
+    const all = D.quests.filter(q => rank[Q.status(q.id)] !== undefined).sort((a, b) => rank[Q.status(a.id)] - rank[Q.status(b.id)] || a.id.localeCompare(b.id));
+    const filters = [['all','Alle'],['main','Hauptquests'],['side','Nebenquests'],['open','Offen'],['done','Abgeschlossen']];
+    const filterBar = el('div','row quest-filters');
+    filters.forEach(([key,label]) => add(filterBar,btn(label,qfilter===key?'pri':'',()=>{qfilter=key;SW.UI.refresh();})));
+    add(root2,filterBar);
+    const shown = all.filter(q => qfilter==='all' || qfilter===questType(q) || (qfilter==='open' && Q.status(q.id)!=='done') || (qfilter==='done' && Q.status(q.id)==='done'));
+    if (!shown.length) add(root2, el('div', 'dim', T('q_none')));
     else {
-      if (!all.some(q => q.id === qsel)) qsel = all[0].id;
+      if (!shown.some(q => q.id === qsel)) qsel = shown[0].id;
       const lay = el('div', 'qlay'), list = el('div', 'qlist'), det = el('div', 'qdet card');
-      all.forEach(q => {
+      shown.forEach(q => {
         const s = Q.status(q.id), b = el('button', 'btn qrow' + (q.id === qsel ? ' on' : '') + (s === 'done' ? ' qdone' : ''));
         add(b, el('b', '', (s === 'ready' ? '❢ ' : '') + T('qn_' + q.id)), el('div', 'qsub', T('qs_' + s) + ' · ' + T('npc_' + npc(q.giver).role)));
         b.onclick = () => { qsel = q.id; SW.UI.refresh(); };

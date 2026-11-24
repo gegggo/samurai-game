@@ -128,9 +128,10 @@ SW.Inv = (function () {
   const H = SW.Menus.h, el = H.el, add = H.add, btn = H.btn, page = H.page, refresh = H.refresh;
   let sel = null;
   const ORD = { weapon: 0, armor: 1, res: 2 };
-  const RAR = ['legendary', 'epic', 'rare', 'uncommon', 'common'];
-  const cmp = (a, b) => (ORD[it(a).type] - ORD[it(b).type]) || (D.slots.indexOf(it(a).slot) - D.slots.indexOf(it(b).slot)) || (RAR.indexOf(it(a).rar) - RAR.indexOf(it(b).rar)) || T('it_' + a).localeCompare(T('it_' + b)); // Slot, dann Seltenheit (selten zuerst), dann Name
+  const cmp = (a, b) => (ORD[it(a).type] - ORD[it(b).type]) || T('it_' + a).localeCompare(T('it_' + b));
   const lines = (root, fx) => { const l = I.fxLines(fx); l.forEach(s => add(root, el('div', 'ok', s))); return l.length; };
+  // Item-Icons liegen relativ zur GitHub-Pages-Root unter assets/images/items/icons/.
+  const icon = (id, cls) => { const img = document.createElement('img'); img.className = cls || 'item-icon'; img.src = 'assets/images/items/icons/' + id + '.png'; img.alt = I.name(id); img.loading = 'lazy'; img.onerror = () => { img.style.display = 'none'; }; return img; };
   const rarChip = d => el('span', 'chip r_' + d.rar, T('rar_' + d.rar));
 
   let cat = 'weapon';
@@ -154,22 +155,17 @@ SW.Inv = (function () {
     if (!ids.length) { add(root, el('div', 'dim', T('bag_empty'))); return; }
     if (!sel || !I.bag[sel] || it(sel).type !== cat) sel = ids[0];
     const split = el('div', 'split inv'), grid = el('div', 'grid'), det = el('div', 'detail');
-    let last = null, n = 0;
     ids.forEach(id => {
-      const g = it(id).slot || it(id).type;
-      if (g !== last) { last = g; const h = el('div', 'grp', it(id).slot ? T('eqs_' + it(id).slot) : T('ty_' + it(id).type)); add(grid, h); }
-      const b = el('button', 'cell r_' + it(id).rar + (id === sel ? ' sel' : '')); b.title = I.name(id);
-      // Icon: assets/images/items/icons/<id>.png (PNG 256x256); fehlt die Datei, steht der Name da
-      const im = new Image(); im.className = 'ico'; im.alt = ''; im.src = 'assets/images/items/icons/' + id + '.png';
-      im.onerror = () => { im.remove(); b.prepend(document.createTextNode(I.name(id))); };
-      add(b, im);
+      const b = el('button', 'cell item-cell r_' + it(id).rar + (id === sel ? ' sel' : ''));
+      add(b, icon(id), el('span', 'item-cell-name', I.name(id)));
       if (I.bag[id] > 1) add(b, el('small', '', '×' + I.bag[id]));
       b.onclick = () => { sel = id; refresh(); };
-      add(grid, b); n++;
+      add(grid, b);
     });
-    for (; n < 10; n++) add(grid, el('div', 'cell empty')); // leere Felder bei kleinem Inventar
+    for (let n = ids.length, tot = Math.max(20, Math.ceil(n / 5) * 5); n < tot; n++) add(grid, el('div', 'cell empty')); // leere Felder wie im Entwurf (5 Spalten, min. 4 Reihen)
     const d = it(sel);
-    add(det, el('h3', '', I.name(sel)), add(el('div', 'row'), rarChip(d), el('span', 'chip', T('ty_' + d.type) + (d.slot ? ' · ' + T('eqs_' + d.slot) : ''))), el('div', 'dim', T('itd_' + sel)));
+    add(det, el('div', 'item-detail-head', icon(sel, 'item-icon item-icon-large'), el('div', '', el('h3', '', I.name(sel)), add(el('div', 'row'), rarChip(d), el('span', 'chip', T('ty_' + d.type) + (d.slot ? ' · ' + T('eqs_' + d.slot) : ''))))));
+    add(det, el('div', 'dim', T('itd_' + sel)));
     lines(det, d.fx);
     if (d.slot) add(det, btn(T('equip'), 'pri', () => { I.equip(sel); refresh(); }));
     add(split, grid, det); add(root, split);
