@@ -1,3 +1,16 @@
+## 0.24.8 – Item-Icons eingebunden (Cache v102) – Dateien gesendet, ungetestet
+- **Icons:** 39 PNG (256×256, eine je Item-ID) nach `assets/images/items/icons/<id>.png`; `js/inventory.js` lädt sie im Inventar-Gitter (Name als Rückfall). Rahmen/Seltenheit bleibt in der UI. Erste Fassung, Zuschnitt prüfen.
+- **Geändert:** `js/inventory.js` (Pfad), `js/config.js` 0.24.8, `index.html` v102, 39 neue PNG.
+- **Offen:** Icons für Kategorie-Tabs, Ausgerüstet-Leiste; 256 px ggf. auf ~96 px verkleinern (Ladegröße 1,9 MB gesamt).
+- **Getestet:** nichts (nur Pfad geändert).
+
+## 0.24.7 – Inventar sortiert + Icon-Slots, NPC-Questmenü (Cache v101) – Dateien gesendet, ungetestet
+- **Inventar:** Gitter nach Slot gruppiert (Überschriften Hauptwaffe/Nebenwaffe/Fernkampf bzw. Helm/Rüstung/…/Ressource), innerhalb Seltenheit absteigend, dann Name. Icons: `assets/images/items/<item-id>.png` (ca. 96×96); fehlt die Datei, steht der Name. Icons selbst noch nicht vorhanden (folgen vom Nutzer).
+- **NPC-Questmenü (`js/quests.js`):** Fehler behoben: erledigte Quests standen als "– Needs:" ohne Text da (`needText` las `q.req` als Array). Jetzt Gruppen mit Überschrift: Bereit zur Abgabe, neue Quests, In Arbeit, Gesperrt (nur nächste Stufe mit Level/Karma), Erledigt nur als Anzahl.
+- **Geändert:** `js/inventory.js`, `css/main.css`, `js/quests.js`, `js/config.js` 0.24.7, `index.html` v101.
+- **Getestet:** nur `node --check`. Offen: Gerätetest; `lastExport`-Abbruch der Regression (alt).
+- **Nächster Schritt:** Gerätetest 0.24.7; Icons einbinden, sobald geliefert; Kategorie-Tab-Icons.
+
 ## 0.24.6 – Inventar+Ausrüstung zusammengelegt, Spezial-Fix (Cache v100) – Dateien gesendet, ungetestet
 - **Fix:** Spezialfähigkeiten (Skilltree) warfen `undefined is not an object (n.lvl)`: `data/skills.json` Specials haben kein `type`, Popup/Doppeltipp nahmen den Passiv-Pfad. `js/skills.js` setzt `type:'special'` beim Laden (Daten unverändert). Doppeltipp-Freischalten ging dadurch auch nie.
 - **Geändert:** `js/inventory.js` (Tab Ausrüstung entfernt; Inventar mit Kategorie-Tabs Waffe/Rüstung/Ressource, Leiste "Ausgerüstet" je Kategorie, Tippen = ablegen), `js/ui.js` (`equipment` aus `TABS`), `js/config.js` 0.24.6, `index.html` v100.
