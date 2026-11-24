@@ -138,13 +138,14 @@ SW.Inv = (function () {
     const ids = Object.keys(I.bag).filter(id => I.bag[id] > 0 && it(id)).sort(cmp);
     if (!ids.length) { add(root, el('div', 'dim', T('bag_empty'))); return; }
     if (!sel || !I.bag[sel]) sel = ids[0];
-    const split = el('div', 'split'), grid = el('div', 'grid'), det = el('div', 'detail');
+    const split = el('div', 'split inv'), grid = el('div', 'grid'), det = el('div', 'detail');
     ids.forEach(id => {
       const b = el('button', 'cell r_' + it(id).rar + (id === sel ? ' sel' : ''), I.name(id));
       if (I.bag[id] > 1) add(b, el('small', '', '×' + I.bag[id]));
       b.onclick = () => { sel = id; refresh(); };
       add(grid, b);
     });
+    for (let n = ids.length, tot = Math.max(20, Math.ceil(n / 5) * 5); n < tot; n++) add(grid, el('div', 'cell empty')); // leere Felder wie im Entwurf (5 Spalten, min. 4 Reihen)
     const d = it(sel);
     add(det, el('h3', '', I.name(sel)), add(el('div', 'row'), rarChip(d), el('span', 'chip', T('ty_' + d.type) + (d.slot ? ' · ' + T('eqs_' + d.slot) : ''))), el('div', 'dim', T('itd_' + sel)));
     lines(det, d.fx);

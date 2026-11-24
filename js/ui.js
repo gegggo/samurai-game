@@ -233,6 +233,17 @@ SW.UI = (function () {
       const s = SW.t('dir_' + d[0]); mc.fillStyle = 'rgba(0,0,0,.7)'; mc.fillText(s, d[1] + 1, d[2] + 1);
       mc.fillStyle = d[0] === 0 ? '#ff5a4a' : '#f4ecd8'; mc.fillText(s, d[1], d[2]);
     });
+    const edge = (X, Y, col, num) => { // Ziel außerhalb des Kreises: Pfeil am Rand in Richtung Ziel
+      const dx = (X / OV - sx) * k - w / 2, dy = (Y / OV - sy) * k - w / 2;
+      if (Math.hypot(dx, dy) <= w * .43) return;
+      const a = Math.atan2(dy, dx), rr = w * .4, s = w * .07, ca = Math.cos(a), sa = Math.sin(a);
+      mc.save(); mc.translate(w / 2 + ca * rr, w / 2 + sa * rr); mc.rotate(a);
+      mc.fillStyle = col; mc.strokeStyle = '#000'; mc.lineWidth = 1.5;
+      mc.beginPath(); mc.moveTo(s * 1.4, 0); mc.lineTo(-s * .7, -s); mc.lineTo(-s * .7, s); mc.closePath(); mc.fill(); mc.stroke(); mc.restore();
+      if (num) { mc.font = '700 ' + Math.round(w * .1) + 'px sans-serif'; mc.textAlign = 'center'; mc.textBaseline = 'middle'; mc.lineWidth = 3; mc.strokeText(num, w / 2 + ca * (rr - s * 2), w / 2 + sa * (rr - s * 2)); mc.fillStyle = '#fff'; mc.fillText(num, w / 2 + ca * (rr - s * 2), w / 2 + sa * (rr - s * 2)); }
+    };
+    if (SW.Quests) SW.Quests.targets().forEach(o => edge(o.x, o.y, '#6fd36f'));
+    U.pins.forEach((q, i) => edge(q.x, q.y, '#f2c14e', String(i + 1)));
     mc.save(); mc.translate(w / 2, w / 2); mc.rotate(p.face + Math.PI / 2);
     mc.fillStyle = '#fff'; mc.strokeStyle = '#000'; mc.lineWidth = 2;
     mc.beginPath(); mc.moveTo(0, -w * .07); mc.lineTo(w * .045, w * .05); mc.lineTo(-w * .045, w * .05); mc.closePath(); mc.fill(); mc.stroke();

@@ -31,21 +31,26 @@ SW.Menus = (function () {
 
   M.skills = function (p) {
     const S = SW.Skills, D = SW.Data, root = page(p, T('tab_skills'));
-    const row = el('div', 'row');
+    const kiOf = id => Math.ceil(((D.moves[S.moveOf(id)] || {}).ki || 0) * SW.Char.combat().kiCostMul);
+    const nm = id => { const n = S.node(id); return n ? n.name : T('sk_' + id); }, ds = id => { const n = S.node(id); return n ? n.desc : T('skd_' + id); }; // Skilltree-Knoten tragen Name/Text in den Daten
+    const kiTxt = id => kiOf(id) > 0 ? T('ki_cost', kiOf(id)) : '';
+    const bars = el('div', 'sk-slots'); // oben: zwei breite Slot-Leisten
     [0, 1].forEach(i => {
-      const id = S.slots[i], box = el('button', 'btn slotbox', T('slot', i + 1) + ': ' + (id ? T('sk_' + id) : T('slot_empty')));
+      const id = S.slots[i], box = el('button', 'btn slotbar' + (id ? ' pri' : ''), T('slot', i + 1) + ': ' + (id ? nm(id) + (kiTxt(id) ? ' · ' + kiTxt(id) : '') : T('slot_empty')));
       box.onclick = () => { S.unequip(i); refresh(); };
-      add(row, box);
+      add(bars, box);
     });
-    add(root, row);
+    add(root, bars);
     const acts = S.nodes.filter(n => n.type === 'active' && S.learned[n.id]).map(n => n.id).concat(D.secrets.filter(s => S.sec[s.id] === 2).map(s => s.id), D.scrolls.filter(s => S.scr[s.id] === 2).map(s => s.id));
     if (!acts.length) add(root, el('div', 'dim', T('no_active')));
+    const grid = el('div', 'sk-grid'); // unten: Techniken als Kacheln, 3 Spalten
     acts.forEach(id => {
-      const m = D.moves[S.moveOf(id)], line = el('div', 'row card');
-      add(line, el('b', '', T('sk_' + id)), el('span', 'chip', T('ki_cost', Math.ceil(m.ki * SW.Char.combat().kiCostMul))));
-      [0, 1].forEach(i => add(line, btn(T('slot', i + 1), S.slots[i] === id ? 'pri' : '', () => { S.equip(id, i); refresh(); })));
-      add(root, line, el('div', 'dim', T('skd_' + id)));
+      const t = el('div', 'sk-tile' + (S.slots[0] === id || S.slots[1] === id ? ' eq' : '')), bs = el('div', 'sk-btns');
+      [0, 1].forEach(i => add(bs, btn(T('slot', i + 1), S.slots[i] === id ? 'pri' : '', () => { S.equip(id, i); refresh(); })));
+      add(t, el('b', '', nm(id)), kiTxt(id) ? el('span', 'chip', kiTxt(id)) : null, el('small', 'dim', ds(id)), bs);
+      add(grid, t);
     });
+    if (acts.length) add(root, grid);
     const sec = S.secrets();
     if (sec.length) {
       add(root, el('h3', '', T('secret')));
@@ -60,7 +65,9 @@ SW.Menus = (function () {
     add(root, el('h3', '', T('passive')));
     const ps = S.nodes.filter(n => n.type === 'passive' && S.learned[n.id]);
     if (!ps.length) add(root, el('div', 'dim', T('no_passive')));
-    ps.forEach(n => add(root, el('div', 'card', T('sk_' + n.id) + ' – ' + T('skd_' + n.id))));
+    const pg = el('div', 'sk-grid');
+    ps.forEach(n => add(pg, add(el('div', 'sk-tile'), el('b', '', nm(n.id)), el('small', 'dim', ds(n.id)))));
+    if (ps.length) add(root, pg);
   };
 
   M.skilltree = function (p) {
