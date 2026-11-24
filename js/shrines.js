@@ -47,7 +47,7 @@ SW.Shrines = (function () {
     if (!s || SW.paused || SW.Combat.active) return false;
     if (!S.on.has(s.id)) return S.activate(s.id);
     if (SW.Trials && SW.Trials.can(s.id)) return SW.Trials.enter(s.id);
-    if (SW.UI && SW.UI.open) SW.UI.open('karma');
+    if (SW.UI && SW.UI.open) SW.UI.open('skills');
     return true;
   };
   S.canTravel = id => !!(S.get(id) && S.on.has(id) && !SW.Combat.active);

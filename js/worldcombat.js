@@ -74,7 +74,7 @@ SW.WCombat = (function () {
     else if (t) { const d = Math.hypot(p.x - t.x, p.y - t.y) || 1; P.dx = (p.x - t.x) / d; P.dy = (p.y - t.y) / d; } // ohne Richtung: vom Gegner weg
     else { P.dx = -Math.cos(p.face); P.dy = -Math.sin(p.face); }
     { const kc = Math.ceil(D.dodgeKi * P.ps.kiCostMul); if (P.ki < kc) { say(T('combat_noki'), '#8cf'); return; } P.ki -= kc; }
-    P.pm = null; P.buf = null; P.chain = 0; P.dodgeT = DODGE; P.dodgeCd = .9 * P.ps.dodgeCdMul;
+    P.pm = null; P.buf = null; P.chain = 0; P.dodgeT = DODGE * (1 + P.ps.dodgeWin); P.dodgeCd = .9 * P.ps.dodgeCdMul;
   }
   X.press = function (k) { if (k === 'block' || k === 'breath') held[k] = true; else if (k === 'dodge') dodge(); else act(k); };
   X.release = function (k) { if (k === 'block' || k === 'breath') held[k] = false; };
@@ -84,7 +84,7 @@ SW.WCombat = (function () {
     const m = pm.m, nm = pm.name, p = SW.Player, ps = P.ps;
     if (m.heal) { const h = Math.round(P.pmax * m.heal); P.php = Math.min(P.pmax, P.php + h); flt(p.x, p.y, '+' + h, '#7fe08a'); return; }
     const heavyish = nm === 'heavy' || nm === 'special' || nm === 'counter' || !!m.guardBreak || m.dmg >= 30;
-    const R = m.ranged ? 7 : nm === 'special' ? 1.9 : 1.6, cone = m.ranged ? .45 : nm === 'special' ? 1.9 : 1.25; // Reichweite in Kacheln, halber Winkel in rad
+    const R = (m.ranged ? 7 : nm === 'special' ? 1.9 : 1.6) * (m.ranged ? 1 : 1 + ps.range), cone = m.ranged ? .45 : nm === 'special' ? 1.9 : 1.25; // Reichweite in Kacheln, halber Winkel in rad
     const targets = K.spots.filter(s => {
       if (!s.w || s.w.st === 'dead' || s.w.st === 'return') return false;
       const dx = s.x - p.x, dy = s.y - p.y, d = Math.hypot(dx, dy); if (d > R) return false;
@@ -109,6 +109,7 @@ SW.WCombat = (function () {
     targets.forEach(s => {
       const w = s.w, d = def(s);
       let dmg = m.dmg * ps.atk;
+      if (m.ki) dmg *= 1 + ps.kiDmg;
       if (nm === 'counter') dmg *= ps.counterMul;
       if (w.st === 'wind') dmg *= 1 + ps.ambush;
       if (w.guarding && nm !== 'counter' && !m.ignoreGuard) {
@@ -122,7 +123,7 @@ SW.WCombat = (function () {
       w.hp -= dmg; w.flash = .1; if (!m.ranged) P.ki = Math.min(P.kmax, P.ki + 4);
       flt(s.x, s.y - 1.2, dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
       if (heavyish && w.st === 'wind' && !(w.atk && w.atk.unblock)) { w.st = 'stagger'; w.t = 0; w.dur = .6; w.hits = 0; }
-      if (heavyish) push(s, .35);
+      if (heavyish) push(s, .35 * (1 + 3 * ps.knock));
       if (w.hp <= 0) kill(s);
     });
   }
@@ -131,7 +132,7 @@ SW.WCombat = (function () {
     if (freeAt(nx, s.y)) s.x = nx; if (freeAt(s.x, ny)) s.y = ny;
   }
   function kill(s) {
-    s.w.st = 'dead'; s.dead = true;
+    s.w.st = 'dead'; s.dead = true; P.php = Math.min(P.pmax, P.php + P.pmax * P.ps.healWin);
     const r = K.grant(s, P.st);
     P.st = { heavy: 0, special: 0, counter: 0, parry: 0, dodge: 0, block: 0, breath: 0 };
     const L = [T('combat_victory'), '+' + r.xp + ' XP'];
@@ -149,7 +150,7 @@ SW.WCombat = (function () {
     w.guarding = Math.random() < d.guard; if (w.guarding) w.wait = Math.max(w.wait, 1.1);
   }
   function hurtPlayer(dmg, blocked, s) {
-    P.php -= dmg; flt(SW.Player.x, SW.Player.y - 1, '-' + Math.max(1, Math.round(dmg)), blocked ? '#9cf' : '#ff6a5a');
+    dmg *= 1 - P.ps.dmgRed; P.php -= dmg; flt(SW.Player.x, SW.Player.y - 1, '-' + Math.max(1, Math.round(dmg)), blocked ? '#9cf' : '#ff6a5a');
     if (!blocked) { P.hurt = .3; if (P.pm && !P.pm.hitN) P.pm = null; P.buf = null; const p = SW.Player, dx = p.x - s.x, dy = p.y - s.y, d = Math.hypot(dx, dy) || 1; p.push(dx / d * .35, dy / d * .35); }
     if (P.php <= 0) die();
   }
@@ -158,7 +159,7 @@ SW.WCombat = (function () {
     w.sw = SWING; w.hits--;
     const dist = Math.hypot(p.x - s.x, p.y - s.y), dmg = Math.max(1, A.dmg * (d.dmg || 1) * K.tm(s).dmg - ps.def);
     if (dist > reach(s) + .45) { /* Fehlschlag: Spieler ist außer Reichweite */ }
-    else if (P.dodgeT > 0 || P.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); P.ki = Math.min(P.kmax, P.ki + 3); P.st.dodge++; }
+    else if (P.dodgeT > 0 || P.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); P.ki = Math.min(P.kmax, P.ki + 3 + P.kmax * ps.kiDodge); P.st.dodge++; }
     else if (P.block && !A.unblock && P.parryOk && P.blockT <= ps.parry) {
       P.st.parry++; w.st = 'stagger'; w.t = 0; w.dur = 1.1; w.hits = 0; P.counterT = 1.4; P.ki = Math.min(P.kmax, P.ki + 8); P.spark = .25; say(T('combat_parry'), '#ffe27a');
       return;
@@ -293,7 +294,7 @@ SW.WCombat = (function () {
     const breath = !want && !P.pm && P.dodgeT <= 0 && P.hurt <= 0 && !moving;
     if (breath) P.st.breath += dt;
     P.ki = Math.min(P.kmax, P.ki + (ps.kiRegen + (breath ? 22 * ps.breathMul : 0)) * dt);
-    p.mul = P.dodgeT > 0 ? 0 : P.hurt > 0 ? .3 : 1; // 0.12.2: Angriff und Block bremsen das Laufen nicht mehr
+    p.mul = P.dodgeT > 0 ? 0 : P.hurt > 0 ? .3 : 1 + P.ps.move; // 0.12.2: Angriff und Block bremsen das Laufen nicht mehr
     for (let i = floats.length - 1; i >= 0; i--) { floats[i].t += dt; if (floats[i].t > 1) floats.splice(i, 1); }
   };
   X.sync = function () { document.body.classList.toggle('wcombat', X.active && !SW.paused && !K.active); };

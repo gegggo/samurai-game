@@ -40,7 +40,7 @@ SW.Char = (function () {
       crit: Math.min(.6, (b.crit + f.crit + g.crit) / 100),
       recMul: Math.max(.4, (1 - f.rec) / (1 + b.end * .015) * (1 + g.rec)), dodgeCdMul: Math.max(.4, (1 - f.dodgeCd) / (1 + b.end * .01) * (1 + g.dodge)),
       breathMul: 1 + f.breath, kiCostMul: Math.max(.3, 1 - f.kiCost - g.kiCost), critMul: 1.5 + g.critDmg, blockMul: f.blockMul, parry: .22 + f.parry + g.parry,
-      counterMul: 1 + f.counter + g.counter, ambush: f.ambush + g.ambush, slots: SW.Skills.slotMoves(),
+      counterMul: 1 + f.counter + g.counter, ambush: f.ambush + g.ambush, range: f.range, move: f.move, healWin: f.healWin, kiDodge: f.kiDodge, dodgeWin: f.dodgeWindow, knock: f.knockback, dmgRed: Math.min(.6, f.damageReduction), kiDmg: f.kiDamage, slots: SW.Skills.slotMoves(),
       // Fernkampf (Phase 4c): nur mit ausgerüsteter Fernkampfwaffe
       ranged: SW.Inv && SW.Inv.eq.ranged ? { id: SW.Inv.eq.ranged, dmg: g.rdmg, wind: g.rwind || .25, rec: g.rrec || .4 } : null
     };

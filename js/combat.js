@@ -158,7 +158,7 @@ SW.Combat = (function () {
     if (!S || S.state !== 'fight' || S.dodgeCd > 0 || S.hurt > 0) return;
     if (S.pm && S.pm.t < S.pm.end) return; // nicht mitten aus dem Schlag heraus
     { const kc = Math.ceil(D.dodgeKi * S.ps.kiCostMul); if (S.ki < kc) { say(T('combat_noki'), '#8cf'); return; } S.ki -= kc; }
-    S.pm = null; S.buf = null; S.chain = 0; S.dodgeT = DODGE; S.dodgeCd = .9 * S.ps.dodgeCdMul; S.side = -S.side; S.breath = false;
+    S.pm = null; S.buf = null; S.chain = 0; S.dodgeT = DODGE * (1 + S.ps.dodgeWin); S.dodgeCd = .9 * S.ps.dodgeCdMul; S.side = -S.side; S.breath = false;
   }
 
   function playerHit(pm) {
@@ -166,6 +166,7 @@ SW.Combat = (function () {
     if (m.heal) { const h = Math.round(S.pmax * m.heal); S.php = Math.min(S.pmax, S.php + h); flt('+' + h, '#7fe08a'); return; }
     const heavyish = nm === 'heavy' || nm === 'special' || nm === 'counter' || !!m.guardBreak || m.dmg >= 30;
     let dmg = m.dmg * ps.atk;
+    if (m.ki) dmg *= 1 + ps.kiDmg;
     if (nm === 'counter') dmg *= ps.counterMul;
     if (f.st === 'wind') dmg *= 1 + ps.ambush;
     if (f.guarding && nm !== 'counter' && !m.ignoreGuard) {
@@ -179,7 +180,7 @@ SW.Combat = (function () {
     S.hp -= dmg; f.flash = .1; if (!m.ranged) S.ki = Math.min(S.kmax, S.ki + 4); // Fernkampf lädt kein Ki auf
     flt(dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
     if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock)) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; }
-    if (S.hp <= 0) { S.hp = 0; S.state = 'win'; S.t = 0; S.spot.dead = true; S.pm = null; reward(); return; }
+    if (S.hp <= 0) { S.hp = 0; S.php = Math.min(S.pmax, S.php + S.pmax * ps.healWin); S.state = 'win'; S.t = 0; S.spot.dead = true; S.pm = null; reward(); return; }
     if (S.def.phases) {
       const r = S.hp / S.max; let n = S.phase;
       while (n + 1 < S.def.phases.length && r <= S.def.phases[n + 1].at) n++;
@@ -195,7 +196,7 @@ SW.Combat = (function () {
     if (f.guarding) f.wait = Math.max(f.wait, 1.1);
   }
   function hurtPlayer(dmg, blocked) {
-    S.php -= dmg; flt('-' + Math.max(1, Math.round(dmg)), blocked ? '#9cf' : '#ff6a5a');
+    dmg *= 1 - S.ps.dmgRed; S.php -= dmg; flt('-' + Math.max(1, Math.round(dmg)), blocked ? '#9cf' : '#ff6a5a');
     if (blocked) S.shake = Math.max(S.shake, .12);
     else { S.hurt = .3; S.shake = .3; if (S.pm && !S.pm.hitN) S.pm = null; S.buf = null; S.breath = false; }
     if (S.php <= 0) { S.php = 0; S.state = 'lose'; S.t = 0; S.pm = null; }
@@ -204,7 +205,7 @@ SW.Combat = (function () {
     const f = S.foe, A = f.atk, ps = S.ps, p = ph();
     S.fswing = SWING; f.hits--;
     const dmg = Math.max(1, A.dmg * (S.def.dmg || 1) * K.tm(S.spot).dmg - ps.def);
-    if (S.dodgeT > 0 || S.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); S.ki = Math.min(S.kmax, S.ki + 3); S.st.dodge++; }
+    if (S.dodgeT > 0 || S.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); S.ki = Math.min(S.kmax, S.ki + 3 + S.kmax * ps.kiDodge); S.st.dodge++; }
     else if (S.block && !A.unblock && S.parryOk && S.blockT <= ps.parry) {
       S.st.parry++;
       f.st = 'stagger'; f.t = 0; f.dur = 1.1; f.hits = 0; S.counterT = 1.4;

@@ -165,28 +165,29 @@ SW.Quests = (function () {
     SW.paused = false; SW.Input.reset(); SW.Save.touch();
   };
 
-  // ---------- Quest-Menü ----------
+  // ---------- Quest-Menü (Zelda-Stil: Liste links, Details rechts) ----------
+  let qsel = null;
   SW.Menus.quests = function (p) {
-    const root2 = H.page(p, T('tab_quests'));
-    if (SW.Village) add(root2, SW.Village.card());
-    const group = (title, list) => {
-      if (!list.length) return;
-      add(root2, el('h3', '', title));
-      list.forEach(q => {
-        const s = Q.status(q.id), card = el('div', 'card');
-        add(card, add(el('div', 'row'), el('b', '', T('qn_' + q.id)), el('span', 'chip', T('qs_' + (s === 'ready' ? 'ready' : s === 'done' ? 'done' : 'active')))));
-        add(card, el('div', 'dim', T('qd_' + q.id)));
-        add(card, el('div', '', T('q_goal') + ': ' + Q.objText(q)));
-        add(card, el('div', 'dim', T('q_from') + ': ' + T('npc_' + npc(q.giver).role)));
-        add(card, el('div', 'ok', T('q_reward') + ': ' + (q.choice ? q.choice.map(c => Q.rewText(c.rew)).join('  /  ') : Q.rewText(q.rew))));
-        if (s === 'done' && Q.ch[q.id]) add(card, el('div', 'dim', T('qc_' + q.id + '_' + Q.ch[q.id])));
-        add(root2, card);
+    const root2 = H.page(p, T('tab_quests')), rank = { ready: 0, active: 1, done: 2 };
+    const all = D.quests.filter(q => rank[Q.status(q.id)] !== undefined).sort((a, b) => rank[Q.status(a.id)] - rank[Q.status(b.id)]);
+    if (!all.length) add(root2, el('div', 'dim', T('q_none')));
+    else {
+      if (!all.some(q => q.id === qsel)) qsel = all[0].id;
+      const lay = el('div', 'qlay'), list = el('div', 'qlist'), det = el('div', 'qdet card');
+      all.forEach(q => {
+        const s = Q.status(q.id), b = el('button', 'btn qrow' + (q.id === qsel ? ' on' : '') + (s === 'done' ? ' qdone' : ''));
+        add(b, el('b', '', (s === 'ready' ? '❢ ' : '') + T('qn_' + q.id)), el('div', 'qsub', T('qs_' + s) + ' · ' + T('npc_' + npc(q.giver).role)));
+        b.onclick = () => { qsel = q.id; SW.UI.refresh(); };
+        add(list, b);
       });
-    };
-    const act = D.quests.filter(q => { const s = Q.status(q.id); return s === 'active' || s === 'ready'; });
-    const done = D.quests.filter(q => Q.status(q.id) === 'done');
-    if (!act.length && !done.length) add(root2, el('div', 'dim', T('q_none')));
-    group(T('q_active'), act); group(T('q_finished'), done);
+      const q = get(qsel), s = Q.status(qsel);
+      add(det, el('h3', '', T('qn_' + qsel)), el('div', 'chip', T('qs_' + s)), el('div', 'dlgtext', T('qd_' + qsel)));
+      add(det, el('div', '', T('q_goal') + ': ' + Q.objText(q)), el('div', 'dim', T('q_from') + ': ' + T('npc_' + npc(q.giver).role)));
+      add(det, el('div', 'ok', T('q_reward') + ': ' + (q.choice ? q.choice.map(c => Q.rewText(c.rew)).join('  /  ') : Q.rewText(q.rew))));
+      if (s === 'done' && Q.ch[qsel]) add(det, el('div', 'dim', T('qc_' + qsel + '_' + Q.ch[qsel])));
+      add(lay, list, det); add(root2, lay);
+    }
+    if (SW.Village) add(root2, SW.Village.card());
   };
   return Q;
 })();
