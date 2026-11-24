@@ -210,3 +210,17 @@ body.trial #pos { display: none !important; }
   .qlist { flex-basis:42%; }
   .qdet { font-size:12px; }
 }
+
+/* Skills-Seite (Slots, Kacheln) + Waffen-Haltbarkeit */
+.sk-wrap { width: 100%; max-width: 720px; min-width: 0; margin: auto; }
+.sk-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 0; }
+.slotbar { min-height: 44px; text-align: left; }
+.sk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin: 6px 0; }
+.sk-tile { display: flex; flex-direction: column; gap: 5px; min-width: 0; padding: 8px 10px; border: 1px solid rgba(232,224,208,.3); border-radius: 8px; background: rgba(255,255,255,.05); }
+.sk-tile.eq { border-color: #f2c14e; }
+.sk-tile .chip { align-self: flex-start; }
+.sk-btns { display: flex; gap: 6px; margin-top: auto; }
+.sk-btns .btn { flex: 1; min-width: 0; padding: 0 6px; }
+.dur { display: block; width: 80%; height: 4px; margin-top: 3px; border-radius: 2px; background: rgba(0,0,0,.5); overflow: hidden; }
+.dur i { display: block; height: 100%; background: #6fbf73; } .dur.low i { background: #e0705a; }
+.cell { position: relative; }
