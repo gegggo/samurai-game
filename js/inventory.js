@@ -57,6 +57,7 @@ SW.Inv = (function () {
     const d = it(id);
     if (!d || !d.slot || !(I.bag[id] > 0)) return false;
     const old = I.eq[d.slot], od = I.edur[d.slot], nd = I.dur[id] && I.dur[id][i || 0];
+    if (durMax(id) && nd === 0) return false; // beschädigte Waffen erst beim Schmied reparieren
     I.remove(id, 1, i || 0); if (old) I.add(old, 1, od);
     I.eq[d.slot] = id; if (nd !== undefined) I.edur[d.slot] = nd; else delete I.edur[d.slot]; touch(); return true;
   };
@@ -65,12 +66,28 @@ SW.Inv = (function () {
     I.add(id, 1, I.edur[slot]); delete I.eq[slot]; delete I.edur[slot]; touch(); return true;
   };
   I.durOf = slot => I.eq[slot] && durMax(I.eq[slot]) ? (I.edur[slot] === undefined ? durMax(I.eq[slot]) : I.edur[slot]) : null;
-  // Nutzung: je Treffer 1 Punkt Abnutzung; bei 0 zerbricht die Waffe (Aufruf aus allen drei Kampfmodi)
+  I.repair = function (id, index, slot) {
+    const max = durMax(id); if (!max) return false;
+    if (slot) {
+      if (I.eq[slot] !== id) return false;
+      const cur = I.edur[slot] === undefined ? max : I.edur[slot];
+      if (cur >= max) return false;
+      I.edur[slot] = max;
+    } else {
+      const a = I.dur[id];
+      if (!a || index < 0 || index >= a.length || a[index] >= max) return false;
+      a[index] = max;
+    }
+    touch(); return true;
+  };
+  // Nutzung: je Treffer 1 Punkt Abnutzung; bei 0 wird die Waffe beschädigt abgelegt
   I.wear = function (slots) {
     slots.forEach(s => {
       const id = I.eq[s], m = durMax(id); if (!m) return;
       const v = (I.edur[s] === undefined ? m : I.edur[s]) - 1;
       if (v > 0) { I.edur[s] = v; return; }
+      I.bag[id] = (I.bag[id] || 0) + 1;
+      const damaged = I.dur[id] = I.dur[id] || []; damaged.push(0);
       delete I.eq[s]; delete I.edur[s];
       if (SW.UI && SW.UI.banner) SW.UI.banner(T('wpn_broke', T('it_' + id)));
     });
@@ -82,7 +99,7 @@ SW.Inv = (function () {
   I.bonus = function () {
     const b = { atk: 0, def: 0, hp: 0, crit: 0, rec: 0, dodge: 0, ambush: 0, parry: 0, counter: 0, kiCost: 0, kiRegen: 0, critDmg: 0, rdmg: 0, rwind: 0, rrec: 0 };
     D.slots.forEach(s => {
-      const id = I.eq[s], d = it(id); if (!d) return;
+      const id = I.eq[s], d = it(id); if (!d || (durMax(id) && I.durOf(s) === 0)) return;
       for (const k in d.fx) b[k] += d.fx[k];
       const l = I.lvl(id); // Verbesserungen des Schmieds
       if (l) { if (d.slot === 'ranged') b.rdmg += D.upFx.rdmg * l; else if (d.type === 'weapon') b.atk += D.upFx.atk * l; else if (d.type === 'armor') b.def += D.upFx.def * l; }
@@ -139,8 +156,8 @@ SW.Inv = (function () {
     for (const id in (d.bag || {})) { const n = d.bag[id]; if (it(id) && typeof n === 'number' && n > 0) I.bag[id] = Math.min(I.MAXSTACK, Math.floor(n)); }
     if (d.eq && typeof d.eq === 'object') { I.eq = {}; D.slots.forEach(s => { const id = d.eq[s]; if (id && it(id) && it(id).slot === s) I.eq[s] = id; }); }
     I.dur = {}; I.edur = {};
-    for (const id in I.bag) if (durMax(id)) { const a = (d.dur || {})[id] || []; I.dur[id] = Array.from({ length: I.bag[id] }, (_, k) => typeof a[k] === 'number' && a[k] > 0 ? Math.min(durMax(id), a[k]) : durMax(id)); } // alte Stände: voll
-    for (const s in I.eq) { const v = (d.edur || {})[s]; if (durMax(I.eq[s]) && typeof v === 'number' && v > 0) I.edur[s] = Math.min(durMax(I.eq[s]), v); }
+    for (const id in I.bag) if (durMax(id)) { const a = (d.dur || {})[id] || []; I.dur[id] = Array.from({ length: I.bag[id] }, (_, k) => typeof a[k] === 'number' && a[k] >= 0 ? Math.min(durMax(id), a[k]) : durMax(id)); } // alte Stände: voll
+    for (const s in I.eq) { const v = (d.edur || {})[s]; if (durMax(I.eq[s]) && typeof v === 'number' && v >= 0) I.edur[s] = Math.min(durMax(I.eq[s]), v); }
     I.up = {};
     for (const id in (d.up || {})) { const n = d.up[id]; if (it(id) && (it(id).type === 'weapon' || it(id).type === 'armor') && typeof n === 'number' && n >= 1) I.up[id] = Math.min(D.upMax, Math.floor(n)); }
     (d.chests || []).forEach(id => { const c = I.chests.find(x => x.id === id); if (c) c.open = true; });
