@@ -1,112 +1,62 @@
 # Samurai Wanderer – Project Status
 
-Stand: 24.11.2026  
-Projektversion laut zuletzt gezeigten Screenshots: **v0.24.8**  
+Stand: 25.11.2026  
+Projektversion: **v0.24.10**  
+Cache-Version: **v104**  
+Aktueller Arbeitsbranch: [stabilization-phase-1](https://github.com/gegggo/samurai-game/tree/stabilization-phase-1)  
 Verbindliche Projektspezifikation: **Samurai Wanderer – Complete Project Specification v2.1**
 
-## 1. Aktueller Entwicklungsstand
+## Aktueller Stand
 
-Das Projekt wird als HTML-/CSS-/JavaScript-Webspiel entwickelt. GitHub ist die Projektverwaltung; GitHub Pages ist zunächst als Hosting vorgesehen. Mobile Geräte im Querformat haben Priorität.
-
-Die Entwicklung erfolgt phasenweise. Bestehende, funktionierende Systeme sollen erhalten und erweitert werden. Größere Grafik- und Polish-Arbeiten bleiben grundsätzlich für die dafür vorgesehene spätere Polish-Phase vorgesehen.
-
-## 2. Zuletzt bearbeitete Bereiche
-
-### Phase 23 – Wirtschaft und Ausrüstung
-Laut bisherigem Projektverlauf abgeschlossen:
-- Ryō-Wirtschaft und entsprechende Kostenlogik.
-- Verbesserungs-/Upgrade-Stufen und Eisen-Drops.
-- Regressionstests wurden ergänzt (zuletzt gemeldeter Stand: 39 Tests).
-- Browser- und iPhone-Regressionstest waren noch offen.
+Das Spiel ist ein HTML-/CSS-/JavaScript-Webspiel mit Priorität auf iPhone im Querformat. Die Entwicklung erfolgt phasenweise. Dieser Branch enthält die erste Stabilisierung vor den nächsten Inhaltsphasen und ist noch nicht in `main` gemergt.
 
 ### Phase 24 – Skilltree
-Laut bisherigem Projektverlauf umgesetzt:
-- Lite-Skilltree mit insgesamt 90 Knoten:
-  - 60 passive Fähigkeiten
-  - 20 aktive Techniken
-  - 10 Spezialfähigkeiten
-- Passive Fähigkeiten besitzen jeweils drei Stufen (I–III).
-- Verzweigter Skilltree mit Suche und Filter.
-- Bedienung mit Ein-Finger-Verschieben und Zwei-Finger-Zoom.
-- Zwei Slots für aktive Techniken.
-- Neue Fähigkeiten sollen vor der Implementierung zuerst vollständig vorgeschlagen und vom Nutzer freigegeben werden.
-- Bekannte Einschränkung aus dem bisherigen Stand: Nicht alle Skill-Effekte waren bereits vollständig mit allen drei Kampfsystemen verbunden.
-- Alte Skill-IDs wurden nicht automatisch migriert. Save-Kompatibilität daher gezielt prüfen.
+- 90 Knoten: 60 passive, 20 aktive und 10 Spezialfähigkeiten.
+- Acht zuvor nicht angebundene passive Effekte wurden in den drei Kampfsystemen ergänzt.
+- Aktive Techniken verwenden teilweise noch generische Moves; Spezialeffekte sind noch nicht vollständig angebunden.
+- Zwei aktive Skillplätze bleiben bestehen.
+- Neue Fähigkeiten und größere Änderungen am Skilltree erst nach Vorschlag und Freigabe.
 
-## 3. Zuletzt gewünschte UI-Änderungen (Version 0.24.8)
+### Inventar und Waffenhaltbarkeit
+- Waffenhaltbarkeit wird je Exemplar gespeichert: common 30, uncommon 45, rare 60, epic 80 Treffer; legendäre Waffen sind unzerbrechlich.
+- Haltbarkeit wird in Weltkampf, Duell und Boss-Arena abgezogen und im Spielstand gespeichert.
+- **Neu in diesem Branch:** Nach einem Waffenbruch werden Kampfwerte aktualisiert. Eine zerbrochene Fernkampfwaffe kann nicht weiter benutzt werden; der Fernkampf-Button wird ausgeblendet.
+- Die Haltbarkeitswerte sind weiterhin Balancing-Platzhalter.
+- **Noch offen:** Reparaturfunktion beim Schmied. Kosten und Reparaturumfang sind noch nicht festgelegt.
 
-Die folgenden Änderungen wurden für die Menüs angefordert. Ein erfolgreicher Einbau in den aktuellen GitHub-Stand und ein vollständiger Gerätetest sind nicht unabhängig bestätigt; vor dem nächsten Release prüfen.
+### Weltkarte und Regionengenerator
+- Region 17 (Kirschblütenwald) und Region 18 (Verlassene Festung) sind als zusätzliche Layout-Segmente eingebunden.
+- Später geladene Layout-Segmente haben Vorrang; leere Zellen fallen auf ältere Segmente zurück.
+- Die Generatoren für Sakura und Festung verwenden jetzt einen 60/40-Biome-Übergang. Die Aufrufpfade und generierten Dateikommentare verweisen auf `tools/`.
+- Neuer Test: `python3 tests/layout_connectivity.py` prüft Landverbindung und Übergangsanteil für beide Regionen.
 
-### Skilltree-UI
-- Fähigkeiten übersichtlicher und besser erkennbar darstellen.
-- Skill-Icons ergänzen.
-- Passive, aktive und spezielle Fähigkeiten visuell unterscheidbar machen.
-- Rang und Freischaltungsstatus gut sichtbar darstellen.
-- Bestehende Lernlogik, Voraussetzungen und Skilltree-Funktion nicht unbeabsichtigt verändern.
+## Testergebnisse dieses Stabilisierung-Branches
 
-### Questmenü
-- Offene bzw. noch nicht abgeschlossene Quests oberhalb anzeigen.
-- Abgeschlossene Quests darunter einsortieren.
-- Sortier-/Filtermöglichkeiten oben im Menü vorsehen:
-  - Alle
-  - Hauptquests
-  - Nebenquests
-  - Offen
-  - Abgeschlossen
-- Questtypen müssen in den Questdaten eindeutig markiert sein. Die Zuordnung vorhandener Quests prüfen, statt unbekannte Questtypen zu erraten.
+- **Bestanden:** `node --check` für alle JavaScript-Dateien (lokale Prüfkopie mit den Branch-Änderungen).
+- **Bestanden:** `python3 tests/skilltree_phase24.py`.
+- **Bestanden:** `python3 tests/layout_connectivity.py` – Sakura 54,9 % neuer Biome-Anteil, Festung 51,7 %; beide Landanschlüsse gefunden.
+- **Nicht ausführbar:** Browser-Regression und Datenvalidator. Chromium konnte in der Testumgebung keine lokale HTTP-Adresse öffnen (`ERR_BLOCKED_BY_ADMINISTRATOR`).
+- **Noch offen:** echter iPhone-Test im Querformat. Browser- und Gerätetests sind nicht durch die Syntax- oder Datentests ersetzt.
 
-### Inventar-Icons
-- Im Inventar wurden Item-Icons nicht angezeigt.
-- Vorgesehene Ordnerstruktur:
-  - `assets/images/icons/` für allgemeine UI-/Spiel-Icons
-  - `assets/images/items/icons/` für Waffen-, Rüstungs- und sonstige Item-Icons
-- Die Item-Bilder müssen anhand stabiler Item-IDs bzw. korrekter Dateipfade geladen werden.
-- Die Pfade im Code müssen exakt mit der GitHub-Ordnerstruktur übereinstimmen.
-- Icon-Dateien und Manifest gemeinsam prüfen; keine Bilddateien oder Item-Zuordnungen voraussetzen, die tatsächlich nicht im Repository liegen.
+## Vor den nächsten Entwicklungsphasen
 
-## 4. Technische Prüfungen und offene Punkte
+1. Reparaturfunktion beim Schmied festlegen und implementieren.
+2. Waffenhaltbarkeit und Reparaturkosten balancieren.
+3. Browser-Regression erneut in einer Umgebung ausführen, in der lokaler HTTP-Zugriff erlaubt ist.
+4. Auf dem iPhone testen: Joystick/Multitouch, Kampfbuttons, Inventar, Skilltree, Karte, Speichern/Laden und Leistung.
+5. Noch offene aktive und spezielle Skill-Effekte prüfen.
+6. Erst danach die nächste Inhaltsphase beginnen.
 
-Vor einer Freigabe der nächsten Version:
-1. Aktuellen GitHub-Stand mit den zuletzt angeforderten UI-Änderungen vergleichen.
-2. Prüfen, ob alle Item-Icons im Repository vorhanden sind und korrekt geladen werden.
-3. Prüfen, ob fehlende Icons einen sauberen Fallback anzeigen.
-4. Quest-Sortierung und Filter mit offenen, abgeschlossenen, Haupt- und Nebenquests testen.
-5. Skilltree auf korrekte Darstellung, Suche, Filter, Zoom, Verschieben und Slot-Zuweisung testen.
-6. Prüfen, ob Skill-Effekte tatsächlich im Kampf wirken und korrekt gespeichert werden.
-7. Save-Kompatibilität prüfen; insbesondere Änderungen an Skill-IDs und Questdaten.
-8. JavaScript-Konsole und Regressionstests prüfen.
-9. Browser-Regressionstest durchführen.
-10. Auf dem iPhone im Querformat testen.
+## Verbindliche Entwicklungsregeln
 
-**Teststatus:** Aus dem bisherigen Verlauf sind Syntax-/Datentests gemeldet. Ein vollständiger Browser- und iPhone-Regressionstest ist nicht bestätigt.
-
-## 5. Verbindliche Design- und Entwicklungsregeln
-
-- Die Spezifikation v2.1 ist die maßgebliche Grundlage.
-- Vorhandene funktionierende Funktionen erhalten; neue Systeme in die bestehende Architektur integrieren.
-- Keine isolierten Code-Fragmente liefern, die manuell zusammengeführt werden müssen.
+- Bestehende funktionierende Funktionen erhalten und neue Systeme in die bestehende Architektur integrieren.
 - Jede Phase einzeln umsetzen und auf Fehler sowie Seiteneffekte testen.
 - Keine zukünftigen Phasen vorzeitig implementieren.
-- Neue Fähigkeiten und größere Designänderungen zuerst vollständig vorschlagen und Freigabe abwarten.
-- Essence wird ausschließlich für den Skilltree verwendet.
-- Geheime Kampftechniken werden durch Bosskämpfe freigeschaltet; ihre Nutzung setzt die vorgesehenen Karma- und Yin/Yang-Voraussetzungen voraus.
+- Essence ausschließlich für den Skilltree verwenden.
+- Texte EN und DE pflegen.
 - Mobile Bedienbarkeit und Performance haben Priorität.
-- Keine funktionslosen Buttons oder nur vorgetäuschten Systeme.
+- Nicht getestete Funktionen ausdrücklich als ungetestet markieren.
 
-## 6. Nächster sinnvoller Arbeitsschritt
+## Dokumentation
 
-Zuerst den aktuellen GitHub-Projektstand und die tatsächlichen Dateien prüfen. Danach die Skilltree-, Quest- und Inventar-UI auf dem iPhone testen und offene Fehler korrigieren. Erst anschließend den nächsten Entwicklungsabschnitt beginnen.
-
----
-
-**Wichtig:** Dieser Status fasst den zuletzt bekannten Projektverlauf zusammen. Er ersetzt keinen Abgleich mit dem aktuellen GitHub-Repository. Nicht bestätigte Änderungen und Tests sind ausdrücklich als offen markiert.
-
-## v0.24.9 – Skills-UI + Waffen-Haltbarkeit
-Status: **implementiert, Dateien gesendet – Prüfung auf Gerät ausstehend.**
-- Skills-Seite: Abschnitte (Skills/Character/Karma) standen nebeneinander; jetzt untereinander (`sk-wrap`), fehlendes CSS für Slots/Kacheln ergänzt. Inventar-Detailkopf zeigte `[object HTMLImageElement]` – behoben.
-- Waffen-Haltbarkeit: je Exemplar eigene Haltbarkeit (`Inv.dur`, `Inv.edur`), Abnutzung 1 je Treffer (Haupt+Nebenwaffe bei Nahkampf, Fernwaffe bei Schuss) in Duell, Open World, Boss-Arena. Bei 0 zerbricht die Waffe. Legendär = unzerbrechlich. Alte Saves: voll.
-- Inventar: Sortierung (Art / Seltenheit / Haltbarkeit / Name), Waffen je Exemplar mit Balken.
-- Platzhalter (Balancing offen): `Inv.DUR` = 30/45/60/80 (common–epic).
-- Getestet (headless Chromium, kein Gerät): Logik equip/break/save/load, Screenshots Skills+Inventar, Regression 38/39 bestanden; 1 Fehlschlag = Validator-Pfad in Testumgebung (tools/ fehlte).
-- Offen: Reparatur (Schmied) nicht gebaut; Fernwaffe bricht im laufenden Kampf erst danach (Kampf-Cache); Gerätetest iPhone.
-Geänderte Dateien: js/inventory.js, js/menus.js, js/combat.js, js/worldcombat.js, js/arena3d.js, js/items-data.js, js/lang-de.js, js/config.js, css/main.css, index.html (?v=103).
+`Project_Status.md` ist die aktuelle Statusübersicht. `PROJECT_STATUS.md` bleibt als historische Versionschronik erhalten.
