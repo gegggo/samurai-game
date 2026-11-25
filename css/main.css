@@ -224,3 +224,7 @@ body.trial #pos { display: none !important; }
 .dur { display: block; width: 80%; height: 4px; margin-top: 3px; border-radius: 2px; background: rgba(0,0,0,.5); overflow: hidden; }
 .dur i { display: block; height: 100%; background: #6fbf73; } .dur.low i { background: #e0705a; }
 .cell { position: relative; }
+
+/* Shop quantity selector */
+.shop-quantity { width: 64px; min-width: 52px; box-sizing: border-box; padding: 7px 5px; border: 1px solid rgba(232,224,208,.35); border-radius: 7px; background: rgba(0,0,0,.35); color: #e8e0d0; font: inherit; text-align: center; }
+.shop-quantity:focus { outline: 2px solid #c8a24a; outline-offset: 1px; }
