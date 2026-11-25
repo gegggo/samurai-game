@@ -74,6 +74,7 @@ SW.Inv = (function () {
       delete I.eq[s]; delete I.edur[s];
       if (SW.UI && SW.UI.banner) SW.UI.banner(T('wpn_broke', T('it_' + id)));
     });
+    if (!I.eq.ranged) { const b = document.getElementById('cb-ranged'); if (b) b.style.display = 'none'; }
     touch();
   };
   I.candidates = slot => Object.keys(I.bag).filter(id => I.bag[id] > 0 && it(id) && it(id).slot === slot);
