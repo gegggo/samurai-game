@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Erzeugt js/layout-sakura.js (Region 17) als nahtlosen Landanschluss an die Hauptinsel.
-Aufruf: python3 py/make_layout_sakura.py js/layout-sakura.js"""
+Aufruf: python3 tools/make_layout_sakura.py js/layout-sakura.js"""
 import sys, json, math
 X0, Y0, X1, Y1, CELL = 3560, 1000, 5000, 2000, 8
 W, H = (X1 - X0) // CELL, (Y1 - Y0) // CELL
