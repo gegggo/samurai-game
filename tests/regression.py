@@ -189,6 +189,20 @@ try:
     # 31 Phase 23: Effekt-Vokabular deckt alle derzeit vorhandenen Item-Effekte ab
     r = ev(pg, """() => { const I=SW.Inv, keys=['atk','def','hp','crit','rec','dodge','ambush','counter','kiCost','kiRegen','critDmg','parry','rdmg','rwind','rrec']; const fx=I.fxLines(Object.fromEntries(keys.map(k=>[k,k==='parry'?0.1:0.1]))); return { keys, n:fx.length, wind:fx.some(x=>x.includes('wind-up')||x.includes('Ausholen')) }; }""")
     rec('Phase 23: Effekt-Vokabular zeigt alle aktuellen Item-Effekte inklusive Fernkampf-Ausholen', r['n'] == 15 and r['wind'], json.dumps(r))
+    # 32 Phase 24: Waffenhaltbarkeit, Bruch, Save/Load und Schmied-Reparatur
+    pg = start(b, errs)
+    r = ev(pg, """() => { const I=SW.Inv; I.add('bow_hankyu',1); const eq=I.equip('bow_hankyu',0); I.edur.ranged=1; I.wear(['ranged']); SW.Save.save();
+      return { eq, broken:!I.eq.ranged, count:I.bag.bow_hankyu, dur:I.dur.bow_hankyu&&I.dur.bow_hankyu[0] }; }""")
+    rec('Phase 24: Waffe zerbricht nicht weg, sondern landet mit 0 Haltbarkeit im Beutel', r['eq'] and r['broken'] and r['count']==1 and r['dur']==0, json.dumps(r))
+    cont(pg)
+    r = ev(pg, """() => { const I=SW.Inv,S=SW.Shop,id='bow_hankyu',t=S.repairTargets().find(x=>x.id===id); const persisted=!!t&&t.current===0&&I.dur[id][0]===0;
+      const noEquip=I.equip(id,0)===false; if(t){const c=S.repairCost(t);I.coins=c.coins;I.bag.iron=c.iron;}
+      const repaired=!!t&&S.repair(t), full=I.dur[id]&&I.dur[id][0]===60, equip=I.equip(id,0);
+      return {persisted,noEquip,repaired,full,equip}; }""")
+    rec('Phase 24: 0 Haltbarkeit bleibt nach Laden erhalten; kaputte Waffe nicht ausruestbar; Schmied repariert gegen Muenzen+Eisen', r['persisted'] and r['noEquip'] and r['repaired'] and r['full'] and r['equip'], json.dumps(r))
+    # 33 Phase 24: ausgeruestete Waffe reparieren
+    r = ev(pg, """() => { const I=SW.Inv,S=SW.Shop,id='bow_hankyu'; I.edur.ranged=12; const t=S.repairTargets().find(x=>x.slot==='ranged'); if(!t)return {none:true}; const c=S.repairCost(t); I.coins=c.coins; I.bag.iron=c.iron; const ok=S.repair(t); return {ok,dur:I.durOf('ranged')}; }""")
+    rec('Phase 24: Auch ausgeruestete, beschaedigte Waffen lassen sich reparieren', !r['none'] and r['ok'] and r['dur']==60, json.dumps(r))
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:
