@@ -11,7 +11,7 @@ def island(x, y):
     return ((x - CX) / (400 * wob)) ** 2 + ((y - CY) / (330 * wob)) ** 2 < 1
 def blend(x, y):
     h = (((x // (CELL * 2)) * 73856093) ^ ((y // (CELL * 2)) * 19349663) ^ (REG * 83492791)) & 0xffffffff
-    return LAND if h % 100 < 63 else 6  # ca. 60% Sakura, 40% alte Region 5
+    return LAND if h % 100 < 60 else 6  # 60% Sakura, 40% alte Region 5
 
 def cell(x, y):
     if math.hypot(x - 4420, y - 1560) < 26: return LAKE                         # Teich
@@ -38,4 +38,4 @@ rows = [rle([cell(X0 + i * CELL + CELL // 2, Y0 + j * CELL + CELL // 2) for i in
 roads = [[[3600, 1500], [3760, 1500], [3900, 1498], [4100, 1490], [4280, 1486], [4350, 1490]],
          [[4350, 1490], [4440, 1430], [4540, 1390]], [[4350, 1490], [4300, 1580], [4250, 1650]]]
 d = {"id": "sakura", "x0": X0, "y0": Y0, "x1": X1, "y1": Y1, "cell": CELL, "w": W, "h": H, "centers": {str(REG): [CX, CY]}, "roads": roads, "rivers": []}
-open(sys.argv[1], 'w').write("'use strict';\n// ERZEUGT von py/make_layout_sakura.py. Segment Kirschblütenwald (Region 17), additiv zu js/layout.js. Nicht von Hand ändern.\nSW.Layouts = SW.Layouts || [];\nSW.Layouts.push(Object.assign(" + json.dumps(d, separators=(',', ':')) + ", { rows: '" + '|'.join(rows) + "' }));\n")
+open(sys.argv[1], 'w').write("'use strict';\n// ERZEUGT von tools/make_layout_sakura.py. Segment Kirschblütenwald (Region 17), additiv zu js/layout.js. Nicht von Hand ändern.\nSW.Layouts = SW.Layouts || [];\nSW.Layouts.push(Object.assign(" + json.dumps(d, separators=(',', ':')) + ", { rows: '" + '|'.join(rows) + "' }));\n")
