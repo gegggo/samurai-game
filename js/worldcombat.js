@@ -62,7 +62,7 @@ SW.WCombat = (function () {
     else if (kind === 's0' || kind === 's1') {
       name = P.ps.slots[+kind[1]]; if (!name) return;
       if (P.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
-    } else if (kind === 'ranged') { if (!P.ps.ranged) return; name = 'shot'; }
+    } else if (kind === 'ranged') { if ((!P.ps.ranged || !SW.Inv.eq.ranged)) return; name = 'shot'; }
     else return;
     startMove(name);
   }
