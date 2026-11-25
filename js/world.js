@@ -32,7 +32,9 @@ SW.World = (function () {
   const CEN = []; // Regionsmitte je Region (Mirror Lake = Seemitte). Strukturen und Inhalte hängen daran.
   SEG.forEach(s => Object.keys(s.centers).forEach(k => { CEN[+k] = s.centers[k]; }));
   function code(x, y) {
-    for (let i = 0; i < SEG.length; i++) {
+    // Spaeter geladene Layout-Segmente duerfen als Region-Overlay an bestehendes Land
+    // anschliessen. Leere Overlay-Zellen fallen weiterhin auf aeltere Segmente zurueck.
+    for (let i = SEG.length - 1; i >= 0; i--) {
       const s = SEG[i];
       if (x >= s.x0 && x < s.x1 && y >= s.y0 && y < s.y1) { const v = s.g[(((y - s.y0) / s.c) | 0) * s.w + (((x - s.x0) / s.c) | 0)]; if (v) return v; }
     }
