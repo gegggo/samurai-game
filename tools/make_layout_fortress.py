@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Erzeugt js/layout-fortress.js (Region 18) als nahtlosen Landanschluss an die Hauptinsel.
-Aufruf: python3 py/make_layout_fortress.py js/layout-fortress.js"""
+Aufruf: python3 tools/make_layout_fortress.py js/layout-fortress.js"""
 import sys, json, math
 X0, Y0, X1, Y1, CELL = 3400, 2000, 5000, 3000, 8
 W, H = (X1 - X0) // CELL, (Y1 - Y0) // CELL
