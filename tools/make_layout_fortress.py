@@ -11,7 +11,7 @@ def island(x, y):
     return ((x - CX) / (300 * wob)) ** 2 + ((y - CY) / (250 * wob)) ** 2 < 1
 def blend(x, y):
     h = (((x // (CELL * 2)) * 73856093) ^ ((y // (CELL * 2)) * 19349663) ^ (REG * 83492791)) & 0xffffffff
-    return LAND if h % 100 < 70 else 16  # ca. 60% Festung, 40% alte Region 15
+    return LAND if h % 100 < 60 else 16  # 60% Festung, 40% alte Region 15
 
 def cell(x, y):
     if island(x, y): return LAND
@@ -38,4 +38,4 @@ rows = [rle([cell(X0 + i * CELL + CELL // 2, Y0 + j * CELL + CELL // 2) for i in
 roads = [[[3440, 2300], [3600, 2300], [3800, 2300], [3990, 2310], [4100, 2400], [4180, 2480]],
          [[4180, 2480], [4180, 2545]], [[4180, 2480], [4280, 2470], [4360, 2430]]]
 d = {"id": "fortress", "x0": X0, "y0": Y0, "x1": X1, "y1": Y1, "cell": CELL, "w": W, "h": H, "centers": {str(REG): [CX, CY]}, "roads": roads, "rivers": []}
-open(sys.argv[1], 'w').write("'use strict';\n// ERZEUGT von py/make_layout_fortress.py. Segment Verlassene Festung (Region 18), additiv zu js/layout.js. Nicht von Hand ändern.\nSW.Layouts = SW.Layouts || [];\nSW.Layouts.push(Object.assign(" + json.dumps(d, separators=(',', ':')) + ", { rows: '" + '|'.join(rows) + "' }));\n")
+open(sys.argv[1], 'w').write("'use strict';\n// ERZEUGT von tools/make_layout_fortress.py. Segment Verlassene Festung (Region 18), additiv zu js/layout.js. Nicht von Hand ändern.\nSW.Layouts = SW.Layouts || [];\nSW.Layouts.push(Object.assign(" + json.dumps(d, separators=(',', ':')) + ", { rows: '" + '|'.join(rows) + "' }));\n")
