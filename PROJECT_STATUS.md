@@ -1,3 +1,62 @@
+# Samurai Wanderer – Aktueller Projektstatus
+
+Stand: 25.11.2026  
+Aktuelle Codeversion: **0.24.9**  
+Cache-Version in `index.html`: **v103**  
+Verbindliche Spezifikation: **Samurai Wanderer – Complete Project Specification v2.1**
+
+## Kurzüberblick
+
+- Projekt: HTML-/CSS-/JavaScript-Browser-RPG; GitHub Pages ist das vorgesehene Hosting.
+- Zielgerät: iPhone im Querformat; Desktop-Steuerung per WASD/Pfeiltasten.
+- Entwicklung: phasenweise. Bestehende Funktionen erhalten, Änderungen einzeln testen und nicht bestätigte Tests ausdrücklich als offen kennzeichnen.
+- Die detaillierte Versions- und Änderungshistorie folgt unter diesem aktuellen Überblick.
+
+## Aktueller Stand – Version 0.24.9
+
+Laut aktuellem Repository-Code ist Version 0.24.9 in `js/config.js` eingetragen; `index.html` lädt die Skripte und Styles mit Cache-Version v103.
+
+### Umgesetzt laut Code und bisherigem Änderungsprotokoll
+- Waffenhaltbarkeit je Exemplar im Inventar (`dur`) und für ausgerüstete Waffen (`edur`).
+- Haltbarkeit wird bei Treffern in Weltkampf, Duell und Boss-Arena abgezogen.
+- Waffen können bei Haltbarkeit 0 zerbrechen; legendäre Waffen sind als unzerbrechlich vorgesehen.
+- Inventar zeigt Haltbarkeit und bietet Sortierung nach Art, Seltenheit, Haltbarkeit und Name.
+- Skilltree- und Inventar-UI-Änderungen aus 0.24.9 sind im Änderungsprotokoll dokumentiert.
+
+### Noch offen
+- Reparaturfunktion beim Schmied ist nicht implementiert.
+- Fernwaffen-Haltbarkeit wird bei einem bereits laufenden Kampf möglicherweise erst nach dem Kampf-Cache aktualisiert; der bekannte Fehler muss behoben und getestet werden.
+- Haltbarkeitswerte (30/45/60/80 je Seltenheit) sind Platzhalter und noch nicht balanciert.
+- iPhone-Gerätetest für Version 0.24.9 steht aus.
+- Ein vollständiger Browser-Regressionstest für den aktuellen Gesamtstand ist nicht bestätigt.
+
+### Testnachweis – nicht mit vollständiger Freigabe verwechseln
+Im bisherigen Änderungsprotokoll sind headless-Tests für Ausrüsten, Zerbrechen, Speichern/Laden und UI-Screenshots dokumentiert. Außerdem sind 38 von 39 Regressionstests als bestanden vermerkt; ein Test scheiterte an einem Validator-Pfad in der damaligen Testumgebung. Diese Angaben sind ein historischer Testbericht und kein Nachweis, dass der aktuelle GitHub-Stand vollständig im Browser oder auf dem iPhone geprüft wurde.
+
+## Nächste sinnvolle Schritte
+1. Fernwaffen-Haltbarkeit während eines laufenden Kampfes korrigieren.
+2. Reparatur beim Schmied planen und implementieren.
+3. Regressionstests für Haltbarkeit, Reparatur, Shops, Schreine und Kartenverbindungen ergänzen.
+4. Gesamtspiel im Browser testen.
+5. Auf dem iPhone im Querformat testen.
+6. Erst danach den nächsten größeren Entwicklungsabschnitt beginnen.
+
+## Verbindliche Entwicklungsregeln
+- Die Projektspezifikation v2.1 ist die maßgebliche Grundlage.
+- Bestehende, funktionierende Systeme nicht entfernen oder unbeabsichtigt verändern.
+- Neue Systeme in die vorhandene Architektur integrieren; keine isolierten Fragmente zur manuellen Zusammenführung liefern.
+- Nur die jeweils freigegebene Phase umsetzen; zukünftige Phasen nicht vorziehen.
+- Jede Phase auf Fehler und Seiteneffekte testen.
+- Nicht ausgeführte Browser- oder Gerätetests ausdrücklich als offen markieren.
+- Geänderte Dateien einzeln mit Repository-Pfad bereitstellen; ZIP nur zusätzlich, wenn gewünscht.
+- Mobile Bedienbarkeit und Performance haben Priorität.
+- Neue Fähigkeiten und größere Designänderungen zuerst vorschlagen und freigeben lassen.
+- Essence ist ausschließlich für den Skilltree bestimmt.
+
+---
+
+## Detaillierte Versionshistorie
+
 ## 0.24.8 – Item-Icons eingebunden (Cache v102) – Dateien gesendet, ungetestet
 - **Icons:** 39 PNG (256×256, eine je Item-ID) nach `assets/images/items/icons/<id>.png`; `js/inventory.js` lädt sie im Inventar-Gitter (Name als Rückfall). Rahmen/Seltenheit bleibt in der UI. Erste Fassung, Zuschnitt prüfen.
 - **Geändert:** `js/inventory.js` (Pfad), `js/config.js` 0.24.8, `index.html` v102, 39 neue PNG.
