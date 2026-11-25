@@ -89,6 +89,7 @@ Object.assign(SW.TEXT.de, {
   it_wood: 'Holz', itd_wood: 'Baumaterial für Reparaturen.', it_iron: 'Eisen', itd_iron: 'Roheisen für den Schmied.',
   it_stone: 'Stein', itd_stone: 'Baumaterial.', it_herb: 'Heilkraut', itd_herb: 'Wird von Heilern und Dorfbewohnern gebraucht.',
   buy: 'Kaufen', sell: 'Verkaufen', shop_upgrade: 'Verbessern', shop_craft: 'Herstellen', craft: 'Herstellen', upgrade: 'Verbessern',
+  shop_repair: 'Reparieren', repair_none: 'Alle Waffen sind in gutem Zustand.', repair_bag: 'Im Beutel',
   cannot_sell: 'Nicht verkäuflich', nothing_sell: 'Nichts zu verkaufen.', cost: 'Kosten', owned: 'Besitz',
   up_hint_w: 'Pro Stufe: Schaden +5%.', up_hint_a: 'Pro Stufe: Verteidigung +0,25.', drop_iron: 'Eisen gefunden: ×{n}', fx_rwind: 'Fernkampf-Ausholen -{n}%',
   no_upgrade: 'Du besitzt keine Waffe oder Rüstung zum Verbessern.',
@@ -140,7 +141,7 @@ Object.assign(SW.TEXT.de, {
   req_balance: 'Yin und Yang ausgeglichen, beide {n}+', req_sp: '{n} Fähigkeitspunkt(e)',
   ess: 'Essence',
   lv_up: 'Stufe {n}!', slot: 'Platz {n}', slot_empty: 'Leer', equip: 'Ausrüsten',
-  dur: 'Haltbarkeit', dur_inf: 'Unzerbrechlich', wpn_broke: '{n} ist zerbrochen!', sort: 'Sortierung', sort_type: 'Art', sort_rar: 'Seltenheit', sort_dur: 'Haltbarkeit', sort_name: 'Name',
+  dur: 'Haltbarkeit', dur_inf: 'Unzerbrechlich', wpn_broke: '{n} ist zerbrochen und wurde in deinen Beutel gelegt!', sort: 'Sortierung', sort_type: 'Art', sort_rar: 'Seltenheit', sort_dur: 'Haltbarkeit', sort_name: 'Name',
   no_active: 'Noch keine aktiven Techniken gelernt.', activate: 'Freischalten',
   secret_ready: 'Geheimtechnik bereit zum Freischalten!', secret_got: 'Geheimtechnik gefunden: {n}',
   ki_cost: 'Ki {n}', no_passive: 'Noch keine passiven Fähigkeiten gelernt.'
