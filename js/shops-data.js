@@ -26,6 +26,7 @@ SW.Data = SW.Data || {};
   Object.assign(SW.TEXT.en, {
     talk: 'Talk', buy: 'Buy', sell: 'Sell', shop_upgrade: 'Upgrade', shop_craft: 'Craft', craft: 'Craft', upgrade: 'Upgrade',
     max_lvl: 'Maximum level', cannot_sell: 'Cannot be sold', nothing_sell: 'Nothing to sell.', cost: 'Cost', owned: 'Owned',
+    shop_repair: 'Repair', repair_none: 'All weapons are in good condition.', repair_bag: 'In bag',
     up_hint_w: 'Each level: damage +5%.', up_hint_a: 'Each level: defense +0.25.', no_upgrade: 'You own no weapon or armor to improve.',
     npc_weapon: 'Weapon Merchant', npc_armor: 'Armor Merchant', npc_general: 'General Merchant', npc_herb: 'Herbalist', npc_smith: 'Blacksmith',
     hi_weapon: 'Fine blades for a wandering swordsman.', hi_armor: 'Good armor keeps you alive.', hi_general: 'Wood, iron, stone. Whatever you need.',
