@@ -46,8 +46,8 @@ Die Spielwelt soll wie das World Draft aussehen: Insel mit Meer, Regionen wie im
 - Bestehende Funktionen und Systeme nicht entfernen. Systeme getrennt halten (XP, Skillpunkte, Essence nur Skilltree, Karma, Yin/Yang, Münzen, Ressourcen).
 - Keine neuen Systeme ohne vorherigen Vorschlag. Mobile Performance vor Optik. Texte EN und DE.
 - Keine Spielmechanik ändern. Nur Welt, Karte, Koordinaten.
-- Nach jedem Teil: Version erhöhen (`config.js`), Cache-Nummer in `index.html` erhöhen, `PROJECT_STATUS.md` aktualisieren.
-- Nach jedem Teil Tests: `node --check` für alle JS, Erreichbarkeit, Chromium 852x393 (Start, Neues Spiel, Karte, Schnellreise, keine JS-Fehler). Nicht Geprüftes ausdrücklich als ungetestet nennen.
+- Nach jedem Teil: Version erhöhen (`config.js`), Cache-Nummer in `index.html` erhöhen, `Project_Status.md` aktualisieren; `PROJECT_STATUS.md` ist nur noch die historische Versionschronik.
+- Nach jedem Teil Tests: `node --check` für alle JS, `python3 tests/layout_connectivity.py` für die neuen Landanschlüsse, Erreichbarkeit, Chromium 852x393 (Start, Neues Spiel, Karte, Schnellreise, keine JS-Fehler). Nicht Geprüftes ausdrücklich als ungetestet nennen.
 - Liefere nur geänderte Dateien plus Skript (`tools/make_layout.py`, `js/layout.js`) und sage kurz, welche ich in GitHub ersetze.
 
 ## Wenn Tokens knapp werden
