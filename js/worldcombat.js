@@ -126,6 +126,7 @@ SW.WCombat = (function () {
       if (heavyish) push(s, .35 * (1 + 3 * ps.knock));
       if (w.hp <= 0) kill(s);
     });
+    refreshPs(); // Ausruestungsboni und Fernkampf-Button nach Waffenbruch sofort aktualisieren
   }
   function push(s, dist) { // Gegner leicht vom Spieler wegstoßen
     const p = SW.Player, dx = s.x - p.x, dy = s.y - p.y, d = Math.hypot(dx, dy) || 1, nx = s.x + dx / d * dist, ny = s.y + dy / d * dist;
