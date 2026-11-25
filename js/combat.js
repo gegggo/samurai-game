@@ -150,7 +150,7 @@ SW.Combat = (function () {
       name = S.ps.slots[+kind[1]];
       if (!name) return;
       if (S.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
-    } else if (kind === 'ranged') { if (!S.ps.ranged) return; name = 'shot'; }
+    } else if (kind === 'ranged') { if (!SW.Inv.eq.ranged) return; name = 'shot'; }
     else return;
     startMove(name);
   }
