@@ -30,6 +30,7 @@ SW.Menus = (function () {
   };
 
   M.skills = function (p) {
+    { const w = el('div', 'sk-wrap'); p.appendChild(w); p = w; } // Abschnitte untereinander statt nebeneinander
     const S = SW.Skills, D = SW.Data, root = page(p, T('tab_skills'));
     const kiOf = id => Math.ceil(((D.moves[S.moveOf(id)] || {}).ki || 0) * SW.Char.combat().kiCostMul);
     const nm = id => { const n = S.node(id); return n ? n.name : T('sk_' + id); }, ds = id => { const n = S.node(id); return n ? n.desc : T('skd_' + id); }; // Skilltree-Knoten tragen Name/Text in den Daten

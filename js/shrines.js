@@ -42,13 +42,12 @@ SW.Shrines = (function () {
     if (SW.UI) SW.UI.banner(SW.t('shrine_on', S.name(id)) + (m.length ? ' ' + m.join(' ') : ''));
     SW.Save.touch(); return true;
   };
-  // Beten: erstes Mal erwecken, danach Karma-/Yin-Yang-Seite öffnen
+  // Erstes Beten erweckt den Schrein. Danach ist nur noch das Betreten möglich.
   S.interact = function (s) {
     if (!s || SW.paused || SW.Combat.active) return false;
     if (!S.on.has(s.id)) return S.activate(s.id);
     if (SW.Trials && SW.Trials.can(s.id)) return SW.Trials.enter(s.id);
-    if (SW.UI && SW.UI.open) SW.UI.open('skills');
-    return true;
+    return false;
   };
   S.canTravel = id => !!(S.get(id) && S.on.has(id) && !SW.Combat.active);
   S.travel = function (id) {
