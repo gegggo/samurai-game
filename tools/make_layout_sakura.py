@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Erzeugt js/layout-sakura.js (Segment Kirschblütenwald, Region 17) im Meer östlich der Insel.
+"""Erzeugt js/layout-sakura.js (Region 17) als nahtlosen Landanschluss an die Hauptinsel.
 Aufruf: python3 py/make_layout_sakura.py js/layout-sakura.js"""
 import sys, json, math
 X0, Y0, X1, Y1, CELL = 3560, 1000, 5000, 2000, 8
@@ -9,12 +9,18 @@ REG = 17; LAND, LAKE = REG + 1, 128 + REG + 1
 def island(x, y):
     a = math.atan2(y - CY, x - CX); wob = 1 + .07 * math.sin(3 * a + 1) + .05 * math.sin(5 * a + 2)
     return ((x - CX) / (400 * wob)) ** 2 + ((y - CY) / (330 * wob)) ** 2 < 1
+def blend(x, y):
+    h = (((x // (CELL * 2)) * 73856093) ^ ((y // (CELL * 2)) * 19349663) ^ (REG * 83492791)) & 0xffffffff
+    return LAND if h % 100 < 63 else 6  # ca. 60% Sakura, 40% alte Region 5
+
 def cell(x, y):
     if math.hypot(x - 4420, y - 1560) < 26: return LAKE                         # Teich
-    hw = 40 + 8 * math.sin(x / 37)                                              # Landbrücke 80-96 Kacheln breit
-    if 3730 <= x < 3790 and abs(y - 1500) < hw: return LAKE                     # Meerenge (Brücke kreuzt sie)
+    hw = 40 + 8 * math.sin(x / 37)                                              # 10-12 Layout-Kacheln breiter Landanschluss
     if island(x, y): return LAND
-    if X0 <= x < 4000 and abs(y - 1500) < hw: return LAND                       # Landzunge zur Hauptinsel
+    if X0 <= x < 4000 and abs(y - 1500) < hw:
+        if x < 3660: return 0                                                   # bestehendes Land der Hauptinsel behalten
+        if x < 3820: return blend(x, y)                                         # 20-Kachel-Uebergangszone, 60/40
+        return LAND
     return 0
 def rle(r):
     out, i = [], 0
