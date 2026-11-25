@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Erzeugt js/layout-fortress.js (Segment Verlassene Festung, Region 18) im Meer suedoestlich der Insel.
-Aufruf: python3 py/make_layout_fortress.py js/layout-fortress.js"""
+"""Erzeugt js/layout-fortress.js (Region 18) als nahtlosen Landanschluss an die Hauptinsel.
+Aufruf: python3 tools/make_layout_fortress.py js/layout-fortress.js"""
 import sys, json, math
 X0, Y0, X1, Y1, CELL = 3400, 2000, 5000, 3000, 8
 W, H = (X1 - X0) // CELL, (Y1 - Y0) // CELL
@@ -9,11 +9,18 @@ REG = 18; LAND, LAKE = REG + 1, 128 + REG + 1
 def island(x, y):
     a = math.atan2(y - CY, x - CX); wob = 1 + .07 * math.sin(3 * a + 1) + .05 * math.sin(5 * a + 2)
     return ((x - CX) / (300 * wob)) ** 2 + ((y - CY) / (250 * wob)) ** 2 < 1
+def blend(x, y):
+    h = (((x // (CELL * 2)) * 73856093) ^ ((y // (CELL * 2)) * 19349663) ^ (REG * 83492791)) & 0xffffffff
+    return LAND if h % 100 < 70 else 16  # ca. 60% Festung, 40% alte Region 15
+
 def cell(x, y):
-    if 3600 <= x < 3660 and abs(y - 2300) < 15: return LAKE                     # Meerenge (Bruecke kreuzt sie)
     if island(x, y): return LAND
-    if X0 <= x < 3950 and abs(y - 2300) < 15: return LAND                       # Landzunge zur Hauptinsel
-    if 3900 <= x < 4050 and abs(y - 2300) < 15: return LAND
+    hw = 52 + 6 * math.sin(x / 41)                                             # 13-15 Layout-Kacheln breiter Landanschluss
+    if X0 <= x < 3950 and abs(y - 2300) < hw:
+        if x < 3472: return 0                                                   # bestehendes Land der Hauptinsel behalten
+        if x < 3632: return blend(x, y)                                         # 20-Kachel-Uebergangszone, 60/40
+        return LAND
+    if 3900 <= x < 4050 and abs(y - 2300) < hw: return LAND
     return 0
 def rle(r):
     out, i = [], 0
