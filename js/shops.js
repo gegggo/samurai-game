@@ -46,6 +46,39 @@ SW.Shop = (function () {
     I.remove(id, amount); I.addCoins(v * amount); return true;
   };
   S.sellAll = id => S.sell(id, I.bag[id] || 0);
+  const repairFactor = { common: 2, uncommon: 2, rare: 3, epic: 4 };
+  S.repairTargets = function () {
+    const out = [];
+    D.slots.forEach(slot => {
+      const id = I.eq[slot], max = id && I.DUR[it(id).rar] || 0, current = I.durOf(slot);
+      if (max && current !== null && current < max) out.push({ id, slot, current, max, key: 'eq:' + slot });
+    });
+    Object.keys(I.dur).forEach(id => {
+      const max = I.DUR[it(id).rar] || 0;
+      (I.dur[id] || []).forEach((current, index) => {
+        if (max && current < max) out.push({ id, index, current, max, key: 'bag:' + id + ':' + index });
+      });
+    });
+    return out;
+  };
+  S.repairCost = target => {
+    const missing = target.max - target.current, factor = repairFactor[it(target.id).rar] || 2;
+    return { coins: Math.ceil(missing * factor * (D.priceFactor || 1)), iron: Math.max(1, Math.ceil(missing / 20)) };
+  };
+  S.canRepair = function (target) {
+    if (!target) return false;
+    const cost = S.repairCost(target);
+    return I.coins >= cost.coins && (I.bag.iron || 0) >= cost.iron;
+  };
+  S.repair = function (target) {
+    if (!target || !S.canRepair(target)) return false;
+    const cost = S.repairCost(target);
+    if (!I.spend(cost.coins)) return false;
+    if (!I.remove('iron', cost.iron)) { I.addCoins(cost.coins); return false; }
+    const ok = I.repair(target.id, target.index, target.slot);
+    if (!ok) { I.addCoins(cost.coins); I.add('iron', cost.iron); return false; }
+    return true;
+  };
   S.upgradable = id => it(id) && (it(id).type === 'weapon' || it(id).type === 'armor') && I.owned(id);
   S.canUpgrade = function (id) {
     if (!S.upgradable(id)) return false;
@@ -90,7 +123,7 @@ SW.Shop = (function () {
     tabsEl = el('div', 'row shop-t'); body = el('div'); body.id = 'shop-body';
     add(root, head, tabsEl, body); document.body.appendChild(root);
   }
-  const tabsFor = role => role === 'smith' ? ['upgrade', 'craft'] : role === 'master' ? [] : ['buy', 'sell'];
+  const tabsFor = role => role === 'smith' ? ['upgrade', 'repair', 'craft'] : role === 'master' ? [] : ['buy', 'sell'];
   const costTxt = o => Object.keys(o).map(k => o[k] + ' ' + T('it_' + k)).join(', ');
   const nameChip = id => el('span', 'chip r_' + it(id).rar, I.name(id));
   const info = id => el('span', 'dim', I.fxLines(it(id).fx).join(' · '));
@@ -127,7 +160,7 @@ SW.Shop = (function () {
     const role = S.cur.role, tabs = tabsFor(role);
     titleEl.textContent = T('npc_' + role); coinsEl.textContent = T('coins') + ': ' + I.coins;
     tabsEl.innerHTML = '';
-    tabs.forEach(t => add(tabsEl, btn(T(t === 'buy' ? 'buy' : t === 'sell' ? 'sell' : t === 'upgrade' ? 'shop_upgrade' : 'shop_craft'), t === S.tab ? 'pri' : '', () => { S.tab = t; render(); })));
+    tabs.forEach(t => add(tabsEl, btn(T(t === 'buy' ? 'buy' : t === 'sell' ? 'sell' : t === 'upgrade' ? 'shop_upgrade' : t === 'repair' ? 'shop_repair' : 'shop_craft'), t === S.tab ? 'pri' : '', () => { S.tab = t; render(); })));
     body.innerHTML = '';
     if (role === 'master') { masterBody(); return; }
     if (S.refuses(role)) { add(body, el('div', 'no', T('refuse_' + role))); return; }
@@ -155,6 +188,16 @@ SW.Shop = (function () {
           add(r, qty, btn('Sell X', '', () => { S.sell(id, qty.value); render(); }));
           add(r, btn('Sell All', '', () => { S.sellAll(id); render(); }));
         } else add(r, el('span', 'dim', T('cannot_sell')));
+        add(body, r);
+      });
+    } else if (S.tab === 'repair') {
+      const targets = S.repairTargets();
+      if (!targets.length) add(body, el('div', 'dim', T('repair_none')));
+      targets.forEach(target => {
+        const c = S.repairCost(target), place = target.slot ? T('eqs_' + target.slot) : T('repair_bag');
+        const r = add(el('div', 'row card'), nameChip(target.id), el('span', 'dim', target.current + '/' + target.max), el('span', 'dim', place));
+        add(r, el('span', 'dim', T('cost') + ': ' + c.coins + ' ' + T('coins') + ', ' + c.iron + ' ' + T('it_iron')));
+        add(r, btn(T('shop_repair'), 'pri', () => { S.repair(target); render(); }, !S.canRepair(target)));
         add(body, r);
       });
     } else if (S.tab === 'upgrade') {
