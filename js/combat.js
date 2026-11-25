@@ -177,7 +177,7 @@ SW.Combat = (function () {
     if (f.st === 'rec' || f.st === 'stagger') dmg *= 1.3;
     const crit = Math.random() < ps.crit; if (crit) dmg *= ps.critMul || 1.5;
     dmg = Math.max(1, Math.round(dmg));
-    SW.Inv.wear(m.ranged ? ['ranged'] : ['main', 'side']); S.hp -= dmg; f.flash = .1; if (!m.ranged) S.ki = Math.min(S.kmax, S.ki + 4); // Fernkampf lädt kein Ki auf
+    SW.Inv.wear(m.ranged ? ['ranged'] : ['main', 'side']); S.ps = K.playerStats(); S.pmax = S.ps.hp; S.kmax = S.ps.ki; S.php = Math.min(S.php, S.pmax); S.ki = Math.min(S.ki, S.kmax); S.hp -= dmg; f.flash = .1; if (!m.ranged) S.ki = Math.min(S.kmax, S.ki + 4); // Fernkampf lädt kein Ki auf
     flt(dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
     if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock)) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; }
     if (S.hp <= 0) { S.hp = 0; S.php = Math.min(S.pmax, S.php + S.pmax * ps.healWin); S.state = 'win'; S.t = 0; S.spot.dead = true; S.pm = null; reward(); return; }
