@@ -1,3 +1,5 @@
+> **Historische Versionschronik:** Diese Datei dokumentiert frühere Änderungen und Tests. Für den aktuellen Entwicklungsstand bitte `Project_Status.md` verwenden.
+
 ## 0.24.8 – Item-Icons eingebunden (Cache v102) – Dateien gesendet, ungetestet
 - **Icons:** 39 PNG (256×256, eine je Item-ID) nach `assets/images/items/icons/<id>.png`; `js/inventory.js` lädt sie im Inventar-Gitter (Name als Rückfall). Rahmen/Seltenheit bleibt in der UI. Erste Fassung, Zuschnitt prüfen.
 - **Geändert:** `js/inventory.js` (Pfad), `js/config.js` 0.24.8, `index.html` v102, 39 neue PNG.
