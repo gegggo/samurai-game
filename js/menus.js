@@ -33,8 +33,32 @@ SW.Menus = (function () {
     { const w = el('div', 'sk-wrap'); p.appendChild(w); p = w; } // Abschnitte untereinander statt nebeneinander
     const S = SW.Skills, D = SW.Data, root = page(p, T('tab_skills'));
     const kiOf = id => Math.ceil(((D.moves[S.moveOf(id)] || {}).ki || 0) * SW.Char.combat().kiCostMul);
-    const nm = id => { const n = S.node(id); return n ? n.name : T('sk_' + id); }, ds = id => { const n = S.node(id); return n ? n.desc : T('skd_' + id); }; // Skilltree-Knoten tragen Name/Text in den Daten
+    const nm = id => { const n = S.node(id); return n ? n.name : T('sk_' + id); }, ds = id => { const n = S.node(id); return n ? n.desc : T('skd_' + id); };
     const kiTxt = id => kiOf(id) > 0 ? T('ki_cost', kiOf(id)) : '';
+    const showInfo = (id, kind) => {
+      const old = document.querySelector('.skill-info-backdrop');
+      if (old) old.remove();
+      const layer = el('div', 'skill-info-backdrop'), box = el('div', 'skill-info-popup'), head = el('div', 'skill-info-head');
+      const close = btn('✕', 'skill-info-close', () => layer.remove());
+      close.setAttribute('aria-label', T('close'));
+      add(head, el('h3', '', nm(id)), close);
+      add(box, head, el('div', 'chip', kind + (kiTxt(id) ? ' · ' + kiTxt(id) : '')), el('p', 'skill-info-desc', ds(id)));
+      const equipped = [0, 1].filter(i => S.slots[i] === id).map(i => T('auto_slot', i + 1));
+      if (equipped.length) add(box, el('div', 'dim', equipped.join(' · ')));
+      add(layer, box);
+      layer.setAttribute('role', 'presentation');
+      box.setAttribute('role', 'dialog');
+      box.setAttribute('aria-modal', 'true');
+      box.setAttribute('aria-label', nm(id));
+      layer.addEventListener('click', e => { if (e.target === layer) layer.remove(); });
+      document.body.appendChild(layer);
+      close.focus();
+    };
+    const infoButton = (id, kind) => {
+      const b = btn('', 'sk-info-trigger', () => showInfo(id, kind));
+      add(b, el('span', '', nm(id)), el('span', 'sk-info-icon', 'ⓘ'));
+      return b;
+    };
     const bars = el('div', 'sk-slots'); // zwei automatisch ausloesende Kampfskills
     [0, 1].forEach(i => {
       const id = S.slots[i], box = el('button', 'btn slotbar' + (id ? ' pri' : ''), T('auto_slot', i + 1) + ': ' + (id ? nm(id) + (kiTxt(id) ? ' · ' + kiTxt(id) : '') : T('slot_empty')));
@@ -45,11 +69,11 @@ SW.Menus = (function () {
     add(root, bars);
     const acts = S.nodes.filter(n => n.type === 'active' && S.learned[n.id]).map(n => n.id).concat(D.secrets.filter(s => S.sec[s.id] === 2).map(s => s.id), D.scrolls.filter(s => S.scr[s.id] === 2).map(s => s.id));
     if (!acts.length) add(root, el('div', 'dim', T('no_active')));
-    const grid = el('div', 'sk-grid'); // unten: Techniken als Kacheln, 3 Spalten
+    const grid = el('div', 'sk-grid');
     acts.forEach(id => {
       const t = el('div', 'sk-tile' + (S.slots[0] === id || S.slots[1] === id ? ' eq' : '')), bs = el('div', 'sk-btns');
       [0, 1].forEach(i => add(bs, btn(T('auto_slot', i + 1), S.slots[i] === id ? 'pri' : '', () => { S.equip(id, i); refresh(); })));
-      add(t, el('b', '', nm(id)), kiTxt(id) ? el('span', 'chip', kiTxt(id)) : null, el('small', 'dim', ds(id)), bs);
+      add(t, infoButton(id, T('active')), kiTxt(id) ? el('span', 'chip', kiTxt(id)) : null, bs);
       add(grid, t);
     });
     if (acts.length) add(root, grid);
@@ -58,9 +82,9 @@ SW.Menus = (function () {
       add(root, el('h3', '', T('secret')));
       sec.forEach(s => {
         const st = S.sec[s.id], line = el('div', 'row card');
-        add(line, el('b', '', T('sk_' + s.id)), el('span', 'chip', st === 2 ? T('st_active') : S.secReady(s.id) ? T('st_ready') : T('st_locked')));
+        add(line, infoButton(s.id, T('secret')), el('span', 'chip', st === 2 ? T('st_active') : S.secReady(s.id) ? T('st_ready') : T('st_locked')));
         if (st === 1) add(line, btn(T('activate'), 'pri', () => { S.activate(s.id); refresh(); }, !S.secReady(s.id)));
-        add(root, line, el('div', 'dim', T('skd_' + s.id)));
+        add(root, line);
         if (st === 1) add(root, reqRows(S.secReqs(s.id)));
       });
     }
@@ -68,11 +92,14 @@ SW.Menus = (function () {
     const ps = S.nodes.filter(n => n.type === 'passive' && S.learned[n.id]);
     if (!ps.length) add(root, el('div', 'dim', T('no_passive')));
     const pg = el('div', 'sk-grid');
-    ps.forEach(n => add(pg, add(el('div', 'sk-tile'), el('b', '', nm(n.id)), el('small', 'dim', ds(n.id)))));
+    ps.forEach(n => {
+      const tile = el('div', 'sk-tile');
+      add(tile, infoButton(n.id, T('passive')));
+      add(pg, tile);
+    });
     if (ps.length) add(root, pg);
-    M.character(p); M.karma(p); // Character + Karma/Yin-Yang sind Abschnitte der Skills-Seite
+    M.character(p); M.karma(p);
   };
-
   let tapId = '', tapT = 0;
   // 1x Tippen: Popup, 2x Tippen (<350 ms): kaufen
   function tapNode(n) {
