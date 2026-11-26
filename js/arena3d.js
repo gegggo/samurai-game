@@ -6,7 +6,7 @@
 // Kamera: Lock-on auf den Boss (wie Z-Targeting), daher braucht Bewegung nur den Joystick: oben = vor, unten = zurück, seitlich = Kreisen.
 SW.Arena = (function () {
   const D = SW.Data, K = SW.Combat, W = SW.World, TAU = 6.2832, SWING = .18, DODGE = .38;
-  const RA = 9, EYE = 1.5, WALL = 3.4, PSPD = 4.4, ROLL = 7, PREACH = 2.7;
+  const RA = 9, EYE = 1.5, WALL = 3.4, PSPD = 5.2, ROLL = 8.5, PREACH = 2.7;
   const A = { active: false }, held = { block: false, breath: false };
   let S = null;
   const T = (k, n) => SW.t(k, n), $ = id => document.getElementById(id);
@@ -25,12 +25,12 @@ SW.Arena = (function () {
     const def = D.enemies[spot.type], ps = K.playerStats(), reg = W.regionAt(Math.floor(spot.x), Math.floor(spot.y));
     const name = def.arena || D.regionArena[reg] || 'clearing';
     S = {
-      spot, def, ps, ar: D.arenas[name] || D.arenas.clearing, state: 'intro', t: 0, phase: 0, hp: Math.round(def.hp * K.tm(spot).hp), max: Math.round(def.hp * K.tm(spot).hp),
+      spot, def, ps, ar: D.arenas[name] || D.arenas.clearing, state: 'intro', t: 0, phase: 0, hp: Math.round(def.hp * K.tm(spot).hp * (def.phases ? 1.5 : 1)), max: Math.round(def.hp * K.tm(spot).hp * (def.phases ? 1.5 : 1)),
       php: ps.hp, pmax: ps.hp, ki: ps.ki, kmax: ps.ki, px: -6, py: 0, yaw: 0, pm: null, buf: null, chain: 0, chainT: 0, counterT: 0,
       block: false, blockT: 0, noBlockT: 1, parryOk: false, bl: 0, dodgeT: 0, dodgeCd: 0, dvx: 1, dvy: 0, invT: 0, hurt: 0, shake: 0, spark: 0,
       breath: false, msg: '', msgT: 0, msgCol: '#fff', floats: [], rew: null, fswing: 0, bob: 0,
       st: { heavy: 0, special: 0, counter: 0, parry: 0, dodge: 0, block: 0, breath: 0 },
-      boss: { x: 3, y: 0, st: 'idle', t: 0, dur: 1, wait: 1.5, atk: null, hits: 0, guarding: false, flash: 0, sd: Math.random() < .5 ? 1 : -1 }
+      boss: { x: 3, y: 0, st: 'idle', t: 0, dur: 1, wait: 1.5, atk: null, hits: 0, guarding: false, flash: 0, staggerLock: 0, sd: Math.random() < .5 ? 1 : -1 }
     };
     held.block = held.breath = false;
     if (ps.ranged) D.moves.shot = { wind: ps.ranged.wind, rec: ps.ranged.rec, dmg: ps.ranged.dmg, ranged: true, anim: 'shot' };
@@ -124,7 +124,7 @@ SW.Arena = (function () {
     dmg = Math.max(1, Math.round(dmg));
     SW.Inv.wear(m.ranged ? ['ranged'] : [m.weaponSlot || 'main']); S.hp -= dmg; f.flash = .1; if (!m.ranged) S.ki = Math.min(S.kmax, S.ki + 4);
     flt(dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
-    if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock)) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; }
+    if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock) && f.staggerLock <= 0) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; f.staggerLock = 2.2; }
     if (S.hp <= 0) { S.hp = 0; S.php = Math.min(S.pmax, S.php + S.pmax * ps.healWin); S.state = 'win'; S.t = 0; S.spot.dead = true; S.pm = null; reward(); return; }
     if (S.def.phases) {
       const r = S.hp / S.max; let n = S.phase;
@@ -147,7 +147,7 @@ SW.Arena = (function () {
   function foeStrike() {
     const f = S.boss, At = f.atk, ps = S.ps, p = ph();
     S.fswing = SWING; f.hits--;
-    const dmg = Math.max(1, At.dmg * (S.def.dmg || 1) * K.tm(S.spot).dmg - ps.def);
+    const dmg = Math.max(1, At.dmg * (S.def.dmg || 1) * K.tm(S.spot).dmg * (S.def.phases ? 1.5 : 1) - ps.def);
     if (dist() > REACH() + .7) { /* Spieler ist weggelaufen: Angriff geht ins Leere */ }
     else if (S.dodgeT > 0 || S.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); S.ki = Math.min(S.kmax, S.ki + 3 + S.kmax * ps.kiDodge); S.st.dodge++; }
     else if (S.block && !At.unblock && S.parryOk && S.blockT <= ps.parry) {
@@ -161,7 +161,7 @@ SW.Arena = (function () {
   }
   function fight(dt) {
     const ps = S.ps, f = S.boss, p = ph();
-    S.invT = Math.max(0, S.invT - dt); S.dodgeCd = Math.max(0, S.dodgeCd - dt); S.dodgeT = Math.max(0, S.dodgeT - dt); S.hurt = Math.max(0, S.hurt - dt);
+    S.boss.staggerLock = Math.max(0, S.boss.staggerLock - dt); S.invT = Math.max(0, S.invT - dt); S.dodgeCd = Math.max(0, S.dodgeCd - dt); S.dodgeT = Math.max(0, S.dodgeT - dt); S.hurt = Math.max(0, S.hurt - dt);
     S.chainT = Math.max(0, S.chainT - dt); S.counterT = Math.max(0, S.counterT - dt);
     if (S.buf) { S.buf.t -= dt; if (S.buf.t <= 0) S.buf = null; }
     if (S.pm) {

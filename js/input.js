@@ -1,7 +1,7 @@
 'use strict';
 // Eingabe: virtueller Joystick (links, Touch) + Tastatur (zum Testen am Rechner).
 SW.Input = (function () {
-  const I = { vec: { x: 0, y: 0 }, joy: { active: false, id: -1, bx: 0, by: 0, cx: 0, cy: 0 }, RAD: 60 };
+  const I = { vec: { x: 0, y: 0 }, sprintHeld: false, sprint: false, joy: { active: false, id: -1, bx: 0, by: 0, cx: 0, cy: 0 }, RAD: 60 };
   const keys = {};
   function vecFromJoy() {
     const j = I.joy; let dx = j.cx - j.bx, dy = j.cy - j.by, d = Math.hypot(dx, dy);
@@ -13,8 +13,9 @@ SW.Input = (function () {
     if (m < .15) return { x: 0, y: 0 };
     return { x: dx / (d || 1) * m, y: dy / (d || 1) * m };
   }
-  I.reset = function () { I.joy.active = false; I.joy.id = -1; for (const k in keys) keys[k] = false; I.vec.x = I.vec.y = 0; };
+  I.reset = function () { I.sprintHeld = false; I.sprint = false; I.joy.active = false; I.joy.id = -1; for (const k in keys) keys[k] = false; I.vec.x = I.vec.y = 0; };
   I.update = function () {
+    I.sprint = !!(I.sprintHeld || keys.Shift);
     if (SW.paused) { I.vec.x = I.vec.y = 0; return; }
     let kx = (keys.ArrowRight || keys.d ? 1 : 0) - (keys.ArrowLeft || keys.a ? 1 : 0);
     let ky = (keys.ArrowDown || keys.s ? 1 : 0) - (keys.ArrowUp || keys.w ? 1 : 0);

@@ -242,3 +242,8 @@ body.trial #pos { display: none !important; }
 .skill-info-head h3 { margin:2px 0 0; font:700 19px Georgia,serif; }
 .skill-info-close { flex:0 0 auto; min-width:38px; min-height:38px; padding:0; border:1px solid rgba(232,224,208,.4); border-radius:8px; background:rgba(255,255,255,.07); color:#e8e0d0; font-size:20px; }
 .skill-info-desc { margin:12px 0 4px; font:15px/1.45 sans-serif; color:#e8e0d0; }
+
+/* Phase 26: Sprint in der offenen Welt */
+.world-sprint { position: fixed; right: calc(30px + env(safe-area-inset-right, 0px)); bottom: calc(166px + env(safe-area-inset-bottom, 0px)); width: 76px; height: 54px; border: 2px solid rgba(232,224,208,.65); border-radius: 14px; background: rgba(11,11,15,.62); color: #f4ecd8; font: 700 14px Georgia,serif; z-index: 6; touch-action: none; }
+.world-sprint.on { background: rgba(181,53,43,.75); border-color: #fff; }
+body.combat #world-sprint, body.wcombat #world-sprint, body.trial #world-sprint { display: none; }

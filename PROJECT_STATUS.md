@@ -1,8 +1,16 @@
+## Phase 26 – Zelda-Kampf + Welt-Fixes (in Arbeit)
+- Boss-Arena: Boss-Leben und -Schaden +50 %; Boss kann nicht mehr durch jede Special-Attack dauerhaft unterbrochen werden; freie Bewegung und Ausweichrolle beschleunigt.
+- Bambusobjekte sind durchquerbar; Bambusdichte reduziert.
+- Zeltplatzierung sucht tragfähigen Untergrund und deaktiviert Kollision, falls kein gültiger Platz gefunden wird.
+- Sprint in der offenen Welt: Taste Shift oder Touch-Schaltfläche, 1,65× Laufgeschwindigkeit, Ausdauerverbrauch.
+- Begriffe Ki/Ausdauer in zentralen EN/DE-Texten umbenannt.
+- Noch offen: Laufzeittests, Map-Spawn-Prüfung, UI-Ausdaueranzeige, vollständige Prüfung aller sichtbaren Ki-Texte und weitere Fehlerkorrekturen.
+
 # Samurai Wanderer – Aktueller Projektstatus
 
 Stand: 26.11.2026
-Aktuelle Codeversion: **0.25.0**
-Cache-Version in `index.html`: **v105**
+Aktuelle Codeversion: **0.26.0-dev**
+Cache-Version in `index.html`: **v106**
 Verbindliche Spezifikation: **Samurai Wanderer – Complete Project Specification v2.1**
 
 ## Kurzüberblick

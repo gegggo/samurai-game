@@ -23,6 +23,11 @@ SW.UI = (function () {
     });
     $('menu-btn').onclick = () => toggle(true);
     $('menu-close').onclick = () => toggle(false);
+    const sprint = document.createElement('button'); sprint.id = 'world-sprint'; sprint.className = 'world-sprint'; sprint.textContent = SW.t('sprint');
+    const sprintDown = e => { e.preventDefault(); SW.Input.sprintHeld = true; sprint.classList.add('on'); };
+    const sprintUp = e => { e.preventDefault(); SW.Input.sprintHeld = false; sprint.classList.remove('on'); };
+    sprint.addEventListener('pointerdown', sprintDown); sprint.addEventListener('pointerup', sprintUp); sprint.addEventListener('pointercancel', sprintUp); sprint.addEventListener('pointerleave', sprintUp);
+    sprint.addEventListener('contextmenu', e => e.preventDefault()); document.body.appendChild(sprint);
     resizeMini();
     window.addEventListener('resize', resizeMini);
     window.addEventListener('resize', () => { if (open && tab === 'map' && mapC) { sizeMap(); drawMap(); } });
