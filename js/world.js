@@ -65,6 +65,13 @@ SW.World = (function () {
     // Geklumptes, deterministisches Rauschen statt zufälliger Einzelpixel: ca. 60% neu / 40% alt.
     return fbm(x * 1.8, y * 1.8, 200 + older * 31 + newer * 17) < MIX_THRESHOLD ? newer : older;
   }
+  function nearBorder(wx, wy, reg) {
+    for (const d of MIX_DIRS) for (const dist of [20, 40]) {
+      const v = code(wx + d[0] * dist, wy + d[1] * dist);
+      if (v && v <= 127 && v - 1 !== reg) return true;
+    }
+    return false;
+  }
   function terrainRegionAt(x, y) {
     const wx = warpX(x, y), wy = warpY(x, y), v = code(wx, wy);
     if (!v) return 0;
@@ -117,7 +124,7 @@ SW.World = (function () {
       if (k) return k === 1 ? T.ROCK : k === 2 ? T.STAIR : k === 3 ? T.GRASS : T.STONE;
     }
     const d = Math.hypot(x - m[0], y - m[1]), f = fbm(x, y, 50 + reg);
-    if (d < 9) return T.STONE; // Plattform um den Schrein
+    if (d < 5) return T.STONE; // Plattform um den Schrein (klein)
     if (reg === 12) return d > 22 && f > .64 ? T.ROCK : T.SNOW;
     if (reg === 13) return d > 28 && f > .7 ? T.ROCK : d > 22 && f > .62 ? T.LAVA : T.ASH;
     if (reg === 14) { const o = Math.hypot(x - m[0] - 22, y - m[1]); return o < 8 ? T.WATER : o < 11 ? T.GRASS : d > 30 && f > .75 ? T.ROCK : T.DUNE; } // Oase
@@ -132,12 +139,12 @@ SW.World = (function () {
     if (reg >= 12) return biome(reg, x, y, CEN[reg]);
     const m = CEN[reg] || [x, y], dx = x - m[0], dy = y - m[1], d2 = dx * dx + dy * dy;
     if (reg >= 9) {
-      if (reg === 9) return d2 < 64 ? T.STONE : T.FOREST;
-      if (d2 < (reg === 10 ? 144 : 64)) return T.STONE; // Plattform um den Schrein
+      if (reg === 9) return d2 < 25 ? T.STONE : T.FOREST;
+      if (d2 < (reg === 10 ? 49 : 25)) return T.STONE; // Plattform um den Schrein
       if (reg === 11) { const f = fbm(x, y, 41); return d2 > 169 && f > .66 ? T.WATER : f > .6 ? T.SAND : T.GRASS; } // Tümpel mit Sandrand
       return T.GRASS;
     }
-    if (reg === 2 && d2 < 196) return T.STONE;
+    if (reg === 2 && d2 < 64) return T.STONE;
     if (reg === 6 && Math.abs(dx) < 12 && Math.abs(dy) < 9) return T.STONE;
     if (reg === 8 && d2 < 2500) return T.CAVE;
     if (reg === 7 && Math.abs(dx) < 21 && Math.abs(dy) < 15) return T.DIRT;
@@ -153,12 +160,13 @@ SW.World = (function () {
     if (x < 0 || y < 0 || x >= WW || y >= HH) return T.SEA;
     const wx = warpX(x, y), wy = warpY(x, y), c = code(wx, wy);
     if (!c) return T.SEA; // Meer: schwarz, nicht betretbar
-    const baseReg = (c & 127) - 1, rd = lineDist(RI, wx, wy), road = rd < 1.6;
+    const baseReg = (c & 127) - 1, rd = lineDist(RI, wx, wy), road = rd < 1.6 && !nearSolid(x, y, 1); // Weg endet vor Gebäuden
     if (c > 127) return road ? T.BRIDGE : code(wx + 7, wy) > 127 && code(wx - 7, wy) > 127 && code(wx, wy + 7) > 127 && code(wx, wy - 7) > 127 ? T.DEEP : T.WATER; // See
     if (lineDist(VI, wx, wy) < 2.5) return road ? T.BRIDGE : T.WATER; // Fluss, Brücke wo ein Weg kreuzt
     const reg = blendRegion(baseReg, wx, wy, x, y);
     if (road && !(reg === 16 && mtn(x, y))) return T.PATH; // Karst-Berge gehen vor Wegen
-    const g = ground(reg, x, y, rd);
+    let g = ground(reg, x, y, rd);
+    if (g === T.ROCK && baseReg >= 17 && nearBorder(wx, wy, baseReg)) g = T.GRASS; // keine Felswand an Regionsgrenzen: Landverbindung
     if (g === T.GRASS || g === T.FOREST || g === T.BAMBOO || g === T.DIRT) { // Sandsaum an Küste und Ufer
       const a = code(wx + 3, wy), b = code(wx - 3, wy), d = code(wx, wy + 3), e = code(wx, wy - 3);
       if (!a || !b || !d || !e || a > 127 || b > 127 || d > 127 || e > 127) return T.SAND;
@@ -310,6 +318,14 @@ SW.World = (function () {
       const dx = x - s.x, dy = y - s.y;
       if ((dx === 0 || dy === 0 || dx === s.w - 1 || dy === s.h - 1) && !(dy === s.h - 1 && dx >= s.d0 && dx <= s.d1)) return true;
     } }
+    return false;
+  }
+  function nearSolid(x, y, m) {
+    for (let bx = Math.floor((x - m) / 32); bx <= Math.floor((x + m) / 32); bx++)
+      for (let by = Math.floor((y - m) / 32); by <= Math.floor((y + m) / 32); by++) {
+        const l = B.get(bk(bx, by)); if (!l) continue;
+        for (let i = 0; i < l.length; i++) { const s = l[i]; if (s.solid && s.type !== 'fence' && x >= s.x - m && x < s.x + s.w + m && y >= s.y - m && y < s.y + s.h + m) return true; }
+      }
     return false;
   }
   function nearStruct(x, y, m) {
