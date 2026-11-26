@@ -4,6 +4,7 @@
 SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
   menu: 'Menü', close: 'Schließen', locked: 'Kommt in Phase {n}',
   reg_19: 'Flüsterklamm', poi_mist: 'Flüsterklamm', shr_mist: 'Nebel-Schrein', poi_pilotcamp: 'Räuberlager', poi_pilotdungeon: 'Versunkener Schrein-Dungeon',
+  enemy_boss_mist: 'Nebelwächter',
   qn_pilot1: 'Das Räuberlager säubern', qd_pilot1: 'Eine Bande hat den Ostpfad blockiert. Besiege ihren Anführer.', qo_pilot1: 'Besiege den Räuberhauptmann', qdone_pilot1: 'Der Weg ist wieder frei.',
   qn_pilot2: 'Vorräte für den Kundschafter', qd_pilot2: 'Der Kundschafter versorgt verletzte Reisende. Bringe 3 Heilkräuter.', qo_pilot2: 'Bringe dem Kundschafter Heilkräuter', qdone_pilot2: 'Damit kann ich die Verwundeten versorgen. Danke.',
   qn_pilot3: 'Den Nebel-Schrein erwecken', qd_pilot3: 'Der alte Schrein markiert den Eingang zum versunkenen Heiligtum. Erwecke ihn.', qo_pilot3: 'Erwecke den Nebel-Schrein', qdone_pilot3: 'Der Schrein antwortet. Das innere Tor ist nicht länger versiegelt.',

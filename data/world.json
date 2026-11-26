@@ -1613,7 +1613,7 @@
   },
   {
    "id": "e_pilot_boss",
-   "type": "boss_warden",
+   "type": "boss_mist",
    "x": 5760,
    "y": 2045,
    "ed": "lite",
@@ -2872,6 +2872,10 @@
   "swift": [
    14,
    22
+  ],
+  "boss_mist": [
+   150,
+   200
   ]
  }
 }
