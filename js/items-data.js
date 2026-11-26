@@ -18,7 +18,7 @@ SW.Data = SW.Data || {};
     fx_atk: 'Damage +{n}%', fx_crit: 'Crit chance +{n}%', fx_hp: 'Life +{n}', fx_def: 'Defense +{n}',
     fx_fast: 'Recovery {n}% faster', fx_slow: 'Recovery {n}% slower', fx_dodge_up: 'Dodge cooldown +{n}%', fx_dodge_dn: 'Dodge cooldown -{n}%',
     fx_ambush: 'Ambush damage +{n}%', fx_counter: 'Counter damage +{n}%', fx_kicost: 'Ki costs -{n}%', fx_kiregen: 'Ki regeneration +{n}%', fx_critdmg: 'Critical damage +{n}%', fx_rdmg: 'Ranged damage {n}', fx_rrec: 'Cooldown {n} s', upg: 'Upgrade', fx_parry: 'Parry window +{n} ms', no_fit: 'Nothing in your bag fits this slot.',
-    dur: 'Durability', dur_inf: 'Unbreakable', wpn_broke: '{n} broke and was moved to your bag.', equipped: 'Equipped', repair_required: 'Broken — repair at the Blacksmith.', already_owned: 'Already owned: {n}', sort: 'Sort', sort_type: 'Type', sort_rar: 'Rarity', sort_dur: 'Durability', sort_name: 'Name'
+    dur: 'Durability', dur_inf: 'Unbreakable', wpn_broke: '{n} broke and was moved to your bag.', equipped: 'Equipped', repair_required: 'Broken — repair at the Blacksmith.', already_owned: 'Already owned: {n}', auto_slot: 'Auto skill {n}', auto_skills_hint: 'Selected skills trigger automatically during combat. No separate skill buttons are needed.', sort: 'Sort', sort_type: 'Type', sort_rar: 'Rarity', sort_dur: 'Durability', sort_name: 'Name'
   };
   delete tx.tab_inventory_x;
   D.items.forEach(i => { tx['it_' + i.id] = i.en[0]; tx['itd_' + i.id] = i.en[1]; });
