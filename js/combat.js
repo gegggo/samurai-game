@@ -297,10 +297,10 @@ SW.Combat = (function () {
     const defs = [['block', 'combat_block', 'hold'], ['dodge', 'combat_dodge'], ['attack', 'combat_attack'],
                   ['heavy', 'combat_heavy'], ['special', 'combat_special'], ['ranged', 'combat_ranged'], ['lock', 'combat_lock']];
     defs.forEach(d => {
-      const b = document.createElement('button'); b.id = 'cb-' + d[0]; b.className = 'cb'; b.textContent = d[1] ? T(d[1]) : '';
+      const b = document.createElement('button'); b.id = 'cb-' + d[0]; b.className = 'cb'; b.textContent = d[1] ? T(d[1]) : ''; if (d[0] === 'heavy') b.title = T('combat_charge_hint');
       const wc = () => SW.WCombat && SW.WCombat.active && !K.active; // Weltkampf: gleiche Buttons, andere Logik
       const ar = () => SW.Arena && SW.Arena.active;
-      const down = e => { e.preventDefault(); if (d[0] === 'lock') { if (wc()) SW.WCombat.toggleLock(); return; } b.classList.add('on'); if (ar()) SW.Arena.press(d[0]); else if (wc()) SW.WCombat.press(d[0]); else if (d[2]) held[d[0]] = true; else if (d[0] === 'dodge') dodge(); else act(d[0]); };
+      const down = e => { e.preventDefault(); if (d[0] === 'lock') { if (ar()) SW.Arena.toggleLock(); else if (wc()) SW.WCombat.toggleLock(); return; } b.classList.add('on'); if (ar()) SW.Arena.press(d[0]); else if (wc()) SW.WCombat.press(d[0]); else if (d[2]) held[d[0]] = true; else if (d[0] === 'dodge') dodge(); else act(d[0]); };
       const up = e => { e.preventDefault(); b.classList.remove('on'); if (ar()) SW.Arena.release(d[0]); if (SW.WCombat) SW.WCombat.release(d[0]); if (d[2]) held[d[0]] = false; };
       b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up);
       b.addEventListener('pointercancel', up); b.addEventListener('pointerleave', up);

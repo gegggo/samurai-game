@@ -26,7 +26,7 @@ SW.Arena = (function () {
     const name = def.arena || D.regionArena[reg] || 'clearing';
     S = {
       spot, def, ps, ar: D.arenas[name] || D.arenas.clearing, state: 'intro', t: 0, phase: 0, hp: Math.round(def.hp * K.tm(spot).hp * (def.phases ? 1.5 : 1)), max: Math.round(def.hp * K.tm(spot).hp * (def.phases ? 1.5 : 1)),
-      php: ps.hp, pmax: ps.hp, ki: ps.ki, kmax: ps.ki, px: -6, py: 0, yaw: 0, pm: null, buf: null, chain: 0, chainT: 0, counterT: 0,
+      php: ps.hp, pmax: ps.hp, ki: ps.ki, kmax: ps.ki, px: -6, py: 0, yaw: 0, lockOn: true, charging: false, chargeT: 0, pm: null, buf: null, chain: 0, chainT: 0, counterT: 0,
       block: false, blockT: 0, noBlockT: 1, parryOk: false, bl: 0, dodgeT: 0, dodgeCd: 0, dvx: 1, dvy: 0, invT: 0, hurt: 0, shake: 0, spark: 0,
       breath: false, msg: '', msgT: 0, msgCol: '#fff', floats: [], rew: null, fswing: 0, bob: 0,
       st: { heavy: 0, special: 0, counter: 0, parry: 0, dodge: 0, block: 0, breath: 0 },
@@ -64,12 +64,13 @@ SW.Arena = (function () {
     if (name === 'counter') say(T('combat_counter'), '#ffe27a');
   }
   function act(kind) {
-    if (!S || S.state !== 'fight') return;
+    if (!S || S.state !== 'fight' || S.charging) return;
     if (S.pm || S.hurt > 0 || S.dodgeT > 0) { S.buf = { kind, t: .25 }; return; }
     let name;
     if (kind === 'attack') {
       if (S.counterT > 0) { name = 'counter'; S.counterT = 0; }
       else if (S.chainT > 0 && S.chain < 3) name = 'quick';
+      else if (Math.hypot(SW.Input.vec.x, SW.Input.vec.y) > .35 && SW.Input.vec.y < -.35 && dist() > 3.2 && D.moves.lunge && S.ki >= kiCost(D.moves.lunge)) name = 'lunge';
       else name = 'normal';
     } else if (kind === 'heavy') name = 'heavy';
     else if (kind === 'special') {
@@ -81,11 +82,12 @@ SW.Arena = (function () {
       if (S.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
     } else if (kind === 'ranged') { if ((!S.ps.ranged || !SW.Inv.eq.ranged)) return; name = 'shot'; }
     else return;
-    if ((kind === 'attack' && name !== 'counter') || kind === 'heavy') name = SW.Skills.autoMove(S.ki, S.ps.kiCostMul, S.php / S.pmax) || name;
+    if (((kind === 'attack' && name !== 'counter' && name !== 'lunge') || kind === 'heavy')) name = SW.Skills.autoMove(S.ki, S.ps.kiCostMul, S.php / S.pmax) || name;
     startMove(name);
   }
   function dodge() {
     if (!S || S.state !== 'fight' || S.dodgeCd > 0 || S.hurt > 0) return;
+    if (S.charging) { S.charging = false; S.chargeT = 0; }
     if (S.pm && S.pm.t < S.pm.end) return;
     { const kc = Math.ceil(D.dodgeKi * S.ps.kiCostMul); if (S.ki < kc) { say(T('combat_noki'), '#8cf'); return; } S.ki -= kc; }
     const v = SW.Input.vec, c = Math.cos(S.yaw), s = Math.sin(S.yaw);
@@ -94,12 +96,35 @@ SW.Arena = (function () {
     S.dvx = f * c - r * s; S.dvy = f * s + r * c;
     S.pm = null; S.buf = null; S.chain = 0; S.dodgeT = DODGE * (1 + S.ps.dodgeWin); S.dodgeCd = .9 * S.ps.dodgeCdMul; S.breath = false;
   }
+  function releaseCharge() {
+    if (!S || !S.charging) return;
+    const ready = S.chargeT >= .55, enough = S.ki >= kiCost(D.moves.charged);
+    S.charging = false; S.chargeT = 0;
+    if (ready && enough) startMove('charged');
+    else {
+      if (ready && !enough) say(T('combat_noki'), '#8cf');
+      startMove('heavy');
+    }
+  }
+  A.toggleLock = function () {
+    if (!S || !A.active) return;
+    S.lockOn = !S.lockOn;
+    const b = $('cb-lock');
+    if (b) { b.textContent = T(S.lockOn ? 'lock_on_short' : 'lock_off_short'); b.classList.toggle('lk', S.lockOn); }
+    say(T(S.lockOn ? 'lock_on' : 'lock_off'), '#cfe');
+  };
   A.press = function (k) {
-    if (k === 'block' || k === 'breath') held[k] = true;
+    if (k === 'lock') A.toggleLock();
+    else if (k === 'heavy') {
+      if (S && S.state === 'fight' && !S.pm && S.hurt <= 0 && S.dodgeT <= 0) { S.charging = true; S.chargeT = 0; }
+    } else if (k === 'block' || k === 'breath') held[k] = true;
     else if (k === 'dodge') dodge();
     else act(k);
   };
-  A.release = function (k) { if (k === 'block' || k === 'breath') held[k] = false; };
+  A.release = function (k) {
+    if (k === 'block' || k === 'breath') held[k] = false;
+    else if (k === 'heavy') releaseCharge();
+  };
 
   function reward() {
     if (S.spot.trial) { const o = SW.Trials.duelWon(S.spot.trial); Object.assign(o, { coins: 0, items: [], karma: 0, secret: null }); S.rew = o; SW.Save.touch(); return; } // Schrein-Duell: nur Prüfungsbelohnung
@@ -148,7 +173,7 @@ SW.Arena = (function () {
     const f = S.boss, At = f.atk, ps = S.ps, p = ph();
     S.fswing = SWING; f.hits--;
     const dmg = Math.max(1, At.dmg * (S.def.dmg || 1) * K.tm(S.spot).dmg * (S.def.phases ? 1.5 : 1) - ps.def);
-    if (dist() > REACH() + .7) { /* Spieler ist weggelaufen: Angriff geht ins Leere */ }
+    if (dist() > (At.range || REACH() + .7)) { /* Spieler ist aus dem markierten Angriffsbereich gelaufen */ }
     else if (S.dodgeT > 0 || S.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); S.ki = Math.min(S.kmax, S.ki + 3 + S.kmax * ps.kiDodge); S.st.dodge++; }
     else if (S.block && !At.unblock && S.parryOk && S.blockT <= ps.parry) {
       S.st.parry++; f.st = 'stagger'; f.t = 0; f.dur = 1.1; f.hits = 0; S.counterT = 1.4;
@@ -162,6 +187,8 @@ SW.Arena = (function () {
   function fight(dt) {
     const ps = S.ps, f = S.boss, p = ph();
     S.boss.staggerLock = Math.max(0, S.boss.staggerLock - dt); S.invT = Math.max(0, S.invT - dt); S.dodgeCd = Math.max(0, S.dodgeCd - dt); S.dodgeT = Math.max(0, S.dodgeT - dt); S.hurt = Math.max(0, S.hurt - dt);
+    if (S.charging) { S.chargeT += dt; if (S.chargeT >= 1.35) releaseCharge(); }
+    if (held.block && S.charging) { S.charging = false; S.chargeT = 0; }
     S.chainT = Math.max(0, S.chainT - dt); S.counterT = Math.max(0, S.counterT - dt);
     if (S.buf) { S.buf.t -= dt; if (S.buf.t <= 0) S.buf = null; }
     if (S.pm) {
@@ -188,8 +215,11 @@ SW.Arena = (function () {
     let mx = 0, my = 0;
     if (S.dodgeT > 0) { mx = S.dvx * ROLL; my = S.dvy * ROLL; }
     else if (S.hurt <= 0) {
-      const k = S.pm ? .25 : S.block ? .4 : S.breath ? .3 : 1, fw = -v.y, rt = v.x;
+      const k = S.charging ? .48 : S.pm ? .25 : S.block ? .4 : S.breath ? .3 : 1, fw = -v.y, rt = v.x;
       mx = (fw * c - rt * s) * PSPD * k; my = (fw * s + rt * c) * PSPD * k;
+    }
+    if (S.pm && S.pm.m.dash && S.pm.t <= (S.pm.m.dashTime || .28)) {
+      const dd = dist(); if (dd > 1.65) { mx += (f.x - S.px) / dd * S.pm.m.dash; my += (f.y - S.py) / dd * S.pm.m.dash; }
     }
     S.bob += Math.hypot(mx, my) * dt * 1.6;
     S.px += mx * dt; S.py += my * dt;
@@ -207,8 +237,14 @@ SW.Arena = (function () {
         const list = p.atk, At = D.attacks[list[(Math.random() * list.length) | 0]];
         f.atk = At; f.hits = At.hits || 1; f.st = 'wind'; f.t = 0; f.dur = At.wind / p.speed; f.guarding = false; f.sd = Math.random() < .5 ? 1 : -1;
       }
-    } else if (f.st === 'wind') { if (f.t >= f.dur) foeStrike(); }
-    else if (f.t >= f.dur) foeIdle();
+    } else if (f.st === 'wind') {
+      // Bestimmte Bossangriffe stürmen nach deutlich sichtbarem Ausholen nach vorn.
+      if (f.atk && f.atk.dash && f.t < f.dur) {
+        const stepD = dist(), dx = (S.px - f.x) / (stepD || 1), dy = (S.py - f.y) / (stepD || 1);
+        if (stepD > 1.8) { f.x += dx * 3.6 * dt; f.y += dy * 3.6 * dt; }
+      }
+      if (f.t >= f.dur) foeStrike();
+    } else if (f.t >= f.dur) foeIdle();
     const fd = Math.hypot(f.x, f.y); if (fd > RA - .8) { f.x *= (RA - .8) / fd; f.y *= (RA - .8) / fd; }
   }
   A.update = function (dt) {
@@ -216,9 +252,8 @@ SW.Arena = (function () {
     S.t += dt;
     S.shake = Math.max(0, S.shake - dt); S.spark = Math.max(0, S.spark - dt); S.msgT = Math.max(0, S.msgT - dt);
     for (let i = S.floats.length - 1; i >= 0; i--) { S.floats[i].t += dt; if (S.floats[i].t > 1) S.floats.splice(i, 1); }
-    // Lock-on: Kamera dreht weich zum Boss
-    const ta = Math.atan2(S.boss.y - S.py, S.boss.x - S.px); let da = ta - S.yaw; while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU;
-    S.yaw += da * Math.min(1, dt * 12);
+    // Zelda-artige Zielsperre: automatisch verfolgen oder Kamera per Wischbewegung frei drehen.
+    if (S.lockOn) { const ta = Math.atan2(S.boss.y - S.py, S.boss.x - S.px); let da = ta - S.yaw; while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU; S.yaw += da * Math.min(1, dt * 12); }
     if (S.state === 'intro') { if (S.t > 1.3) { S.state = 'fight'; S.t = 0; } return; }
     if (S.state === 'win' || S.state === 'lose') { if (S.t > outT()) finish(); return; }
     fight(dt);
@@ -227,10 +262,27 @@ SW.Arena = (function () {
     if (!A.active) return; const k = e.key.toLowerCase();
     if (k === ' ') held.block = true; else if (k === 'b') held.breath = true;
     else if (e.repeat) return;
-    else if (k === 'j') act('attack'); else if (k === 'k') act('heavy'); else if (k === 'l') act('special'); else if (k === 'h') act('ranged');
+    else if (k === 'j') act('attack'); else if (k === 'k') A.press('heavy'); else if (k === 'l') act('special'); else if (k === 'h') act('ranged');
+    else if (k === 'q') A.toggleLock();
     else if (k === 'x' || k === 'shift') dodge();
   });
-  window.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (k === ' ') held.block = false; else if (k === 'b') held.breath = false; });
+  window.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (k === ' ') held.block = false; else if (k === 'b') held.breath = false; else if (k === 'k') A.release('heavy'); });
+  let cameraDrag = null;
+  const arenaCanvas = $('game');
+  if (arenaCanvas) {
+    arenaCanvas.addEventListener('pointerdown', e => {
+      if (!A.active || !S || S.lockOn || e.clientX < window.innerWidth * .55) return;
+      cameraDrag = { id: e.pointerId, x: e.clientX };
+      try { arenaCanvas.setPointerCapture(e.pointerId); } catch (err) { /* optional */ }
+      e.preventDefault();
+    });
+    arenaCanvas.addEventListener('pointermove', e => {
+      if (!cameraDrag || cameraDrag.id !== e.pointerId || !S || S.lockOn) return;
+      S.yaw -= (e.clientX - cameraDrag.x) * .009; cameraDrag.x = e.clientX; e.preventDefault();
+    });
+    const endCameraDrag = e => { if (cameraDrag && cameraDrag.id === e.pointerId) cameraDrag = null; };
+    arenaCanvas.addEventListener('pointerup', endCameraDrag); arenaCanvas.addEventListener('pointercancel', endCameraDrag);
+  }
 
   // ===================== ANSICHT =====================
   let FW = 1, HZ = 0, FOC = 1;
@@ -315,8 +367,8 @@ SW.Arena = (function () {
     // Schatten + Boss
     { const q = proj(f.x, f.y, 0); if (q) { const s = FOC / q.f; c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(q.x, q.y, s * .55, s * .14, 0, 0, TAU); c.fill(); } }
     drawBoss(c, cw, ch, time);
-    // Lock-on-Marke
-    { const q = proj(f.x, f.y, 2.7 * (S.def.phases ? 1.2 : 1)); if (q && S.state !== 'win') { c.fillStyle = 'rgba(224,69,47,.9)'; const r = ch * .016; c.beginPath(); c.moveTo(q.x, q.y + r); c.lineTo(q.x + r, q.y - r); c.lineTo(q.x - r, q.y - r); c.closePath(); c.fill(); } }
+    // Lock-on-Marke nur bei aktiver Zielsperre
+    if (S.lockOn) { const q = proj(f.x, f.y, 2.7 * (S.def.phases ? 1.2 : 1)); if (q && S.state !== 'win') { c.fillStyle = 'rgba(224,69,47,.9)'; const r = ch * .016; c.beginPath(); c.moveTo(q.x, q.y + r); c.lineTo(q.x + r, q.y - r); c.lineTo(q.x - r, q.y - r); c.closePath(); c.fill(); } }
     weapon(c, cw, ch, time);
     if (S.counterT > 0) { c.strokeStyle = 'rgba(255,226,122,' + (.45 + .3 * Math.sin(time * 14)) + ')'; c.lineWidth = u * 1.6; c.strokeRect(u, u, cw - 2 * u, ch - 2 * u); }
     if (S.hurt > 0) { c.fillStyle = 'rgba(200,20,20,' + S.hurt * .6 + ')'; c.fillRect(0, 0, cw, ch); }
@@ -325,6 +377,8 @@ SW.Arena = (function () {
     const mg = 56 * dpr, bw = Math.min(cw * .3, 260 * dpr), bh = u * 2.6;
     txt(c, T('hud_hp'), mg, u * 4, u * 3, '#f4ecd8', 'left'); bar(c, mg + u * 5, u * 2.7, bw, bh, S.php / S.pmax, '#c8382c');
     txt(c, T('hud_ki'), mg, u * 9.4, u * 3, '#f4ecd8', 'left'); bar(c, mg + u * 5, u * 8.1, bw * .75, bh, S.ki / S.kmax, '#4aa3df');
+    if (S.charging) { const cw2 = cw * .18, cx2 = (cw - cw2) / 2, cy2 = ch * .79; txt(c, T('combat_charge'), cw / 2, cy2 - u * 1.8, u * 3.2, '#ffe27a'); bar(c, cx2, cy2, cw2, u * 1.3, Math.min(1, S.chargeT / 1.35), '#ffe27a'); }
+    const lockButton = $('cb-lock'); if (lockButton) { lockButton.textContent = T(S.lockOn ? 'lock_on_short' : 'lock_off_short'); lockButton.classList.toggle('lk', S.lockOn); }
     const ew = cw * .34, ex = (cw - ew) / 2;
     txt(c, T('enemy_' + S.spot.type), cw / 2, u * 3.6, u * 3.6, '#f4ecd8');
     bar(c, ex, u * 6.2, ew, bh, S.hp / S.max, S.phase ? '#e0702a' : '#b5352b');

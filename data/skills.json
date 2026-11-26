@@ -331,7 +331,7 @@
       "br": "sm",
       "type": "active",
       "name": "Doppelschlag",
-      "desc": "Aktive Technik: Doppelschlag. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Doppelschlag. Verbraucht Ki.",
       "lvl": 5,
       "tier": 4,
       "req": [
@@ -349,7 +349,7 @@
       "br": "sm",
       "type": "active",
       "name": "Eisenspalter",
-      "desc": "Aktive Technik: Eisenspalter. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Eisenspalter. Verbraucht Ki.",
       "lvl": 10,
       "tier": 5,
       "req": [
@@ -367,7 +367,7 @@
       "br": "sm",
       "type": "active",
       "name": "Drachenstoß",
-      "desc": "Aktive Technik: Drachenstoß. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Drachenstoß. Verbraucht Ki.",
       "lvl": 15,
       "tier": 6,
       "req": [
@@ -385,7 +385,7 @@
       "br": "sm",
       "type": "active",
       "name": "Wirbelklinge",
-      "desc": "Aktive Technik: Wirbelklinge. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Wirbelklinge. Verbraucht Ki.",
       "lvl": 25,
       "tier": 7,
       "req": [
@@ -403,7 +403,7 @@
       "br": "sm",
       "type": "active",
       "name": "Blitz-Iaido",
-      "desc": "Aktive Technik: Blitz-Iaido. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Blitz-Iaido. Verbraucht Ki.",
       "lvl": 30,
       "tier": 8,
       "req": [
@@ -615,7 +615,7 @@
       "line": 4,
       "rank": 1,
       "name": "Schattenregeneration I",
-      "desc": "Ausdauer nach Ausweichen 5%.",
+      "desc": "Ki nach Ausweichen 5%.",
       "lvl": 1,
       "tier": 1,
       "req": [],
@@ -635,7 +635,7 @@
       "line": 4,
       "rank": 2,
       "name": "Schattenregeneration II",
-      "desc": "Ausdauer nach Ausweichen 10%.",
+      "desc": "Ki nach Ausweichen 10%.",
       "lvl": 10,
       "tier": 2,
       "req": [
@@ -657,7 +657,7 @@
       "line": 4,
       "rank": 3,
       "name": "Schattenregeneration III",
-      "desc": "Ausdauer nach Ausweichen 15%.",
+      "desc": "Ki nach Ausweichen 15%.",
       "lvl": 20,
       "tier": 3,
       "req": [
@@ -741,7 +741,7 @@
       "br": "sw",
       "type": "active",
       "name": "Schattenritt",
-      "desc": "Aktive Technik: Schattenritt. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Schattenritt. Verbraucht Ki.",
       "lvl": 5,
       "tier": 4,
       "req": [
@@ -759,7 +759,7 @@
       "br": "sw",
       "type": "active",
       "name": "Schattenhagel",
-      "desc": "Aktive Technik: Schattenhagel. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Schattenhagel. Verbraucht Ki.",
       "lvl": 10,
       "tier": 5,
       "req": [
@@ -777,7 +777,7 @@
       "br": "sw",
       "type": "active",
       "name": "Trugbild",
-      "desc": "Aktive Technik: Trugbild. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Trugbild. Verbraucht Ki.",
       "lvl": 15,
       "tier": 6,
       "req": [
@@ -795,7 +795,7 @@
       "br": "sw",
       "type": "active",
       "name": "Falkensturz",
-      "desc": "Aktive Technik: Falkensturz. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Falkensturz. Verbraucht Ki.",
       "lvl": 25,
       "tier": 7,
       "req": [
@@ -813,7 +813,7 @@
       "br": "sw",
       "type": "active",
       "name": "Rauchklinge",
-      "desc": "Aktive Technik: Rauchklinge. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Rauchklinge. Verbraucht Ki.",
       "lvl": 30,
       "tier": 8,
       "req": [
@@ -1151,7 +1151,7 @@
       "br": "df",
       "type": "active",
       "name": "Regeneration",
-      "desc": "Aktive Technik: Regeneration. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Regeneration. Verbraucht Ki.",
       "lvl": 5,
       "tier": 4,
       "req": [
@@ -1169,7 +1169,7 @@
       "br": "df",
       "type": "active",
       "name": "Bergwacht",
-      "desc": "Aktive Technik: Bergwacht. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Bergwacht. Verbraucht Ki.",
       "lvl": 10,
       "tier": 5,
       "req": [
@@ -1187,7 +1187,7 @@
       "br": "df",
       "type": "active",
       "name": "Perfekte Parade",
-      "desc": "Aktive Technik: Perfekte Parade. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Perfekte Parade. Verbraucht Ki.",
       "lvl": 15,
       "tier": 6,
       "req": [
@@ -1205,7 +1205,7 @@
       "br": "df",
       "type": "active",
       "name": "Erdbrecher",
-      "desc": "Aktive Technik: Erdbrecher. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Erdbrecher. Verbraucht Ki.",
       "lvl": 25,
       "tier": 7,
       "req": [
@@ -1223,7 +1223,7 @@
       "br": "df",
       "type": "active",
       "name": "Unnachgiebiger Konter",
-      "desc": "Aktive Technik: Unnachgiebiger Konter. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Unnachgiebiger Konter. Verbraucht Ki.",
       "lvl": 30,
       "tier": 8,
       "req": [
@@ -1242,8 +1242,8 @@
       "type": "passive",
       "line": 1,
       "rank": 1,
-      "name": "Ausdauer-Reservoir I",
-      "desc": "Maximales Ausdauer 10%.",
+      "name": "Ki-Reservoir I",
+      "desc": "Maximales Ki 10%.",
       "lvl": 1,
       "tier": 1,
       "req": [],
@@ -1262,8 +1262,8 @@
       "type": "passive",
       "line": 1,
       "rank": 2,
-      "name": "Ausdauer-Reservoir II",
-      "desc": "Maximales Ausdauer 20%.",
+      "name": "Ki-Reservoir II",
+      "desc": "Maximales Ki 20%.",
       "lvl": 10,
       "tier": 2,
       "req": [
@@ -1284,8 +1284,8 @@
       "type": "passive",
       "line": 1,
       "rank": 3,
-      "name": "Ausdauer-Reservoir III",
-      "desc": "Maximales Ausdauer 30%.",
+      "name": "Ki-Reservoir III",
+      "desc": "Maximales Ki 30%.",
       "lvl": 20,
       "tier": 3,
       "req": [
@@ -1307,7 +1307,7 @@
       "line": 2,
       "rank": 1,
       "name": "Innere Ruhe I",
-      "desc": "Ausdauer-Regeneration 10%.",
+      "desc": "Ki-Regeneration 10%.",
       "lvl": 1,
       "tier": 1,
       "req": [],
@@ -1327,7 +1327,7 @@
       "line": 2,
       "rank": 2,
       "name": "Innere Ruhe II",
-      "desc": "Ausdauer-Regeneration 20%.",
+      "desc": "Ki-Regeneration 20%.",
       "lvl": 10,
       "tier": 2,
       "req": [
@@ -1349,7 +1349,7 @@
       "line": 2,
       "rank": 3,
       "name": "Innere Ruhe III",
-      "desc": "Ausdauer-Regeneration 30%.",
+      "desc": "Ki-Regeneration 30%.",
       "lvl": 20,
       "tier": 3,
       "req": [
@@ -1370,8 +1370,8 @@
       "type": "passive",
       "line": 3,
       "rank": 1,
-      "name": "Ausdauer-Kontrolle I",
-      "desc": "Geringere Ausdauer-Kosten 5%.",
+      "name": "Ki-Kontrolle I",
+      "desc": "Geringere Ki-Kosten 5%.",
       "lvl": 1,
       "tier": 1,
       "req": [],
@@ -1390,8 +1390,8 @@
       "type": "passive",
       "line": 3,
       "rank": 2,
-      "name": "Ausdauer-Kontrolle II",
-      "desc": "Geringere Ausdauer-Kosten 10%.",
+      "name": "Ki-Kontrolle II",
+      "desc": "Geringere Ki-Kosten 10%.",
       "lvl": 10,
       "tier": 2,
       "req": [
@@ -1412,8 +1412,8 @@
       "type": "passive",
       "line": 3,
       "rank": 3,
-      "name": "Ausdauer-Kontrolle III",
-      "desc": "Geringere Ausdauer-Kosten 15%.",
+      "name": "Ki-Kontrolle III",
+      "desc": "Geringere Ki-Kosten 15%.",
       "lvl": 20,
       "tier": 3,
       "req": [
@@ -1499,7 +1499,7 @@
       "line": 5,
       "rank": 1,
       "name": "Himmelsatem I",
-      "desc": "Ausdauer-Regeneration im Stillstand 10%.",
+      "desc": "Ki-Regeneration im Stillstand 10%.",
       "lvl": 1,
       "tier": 1,
       "req": [],
@@ -1519,7 +1519,7 @@
       "line": 5,
       "rank": 2,
       "name": "Himmelsatem II",
-      "desc": "Ausdauer-Regeneration im Stillstand 20%.",
+      "desc": "Ki-Regeneration im Stillstand 20%.",
       "lvl": 10,
       "tier": 2,
       "req": [
@@ -1541,7 +1541,7 @@
       "line": 5,
       "rank": 3,
       "name": "Himmelsatem III",
-      "desc": "Ausdauer-Regeneration im Stillstand 30%.",
+      "desc": "Ki-Regeneration im Stillstand 30%.",
       "lvl": 20,
       "tier": 3,
       "req": [
@@ -1560,8 +1560,8 @@
       "id": "km_a1",
       "br": "km",
       "type": "active",
-      "name": "Ausdauer-Welle",
-      "desc": "Aktive Technik: Ausdauer-Welle. Verbraucht Ausdauer.",
+      "name": "Ki-Welle",
+      "desc": "Aktive Technik: Ki-Welle. Verbraucht Ki.",
       "lvl": 5,
       "tier": 4,
       "req": [
@@ -1579,7 +1579,7 @@
       "br": "km",
       "type": "active",
       "name": "Donneratem",
-      "desc": "Aktive Technik: Donneratem. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Donneratem. Verbraucht Ki.",
       "lvl": 10,
       "tier": 5,
       "req": [
@@ -1597,7 +1597,7 @@
       "br": "km",
       "type": "active",
       "name": "Gezeitenstoß",
-      "desc": "Aktive Technik: Gezeitenstoß. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Gezeitenstoß. Verbraucht Ki.",
       "lvl": 15,
       "tier": 6,
       "req": [
@@ -1615,7 +1615,7 @@
       "br": "km",
       "type": "active",
       "name": "Seelenfluss",
-      "desc": "Aktive Technik: Seelenfluss. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Seelenfluss. Verbraucht Ki.",
       "lvl": 25,
       "tier": 7,
       "req": [
@@ -1633,7 +1633,7 @@
       "br": "km",
       "type": "active",
       "name": "Himmelsurteil",
-      "desc": "Aktive Technik: Himmelsurteil. Verbraucht Ausdauer.",
+      "desc": "Aktive Technik: Himmelsurteil. Verbraucht Ki.",
       "lvl": 30,
       "tier": 8,
       "req": [
@@ -1723,8 +1723,8 @@
     {
       "id": "km_s1",
       "br": "km",
-      "name": "Ausdauer-Überladung",
-      "desc": "Erhöht vorübergehend das maximale Ausdauer.",
+      "name": "Ki-Überladung",
+      "desc": "Erhöht vorübergehend das maximale Ki.",
       "unlock": "tree",
       "req": [
         "km_p1_3",
@@ -1736,7 +1736,7 @@
       "id": "km_s2",
       "br": "km",
       "name": "Spirituelle Resonanz",
-      "desc": "Yin-Yang-Gleichgewicht verstärkt Ausdauer-Boni.",
+      "desc": "Yin-Yang-Gleichgewicht verstärkt Ki-Boni.",
       "unlock": "yinyang",
       "balance": 70,
       "lvl": 35
@@ -1745,7 +1745,7 @@
       "id": "km_s3",
       "br": "km",
       "name": "Erleuchtung",
-      "desc": "Erhöht vorübergehend Ausdauer-Regeneration und Technikstärke.",
+      "desc": "Erhöht vorübergehend Ki-Regeneration und Technikstärke.",
       "unlock": "quest",
       "quest": "km_enlightenment",
       "lvl": 40

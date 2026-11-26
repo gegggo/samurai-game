@@ -288,7 +288,7 @@ Object.assign(SW.TEXT.en, {
   bk_shared: 'Save exported.', bk_dl: 'Save file downloaded.', bk_cancel: 'Export cancelled.', bk_bad: 'This is not a valid Samurai Wanderer save file.',
   bk_sum: 'The file is damaged (checksum wrong). Nothing was changed.', bk_new: 'The file comes from a newer game version. Nothing was changed.', bk_fail: 'Import failed. Nothing was changed.',
   bk_ask: 'Import the save from {a} (play time {b}, level {c})? Your current save becomes restore point 1. The oldest restore point is deleted.',
-  st_hp: 'Life', st_ki: 'Ki', st_atk: 'Attack', st_def: 'Defense', st_end: 'Endurance', st_crit: 'Crit chance',
+  st_hp: 'Life', st_ki: 'Stamina', st_atk: 'Attack', st_def: 'Defense', st_end: 'Endurance', st_crit: 'Crit chance',
   kr_neutral: 'Neutral', kr_honored: 'Honored', kr_revered: 'Revered', kr_distrusted: 'Distrusted', kr_despised: 'Despised',
   kr_hint: 'Helping others and stopping bandits raises Karma. Repeating the same deed counts less each time.',
   yy_hint: 'Yang grows through heavy attacks and techniques. Yin grows through parries, dodges, blocks and standing calm in a fight. Each fight counts only a little. Spent when learning skilltree skills.'

@@ -251,3 +251,10 @@ body.combat #world-sprint, body.wcombat #world-sprint, body.trial #world-sprint 
 #world-stamina { position: fixed; right: calc(30px + env(safe-area-inset-right, 0px)); bottom: calc(224px + env(safe-area-inset-bottom, 0px)); width: 76px; height: 7px; overflow: hidden; border: 1px solid rgba(232,224,208,.65); border-radius: 5px; background: rgba(0,0,0,.65); z-index: 6; }
 #world-stamina-fill { display: block; width: 100%; height: 100%; background: #4aa3df; transition: width .08s linear; }
 body.combat #world-stamina, body.wcombat #world-stamina, body.trial #world-stamina { display: none; }
+
+/* Phase 26: Zelda-artige Boss-Steuerung und Ausdaueranzeige */
+body.combat #cb-lock { display: block; }
+#cb-lock { border-color: #7fd0ff; }
+#world-stamina { display: flex; flex-direction: column; align-items: stretch; gap: 2px; height: auto; overflow: visible; border: 0; background: transparent; }
+#world-stamina-label { color: #f4ecd8; font: 600 10px Georgia,serif; text-align: center; text-shadow: 0 1px 3px #000; }
+#world-stamina-fill { height: 7px; border: 1px solid rgba(232,224,208,.65); border-radius: 5px; box-sizing: border-box; background: #4aa3df; }

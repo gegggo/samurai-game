@@ -38,7 +38,7 @@ SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
   poi_cave: 'Höhlentempel', poi_fishers: 'Fischerhütten',
   combat_attack: 'Schlag', combat_heavy: 'Schwer', combat_ranged: 'Fern', combat_block: 'Blocken', combat_dodge: 'Ausweichen',
   combat_special: 'Spezial', combat_breath: 'Atmen', sprint: 'Sprint', combat_victory: 'Sieg', combat_defeat: 'Besiegt',
-  combat_lock: 'Ziel', lock_on: 'Zielsperre: AN', lock_off: 'Zielsperre: AUS', combat_phase: 'Phase {n}!', combat_parry: 'Parade!', combat_counter: 'Konter!', combat_noki: 'Zu wenig Ausdauer',
+  combat_lock: 'Ziel', lock_on: 'Zielsperre: AN', lock_off: 'Zielsperre: AUS', lock_on_short: 'Ziel', lock_off_short: 'Frei', combat_charge: 'AUFGELADENER SCHLAG', combat_charge_hint: 'Schwer halten zum Aufladen', combat_phase: 'Phase {n}!', combat_parry: 'Parade!', combat_counter: 'Konter!', combat_noki: 'Zu wenig Ausdauer',
   combat_dodge_ok: 'Ausgewichen', combat_guard_break: 'Deckung gebrochen',
   dir_0: 'N', dir_1: 'NO', dir_2: 'O', dir_3: 'SO', dir_4: 'S', dir_5: 'SW', dir_6: 'W', dir_7: 'NW',
   hud_hp: 'LP', hud_ki: 'Ausdauer',
