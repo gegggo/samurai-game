@@ -205,14 +205,14 @@ try:
     rec('Phase 24: Auch ausgeruestete, beschaedigte Waffen lassen sich reparieren', !r['none'] and r['ok'] and r['dur']==60, json.dumps(r))
     # 34 Phase 24.1: Waffen sind Einzelstuecke; alte doppelte Spielstaende werden verlustarm bereinigt
     pg = start(b, errs)
-    r = ev(pg, \"\"\"() => { const I=SW.Inv;
+    r = ev(pg, """() => { const I=SW.Inv;
       I.load({coins:0,bag:{naginata:2},eq:{main:'naginata'},dur:{naginata:[4,57]},edur:{main:10},up:{},chests:[]});
       const normalized={bag:I.bag.naginata||0,eq:I.eq.main,dur:I.durOf('main')};
       const duplicate=I.add('naginata',1);
-      return {normalized,duplicate,owned:I.owned('naginata')}; }\"\"\")
+      return {normalized,duplicate,owned:I.owned('naginata')}; }""")
     rec('Phase 24.1: Waffen-Duplikate aus alten Saves werden zu einem Exemplar zusammengefuehrt; bestes Durability bleibt erhalten', r['normalized']['bag']==0 and r['normalized']['eq']=='naginata' and r['normalized']['dur']==57 and r['duplicate'] is False and r['owned'], json.dumps(r))
     # 35 Phase 24.1: Haltbarkeit sinkt je erfolgreichem Treffer bis exakt 0; Bruch, Save/Load und Reparatur
-    r = ev(pg, \"\"\"() => { const I=SW.Inv;
+    r = ev(pg, """() => { const I=SW.Inv;
       I.load({coins:0,bag:{},eq:{main:'naginata'},dur:{},edur:{main:60},up:{},chests:[]});
       I.wear(['main']); const afterOne=I.durOf('main');
       for(let n=0;n<59;n++) I.wear(['main']);
@@ -221,15 +221,15 @@ try:
       I.load(I.dump()); const persisted=I.dur.naginata && I.dur.naginata[0]===0;
       const repaired=I.repair('naginata',0), full=I.dur.naginata && I.dur.naginata[0]===60;
       const equipped=I.equip('naginata',0);
-      return {afterOne,broken,cannotEquip,persisted,repaired,full,equipped}; }\"\"\")
+      return {afterOne,broken,cannotEquip,persisted,repaired,full,equipped}; }""")
     rec('Phase 24.1: 60 Treffer = 60 Haltbarkeit; bei 0 abgelegt, nicht ausruestbar, Save/Load erhaelt 0, Reparatur erlaubt erneutes Ausruesten', r['afterOne']==59 and r['broken'] and r['cannotEquip'] and r['persisted'] and r['repaired'] and r['full'] and r['equipped'], json.dumps(r))
     # 36 Phase 24.1: Waffen in verschiedenen Slots verschleissen getrennt
-    r = ev(pg, \"\"\"() => { const I=SW.Inv;
+    r = ev(pg, """() => { const I=SW.Inv;
       I.load({coins:0,bag:{},eq:{main:'naginata',side:'tanto',ranged:'bow_hankyu'},dur:{},edur:{main:60,side:30,ranged:60},up:{},chests:[]});
       I.wear(['main']); const a=[I.durOf('main'),I.durOf('side'),I.durOf('ranged')];
       I.wear(['side']); const b=[I.durOf('main'),I.durOf('side'),I.durOf('ranged')];
       I.wear(['ranged']); const c=[I.durOf('main'),I.durOf('side'),I.durOf('ranged')];
-      return {a,b,c}; }\"\"\")
+      return {a,b,c}; }""")
     rec('Phase 24.1: Haltbarkeit wird nur in den jeweils uebergebenen Ausruestungsslots reduziert', JSON.stringify(r.a)==JSON.stringify([59,30,60]) and JSON.stringify(r.b)==JSON.stringify([59,29,60]) and JSON.stringify(r.c)==JSON.stringify([59,29,59]), json.dumps(r))
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
