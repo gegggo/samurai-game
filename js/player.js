@@ -10,7 +10,7 @@ SW.Player = (function () {
   p.update = function (dt, v) {
     const m = Math.hypot(v.x, v.y);
     p.moving = m > .01;
-    if (!p.moving) { p.sprinting = false; p.stamina = Math.min(p.maxStamina, p.stamina + 16 * dt); p.anim = 0; return; }
+    if (!p.moving) { p.sprinting = false; p.stamina = Math.min(p.maxStamina, p.stamina + 16 * dt); const sf = document.getElementById('world-stamina-fill'); if (sf) sf.style.width = (p.stamina / p.maxStamina * 100) + '%'; p.anim = 0; return; }
     const sprint = SW.Input.sprint && p.stamina > 0 && !SW.paused && !SW.Combat.active && !(SW.WCombat && SW.WCombat.active);
     p.sprinting = !!sprint;
     if (sprint) p.stamina = Math.max(0, p.stamina - 24 * dt); else p.stamina = Math.min(p.maxStamina, p.stamina + 16 * dt);
