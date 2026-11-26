@@ -1,7 +1,7 @@
 'use strict';
 // Globaler Namespace, Konstanten, zentrale Texte (Sprachsystem folgt Phase 6).
 const SW = {
-  version: '0.25.0',
+  version: '0.26.0',
   CFG: { W: 6200, H: 3200, SPEED: 5, OV: 8 }, // Welt wächst nur nach rechts/unten (Ursprung oben links); neue Regionen als Segment js/layout-<name>.js
   lang: (function () { try { const l = localStorage.getItem('sw_lang'); return l === 'de' ? 'de' : 'en'; } catch (e) { return 'en'; } })(),
   paused: false,
@@ -22,11 +22,11 @@ const SW = {
     poi_falls: 'Waterfall', poi_ruins: 'Old Temple Ruins', poi_camp: 'Bandit Camp',
     poi_cave: 'Cave Temple', poi_fishers: "Fishers' Huts",
     combat_attack: 'Strike', combat_heavy: 'Heavy', combat_ranged: 'Ranged', combat_block: 'Block', combat_dodge: 'Dodge',
-    combat_special: 'Special', combat_breath: 'Breathe', combat_victory: 'Victory', combat_defeat: 'Defeated',
-    combat_phase: 'Phase {n}!', combat_parry: 'Parry!', combat_counter: 'Counter!', combat_noki: 'Not enough Ki',
-    combat_lock: 'Lock', lock_on: 'Lock-on: ON', lock_off: 'Lock-on: OFF', combat_dodge_ok: 'Evaded', combat_guard_break: 'Guard broken',
+    combat_special: 'Special', combat_breath: 'Breathe', sprint: 'Sprint', combat_victory: 'Victory', combat_defeat: 'Defeated',
+    combat_phase: 'Phase {n}!', combat_parry: 'Parry!', combat_counter: 'Counter!', combat_noki: 'Not enough Stamina',
+    combat_lock: 'Lock', lock_on: 'Lock-on: ON', lock_off: 'Lock-on: OFF', lock_on_short: 'Lock', lock_off_short: 'Free', combat_charge: 'CHARGED ATTACK', combat_charge_hint: 'Hold Heavy to charge', combat_dodge_ok: 'Evaded', combat_guard_break: 'Guard broken',
     dir_0: 'N', dir_1: 'NE', dir_2: 'E', dir_3: 'SE', dir_4: 'S', dir_5: 'SW', dir_6: 'W', dir_7: 'NW',
-    hud_hp: 'HP', hud_ki: 'Ki', coins: 'Ryō', drop_iron: 'Iron ×{n}', fx_rwind: 'Ranged wind-up -{n}%',
+    hud_hp: 'HP', hud_ki: 'Stamina', coins: 'Ryō', drop_iron: 'Iron ×{n}', fx_rwind: 'Ranged wind-up -{n}%',
     set_save: 'Save data', set_wipe: 'Delete save', set_wipe_ask: 'Delete all progress? This cannot be undone.', set_wipe_yes: 'Delete', set_wipe_no: 'Cancel',
     set_lang: 'Language', lang_en: 'English', lang_de: 'Deutsch',
     enemy_bandit: 'Bandit', enemy_ronin: 'Ronin', enemy_samurai: 'Samurai', enemy_spearman: 'Spearman',

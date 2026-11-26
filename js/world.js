@@ -6,7 +6,7 @@ SW.World = (function () {
   const PAL = [[98,142,70],[58,102,58],[118,150,84],[112,108,112],[58,128,168],[34,88,134],[180,150,100],[130,92,58],[214,196,146],[150,148,150],[58,52,66],[150,122,86],[232,238,244],[74,62,60],[226,92,34],[226,190,120],[176,170,160],[160,138,110],[0,0,0]];
   // Regionen 0-8: Dorf, Bambus, Schrein, Wald, See, Gebirge, Ruinen, Banditen, Höhlen; 9-16 siehe Namen reg_N. Mitten aus dem Layout (CEN).
   const ROCKY = [2, 2, .66, 2, 2, .56, 2, 2, .58, 2, 2, 2];
-  const DENS = [.05, .34, .12, .2, .03, .07, .05, .07, .05, .14, .12, .06, .07, .04, .02, .03, .05, .1, .06, .08];
+  const DENS = [.05, .08, .12, .2, .03, .07, .05, .07, .05, .14, .12, .06, .07, .04, .02, .03, .05, .1, .06, .08];
 
   function h(x, y, s) {
     let n = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1442695041)) | 0;
@@ -139,6 +139,24 @@ SW.World = (function () {
   // ---------- Strukturen ----------
   const S = [], B = new Map(), bk = (bx, by) => bx + by * 1000;
   function add(type, x, y, w, hh, solid) {
+    if (type === 'tent') {
+      // Das gesamte Zelt-Footprint muss auf begehbarem Land liegen; Felswände sind ausgeschlossen.
+      const clear = (ax, ay) => {
+        for (let yy = Math.floor(ay); yy < Math.ceil(ay + hh); yy++) {
+          for (let xx = Math.floor(ax); xx < Math.ceil(ax + w); xx++) if (!land(xx, yy)) return false;
+        }
+        return !S.some(q => q.solid && ax < q.x + q.w && ax + w > q.x && ay < q.y + q.h && ay + hh > q.y);
+      };
+      if (!clear(x, y)) {
+        let found = null;
+        for (let r = 2; r <= 48 && !found; r += 2) for (let a = 0; a < 24 && !found; a++) {
+          const ang = a / 24 * Math.PI * 2, ax = Math.round(x + Math.cos(ang) * r), ay = Math.round(y + Math.sin(ang) * r);
+          if (clear(ax, ay)) found = [ax, ay];
+        }
+        if (found) { x = found[0]; y = found[1]; }
+        else return null; // Kein gültiger Platz: Zelt überspringen, nicht in einer Felswand erzeugen.
+      }
+    }
     const s = { type, x, y, w, h: hh, solid: solid !== false, v: h(x, y, 9) };
     if (s.solid && w >= 4 && hh >= 3 && (type === 'house' || type === 'hall' || type === 'hut' || type === 'shrine')) { s.door = true; s.d0 = Math.floor((w - 1) / 2); s.d1 = Math.floor(w / 2); } // 0.15.0 begehbar: Wandring solid, Tür unten Mitte, Innenraum frei
     S.push(s); return s;
@@ -280,6 +298,8 @@ SW.World = (function () {
     if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE && t !== T.SNOW && t !== T.ASH && t !== T.DUNE) return 0;
     const reg = regionAt(x, y);
     if (reg === 16 && mtn(x, y)) return 0;
+    // Bambus-Teleportpunkt und Hauptweg zum Dorf freihalten; Bambus bleibt zusätzlich durchquerbar.
+    if (reg === 1 && (Math.hypot(x - CEN[1][0], y - CEN[1][1]) < 30 || roadDist(x, y) < 7.5)) return 0;
     if (h(x, y, 77) >= (t === T.CAVE ? .06 : DENS[reg] === undefined ? .05 : DENS[reg])) return 0;
     for (let i = 0; i < ZONES.length; i++) { const z = ZONES[i]; if (Math.abs(x - z[0]) < z[2] && Math.abs(y - z[1]) < z[3] && t !== T.CAVE) return 0; }
     if (roadDist(x, y) < 3.5 || nearStruct(x, y, 1.5)) return 0;
@@ -312,7 +332,7 @@ SW.World = (function () {
   function o(x, y) { if (x < 0 || y < 0 || x >= WW || y >= HH) return 0; return chunk(x >> 4, y >> 4).o[(y & 15) * 16 + (x & 15)]; }
   function solid(x, y) {
     const tt = t(x, y);
-    return tt === T.ROCK || tt === T.WALL || tt === T.LAVA || tt === T.WATER || tt === T.DEEP || tt === T.SEA || o(x, y) !== 0 || structSolid(x, y);
+    return tt === T.ROCK || tt === T.WALL || tt === T.LAVA || tt === T.WATER || tt === T.DEEP || tt === T.SEA || (o(x, y) !== 0 && o(x, y) !== O.BAMBOO) || structSolid(x, y);
   }
   build();
   return { mtn, WIDTH: WW, HEIGHT: HH, T, O, PAL, S, POI, CEN, h, terrain, regionAt, t, o, solid, buildVillageFence, spawn: { x: CEN[0][0] + .5, y: CEN[0][1] + 3.5 } };

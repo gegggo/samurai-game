@@ -23,6 +23,12 @@ SW.UI = (function () {
     });
     $('menu-btn').onclick = () => toggle(true);
     $('menu-close').onclick = () => toggle(false);
+    const stamina = document.createElement('div'); stamina.id = 'world-stamina'; const label = document.createElement('span'); label.id = 'world-stamina-label'; label.textContent = SW.t('hud_ki'); stamina.appendChild(label); const fill = document.createElement('i'); fill.id = 'world-stamina-fill'; stamina.appendChild(fill); document.body.appendChild(stamina);
+    const sprint = document.createElement('button'); sprint.id = 'world-sprint'; sprint.className = 'world-sprint'; sprint.textContent = SW.t('sprint');
+    const sprintDown = e => { e.preventDefault(); SW.Input.sprintHeld = true; sprint.classList.add('on'); };
+    const sprintUp = e => { e.preventDefault(); SW.Input.sprintHeld = false; sprint.classList.remove('on'); };
+    sprint.addEventListener('pointerdown', sprintDown); sprint.addEventListener('pointerup', sprintUp); sprint.addEventListener('pointercancel', sprintUp); sprint.addEventListener('pointerleave', sprintUp);
+    sprint.addEventListener('contextmenu', e => e.preventDefault()); document.body.appendChild(sprint);
     resizeMini();
     window.addEventListener('resize', resizeMini);
     window.addEventListener('resize', () => { if (open && tab === 'map' && mapC) { sizeMap(); drawMap(); } });
@@ -46,6 +52,7 @@ SW.UI = (function () {
   }
   // Sprachwechsel: Tab-Beschriftungen neu setzen
   U.relabel = function () {
+    const sb = $('world-sprint'); if (sb) sb.textContent = SW.t('sprint'); const sl = $('world-stamina-label'); if (sl) sl.textContent = SW.t('hud_ki');
     [...$('menu-tabs').children].forEach(b => { b.firstChild.nodeValue = SW.t('tab_' + b.dataset.k); if (b.disabled) b.title = SW.t('locked', 4); });
   };
   // Nach Tabwechsel/Screenshot: iOS kann Offscreen-Canvas leeren -> Übersichtsbild neu aufbauen

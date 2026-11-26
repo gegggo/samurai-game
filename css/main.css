@@ -242,3 +242,19 @@ body.trial #pos { display: none !important; }
 .skill-info-head h3 { margin:2px 0 0; font:700 19px Georgia,serif; }
 .skill-info-close { flex:0 0 auto; min-width:38px; min-height:38px; padding:0; border:1px solid rgba(232,224,208,.4); border-radius:8px; background:rgba(255,255,255,.07); color:#e8e0d0; font-size:20px; }
 .skill-info-desc { margin:12px 0 4px; font:15px/1.45 sans-serif; color:#e8e0d0; }
+
+/* Phase 26: Sprint in der offenen Welt */
+.world-sprint { position: fixed; right: calc(30px + env(safe-area-inset-right, 0px)); bottom: calc(166px + env(safe-area-inset-bottom, 0px)); width: 76px; height: 54px; border: 2px solid rgba(232,224,208,.65); border-radius: 14px; background: rgba(11,11,15,.62); color: #f4ecd8; font: 700 14px Georgia,serif; z-index: 6; touch-action: none; }
+.world-sprint.on { background: rgba(181,53,43,.75); border-color: #fff; }
+body.combat #world-sprint, body.wcombat #world-sprint, body.trial #world-sprint { display: none; }
+
+#world-stamina { position: fixed; right: calc(30px + env(safe-area-inset-right, 0px)); bottom: calc(224px + env(safe-area-inset-bottom, 0px)); width: 76px; height: 7px; overflow: hidden; border: 1px solid rgba(232,224,208,.65); border-radius: 5px; background: rgba(0,0,0,.65); z-index: 6; }
+#world-stamina-fill { display: block; width: 100%; height: 100%; background: #4aa3df; transition: width .08s linear; }
+body.combat #world-stamina, body.wcombat #world-stamina, body.trial #world-stamina { display: none; }
+
+/* Phase 26: Zelda-artige Boss-Steuerung und Ausdaueranzeige */
+body.combat #cb-lock { display: block; }
+#cb-lock { border-color: #7fd0ff; }
+#world-stamina { display: flex; flex-direction: column; align-items: stretch; gap: 2px; height: auto; overflow: visible; border: 0; background: transparent; }
+#world-stamina-label { color: #f4ecd8; font: 600 10px Georgia,serif; text-align: center; text-shadow: 0 1px 3px #000; }
+#world-stamina-fill { height: 7px; border: 1px solid rgba(232,224,208,.65); border-radius: 5px; box-sizing: border-box; background: #4aa3df; }

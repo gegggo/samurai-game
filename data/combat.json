@@ -146,6 +146,26 @@
    "ki": 30,
    "rec": 0.45,
    "wind": 0.2
+  },
+  "lunge": {
+   "anim": "quick",
+   "dash": 7.2,
+   "dashTime": 0.32,
+   "dmg": 24,
+   "glow": "#bfe9ff",
+   "inv": 0.12,
+   "ki": 14,
+   "rec": 0.48,
+   "wind": 0.38
+  },
+  "charged": {
+   "anim": "heavy",
+   "dmg": 48,
+   "glow": "#ffe27a",
+   "guardBreak": true,
+   "ki": 28,
+   "rec": 0.82,
+   "wind": 0.58
   }
  },
  "attacks": {
@@ -154,7 +174,9 @@
    "dmg": 20,
    "kind": "slash",
    "rec": 1.1,
-   "wind": 1.25
+   "wind": 1.25,
+   "range": 3,
+   "dash": true
   },
   "flurry": {
    "dmg": 5,
@@ -176,7 +198,9 @@
    "kind": "slash",
    "rec": 1.2,
    "unblock": true,
-   "wind": 1.4
+   "wind": 1.4,
+   "range": 3.6,
+   "dash": true
   },
   "slash": {
    "dmg": 8,
@@ -190,7 +214,8 @@
    "hits": 5,
    "kind": "slash",
    "rec": 1.1,
-   "wind": 0.7
+   "wind": 0.7,
+   "range": 3.6
   },
   "sweep": {
    "dmg": 10,
@@ -198,13 +223,16 @@
    "hits": 2,
    "kind": "slash",
    "rec": 0.8,
-   "wind": 0.85
+   "wind": 0.85,
+   "range": 3.9
   },
   "thrust": {
    "dmg": 9,
    "kind": "thrust",
    "rec": 0.6,
-   "wind": 0.55
+   "wind": 0.55,
+   "range": 4.1,
+   "dash": true
   }
  },
  "enemies": {

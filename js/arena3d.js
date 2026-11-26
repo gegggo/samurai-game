@@ -6,7 +6,7 @@
 // Kamera: Lock-on auf den Boss (wie Z-Targeting), daher braucht Bewegung nur den Joystick: oben = vor, unten = zurück, seitlich = Kreisen.
 SW.Arena = (function () {
   const D = SW.Data, K = SW.Combat, W = SW.World, TAU = 6.2832, SWING = .18, DODGE = .38;
-  const RA = 9, EYE = 1.5, WALL = 3.4, PSPD = 4.4, ROLL = 7, PREACH = 2.7;
+  const RA = 9, EYE = 1.5, WALL = 3.4, PSPD = 5.2, ROLL = 8.5, PREACH = 2.7;
   const A = { active: false }, held = { block: false, breath: false };
   let S = null;
   const T = (k, n) => SW.t(k, n), $ = id => document.getElementById(id);
@@ -25,12 +25,12 @@ SW.Arena = (function () {
     const def = D.enemies[spot.type], ps = K.playerStats(), reg = W.regionAt(Math.floor(spot.x), Math.floor(spot.y));
     const name = def.arena || D.regionArena[reg] || 'clearing';
     S = {
-      spot, def, ps, ar: D.arenas[name] || D.arenas.clearing, state: 'intro', t: 0, phase: 0, hp: Math.round(def.hp * K.tm(spot).hp), max: Math.round(def.hp * K.tm(spot).hp),
-      php: ps.hp, pmax: ps.hp, ki: ps.ki, kmax: ps.ki, px: -6, py: 0, yaw: 0, pm: null, buf: null, chain: 0, chainT: 0, counterT: 0,
+      spot, def, ps, ar: D.arenas[name] || D.arenas.clearing, state: 'intro', t: 0, phase: 0, hp: Math.round(def.hp * K.tm(spot).hp * (def.phases ? 1.5 : 1)), max: Math.round(def.hp * K.tm(spot).hp * (def.phases ? 1.5 : 1)),
+      php: ps.hp, pmax: ps.hp, ki: ps.ki, kmax: ps.ki, px: -6, py: 0, yaw: 0, lockOn: true, charging: false, chargeT: 0, pm: null, buf: null, chain: 0, chainT: 0, counterT: 0,
       block: false, blockT: 0, noBlockT: 1, parryOk: false, bl: 0, dodgeT: 0, dodgeCd: 0, dvx: 1, dvy: 0, invT: 0, hurt: 0, shake: 0, spark: 0,
       breath: false, msg: '', msgT: 0, msgCol: '#fff', floats: [], rew: null, fswing: 0, bob: 0,
       st: { heavy: 0, special: 0, counter: 0, parry: 0, dodge: 0, block: 0, breath: 0 },
-      boss: { x: 3, y: 0, st: 'idle', t: 0, dur: 1, wait: 1.5, atk: null, hits: 0, guarding: false, flash: 0, sd: Math.random() < .5 ? 1 : -1 }
+      boss: { x: 3, y: 0, st: 'idle', t: 0, dur: 1, wait: 1.5, atk: null, hits: 0, guarding: false, flash: 0, staggerLock: 0, sd: Math.random() < .5 ? 1 : -1 }
     };
     held.block = held.breath = false;
     if (ps.ranged) D.moves.shot = { wind: ps.ranged.wind, rec: ps.ranged.rec, dmg: ps.ranged.dmg, ranged: true, anim: 'shot' };
@@ -39,6 +39,7 @@ SW.Arena = (function () {
       const b = $('cb-s' + i), id = SW.Skills.slots[i], on = !!(id && ps.slots[i]);
       if (b) { b.style.display = on ? '' : 'none'; b.textContent = on ? T('sk_' + id) : ''; }
     });
+    { const lb = $('cb-lock'); if (lb) { lb.textContent = T('lock_on_short'); lb.classList.add('lk'); } }
     K.active = true; A.active = true; SW.paused = false; SW.Input.reset();
     document.body.classList.add('combat');
   };
@@ -59,17 +60,18 @@ SW.Arena = (function () {
     S.pm.dur = S.pm.end - SWING + rec;
     if (m.ki) S.ki -= kiCost(m);
     if (m.inv) S.invT = m.inv;
-    if (name === 'heavy') S.st.heavy++; else if (name === 'counter') S.st.counter++; else if (m.ki) S.st.special++;
+    if (name === 'heavy' || name === 'charged') S.st.heavy++; else if (name === 'counter') S.st.counter++; else if (m.ki && name !== 'lunge') S.st.special++;
     S.breath = false;
     if (name === 'counter') say(T('combat_counter'), '#ffe27a');
   }
   function act(kind) {
-    if (!S || S.state !== 'fight') return;
+    if (!S || S.state !== 'fight' || S.charging) return;
     if (S.pm || S.hurt > 0 || S.dodgeT > 0) { S.buf = { kind, t: .25 }; return; }
     let name;
     if (kind === 'attack') {
       if (S.counterT > 0) { name = 'counter'; S.counterT = 0; }
       else if (S.chainT > 0 && S.chain < 3) name = 'quick';
+      else if (Math.hypot(SW.Input.vec.x, SW.Input.vec.y) > .35 && SW.Input.vec.y < -.35 && dist() > 3.2 && D.moves.lunge && S.ki >= kiCost(D.moves.lunge)) name = 'lunge';
       else name = 'normal';
     } else if (kind === 'heavy') name = 'heavy';
     else if (kind === 'special') {
@@ -81,11 +83,12 @@ SW.Arena = (function () {
       if (S.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
     } else if (kind === 'ranged') { if ((!S.ps.ranged || !SW.Inv.eq.ranged)) return; name = 'shot'; }
     else return;
-    if ((kind === 'attack' && name !== 'counter') || kind === 'heavy') name = SW.Skills.autoMove(S.ki, S.ps.kiCostMul, S.php / S.pmax) || name;
+    if (((kind === 'attack' && name !== 'counter' && name !== 'lunge') || kind === 'heavy')) name = SW.Skills.autoMove(S.ki, S.ps.kiCostMul, S.php / S.pmax) || name;
     startMove(name);
   }
   function dodge() {
     if (!S || S.state !== 'fight' || S.dodgeCd > 0 || S.hurt > 0) return;
+    if (S.charging) { S.charging = false; S.chargeT = 0; }
     if (S.pm && S.pm.t < S.pm.end) return;
     { const kc = Math.ceil(D.dodgeKi * S.ps.kiCostMul); if (S.ki < kc) { say(T('combat_noki'), '#8cf'); return; } S.ki -= kc; }
     const v = SW.Input.vec, c = Math.cos(S.yaw), s = Math.sin(S.yaw);
@@ -94,12 +97,35 @@ SW.Arena = (function () {
     S.dvx = f * c - r * s; S.dvy = f * s + r * c;
     S.pm = null; S.buf = null; S.chain = 0; S.dodgeT = DODGE * (1 + S.ps.dodgeWin); S.dodgeCd = .9 * S.ps.dodgeCdMul; S.breath = false;
   }
+  function releaseCharge() {
+    if (!S || !S.charging) return;
+    const ready = S.chargeT >= .55, enough = S.ki >= kiCost(D.moves.charged);
+    S.charging = false; S.chargeT = 0;
+    if (ready && enough) startMove('charged');
+    else {
+      if (ready && !enough) say(T('combat_noki'), '#8cf');
+      startMove('heavy');
+    }
+  }
+  A.toggleLock = function () {
+    if (!S || !A.active) return;
+    S.lockOn = !S.lockOn;
+    const b = $('cb-lock');
+    if (b) { b.textContent = T(S.lockOn ? 'lock_on_short' : 'lock_off_short'); b.classList.toggle('lk', S.lockOn); }
+    say(T(S.lockOn ? 'lock_on' : 'lock_off'), '#cfe');
+  };
   A.press = function (k) {
-    if (k === 'block' || k === 'breath') held[k] = true;
+    if (k === 'lock') A.toggleLock();
+    else if (k === 'heavy') {
+      if (S && S.state === 'fight' && !S.pm && S.hurt <= 0 && S.dodgeT <= 0) { S.charging = true; S.chargeT = 0; }
+    } else if (k === 'block' || k === 'breath') held[k] = true;
     else if (k === 'dodge') dodge();
     else act(k);
   };
-  A.release = function (k) { if (k === 'block' || k === 'breath') held[k] = false; };
+  A.release = function (k) {
+    if (k === 'block' || k === 'breath') held[k] = false;
+    else if (k === 'heavy') releaseCharge();
+  };
 
   function reward() {
     if (S.spot.trial) { const o = SW.Trials.duelWon(S.spot.trial); Object.assign(o, { coins: 0, items: [], karma: 0, secret: null }); S.rew = o; SW.Save.touch(); return; } // Schrein-Duell: nur Prüfungsbelohnung
@@ -116,7 +142,7 @@ SW.Arena = (function () {
     if (f.st === 'wind') dmg *= 1 + ps.ambush;
     if (f.guarding && nm !== 'counter' && !m.ignoreGuard) {
       if (m.ranged) dmg *= .5;
-      else if (m.guardBreak || nm === 'special') { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; say(T('combat_guard_break'), '#ffd27a'); }
+      else if ((m.guardBreak || nm === 'special') && (!S.def.phases || f.staggerLock <= 0)) { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; f.staggerLock = S.def.phases ? 2.2 : 0; say(T('combat_guard_break'), '#ffd27a'); }
       else dmg *= .25;
     } else if (S.def.armor && !heavyish) dmg *= 1 - S.def.armor;
     if (f.st === 'rec' || f.st === 'stagger') dmg *= 1.3;
@@ -124,7 +150,7 @@ SW.Arena = (function () {
     dmg = Math.max(1, Math.round(dmg));
     SW.Inv.wear(m.ranged ? ['ranged'] : [m.weaponSlot || 'main']); S.hp -= dmg; f.flash = .1; if (!m.ranged) S.ki = Math.min(S.kmax, S.ki + 4);
     flt(dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
-    if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock)) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; }
+    if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock) && (!S.def.phases || f.staggerLock <= 0)) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; f.staggerLock = S.def.phases ? 2.2 : 0; }
     if (S.hp <= 0) { S.hp = 0; S.php = Math.min(S.pmax, S.php + S.pmax * ps.healWin); S.state = 'win'; S.t = 0; S.spot.dead = true; S.pm = null; reward(); return; }
     if (S.def.phases) {
       const r = S.hp / S.max; let n = S.phase;
@@ -147,8 +173,8 @@ SW.Arena = (function () {
   function foeStrike() {
     const f = S.boss, At = f.atk, ps = S.ps, p = ph();
     S.fswing = SWING; f.hits--;
-    const dmg = Math.max(1, At.dmg * (S.def.dmg || 1) * K.tm(S.spot).dmg - ps.def);
-    if (dist() > REACH() + .7) { /* Spieler ist weggelaufen: Angriff geht ins Leere */ }
+    const dmg = Math.max(1, At.dmg * (S.def.dmg || 1) * K.tm(S.spot).dmg * (S.def.phases ? 1.5 : 1) - ps.def);
+    if (dist() > (S.def.phases && At.range ? At.range : REACH() + .7)) { /* Spieler ist aus dem markierten Angriffsbereich gelaufen */ }
     else if (S.dodgeT > 0 || S.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); S.ki = Math.min(S.kmax, S.ki + 3 + S.kmax * ps.kiDodge); S.st.dodge++; }
     else if (S.block && !At.unblock && S.parryOk && S.blockT <= ps.parry) {
       S.st.parry++; f.st = 'stagger'; f.t = 0; f.dur = 1.1; f.hits = 0; S.counterT = 1.4;
@@ -161,7 +187,9 @@ SW.Arena = (function () {
   }
   function fight(dt) {
     const ps = S.ps, f = S.boss, p = ph();
-    S.invT = Math.max(0, S.invT - dt); S.dodgeCd = Math.max(0, S.dodgeCd - dt); S.dodgeT = Math.max(0, S.dodgeT - dt); S.hurt = Math.max(0, S.hurt - dt);
+    S.boss.staggerLock = Math.max(0, S.boss.staggerLock - dt); S.invT = Math.max(0, S.invT - dt); S.dodgeCd = Math.max(0, S.dodgeCd - dt); S.dodgeT = Math.max(0, S.dodgeT - dt); S.hurt = Math.max(0, S.hurt - dt);
+    if (S.charging) { S.chargeT += dt; if (S.chargeT >= 1.35) releaseCharge(); }
+    if (held.block && S.charging) { S.charging = false; S.chargeT = 0; }
     S.chainT = Math.max(0, S.chainT - dt); S.counterT = Math.max(0, S.counterT - dt);
     if (S.buf) { S.buf.t -= dt; if (S.buf.t <= 0) S.buf = null; }
     if (S.pm) {
@@ -178,7 +206,7 @@ SW.Arena = (function () {
     if (want && !S.block) { S.parryOk = S.noBlockT >= .35; S.blockT = 0; }
     if (want) { S.blockT += dt; S.noBlockT = 0; } else S.noBlockT += dt;
     S.block = want; S.bl = clamp(S.bl + (want ? 1 : -1) * dt * 9, 0, 1);
-    S.breath = !want && !S.pm && S.dodgeT <= 0 && S.hurt <= 0 && Math.hypot(SW.Input.vec.x, SW.Input.vec.y) <= .15; // Atem automatisch bei Stillstand
+    S.breath = !want && !S.pm && !S.charging && S.dodgeT <= 0 && S.hurt <= 0 && Math.hypot(SW.Input.vec.x, SW.Input.vec.y) <= .15; // Atem automatisch bei Stillstand
     if (S.breath) S.st.breath += dt;
     S.ki = Math.min(S.kmax, S.ki + (ps.kiRegen + (S.breath ? 22 * ps.breathMul : 0)) * dt);
 
@@ -188,8 +216,11 @@ SW.Arena = (function () {
     let mx = 0, my = 0;
     if (S.dodgeT > 0) { mx = S.dvx * ROLL; my = S.dvy * ROLL; }
     else if (S.hurt <= 0) {
-      const k = S.pm ? .25 : S.block ? .4 : S.breath ? .3 : 1, fw = -v.y, rt = v.x;
+      const k = S.charging ? .48 : S.pm ? .25 : S.block ? .4 : S.breath ? .3 : 1, fw = -v.y, rt = v.x;
       mx = (fw * c - rt * s) * PSPD * k; my = (fw * s + rt * c) * PSPD * k;
+    }
+    if (S.pm && S.pm.m.dash && S.pm.t <= (S.pm.m.dashTime || .28)) {
+      const dd = dist(); if (dd > 1.65) { mx += (f.x - S.px) / dd * S.pm.m.dash; my += (f.y - S.py) / dd * S.pm.m.dash; }
     }
     S.bob += Math.hypot(mx, my) * dt * 1.6;
     S.px += mx * dt; S.py += my * dt;
@@ -207,8 +238,14 @@ SW.Arena = (function () {
         const list = p.atk, At = D.attacks[list[(Math.random() * list.length) | 0]];
         f.atk = At; f.hits = At.hits || 1; f.st = 'wind'; f.t = 0; f.dur = At.wind / p.speed; f.guarding = false; f.sd = Math.random() < .5 ? 1 : -1;
       }
-    } else if (f.st === 'wind') { if (f.t >= f.dur) foeStrike(); }
-    else if (f.t >= f.dur) foeIdle();
+    } else if (f.st === 'wind') {
+      // Bestimmte Bossangriffe stürmen nach deutlich sichtbarem Ausholen nach vorn.
+      if (S.def.phases && f.atk && f.atk.dash && f.t < f.dur) {
+        const stepD = dist(), dx = (S.px - f.x) / (stepD || 1), dy = (S.py - f.y) / (stepD || 1);
+        if (stepD > 1.8) { f.x += dx * 3.6 * dt; f.y += dy * 3.6 * dt; }
+      }
+      if (f.t >= f.dur) foeStrike();
+    } else if (f.t >= f.dur) foeIdle();
     const fd = Math.hypot(f.x, f.y); if (fd > RA - .8) { f.x *= (RA - .8) / fd; f.y *= (RA - .8) / fd; }
   }
   A.update = function (dt) {
@@ -216,9 +253,8 @@ SW.Arena = (function () {
     S.t += dt;
     S.shake = Math.max(0, S.shake - dt); S.spark = Math.max(0, S.spark - dt); S.msgT = Math.max(0, S.msgT - dt);
     for (let i = S.floats.length - 1; i >= 0; i--) { S.floats[i].t += dt; if (S.floats[i].t > 1) S.floats.splice(i, 1); }
-    // Lock-on: Kamera dreht weich zum Boss
-    const ta = Math.atan2(S.boss.y - S.py, S.boss.x - S.px); let da = ta - S.yaw; while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU;
-    S.yaw += da * Math.min(1, dt * 12);
+    // Zelda-artige Zielsperre: automatisch verfolgen oder Kamera per Wischbewegung frei drehen.
+    if (S.lockOn) { const ta = Math.atan2(S.boss.y - S.py, S.boss.x - S.px); let da = ta - S.yaw; while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU; S.yaw += da * Math.min(1, dt * 12); }
     if (S.state === 'intro') { if (S.t > 1.3) { S.state = 'fight'; S.t = 0; } return; }
     if (S.state === 'win' || S.state === 'lose') { if (S.t > outT()) finish(); return; }
     fight(dt);
@@ -227,10 +263,27 @@ SW.Arena = (function () {
     if (!A.active) return; const k = e.key.toLowerCase();
     if (k === ' ') held.block = true; else if (k === 'b') held.breath = true;
     else if (e.repeat) return;
-    else if (k === 'j') act('attack'); else if (k === 'k') act('heavy'); else if (k === 'l') act('special'); else if (k === 'h') act('ranged');
+    else if (k === 'j') act('attack'); else if (k === 'k') A.press('heavy'); else if (k === 'l') act('special'); else if (k === 'h') act('ranged');
+    else if (k === 'q') A.toggleLock();
     else if (k === 'x' || k === 'shift') dodge();
   });
-  window.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (k === ' ') held.block = false; else if (k === 'b') held.breath = false; });
+  window.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (k === ' ') held.block = false; else if (k === 'b') held.breath = false; else if (k === 'k') A.release('heavy'); });
+  let cameraDrag = null;
+  const arenaCanvas = $('game');
+  if (arenaCanvas) {
+    arenaCanvas.addEventListener('pointerdown', e => {
+      if (!A.active || !S || S.lockOn || e.clientX < window.innerWidth * .55) return;
+      cameraDrag = { id: e.pointerId, x: e.clientX };
+      try { arenaCanvas.setPointerCapture(e.pointerId); } catch (err) { /* optional */ }
+      e.preventDefault();
+    });
+    arenaCanvas.addEventListener('pointermove', e => {
+      if (!cameraDrag || cameraDrag.id !== e.pointerId || !S || S.lockOn) return;
+      S.yaw -= (e.clientX - cameraDrag.x) * .009; cameraDrag.x = e.clientX; e.preventDefault();
+    });
+    const endCameraDrag = e => { if (cameraDrag && cameraDrag.id === e.pointerId) cameraDrag = null; };
+    arenaCanvas.addEventListener('pointerup', endCameraDrag); arenaCanvas.addEventListener('pointercancel', endCameraDrag);
+  }
 
   // ===================== ANSICHT =====================
   let FW = 1, HZ = 0, FOC = 1;
@@ -315,8 +368,8 @@ SW.Arena = (function () {
     // Schatten + Boss
     { const q = proj(f.x, f.y, 0); if (q) { const s = FOC / q.f; c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(q.x, q.y, s * .55, s * .14, 0, 0, TAU); c.fill(); } }
     drawBoss(c, cw, ch, time);
-    // Lock-on-Marke
-    { const q = proj(f.x, f.y, 2.7 * (S.def.phases ? 1.2 : 1)); if (q && S.state !== 'win') { c.fillStyle = 'rgba(224,69,47,.9)'; const r = ch * .016; c.beginPath(); c.moveTo(q.x, q.y + r); c.lineTo(q.x + r, q.y - r); c.lineTo(q.x - r, q.y - r); c.closePath(); c.fill(); } }
+    // Lock-on-Marke nur bei aktiver Zielsperre
+    if (S.lockOn) { const q = proj(f.x, f.y, 2.7 * (S.def.phases ? 1.2 : 1)); if (q && S.state !== 'win') { c.fillStyle = 'rgba(224,69,47,.9)'; const r = ch * .016; c.beginPath(); c.moveTo(q.x, q.y + r); c.lineTo(q.x + r, q.y - r); c.lineTo(q.x - r, q.y - r); c.closePath(); c.fill(); } }
     weapon(c, cw, ch, time);
     if (S.counterT > 0) { c.strokeStyle = 'rgba(255,226,122,' + (.45 + .3 * Math.sin(time * 14)) + ')'; c.lineWidth = u * 1.6; c.strokeRect(u, u, cw - 2 * u, ch - 2 * u); }
     if (S.hurt > 0) { c.fillStyle = 'rgba(200,20,20,' + S.hurt * .6 + ')'; c.fillRect(0, 0, cw, ch); }
@@ -325,6 +378,7 @@ SW.Arena = (function () {
     const mg = 56 * dpr, bw = Math.min(cw * .3, 260 * dpr), bh = u * 2.6;
     txt(c, T('hud_hp'), mg, u * 4, u * 3, '#f4ecd8', 'left'); bar(c, mg + u * 5, u * 2.7, bw, bh, S.php / S.pmax, '#c8382c');
     txt(c, T('hud_ki'), mg, u * 9.4, u * 3, '#f4ecd8', 'left'); bar(c, mg + u * 5, u * 8.1, bw * .75, bh, S.ki / S.kmax, '#4aa3df');
+    if (S.charging) { const cw2 = cw * .18, cx2 = (cw - cw2) / 2, cy2 = ch * .79; txt(c, T('combat_charge'), cw / 2, cy2 - u * 1.8, u * 3.2, '#ffe27a'); bar(c, cx2, cy2, cw2, u * 1.3, Math.min(1, S.chargeT / 1.35), '#ffe27a'); }
     const ew = cw * .34, ex = (cw - ew) / 2;
     txt(c, T('enemy_' + S.spot.type), cw / 2, u * 3.6, u * 3.6, '#f4ecd8');
     bar(c, ex, u * 6.2, ew, bh, S.hp / S.max, S.phase ? '#e0702a' : '#b5352b');

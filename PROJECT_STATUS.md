@@ -1,8 +1,17 @@
+## Phase 26 – Zelda-Kampf + Welt-Fixes (Umsetzung abgeschlossen; Gerätetest offen)
+- Boss-Arena: Boss-Leben und Boss-Schaden für Phasenbosse um 50 % erhöht; schwere Unterbrechungen durch Special-Attacken mit 2,2-Sekunden-Sperre gegen Spam abgesichert.
+- Zelda-Kampf: freie Kamera per Wischbewegung auf der rechten Bildschirmhälfte; Zielsperre standardmäßig aktiv und per Lock-Taste/Q umschaltbar; Sprint-Lunge bei Vorwärtsbewegung; aufladbarer schwerer Schlag (Heavy halten); Boss-Stürmer-Angriffe mit eigener Reichweite und sichtbarem Ausholen; Spielerbewegung/Ausweichrolle beschleunigt.
+- Bambuswald: Bambusobjekte sind durchquerbar; Dichte reduziert; Spawnzone am Bambus-Schrein und Straßenkorridor Richtung Dorf werden freigehalten.
+- Lager: Zelte prüfen jede Kachel ihrer gesamten Grundfläche, suchen bei Fels/Überlappung einen freien Platz und werden übersprungen, wenn kein sicherer Standort existiert.
+- Welt-Sprint: Shift (PC) oder Touch-Taste, 1,65× Laufgeschwindigkeit, Ausdauerverbrauch und Regeneration; Ausdauerleiste sichtbar.
+- Begriffe: sichtbare englische Ki-Bezeichnungen auf Stamina, deutsche auf Ausdauer umgestellt; interne Daten-/Variablennamen bleiben aus Kompatibilitätsgründen `ki`. Das zuvor versehentlich veränderte Item-Label „Travel Staminamono“ wurde auf „Travel Kimono“ korrigiert.
+- Technische Prüfung: 10 geänderte JavaScript-Dateien bestehen den Syntaxcheck; 5 JSON-Dateien sind gültig, Boss-Angriffsreferenzen und neue Moves sind vorhanden. Die Playwright-Regressionstests (`tests/regression.py`) und der echte iPhone-/Touch-Test wurden noch nicht ausgeführt.
+
 # Samurai Wanderer – Aktueller Projektstatus
 
 Stand: 26.11.2026
-Aktuelle Codeversion: **0.25.0**
-Cache-Version in `index.html`: **v105**
+Aktuelle Codeversion: **0.26.0**
+Cache-Version in `index.html`: **v107**
 Verbindliche Spezifikation: **Samurai Wanderer – Complete Project Specification v2.1**
 
 ## Kurzüberblick
