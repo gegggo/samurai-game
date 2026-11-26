@@ -140,7 +140,7 @@ Object.assign(SW.TEXT.de, {
   req_lvl: 'Stufe {n}', req_yin: 'Yin {n}+', req_yang: 'Yang {n}+', req_karma: 'Karma {n}+',
   req_balance: 'Yin und Yang ausgeglichen, beide {n}+', req_sp: '{n} Fähigkeitspunkt(e)',
   ess: 'Essence',
-  lv_up: 'Stufe {n}!', slot: 'Platz {n}', slot_empty: 'Leer', equip: 'Ausrüsten',
+  lv_up: 'Stufe {n}!', slot: 'Platz {n}', auto_slot: 'Auto-Skill {n}', auto_skills_hint: 'Ausgewählte Skills lösen im Kampf automatisch aus. Separate Skill-Buttons werden nicht benötigt.', slot_empty: 'Leer', equip: 'Ausrüsten',
   dur: 'Haltbarkeit', dur_inf: 'Unzerbrechlich', wpn_broke: '{n} ist zerbrochen und wurde in deinen Beutel gelegt!', equipped: 'Ausgerüstet', repair_required: 'Defekt – beim Schmied reparieren.', already_owned: 'Bereits im Besitz: {n}', sort: 'Sortierung', sort_type: 'Art', sort_rar: 'Seltenheit', sort_dur: 'Haltbarkeit', sort_name: 'Name',
   no_active: 'Noch keine aktiven Techniken gelernt.', activate: 'Freischalten',
   secret_ready: 'Geheimtechnik bereit zum Freischalten!', secret_got: 'Geheimtechnik gefunden: {n}',
