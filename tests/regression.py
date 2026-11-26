@@ -344,7 +344,7 @@ try:
       return {count:S.list.length,bad};
     }""")
     rec('Weltkarte: alle Schnellreiseziele liegen innerhalb der Map und auf freien Tiles',
-        r['count']>0 and r['bad'].length==0, json.dumps(r))
+        r['count']>0 and len(r['bad'])==0, json.dumps(r))
     # 48 POI: echte Struktur- und Grenzpruefung
     r = ev(pg, """() => {
       const W=SW.World,P=W.POI;
@@ -353,7 +353,7 @@ try:
       return {count:P.length,bad:bad.map(o=>o.type+':'+o.x+','+o.y)};
     }""")
     rec('Weltkarte: POIs haben gueltige Typen, Abmessungen und Map-Grenzen',
-        r['count']>20 and r['bad'].length==0, json.dumps(r))
+        r['count']>20 and len(r['bad'])==0, json.dumps(r))
 
     # 49 Bewegung: Spieler darf nicht durch benachbarte feste Tiles laufen
     r = ev(pg, """() => {
