@@ -201,7 +201,7 @@ SW.UI = (function () {
       const X0 = i * OV + OV / 2 | 0, Y0 = (ovRow + j) * OV + OV / 2 | 0, t = W.terrain(X0, Y0), k = (j * OSW + i) * 4;
       let c = [0, 0, 0];
       if (t !== TT.SEA) {
-        c = RCOL[W.regionAt(X0, Y0)] || RCOL[0];
+        c = RCOL[W.terrainRegionAt(X0, Y0)] || RCOL[0];
         if (t === TT.DEEP) c = [32, 70, 150]; else if (t === TT.WATER) c = [58, 110, 190]; else if (t === TT.LAVA) c = [200, 70, 30]; else if (t === TT.SAND) c = [222, 204, 150];
         else for (let q = 0; q < 4; q++) { const u = W.terrain(X0 + (q & 1 ? h : -h), Y0 + (q & 2 ? h : -h)); if (u === TT.PATH || u === TT.BRIDGE) { c = [226, 200, 140]; break; } if (u === TT.WATER) c = [58, 110, 190]; }
         if (t !== TT.WATER && t !== TT.DEEP && (W.terrain(X0 - OV, Y0) === TT.SEA || W.terrain(X0 + OV, Y0) === TT.SEA || W.terrain(X0, Y0 - OV) === TT.SEA || W.terrain(X0, Y0 + OV) === TT.SEA)) c = [201, 185, 138]; // Küstenlinie
