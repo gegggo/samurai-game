@@ -73,6 +73,21 @@ SW.Skills = (function () {
     return c && S.scr[id] === 2 ? c.move : null;
   };
   S.slotMoves = () => S.slots.map(id => (id && S.moveOf(id)) || null);
+  // Ausgeruestete aktive Skills loesen im Kampf automatisch aus, ohne eigene Touch-Buttons.
+  const autoReadyAt = [0, 0];
+  S.autoMove = function (ki, costMul, hpRatio) {
+    const now = Date.now(), order = Math.random() < .5 ? [0, 1] : [1, 0];
+    for (const i of order) {
+      const move = S.slots[i] && S.moveOf(S.slots[i]), m = move && D.moves[move];
+      if (!m || now < autoReadyAt[i]) continue;
+      if (m.heal && hpRatio > .55) continue;
+      if (ki < Math.ceil((m.ki || 0) * costMul)) continue;
+      if (Math.random() >= .18) continue;
+      autoReadyAt[i] = now + 4500;
+      return move;
+    }
+    return null;
+  };
   S.equip = function (id, i) {
     if (!S.moveOf(id) || i < 0 || i > 1) return false;
     const o = S.slots.indexOf(id);

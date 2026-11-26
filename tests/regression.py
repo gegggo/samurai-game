@@ -231,6 +231,12 @@ try:
       I.wear(['ranged']); const c=[I.durOf('main'),I.durOf('side'),I.durOf('ranged')];
       return {a,b,c}; }""")
     rec('Phase 24.1: Haltbarkeit wird nur in den jeweils uebergebenen Ausruestungsslots reduziert', JSON.stringify(r.a)==JSON.stringify([59,30,60]) and JSON.stringify(r.b)==JSON.stringify([59,29,60]) and JSON.stringify(r.c)==JSON.stringify([59,29,59]), json.dumps(r))
+    # 37 Phase 24.2: ausgewaehlte aktive Skills loesen automatisch aus und benoetigen keinen Skill-Button
+    r = ev(pg, """() => { const S=SW.Skills, old=Math.random; Math.random=()=>0;
+      S.load({learned:{sm_a1:1},slots:['sm_a1',null],taught:1});
+      const first=S.autoMove(100,1,1), cooldown=S.autoMove(100,1,1);
+      Math.random=old; return {first,cooldown}; }""")
+    rec('Phase 24.2: ausgewaehlter Doppelschlag kann automatisch ausloesen; derselbe Slot hat danach eine kurze Abklingzeit', r['first']=='dblstrike' and r['cooldown'] is None, json.dumps(r))
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:
