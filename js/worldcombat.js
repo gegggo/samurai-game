@@ -34,8 +34,7 @@ SW.WCombat = (function () {
     P.php = was === 1 ? P.pmax : Math.min(P.pmax, P.php); P.ki = Math.min(P.kmax, P.ki === 1 ? P.kmax : P.ki);
     if (P.ps.ranged) D.moves.shot = { wind: P.ps.ranged.wind, rec: P.ps.ranged.rec, dmg: P.ps.ranged.dmg, ranged: true, anim: 'shot' };
     [0, 1].forEach(i => {
-      const b = $('cb-s' + i);
-      if (b) b.style.display = 'none';
+      const b = $('cb-s' + i), id = SW.Skills.slots[i], on = !!(id && P.ps.slots[i]); // 2 Skill-Plätze: leer = Platzhalter für spätere Fähigkeiten
       if (b) { b.style.display = on ? '' : 'none'; b.textContent = on ? T('sk_' + id) : ''; }
     });
     { const rb = $('cb-ranged'); if (rb) rb.style.display = P.ps.ranged ? '' : 'none'; }
@@ -65,7 +64,7 @@ SW.WCombat = (function () {
       if (P.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
     } else if (kind === 'ranged') { if ((!P.ps.ranged || !SW.Inv.eq.ranged)) return; name = 'shot'; }
     else return;
-    if (kind === 'attack' || kind === 'heavy') name = SW.Skills.autoMove(P.ki, P.ps.kiCostMul, P.php / P.pmax) || name;
+    if ((kind === 'attack' && name !== 'counter') || kind === 'heavy') name = SW.Skills.autoMove(P.ki, P.ps.kiCostMul, P.php / P.pmax) || name;
     startMove(name);
   }
   function dodge() {
