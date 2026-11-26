@@ -141,7 +141,7 @@ Object.assign(SW.TEXT.de, {
   req_balance: 'Yin und Yang ausgeglichen, beide {n}+', req_sp: '{n} Fähigkeitspunkt(e)',
   ess: 'Essence',
   lv_up: 'Stufe {n}!', slot: 'Platz {n}', slot_empty: 'Leer', equip: 'Ausrüsten',
-  dur: 'Haltbarkeit', dur_inf: 'Unzerbrechlich', wpn_broke: '{n} ist zerbrochen und wurde in deinen Beutel gelegt!', sort: 'Sortierung', sort_type: 'Art', sort_rar: 'Seltenheit', sort_dur: 'Haltbarkeit', sort_name: 'Name',
+  dur: 'Haltbarkeit', dur_inf: 'Unzerbrechlich', wpn_broke: '{n} ist zerbrochen und wurde in deinen Beutel gelegt!', equipped: 'Ausgerüstet', repair_required: 'Defekt – beim Schmied reparieren.', already_owned: 'Bereits im Besitz: {n}', sort: 'Sortierung', sort_type: 'Art', sort_rar: 'Seltenheit', sort_dur: 'Haltbarkeit', sort_name: 'Name',
   no_active: 'Noch keine aktiven Techniken gelernt.', activate: 'Freischalten',
   secret_ready: 'Geheimtechnik bereit zum Freischalten!', secret_got: 'Geheimtechnik gefunden: {n}',
   ki_cost: 'Ki {n}', no_passive: 'Noch keine passiven Fähigkeiten gelernt.'
