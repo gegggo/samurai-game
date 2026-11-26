@@ -65,7 +65,7 @@ SW.WCombat = (function () {
       if (P.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
     } else if (kind === 'ranged') { if ((!P.ps.ranged || !SW.Inv.eq.ranged)) return; name = 'shot'; }
     else return;
-    if (kind === 'attack' || kind === 'heavy') name = SW.Skills.autoMove(P.ki, P.ps.kiCostMul, P.php / P.pmax) || name;
+    if ((kind === 'attack' && name !== 'counter') || kind === 'heavy') name = SW.Skills.autoMove(P.ki, P.ps.kiCostMul, P.php / P.pmax) || name;
     startMove(name);
   }
   function dodge() {
