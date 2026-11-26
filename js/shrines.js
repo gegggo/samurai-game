@@ -49,7 +49,8 @@ SW.Shrines = (function () {
     if (SW.Trials && SW.Trials.can(s.id)) return SW.Trials.enter(s.id);
     return false;
   };
-  S.canTravel = id => !!(S.get(id) && S.on.has(id) && !SW.Combat.active);
+  // Schnellreise ist sowohl in Arena-Kämpfen als auch in laufenden Weltkämpfen gesperrt.
+  S.canTravel = id => !!(S.get(id) && S.on.has(id) && !SW.Combat.active && !(SW.WCombat && SW.WCombat.active));
   S.travel = function (id) {
     if (!S.canTravel(id)) return false;
     const s = S.get(id), p = SW.Player;
