@@ -35,9 +35,19 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   SW.cam = { x: SW.Player.x, y: SW.Player.y };
   function resize() {
     SW.dpr = Math.min(2, window.devicePixelRatio || 1);
-    const w = canvas.clientWidth || window.innerWidth, h = canvas.clientHeight || window.innerHeight;
-    canvas.width = Math.floor(w * SW.dpr); canvas.height = Math.floor(h * SW.dpr);
-    SW.Render.resize(canvas.width, canvas.height);
+    const r = canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.round(r.width || canvas.clientWidth || document.documentElement.clientWidth || window.innerWidth));
+    const h = Math.max(1, Math.round(r.height || canvas.clientHeight || document.documentElement.clientHeight || window.innerHeight));
+    const cw = Math.max(1, Math.round(w * SW.dpr)), ch = Math.max(1, Math.round(h * SW.dpr));
+    if (canvas.width !== cw || canvas.height !== ch) {
+      canvas.width = cw; canvas.height = ch;
+      SW.Render.resize(canvas.width, canvas.height);
+    }
+  }
+  let resizeFrame = 0;
+  function queueResize() {
+    if (resizeFrame) cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(() => { resizeFrame = 0; resize(); });
   }
   let frozenKey = '', frozenAt = 0;
   const later = () => {
@@ -47,17 +57,23 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
     last = performance.now();
     SW.Input.reset();
     resize();
-    const rs = () => { resize(); try { SW.UI.resume(); } catch (e) { /* egal */ } };
-    setTimeout(rs, 250);
-    setTimeout(rs, 700);
+    const rs = () => {
+      queueResize();
+      requestAnimationFrame(() => { try { SW.UI.resume(); } catch (e) { /* egal */ } });
+    };
+    setTimeout(rs, 120);
+    setTimeout(rs, 350);
+    setTimeout(rs, 800);
     setTimeout(rs, 1500);
   };
   // iOS-Fehler: nach Screenshot bleibt die Seitenbreite auf Hochformat (z. B. 393 statt 852) haengen -> halber schwarzer Bildschirm.
   // Erkennung: Gerät liegt quer (window.orientation +-90), Fensterbreite aber kleiner als die lange Seite. Behebung: Viewport-Meta neu setzen, sonst Neuladen (Spielstand wird vorher gespeichert).
   let vpTry = 0, vpForced = false;
   const longSide = () => Math.max(screen.width, screen.height);
-  const isLandscape = () => (typeof window.orientation === 'number' && Math.abs(window.orientation) === 90) || (screen.orientation && /landscape/.test(screen.orientation.type || ''));
-  const landscapeBroken = () => isLandscape() && window.innerWidth < longSide() * .8 && document.documentElement.clientWidth < longSide() * .8 && window.innerHeight < window.innerWidth * 1.2; // 0.12.2: Fenster höher als breit = echte Drehung ins Hochformat, kein Fehler; Layoutbreite (cw) muss auch schmal sein, sonst nur Drehübergang
+  const shortSide = () => Math.min(screen.width, screen.height);
+  const isLandscape = () => (typeof window.orientation === 'number' && Math.abs(window.orientation) === 90) || (screen.orientation && /landscape/.test(screen.orientation.type || '')) || window.innerWidth > window.innerHeight;
+  // Wichtig: Auch ein noch hochkant gemeldetes Browserfenster ist fehlerhaft, wenn das Gerät bereits quer liegt.
+  const landscapeBroken = () => isLandscape() && window.innerWidth < longSide() * .8 && document.documentElement.clientWidth < longSide() * .8;
   let badTicks = 0;
   const vpMeta = () => document.querySelector('meta[name=viewport]');
   let vpOrig = null;
@@ -72,7 +88,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
       m.setAttribute('content', 'width=device-width, initial-scale=1.0001, viewport-fit=cover');
       setTimeout(() => { m.setAttribute('content', vpOrig); frozenKey = ''; resize(); SW.Diag.log('fix1res'); }, 80);
     } else if (vpTry === 2 || vpTry === 3) { // Stufe 2: Breite fest auf lange Seite setzen
-      vpForced = true; m.setAttribute('content', 'width=' + longSide() + ', initial-scale=1, viewport-fit=cover');
+      vpForced = true; m.setAttribute('content', 'width=' + longSide() + ', height=' + shortSide() + ', initial-scale=1, viewport-fit=cover, user-scalable=no');
       setTimeout(() => { frozenKey = ''; resize(); SW.Diag.log('fix2res'); }, 80);
     } else if (vpTry > 5) { // Stufe 3: Neuladen (Spielstand vorher speichern), nicht in Schleife
       let n = 0; try { n = +sessionStorage.getItem('sw_vp') || 0; } catch (e) { /* egal */ }
@@ -100,14 +116,24 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
     frozenKey = ''; resize(); SW.Diag.log(want ? 'fitH' : 'fitH0');
   }
   setInterval(() => { if (!document.hidden) { vpFix(); fitH(); } }, 400);
-  window.addEventListener('resize', () => { frozenKey = ''; resize(); setTimeout(vpFix, 150); });
-  window.addEventListener('focus', () => { frozenKey = ''; });
-  window.addEventListener('orientationchange', later);
+  const viewportChanged = () => {
+    frozenKey = '';
+    queueResize();
+    setTimeout(vpFix, 150);
+    setTimeout(fitH, 350);
+  };
+  window.addEventListener('resize', viewportChanged);
+  window.addEventListener('focus', () => { frozenKey = ''; queueResize(); });
+  window.addEventListener('orientationchange', () => { later(); setTimeout(later, 350); setTimeout(later, 900); });
+  if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', later);
   window.addEventListener('pageshow', () => { vpTry = 0; later(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { vpTry = 0; later(); } });
   canvas.addEventListener('contextlost', e => { e.preventDefault(); showErr('Canvas-Kontext verloren; warte auf Wiederherstellung.'); });
   canvas.addEventListener('contextrestored', later);
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', viewportChanged);
+    window.visualViewport.addEventListener('scroll', queueResize);
+  }
   resize();
   SW.Input.init(canvas);
   SW.UI.init();
