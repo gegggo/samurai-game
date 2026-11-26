@@ -372,7 +372,7 @@ try:
         spot.dy===1?P.y<=spot.y+.72:P.y>=spot.y+.28;
       const safe=!W.solid(Math.floor(P.x),Math.floor(P.y));
       P.x=old.x;P.y=old.y;P.stamina=old.stamina;SW.paused=old.paused;I.sprint=old.sprint;
-      return {blocked,spot};
+      return {blocked,safe,spot};
     }""")
     rec('Exploit: Bewegung wird an festen Nachbar-Tiles durch Kollision gestoppt',
         not r.get('none') and r['blocked'] and r['safe'], json.dumps(r))
