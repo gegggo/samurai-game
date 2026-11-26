@@ -35,19 +35,20 @@ SW.Menus = (function () {
     const kiOf = id => Math.ceil(((D.moves[S.moveOf(id)] || {}).ki || 0) * SW.Char.combat().kiCostMul);
     const nm = id => { const n = S.node(id); return n ? n.name : T('sk_' + id); }, ds = id => { const n = S.node(id); return n ? n.desc : T('skd_' + id); }; // Skilltree-Knoten tragen Name/Text in den Daten
     const kiTxt = id => kiOf(id) > 0 ? T('ki_cost', kiOf(id)) : '';
-    const bars = el('div', 'sk-slots'); // oben: zwei breite Slot-Leisten
+    const bars = el('div', 'sk-slots'); // zwei automatisch ausloesende Kampfskills
     [0, 1].forEach(i => {
-      const id = S.slots[i], box = el('button', 'btn slotbar' + (id ? ' pri' : ''), T('slot', i + 1) + ': ' + (id ? nm(id) + (kiTxt(id) ? ' · ' + kiTxt(id) : '') : T('slot_empty')));
+      const id = S.slots[i], box = el('button', 'btn slotbar' + (id ? ' pri' : ''), T('auto_slot', i + 1) + ': ' + (id ? nm(id) + (kiTxt(id) ? ' · ' + kiTxt(id) : '') : T('slot_empty')));
       box.onclick = () => { S.unequip(i); refresh(); };
       add(bars, box);
     });
+    add(root, el('div', 'dim', T('auto_skills_hint')));
     add(root, bars);
     const acts = S.nodes.filter(n => n.type === 'active' && S.learned[n.id]).map(n => n.id).concat(D.secrets.filter(s => S.sec[s.id] === 2).map(s => s.id), D.scrolls.filter(s => S.scr[s.id] === 2).map(s => s.id));
     if (!acts.length) add(root, el('div', 'dim', T('no_active')));
     const grid = el('div', 'sk-grid'); // unten: Techniken als Kacheln, 3 Spalten
     acts.forEach(id => {
       const t = el('div', 'sk-tile' + (S.slots[0] === id || S.slots[1] === id ? ' eq' : '')), bs = el('div', 'sk-btns');
-      [0, 1].forEach(i => add(bs, btn(T('slot', i + 1), S.slots[i] === id ? 'pri' : '', () => { S.equip(id, i); refresh(); })));
+      [0, 1].forEach(i => add(bs, btn(T('auto_slot', i + 1), S.slots[i] === id ? 'pri' : '', () => { S.equip(id, i); refresh(); })));
       add(t, el('b', '', nm(id)), kiTxt(id) ? el('span', 'chip', kiTxt(id)) : null, el('small', 'dim', ds(id)), bs);
       add(grid, t);
     });
