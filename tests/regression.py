@@ -354,6 +354,34 @@ try:
     rec('Weltkarte: POIs haben gueltige Typen, Abmessungen und Map-Grenzen',
         r['count']>20 and r['bad'].length==0, json.dumps(r))
 
+    # 49 Bewegung: Spieler darf nicht durch benachbarte feste Tiles laufen
+    r = ev(pg, """() => {
+      const W=SW.World,P=SW.Player,I=SW.Input,old={x:P.x,y:P.y,stamina:P.stamina};
+      let spot=null;
+      for(let y=Math.max(2,Math.floor(W.spawn.y)-25);y<Math.min(W.HEIGHT-2,W.spawn.y+25)&&!spot;y++)
+        for(let x=Math.max(2,Math.floor(W.spawn.x)-25);x<Math.min(W.WIDTH-2,W.spawn.x+25)&&!spot;x++){
+          if(W.solid(x,y))continue;
+          for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]])
+            if(W.solid(x+dx,y+dy)){spot={x,y,dx,dy};break;}
+        }
+      if(!spot)return {none:true};
+      SW.paused=false;I.sprint=false;P.x=spot.x+.5;P.y=spot.y+.5;P.stamina=100;
+      const before=[P.x,P.y];P.update(.5,{x:spot.dx,y:spot.dy});
+      const blocked=P.x===before[0]&&P.y===before[1];
+      P.x=old.x;P.y=old.y;P.stamina=old.stamina;
+      return {blocked,spot};
+    }""")
+    rec('Exploit: Bewegung wird an festen Nachbar-Tiles durch Kollision gestoppt',
+        not r.get('none') and r['blocked'], json.dumps(r))
+    # 50 Hoch-/Querformatwechsel: Canvas bleibt sichtbar und Spielsysteme bleiben geladen
+    old_view=pg.viewport_size
+    pg.set_viewport_size({"width":393,"height":852}); pg.wait_for_timeout(250)
+    portrait=ev(pg,"(() => { const c=document.querySelector('canvas'); return !!c&&c.getBoundingClientRect().width>0&&c.getBoundingClientRect().height>0&&!!SW.World; })()")
+    pg.set_viewport_size({"width":852,"height":393}); pg.wait_for_timeout(250)
+    landscape=ev(pg,"(() => { const c=document.querySelector('canvas'); return !!c&&c.getBoundingClientRect().width>0&&c.getBoundingClientRect().height>0&&!!SW.World; })()")
+    rec('Stabilitaet: Wechsel Hoch-/Querformat laesst Canvas und Welt geladen',
+        portrait and landscape, 'portrait=%s landscape=%s' % (portrait,landscape))
+
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:
