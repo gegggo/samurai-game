@@ -374,7 +374,6 @@ try:
     rec('Exploit: Bewegung wird an festen Nachbar-Tiles durch Kollision gestoppt',
         not r.get('none') and r['blocked'], json.dumps(r))
     # 50 Hoch-/Querformatwechsel: Canvas bleibt sichtbar und Spielsysteme bleiben geladen
-    old_view=pg.viewport_size
     pg.set_viewport_size({"width":393,"height":852}); pg.wait_for_timeout(250)
     portrait=ev(pg,"(() => { const c=document.querySelector('canvas'); return !!c&&c.getBoundingClientRect().width>0&&c.getBoundingClientRect().height>0&&!!SW.World; })()")
     pg.set_viewport_size({"width":852,"height":393}); pg.wait_for_timeout(250)
