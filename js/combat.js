@@ -102,7 +102,8 @@ SW.Combat = (function () {
     if (ps.ranged) D.moves.shot = { wind: ps.ranged.wind, rec: ps.ranged.rec, dmg: ps.ranged.dmg, ranged: true, anim: 'shot' };
     { const rb = $('cb-ranged'); if (rb) rb.style.display = ps.ranged ? '' : 'none'; }
     [0, 1].forEach(i => {
-      const b = $('cb-s' + i), id = SW.Skills.slots[i];
+      const b = $('cb-s' + i);
+      if (b) b.style.display = 'none';
       if (b) { const on = !!(id && ps.slots[i]); b.style.display = on ? '' : 'none'; b.textContent = on ? T('sk_' + id) : ''; }
     });
     K.active = true; SW.paused = true; SW.Input.reset();
@@ -152,6 +153,7 @@ SW.Combat = (function () {
       if (S.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
     } else if (kind === 'ranged') { if ((!S.ps.ranged || !SW.Inv.eq.ranged)) return; name = 'shot'; }
     else return;
+    if (kind === 'attack' || kind === 'heavy') name = SW.Skills.autoMove(S.ki, S.ps.kiCostMul, S.php / S.pmax) || name;
     startMove(name);
   }
   function dodge() {
@@ -177,7 +179,7 @@ SW.Combat = (function () {
     if (f.st === 'rec' || f.st === 'stagger') dmg *= 1.3;
     const crit = Math.random() < ps.crit; if (crit) dmg *= ps.critMul || 1.5;
     dmg = Math.max(1, Math.round(dmg));
-    SW.Inv.wear(m.ranged ? ['ranged'] : ['main', 'side']); S.hp -= dmg; f.flash = .1; if (!m.ranged) S.ki = Math.min(S.kmax, S.ki + 4); // Fernkampf lädt kein Ki auf
+    SW.Inv.wear(m.ranged ? ['ranged'] : [m.weaponSlot || 'main']); S.hp -= dmg; f.flash = .1; if (!m.ranged) S.ki = Math.min(S.kmax, S.ki + 4); // Fernkampf lädt kein Ki auf
     flt(dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
     if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock)) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; }
     if (S.hp <= 0) { S.hp = 0; S.php = Math.min(S.pmax, S.php + S.pmax * ps.healWin); S.state = 'win'; S.t = 0; S.spot.dead = true; S.pm = null; reward(); return; }
@@ -294,7 +296,7 @@ SW.Combat = (function () {
   K.init = function () {
     const box = $('cbt');
     const defs = [['block', 'combat_block', 'hold'], ['dodge', 'combat_dodge'], ['attack', 'combat_attack'],
-                  ['heavy', 'combat_heavy'], ['special', 'combat_special'], ['s0', ''], ['s1', ''], ['ranged', 'combat_ranged'], ['lock', 'combat_lock']];
+                  ['heavy', 'combat_heavy'], ['special', 'combat_special'], ['ranged', 'combat_ranged'], ['lock', 'combat_lock']];
     defs.forEach(d => {
       const b = document.createElement('button'); b.id = 'cb-' + d[0]; b.className = 'cb'; b.textContent = d[1] ? T(d[1]) : '';
       const wc = () => SW.WCombat && SW.WCombat.active && !K.active; // Weltkampf: gleiche Buttons, andere Logik
@@ -311,7 +313,7 @@ SW.Combat = (function () {
       if (!K.active) return; const k = e.key.toLowerCase();
       if (k === ' ') held.block = true; else if (k === 'b') held.breath = true;
       else if (e.repeat) return;
-      else if (k === 'j') act('attack'); else if (k === 'k') act('heavy'); else if (k === 'l') act('special'); else if (k === 'u') act('s0'); else if (k === 'i') act('s1'); else if (k === 'h') act('ranged');
+      else if (k === 'j') act('attack'); else if (k === 'k') act('heavy'); else if (k === 'l') act('special'); else if (k === 'h') act('ranged');
       else if (k === 'x' || k === 'shift') dodge();
     });
     window.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (k === ' ') held.block = false; else if (k === 'b') held.breath = false; });
