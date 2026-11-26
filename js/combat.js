@@ -102,9 +102,8 @@ SW.Combat = (function () {
     if (ps.ranged) D.moves.shot = { wind: ps.ranged.wind, rec: ps.ranged.rec, dmg: ps.ranged.dmg, ranged: true, anim: 'shot' };
     { const rb = $('cb-ranged'); if (rb) rb.style.display = ps.ranged ? '' : 'none'; }
     [0, 1].forEach(i => {
-      const b = $('cb-s' + i);
-      if (b) b.style.display = 'none';
-      if (b) { const on = !!(id && ps.slots[i]); b.style.display = on ? '' : 'none'; b.textContent = on ? T('sk_' + id) : ''; }
+      const b = $('cb-s' + i), id = SW.Skills.slots[i], on = !!(id && ps.slots[i]);
+      if (b) { b.style.display = on ? '' : 'none'; b.textContent = on ? T('sk_' + id) : ''; }
     });
     K.active = true; SW.paused = true; SW.Input.reset();
     document.body.classList.add('combat');
@@ -153,7 +152,7 @@ SW.Combat = (function () {
       if (S.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
     } else if (kind === 'ranged') { if ((!S.ps.ranged || !SW.Inv.eq.ranged)) return; name = 'shot'; }
     else return;
-    if (kind === 'attack' || kind === 'heavy') name = SW.Skills.autoMove(S.ki, S.ps.kiCostMul, S.php / S.pmax) || name;
+    if ((kind === 'attack' && name !== 'counter') || kind === 'heavy') name = SW.Skills.autoMove(S.ki, S.ps.kiCostMul, S.php / S.pmax) || name;
     startMove(name);
   }
   function dodge() {
