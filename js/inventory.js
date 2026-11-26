@@ -31,12 +31,19 @@ SW.Inv = (function () {
     const p = free(px, py); I.chests.push({ id: 'c_' + st.type + '_' + st.x + '_' + st.y, x: p.x, y: p.y, rar: 'common', give, open: false });
   });
 
-  I.add = function (id, n, d) { // d = Rest-Haltbarkeit des (einen) Exemplars
-    n = n === undefined ? 1 : n;
-    if (!it(id) || !(n > 0)) return false;
-    I.bag[id] = Math.min(I.MAXSTACK, (I.bag[id] || 0) + Math.floor(n));
+  function store(id, n, d) {
+    I.bag[id] = Math.min(I.MAXSTACK, (I.bag[id] || 0) + n);
     if (durMax(id)) { const a = I.dur[id] = I.dur[id] || []; while (a.length < I.bag[id]) a.push(d === undefined ? durMax(id) : d); a.length = I.bag[id]; }
     touch(); return true;
+  }
+  I.add = function (id, n, d) { // Waffen sind Einzelstücke; Ressourcen/Rüstung bleiben stapelbar
+    n = Math.floor(n === undefined ? 1 : n);
+    if (!it(id) || !(n > 0)) return false;
+    if (it(id).type === 'weapon') {
+      if (I.owned(id)) return false;
+      n = 1;
+    }
+    return store(id, n, d);
   };
   I.remove = function (id, n, i) { // i = Exemplar-Index (Waffen); ohne i geht das am stärksten abgenutzte
     n = n === undefined ? 1 : n;
@@ -55,15 +62,19 @@ SW.Inv = (function () {
   // Ausrüsten: Gegenstand wandert aus dem Beutel in den Slot, der alte zurück in den Beutel
   I.equip = function (id, i) {
     const d = it(id);
-    if (!d || !d.slot || !(I.bag[id] > 0)) return false;
+    if (!d || !d.slot || !(I.bag[id] > 0) || I.eq[d.slot] === id) return false;
     const old = I.eq[d.slot], od = I.edur[d.slot], nd = I.dur[id] && I.dur[id][i || 0];
     if (durMax(id) && nd === 0) return false; // beschädigte Waffen erst beim Schmied reparieren
-    I.remove(id, 1, i || 0); if (old) I.add(old, 1, od);
+    I.remove(id, 1, i || 0);
+    if (old) { delete I.eq[d.slot]; delete I.edur[d.slot]; I.add(old, 1, od); }
     I.eq[d.slot] = id; if (nd !== undefined) I.edur[d.slot] = nd; else delete I.edur[d.slot]; touch(); return true;
   };
   I.unequip = function (slot) {
     const id = I.eq[slot]; if (!id) return false;
-    I.add(id, 1, I.edur[slot]); delete I.eq[slot]; delete I.edur[slot]; touch(); return true;
+    const durability = I.edur[slot];
+    delete I.eq[slot]; delete I.edur[slot];
+    if (!I.add(id, 1, durability)) { I.eq[slot] = id; if (durability !== undefined) I.edur[slot] = durability; return false; }
+    touch(); return true;
   };
   I.durOf = slot => I.eq[slot] && durMax(I.eq[slot]) ? (I.edur[slot] === undefined ? durMax(I.eq[slot]) : I.edur[slot]) : null;
   I.repair = function (id, index, slot) {
@@ -86,9 +97,8 @@ SW.Inv = (function () {
       const id = I.eq[s], m = durMax(id); if (!m) return;
       const v = (I.edur[s] === undefined ? m : I.edur[s]) - 1;
       if (v > 0) { I.edur[s] = v; return; }
-      I.bag[id] = (I.bag[id] || 0) + 1;
-      const damaged = I.dur[id] = I.dur[id] || []; damaged.push(0);
       delete I.eq[s]; delete I.edur[s];
+      I.add(id, 1, 0);
       if (SW.UI && SW.UI.banner) SW.UI.banner(T('wpn_broke', T('it_' + id)));
     });
     touch();
@@ -134,7 +144,10 @@ SW.Inv = (function () {
     if (g.coins) { I.addCoins(g.coins); txt = T('found_coins', g.coins); }
     else if (g.ess) { SW.Essence.add(g.ess); txt = g.ess + ' ' + T('ess'); }
     else if (g.scroll) { if (!SW.Skills.findScroll(g.scroll)) return false; txt = T('scr_found'); }
-    else if (g.item) { if (!I.add(g.item, g.n || 1)) return false; txt = T('it_' + g.item) + ((g.n || 1) > 1 ? ' ×' + g.n : ''); }
+    else if (g.item) {
+      if (it(g.item) && it(g.item).type === 'weapon' && I.owned(g.item)) txt = T('already_owned', T('it_' + g.item));
+      else { if (!I.add(g.item, g.n || 1)) return false; txt = T('it_' + g.item) + ((g.n || 1) > 1 ? ' ×' + g.n : ''); }
+    }
     else return false;
     c.open = true; touch();
     if (SW.UI && SW.UI.banner) SW.UI.banner(T('found') + ' ' + txt);
@@ -158,6 +171,22 @@ SW.Inv = (function () {
     I.dur = {}; I.edur = {};
     for (const id in I.bag) if (durMax(id)) { const a = (d.dur || {})[id] || []; I.dur[id] = Array.from({ length: I.bag[id] }, (_, k) => typeof a[k] === 'number' && a[k] >= 0 ? Math.min(durMax(id), a[k]) : durMax(id)); } // alte Stände: voll
     for (const s in I.eq) { const v = (d.edur || {})[s]; if (durMax(I.eq[s]) && typeof v === 'number' && v >= 0) I.edur[s] = Math.min(durMax(I.eq[s]), v); }
+    // Alte Spielstaende bereinigen: pro Waffen-ID bleibt genau ein Exemplar mit der besten Haltbarkeit.
+    D.items.filter(x => x.type === 'weapon').forEach(w => {
+      const slot = w.slot, equipped = I.eq[slot] === w.id, count = I.bag[w.id] || 0;
+      if (!equipped && !count) return;
+      const max = durMax(w.id), values = (I.dur[w.id] || []).slice();
+      if (equipped && max) values.push(I.edur[slot] === undefined ? max : I.edur[slot]);
+      const best = max ? Math.max(0, ...values) : undefined;
+      if (equipped) {
+        delete I.bag[w.id]; delete I.dur[w.id];
+        if (max && best === 0) { delete I.eq[slot]; delete I.edur[slot]; I.bag[w.id] = 1; I.dur[w.id] = [0]; }
+        else if (max) I.edur[slot] = best;
+      } else {
+        I.bag[w.id] = 1;
+        if (max) I.dur[w.id] = [best < 0 ? max : best];
+      }
+    });
     I.up = {};
     for (const id in (d.up || {})) { const n = d.up[id]; if (it(id) && (it(id).type === 'weapon' || it(id).type === 'armor') && typeof n === 'number' && n >= 1) I.up[id] = Math.min(D.upMax, Math.floor(n)); }
     (d.chests || []).forEach(id => { const c = I.chests.find(x => x.id === id); if (c) c.open = true; });
@@ -194,13 +223,20 @@ SW.Inv = (function () {
       });
       add(root, eqr);
     }
-    // Eintraege: Waffen je Exemplar (eigene Haltbarkeit), sonst gestapelt
+    // Eintraege: jede Waffe genau einmal; ausgeruestete Waffen bleiben als Detailkarte sichtbar.
     const es = [];
     Object.keys(I.bag).forEach(id => {
       if (!(I.bag[id] > 0) || !it(id) || it(id).type !== cat) return;
       const a = I.dur[id];
       if (a) a.forEach((v, i) => es.push({ id, i, v, m: I.DUR[it(id).rar], key: id + '#' + i }));
       else es.push({ id, key: id });
+    });
+    if (cat !== 'res') D.slots.forEach(slot => {
+      const id = I.eq[slot];
+      if (id && it(id).type === cat) {
+        const v = I.durOf(slot), m = durMax(id) || undefined;
+        es.push({ id, slot, equipped: true, v: v === null ? undefined : v, m, key: 'eq:' + slot });
+      }
     });
     const byName = (x, y) => T('it_' + x.id).localeCompare(T('it_' + y.id)) || (x.v || 0) - (y.v || 0);
     es.sort(srt === 'rar' ? (x, y) => RAR.indexOf(it(y.id).rar) - RAR.indexOf(it(x.id).rar) || byName(x, y)
@@ -221,9 +257,13 @@ SW.Inv = (function () {
     const d = it(cur.id);
     add(det, add(el('div', 'item-detail-head'), icon(cur.id, 'item-icon item-icon-large'), add(el('div'), el('h3', '', I.name(cur.id)), add(el('div', 'row'), rarChip(d), el('span', 'chip', T('ty_' + d.type) + (d.slot ? ' · ' + T('eqs_' + d.slot) : ''))))));
     add(det, el('div', 'dim', T('itd_' + cur.id)));
-    if (d.type === 'weapon') add(det, el('div', cur.v !== undefined ? 'ok' : 'dim', cur.v !== undefined ? durTxt(cur.v, cur.m) : T('dur') + ': ' + T('dur_inf')));
+    if (d.type === 'weapon') add(det, el('div', cur.v !== undefined ? (cur.v === 0 ? 'no' : 'ok') : 'dim', cur.v !== undefined ? durTxt(cur.v, cur.m) : T('dur') + ': ' + T('dur_inf')));
     lines(det, d.fx);
-    if (d.slot) add(det, btn(T('equip'), 'pri', () => { I.equip(cur.id, cur.i); refresh(); }));
+    if (d.slot) {
+      if (cur.equipped) add(det, el('div', 'ok', T('equipped')));
+      else if (cur.v === 0) add(det, el('div', 'no', T('repair_required')));
+      else add(det, btn(T('equip'), 'pri', () => { I.equip(cur.id, cur.i); refresh(); }));
+    }
     add(split, grid, det); add(root, split);
   };
 
