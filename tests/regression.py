@@ -93,7 +93,7 @@ try:
     pg.mouse.move(700, 200); pg.mouse.down(); pg.wait_for_timeout(100); right = ev(pg, "SW.Input.joy.active"); pg.mouse.up()
     rec('Joystick: links dynamisch, Loslassen stoppt, Deadzone, rechte Seite startet keinen Joystick', v[0] > .3 and v[2] and v2 == [0, 0, False] and dz == 0 and not right, '%s %s dz=%s right=%s' % (v, v2, dz, right))
     # 11 Karte/Schnellreise-Daten
-    r = ev(pg, "() => ({poi: SW.World.POI.length, shr: SW.Data.shrines.length, off: SW.World.POI.every(o => !SW.World.solid(Math.floor(o.x), Math.floor(o.y)) || true)})")
+    r = ev(pg, "() => ({poi: SW.World.POI.length, shr: SW.Data.shrines.length, poi: SW.World.POI.length})")
     rec('Welt: POI und Schreine vorhanden', r['poi'] > 20 and r['shr'] > 20, json.dumps(r))
     # 12 Phase 19: Speicher-Schnittstelle SW.Store
     pg = start(b, errs)
@@ -205,7 +205,7 @@ try:
     rec('Phase 24: 0 Haltbarkeit bleibt nach Laden erhalten; kaputte Waffe nicht ausruestbar; Schmied repariert gegen Muenzen+Eisen', r['persisted'] and r['noEquip'] and r['repaired'] and r['full'] and r['equip'], json.dumps(r))
     # 33 Phase 24: ausgeruestete Waffe reparieren
     r = ev(pg, """() => { const I=SW.Inv,S=SW.Shop,id='bow_hankyu'; I.edur.ranged=12; const t=S.repairTargets().find(x=>x.slot==='ranged'); if(!t)return {none:true}; const c=S.repairCost(t); I.coins=c.coins; I.bag.iron=c.iron; const ok=S.repair(t); return {ok,dur:I.durOf('ranged')}; }""")
-    rec('Phase 24: Auch ausgeruestete, beschaedigte Waffen lassen sich reparieren', !r['none'] and r['ok'] and r['dur']==60, json.dumps(r))
+    rec('Phase 24: Auch ausgeruestete, beschaedigte Waffen lassen sich reparieren', not r['none'] and r['ok'] and r['dur']==60, json.dumps(r))
     # 34 Phase 24.1: Waffen sind Einzelstuecke; alte doppelte Spielstaende werden verlustarm bereinigt
     pg = start(b, errs)
     r = ev(pg, """() => { const I=SW.Inv;
@@ -240,6 +240,120 @@ try:
       const first=S.autoMove(100,1,1), cooldown=S.autoMove(100,1,1);
       Math.random=old; return {first,cooldown}; }""")
     rec('Phase 24.2: ausgewaehlter Doppelschlag kann automatisch ausloesen; derselbe Slot hat danach eine kurze Abklingzeit', r['first']=='dblstrike' and r['cooldown'] is None, json.dumps(r))
+    # 38 Exploit: Weltkampf darf Schnellreise nicht umgehen
+    r = ev(pg, """() => {
+      const S=SW.Shrines, X=SW.WCombat, p=SW.Player;
+      const id=SW.Data.shrines.find(s=>s.id!=='village').id;
+      S.activate(id); const before=[p.x,p.y], old=X.active;
+      X.active=true; const can=S.canTravel(id), travel=S.travel(id);
+      const after=[p.x,p.y]; X.active=old;
+      return {can,travel,same:before[0]===after[0]&&before[1]===after[1]};
+    }""")
+    rec('Exploit: Schnellreise waehrend aktivem Weltkampf gesperrt',
+        r['can'] is False and r['travel'] is False and r['same'], json.dumps(r))
+    # 39 Auto-Klicker / schnelle Mehrfach-Schnellreise
+    r = ev(pg, """() => {
+      const S=SW.Shrines,P=SW.Player,ids=SW.Data.shrines.filter(s=>s.id!=='village').slice(0,3).map(s=>s.id);
+      ids.forEach(id=>S.activate(id)); const a=ids[0],b=ids[1],ok=[];
+      for(let i=0;i<25;i++) ok.push(S.travel(i%2?a:b));
+      const d=S.get(b),final=Math.hypot(P.x-d.x,P.y-d.y)<2.5;
+      return {count:ok.filter(Boolean).length,final,free:!SW.World.solid(Math.floor(P.x),Math.floor(P.y))};
+    }""")
+    rec('Exploit: 25 schnelle Schnellreisen enden konsistent am letzten Ziel',
+        r['count']==25 and r['final'] and r['free'], json.dumps(r))
+    # 40 Sprint-Erschoepfung und 20-Prozent-Entsperrung
+    r = ev(pg, """() => {
+      const P=SW.Player,I=SW.Input,old={st:P.stamina,lock:P.sprintLocked,sprinting:P.sprinting,held:I.sprint};
+      P.stamina=.01;P.sprintLocked=false;I.sprint=true;
+      P.update(1,{x:1,y:0});const zero=P.stamina===0,locked=P.sprintLocked;
+      P.update(.5,{x:1,y:0});const heldLocked=P.sprintLocked;
+      I.sprint=false;P.update(1,{x:1,y:0});const recovered=P.stamina>=20&&!P.sprintLocked;
+      I.sprint=true;P.update(.1,{x:1,y:0});const resumed=P.sprinting;
+      P.stamina=old.st;P.sprintLocked=old.lock;P.sprinting=old.sprinting;I.sprint=old.held;
+      return {zero,locked,heldLocked,recovered,resumed};
+    }""")
+    rec('Exploit: Sprint bleibt bei 0 gesperrt bis Loslassen und mindestens 20 Prozent',
+        r['zero'] and r['locked'] and r['heldLocked'] and r['recovered'] and r['resumed'], json.dumps(r))
+    # 41 Fokusverlust: keine haengenden Eingaben
+    r = ev(pg, """() => {
+      const I=SW.Input,el=document.querySelector('canvas');I.reset();
+      el.dispatchEvent(new PointerEvent('pointerdown',{pointerId:77,clientX:80,clientY:180,bubbles:true}));
+      el.dispatchEvent(new PointerEvent('pointermove',{pointerId:77,clientX:130,clientY:180,bubbles:true}));
+      I.sprintHeld=true;I.update();const active=I.joy.active||I.sprint;
+      window.dispatchEvent(new Event('blur'));I.update();
+      return {active,joy:I.joy.active,sprint:I.sprint,held:I.sprintHeld,vec:[I.vec.x,I.vec.y]};
+    }""")
+    rec('Exploit: Fokusverlust setzt Joystick und Sprint vollstaendig zurueck',
+        r['active'] and not r['joy'] and not r['sprint'] and not r['held'] and r['vec']==[0,0], json.dumps(r))
+    # 42 Shop-Kaufspam: Stacklimit und Geld pruefen
+    r = ev(pg, """() => {
+      const S=SW.Shop,I=SW.Inv,id=S.list('herb')[0];I.bag[id]=0;I.coins=100000;
+      let successes=0;for(let n=0;n<200;n++)if(S.buy(id,1))successes++;
+      const count=I.bag[id]||0,coins=I.coins,over=S.buy(id,1000),unchanged=(I.bag[id]||0)===count&&I.coins===coins;
+      I.coins=0;const poor=S.buy(id,1);
+      return {count,max:I.MAXSTACK,over,unchanged,poor,still:(I.bag[id]||0)===count};
+    }""")
+    rec('Exploit: Kaufspam ueberschreitet Stacklimit nicht und kauft nicht ohne Geld',
+        r['count']<=r['max'] and r['over'] is False and r['unchanged'] and r['poor'] is False and r['still'], json.dumps(r))
+    # 43 Shop-Verkaufspam: keine negativen Itemmengen / doppeltes Geld
+    r = ev(pg, """() => {
+      const S=SW.Shop,I=SW.Inv,id=S.list('herb')[0];I.bag[id]=3;I.coins=0;
+      const a=S.sell(id,3),coins=I.coins,n=I.bag[id]||0;
+      const b=S.sell(id,3),coins2=I.coins,n2=I.bag[id]||0;
+      return {a,b,coins,coins2,n,n2};
+    }""")
+    rec('Exploit: wiederholter Verkauf zahlt nur vorhandene Items aus',
+        r['a'] and r['b'] is False and r['coins']>0 and r['coins2']==r['coins'] and r['n']==0 and r['n2']==0, json.dumps(r))
+    # 44 Manipulierte Progress-Werte muessen begrenzt werden
+    r = ev(pg, """() => {
+      const C=SW.Char,E=SW.Essence,Y=SW.YinYang,K=SW.Karma;
+      C.load({level:-999,xp:1e30,sp:-5,ap:1e30,pts:{hp:1e30}});
+      E.load(-999);Y.load({yin:-999,yang:1e30});K.load({v:1e30,seen:{}});
+      return {level:C.level,xp:C.xp,sp:C.sp,ap:C.ap,ess:E.n,yin:Y.yin,yang:Y.yang,karma:K.v};
+    }""")
+    rec('Exploit: negative und uebergrosse Progress-Werte werden begrenzt',
+        1<=r['level']<=50 and 0<=r['xp']<=1e9 and 0<=r['sp']<=999 and 0<=r['ap']<=999 and
+        0<=r['ess']<=999 and 0<=r['yin']<=100 and 0<=r['yang']<=100 and -100<=r['karma']<=100, json.dumps(r))
+    # 45 Quest-Doppelabschluss: nur verfuegbare Quest auswaehlen
+    r = ev(pg, """() => {
+      const Q=SW.Quests,D=SW.Data,I=SW.Inv;
+      const q=D.quests.find(q=>q.obj.type==='have'&&!q.choice&&q.rew&&q.rew.coins&&Q.status(q.id)==='avail');
+      if(!q)return {none:true};
+      const accepted=Q.accept(q.id);I.bag[q.obj.item]=q.obj.n;
+      if(Q.status(q.id)!=='ready')return {none:true,accepted,status:Q.status(q.id)};
+      const c0=I.coins,first=Q.complete(q.id),c1=I.coins,second=Q.complete(q.id),c2=I.coins;
+      return {first,second,delta:c1-c0,again:c2-c1,status:Q.status(q.id)};
+    }""")
+    rec('Exploit: Questbelohnung wird bei wiederholtem Abschluss nicht erneut vergeben',
+        not r.get('none') and r['first'] and r['second'] is False and r['delta']>=0 and r['again']==0 and r['status']=='done', json.dumps(r))
+    # 46 Skill-Doppel-Freischaltung und ungueltige IDs
+    r = ev(pg, """() => {
+      const S=SW.Skills,C=SW.Char,E=SW.Essence;S.teach();C.sp=999;E.n=999;C.level=C.MAX;
+      const n=S.nodes.find(x=>S.can(x.id));if(!n)return {none:true};
+      const a=S.learn(n.id),sp=C.sp,ess=E.n,again=S.learn(n.id),bad=S.learn('__invalid_skill__');
+      return {a,again,bad,learned:!!S.learned[n.id],spSpent:999-sp,essSpent:999-ess};
+    }""")
+    rec('Exploit: Skills koennen nicht doppelt oder mit unbekannter ID gelernt werden',
+        not r.get('none') and r['a'] and again is False and bad is False and r['learned'] and r['spSpent']>=0 and r['essSpent']>=0, json.dumps(r))
+    # 47 Schnellreiseziele: Map-Grenzen und Kollisionen
+    r = ev(pg, """() => {
+      const W=SW.World,S=SW.Shrines,bad=[];
+      S.list.forEach(s=>{const x=Math.floor(s.x),y=Math.floor(s.y);
+        if(!Number.isFinite(s.x)||!Number.isFinite(s.y)||x<0||y<0||x>=W.WIDTH||y>=W.HEIGHT||W.solid(x,y))bad.push(s.id);});
+      return {count:S.list.length,bad};
+    }""")
+    rec('Weltkarte: alle Schnellreiseziele liegen innerhalb der Map und auf freien Tiles',
+        r['count']>0 and r['bad'].length==0, json.dumps(r))
+    # 48 POI: echte Struktur- und Grenzpruefung statt wirkungslosem || true
+    r = ev(pg, """() => {
+      const W=SW.World,P=W.POI;
+      const bad=P.filter(o=>!o.type||![o.x,o.y,o.w,o.h].every(Number.isFinite)||o.w<=0||o.h<=0||
+        o.x<0||o.y<0||o.x+o.w>W.WIDTH||o.y+o.h>W.HEIGHT);
+      return {count:P.length,bad:bad.map(o=>o.type+':'+o.x+','+o.y)};
+    }""")
+    rec('Weltkarte: POIs haben gueltige Typen, Abmessungen und Map-Grenzen',
+        r['count']>20 and r['bad'].length==0, json.dumps(r))
+
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:
