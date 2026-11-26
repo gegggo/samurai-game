@@ -178,7 +178,7 @@ SW.UI = (function () {
   function explore(n) { const m = SW.Char.addXp(n); if (m.length) showBanner(m.join(' ')); }
 
   // Flächenfarbe je Region (Index = W.regionAt)
-  const RCOL = [[143, 160, 95], [74, 122, 58], [138, 130, 112], [58, 100, 56], [64, 112, 96], [126, 118, 108], [118, 106, 92], [140, 100, 60], [88, 78, 98], [44, 84, 56], [128, 126, 120], [88, 112, 70], [225, 232, 238], [118, 62, 42], [214, 176, 98], [205, 190, 140], [140, 124, 108], [214, 150, 176], [132, 112, 104]];
+  const RCOL = [[143, 160, 95], [74, 122, 58], [138, 130, 112], [58, 100, 56], [64, 112, 96], [126, 118, 108], [118, 106, 92], [140, 100, 60], [88, 78, 98], [44, 84, 56], [128, 126, 120], [88, 112, 70], [225, 232, 238], [118, 62, 42], [214, 176, 98], [205, 190, 140], [140, 124, 108], [214, 150, 176], [132, 112, 104], [76, 104, 116]];
   // Übersichtsbild der Welt, schrittweise erzeugt (blockiert den Start nicht)
   function stepOverview() {
     if (ovRow >= OSH) return;
@@ -251,7 +251,7 @@ SW.UI = (function () {
   }
 
   // Ortssymbole der Karte
-  const KIND = { village: 'v', peakvillage: 'v', fishers: 'v', hermit: 'v', huts: 'v', temple: 't', ruins: 't', cave: 't', shrine: 't', camp: 'c', fortress: 'c', sakuratown: 'v' };
+  const KIND = { village: 'v', peakvillage: 'v', fishers: 'v', hermit: 'v', huts: 'v', temple: 't', ruins: 't', cave: 't', shrine: 't', camp: 'c', fortress: 'c', pilotcamp: 'c', pilotdungeon: 't', sakuratown: 'v' };
   function poiIcon(c, k, x, y, r, got, d) {
     c.save(); c.globalAlpha = got ? 1 : .85; c.lineJoin = 'round'; c.lineWidth = 1.6 * d; c.strokeStyle = got ? '#fff' : 'rgba(15,20,30,.9)';
     c.beginPath();

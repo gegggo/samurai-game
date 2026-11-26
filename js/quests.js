@@ -37,6 +37,8 @@ SW.Quests = (function () {
     Q.st[id] = 'active'; SW.Save.touch(); banner(T('q_new', T('qn_' + id))); return true;
   };
   Q.rewText = function (r) {
+    // Choice-Quests besitzen absichtlich kein q.rew auf Quest-Ebene.
+    r = r && typeof r === 'object' ? r : {};
     const p = [];
     if (r.coins) p.push(r.coins + ' ' + T('coins'));
     if (r.xp) p.push(r.xp + ' XP');
