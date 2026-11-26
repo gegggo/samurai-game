@@ -573,6 +573,77 @@
    },
    "ed": "lite",
    "tier": 3
+  },
+  {
+   "id": "pilot1",
+   "giver": "n_pilot",
+   "obj": {
+    "type": "kill",
+    "spot": "e_pilot_leader"
+   },
+   "rew": {
+    "coins": 110,
+    "xp": 90,
+    "karma": 4
+   },
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "pilot2",
+   "giver": "n_pilot",
+   "obj": {
+    "type": "have",
+    "item": "herb",
+    "n": 3
+   },
+   "req": {
+    "done": "pilot1"
+   },
+   "rew": {
+    "coins": 70,
+    "xp": 60,
+    "karma": 3
+   },
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "pilot3",
+   "giver": "n_pilot",
+   "obj": {
+    "type": "shrine",
+    "shrine": "mist"
+   },
+   "req": {
+    "done": "pilot2"
+   },
+   "rew": {
+    "ess": 1,
+    "xp": 100,
+    "karma": 4
+   },
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "pilot4",
+   "giver": "n_pilot",
+   "obj": {
+    "type": "kill",
+    "spot": "e_pilot_boss"
+   },
+   "req": {
+    "done": "pilot3"
+   },
+   "rew": {
+    "coins": 240,
+    "ess": 2,
+    "xp": 220,
+    "karma": 7
+   },
+   "ed": "lite",
+   "tier": 2
   }
  ]
 }

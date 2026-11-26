@@ -1578,6 +1578,46 @@
    "y": 1400,
    "ed": "lite",
    "tier": 3
+  },
+  {
+   "id": "e_pilot_guard1",
+   "type": "bandit",
+   "x": 5440,
+   "y": 2160,
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "e_pilot_guard2",
+   "type": "ronin",
+   "x": 5470,
+   "y": 2180,
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "e_pilot_leader",
+   "type": "samurai",
+   "x": 5455,
+   "y": 2200,
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "e_pilot_dungeon1",
+   "type": "elite",
+   "x": 5740,
+   "y": 2045,
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "e_pilot_boss",
+   "type": "boss_mist",
+   "x": 5760,
+   "y": 2045,
+   "ed": "lite",
+   "tier": 2
   }
  ],
  "shrines": [
@@ -1825,6 +1865,13 @@
    "y": 2488,
    "ed": "lite",
    "tier": 3
+  },
+  {
+   "id": "mist",
+   "x": 5600.5,
+   "y": 2100.5,
+   "ed": "lite",
+   "tier": 2
   }
  ],
  "chests": [
@@ -2377,6 +2424,53 @@
    "y": 1530,
    "ed": "lite",
    "tier": 3
+  },
+  {
+   "id": "c_pilot1",
+   "x": 5340,
+   "y": 1990,
+   "give": {
+    "item": "herb",
+    "n": 3
+   },
+   "rar": "common",
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "c_pilot2",
+   "x": 5510,
+   "y": 2310,
+   "give": {
+    "coins": 90
+   },
+   "rar": "uncommon",
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "c_pilot3",
+   "x": 5840,
+   "y": 2110,
+   "give": {
+    "item": "katana_steel",
+    "n": 1
+   },
+   "rar": "rare",
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "c_pilot4",
+   "x": 5700,
+   "y": 1900,
+   "give": {
+    "item": "iron",
+    "n": 4
+   },
+   "rar": "uncommon",
+   "ed": "lite",
+   "tier": 2
   }
  ],
  "npcs": [
@@ -2709,6 +2803,17 @@
    "y": 1491,
    "ed": "lite",
    "tier": 3
+  },
+  {
+   "id": "n_pilot",
+   "role": "veteran",
+   "q": true,
+   "x": 5450.5,
+   "y": 2250.5,
+   "robe": "#5a6a70",
+   "hat": "#c8b070",
+   "ed": "lite",
+   "tier": 2
   }
  ],
  "drops": {
@@ -2767,6 +2872,10 @@
   "swift": [
    14,
    22
+  ],
+  "boss_mist": [
+   150,
+   200
   ]
  }
 }

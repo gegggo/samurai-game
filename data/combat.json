@@ -651,6 +651,67 @@
    },
    "speed": 1.45,
    "weapon": "sword"
+  },
+  "boss_mist": {
+   "arena": "warden",
+   "dmg": 1.4,
+   "hp": 330,
+   "look": {
+    "cape": "#26323f",
+    "cloth": "#3b4a5a",
+    "helm": "#20262e",
+    "legs": "#1a2028",
+    "plate": "#4d5f70",
+    "trim": "#9fd0c8"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "slash",
+      "thrust",
+      "heavy"
+     ],
+     "gap": [
+      1.1,
+      1.7
+     ],
+     "guard": 0.2,
+     "speed": 1.05
+    },
+    {
+     "at": 0.6,
+     "atk": [
+      "sweep",
+      "flurry",
+      "thrust",
+      "heavy"
+     ],
+     "gap": [
+      0.9,
+      1.4
+     ],
+     "guard": 0.25,
+     "speed": 1.2
+    },
+    {
+     "at": 0.3,
+     "atk": [
+      "sweep",
+      "flurry",
+      "flurry",
+      "rage",
+      "thrust"
+     ],
+     "gap": [
+      0.6,
+      1
+     ],
+     "guard": 0.15,
+     "speed": 1.4
+    }
+   ],
+   "weapon": "sword"
   }
  },
  "arenas": {
@@ -807,7 +868,8 @@
   "clearing",
   "plateau",
   "clearing",
-  "ruins"
+  "ruins",
+  "warden"
  ],
  "rewards": {
   "armored": {
@@ -860,6 +922,11 @@
   },
   "swift": {
    "xp": 28
+  },
+  "boss_mist": {
+   "xp": 300,
+   "ess": 2,
+   "karma": 6
   }
  }
 }

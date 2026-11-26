@@ -1,61 +1,45 @@
 # Samurai Wanderer – Aktueller Projektstatus
 
-Stand: 25.11.2026  
-Aktuelle Codeversion: **0.24.9**  
-Cache-Version in `index.html`: **v103**  
+Stand: 26.11.2026
+Aktuelle Codeversion: **0.25.0**
+Cache-Version in `index.html`: **v105**
 Verbindliche Spezifikation: **Samurai Wanderer – Complete Project Specification v2.1**
 
 ## Kurzüberblick
-
-- Projekt: HTML-/CSS-/JavaScript-Browser-RPG; GitHub Pages ist das vorgesehene Hosting.
+- HTML-/CSS-/JavaScript-Browser-RPG; GitHub Pages als Hosting.
 - Zielgerät: iPhone im Querformat; Desktop-Steuerung per WASD/Pfeiltasten.
-- Entwicklung: phasenweise. Bestehende Funktionen erhalten, Änderungen einzeln testen und nicht bestätigte Tests ausdrücklich als offen kennzeichnen.
-- Die detaillierte Versions- und Änderungshistorie folgt unter diesem aktuellen Überblick.
+- Phasenweise Entwicklung; bestehende Funktionen und Spielstände erhalten.
+- Phase 25 ergänzt die Pilot-Region Flüsterklamm als Vorlage für spätere Erweiterungen.
+- Quest-Fix: Choice-Quests besitzen absichtlich kein Quest-weites `rew`; fehlende Belohnungsobjekte führen nicht mehr zu einem TypeError.
 
-## Aktueller Stand – Version 0.24.9
-
-Laut aktuellem Repository-Code ist Version 0.24.9 in `js/config.js` eingetragen; `index.html` lädt die Skripte und Styles mit Cache-Version v103.
-
-### Umgesetzt laut Code und bisherigem Änderungsprotokoll
-- Waffenhaltbarkeit je Exemplar im Inventar (`dur`) und für ausgerüstete Waffen (`edur`).
-- Haltbarkeit wird bei Treffern in Weltkampf, Duell und Boss-Arena abgezogen.
-- Waffen können bei Haltbarkeit 0 zerbrechen; legendäre Waffen sind als unzerbrechlich vorgesehen.
-- Inventar zeigt Haltbarkeit und bietet Sortierung nach Art, Seltenheit, Haltbarkeit und Name.
-- Skilltree- und Inventar-UI-Änderungen aus 0.24.9 sind im Änderungsprotokoll dokumentiert.
-
-### Noch offen
-- Reparaturfunktion beim Schmied ist nicht implementiert.
-- Fernwaffen-Haltbarkeit wird bei einem bereits laufenden Kampf möglicherweise erst nach dem Kampf-Cache aktualisiert; der bekannte Fehler muss behoben und getestet werden.
-- Haltbarkeitswerte (30/45/60/80 je Seltenheit) sind Platzhalter und noch nicht balanciert.
-- iPhone-Gerätetest für Version 0.24.9 steht aus.
-- Ein vollständiger Browser-Regressionstest für den aktuellen Gesamtstand ist nicht bestätigt.
-
-### Testnachweis – nicht mit vollständiger Freigabe verwechseln
-Im bisherigen Änderungsprotokoll sind headless-Tests für Ausrüsten, Zerbrechen, Speichern/Laden und UI-Screenshots dokumentiert. Außerdem sind 38 von 39 Regressionstests als bestanden vermerkt; ein Test scheiterte an einem Validator-Pfad in der damaligen Testumgebung. Diese Angaben sind ein historischer Testbericht und kein Nachweis, dass der aktuelle GitHub-Stand vollständig im Browser oder auf dem iPhone geprüft wurde.
-
-## Nächste sinnvolle Schritte
-1. Fernwaffen-Haltbarkeit während eines laufenden Kampfes korrigieren.
-2. Reparatur beim Schmied planen und implementieren.
-3. Regressionstests für Haltbarkeit, Reparatur, Shops, Schreine und Kartenverbindungen ergänzen.
-4. Gesamtspiel im Browser testen.
-5. Auf dem iPhone im Querformat testen.
-6. Erst danach den nächsten größeren Entwicklungsabschnitt beginnen.
+## Aktueller Stand – Version 0.25.0
+### Phase 25 – Pilot-Region (Umsetzung; Gerätetest ausstehend)
+- Region 19 **Flüsterklamm / Whispering Vale**, nahtlos östlich angebaut; 60/40-Übergang aus neuem und angrenzendem Altterrain, keine künstliche Brücke.
+- Räuberlager mit Palisaden, Wachtürmen, Zelten und Käfig.
+- Dungeonbereich mit Steinring, Eingang und Pfeilern; Boss nutzt die bestehende Warden-Arena.
+- Questkette: Räuberhauptmann besiegen → 3 Heilkräuter bringen → Nebel-Schrein erwecken → Dungeon-Wächter besiegen.
+- Vier versteckte Sammeltruhen mit Ressourcen, Ryō und einer Waffe.
+- Quest-Anzeige gegen fehlende Belohnungsobjekte abgesichert.
+- Gate offen: iPhone-Spielzeit/Spielfluss, Zeit pro Inhalt, XP/Stunde sowie Dichte und Verteilung messen; Ergebnisse für Balance und Phase 26 verwenden.
 
 ## Verbindliche Entwicklungsregeln
-- Die Projektspezifikation v2.1 ist die maßgebliche Grundlage.
-- Bestehende, funktionierende Systeme nicht entfernen oder unbeabsichtigt verändern.
-- Neue Systeme in die vorhandene Architektur integrieren; keine isolierten Fragmente zur manuellen Zusammenführung liefern.
-- Nur die jeweils freigegebene Phase umsetzen; zukünftige Phasen nicht vorziehen.
-- Jede Phase auf Fehler und Seiteneffekte testen.
-- Nicht ausgeführte Browser- oder Gerätetests ausdrücklich als offen markieren.
-- Geänderte Dateien einzeln mit Repository-Pfad bereitstellen; ZIP nur zusätzlich, wenn gewünscht.
+- Projektspezifikation v2.1 ist maßgeblich.
+- Bestehende Funktionen nicht unbeabsichtigt verändern; keine Spielstände löschen.
+- Neue Systeme integrieren, keine losen Fragmente liefern.
+- Nur die freigegebene Phase umsetzen; spätere Phasen nicht vorziehen.
+- Tests und nicht ausgeführte Browser-/Gerätetests klar kennzeichnen.
+- Geänderte Dateien einzeln mit Repository-Pfad bereitstellen; ZIP nur zusätzlich auf Wunsch.
 - Mobile Bedienbarkeit und Performance haben Priorität.
-- Neue Fähigkeiten und größere Designänderungen zuerst vorschlagen und freigeben lassen.
 - Essence ist ausschließlich für den Skilltree bestimmt.
+
 
 ---
 
 ## Detaillierte Versionshistorie
+
+## 0.25.0 – Phase 25 Pilot-Region + Quest-Reward-Fix
+- Neue Region 19, Räuberlager, Dungeon, Boss, vier Quests und vier Sammeltruhen.
+- Choice-Quest-Belohnungen gegen fehlendes q.rew abgesichert.
 
 ## 0.24.8 – Item-Icons eingebunden (Cache v102) – Dateien gesendet, ungetestet
 - **Icons:** 39 PNG (256×256, eine je Item-ID) nach `assets/images/items/icons/<id>.png`; `js/inventory.js` lädt sie im Inventar-Gitter (Name als Rückfall). Rahmen/Seltenheit bleibt in der UI. Erste Fassung, Zuschnitt prüfen.

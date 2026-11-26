@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generator fuer eine neue, nahtlos angebaute Region (REG >= 19).
+"""Generator fuer eine neue, nahtlos angebaute Region (REG >= 20).
 Aufruf im Projekt-Root:
   python3 tools/new_region.py ID REG "Name EN" "Name DE" CX CY RX RY [--tier N]
 Die Region wird automatisch mit dem naechsten bestehenden Land verbunden. Der Anschluss
@@ -14,7 +14,7 @@ if '--link' in a: i = a.index('--link'); link = [int(v) for v in a[i + 1].split(
 if '--tier' in a: i = a.index('--tier'); tier = int(a[i + 1]); del a[i:i + 2]
 if len(a) != 8: sys.exit(__doc__)
 RID, REG, EN, DE = a[0], int(a[1]), a[2], a[3]; CX, CY, RX, RY = map(int, a[4:8])
-if not re.fullmatch(r'[a-z0-9]+', RID) or REG < 19 or tier not in (1, 2, 3): sys.exit('ID klein/alphanumerisch, REG >= 19, tier 1-3')
+if not re.fullmatch(r'[a-z0-9]+', RID) or REG < 20 or tier not in (1, 2, 3): sys.exit('ID klein/alphanumerisch, REG >= 19, tier 1-3')
 if os.path.exists('js/layout-%s.js' % RID): sys.exit('js/layout-%s.js existiert schon' % RID)
 CELL, WW, HH = 8, 5000, 3000
 M = 40
