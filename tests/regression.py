@@ -132,6 +132,7 @@ try:
         pg.reload(); pg.wait_for_timeout(1500); off = ev(pg, "typeof SW !== 'undefined' && !!SW.version && !!SW.World && SW.Menus ? SW.version : false")
     except Exception as ex: off = 'fehler ' + str(ex)[:80]
     pg.context.set_offline(False)
+    pg.reload(); pg.wait_for_timeout(1500)  # Folgepruefung laeuft wieder online
     rec('Phase 19: Offline-Start aus Zwischenspeicher (Seite + Skripte laden ohne Netz)', isinstance(off, str) and off[:2] == '0.' and not off.startswith('fehler'), str(off))
     # 16 Phase 19: Speicherschutz-Abfrage + Hinweis in der Oberflaeche
     r = ev(pg, """async () => { const S=SW.Store; const a=await S.refresh(); const b=await S.ask(); const box=SW.Menus.h.backupBox(); const txt=box.textContent; return {a, b, ui: /Storage protected|Storage not protected|Storage protection unknown/.test(txt)}; }""")
