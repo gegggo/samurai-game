@@ -82,7 +82,7 @@ SW.Arena = (function () {
       if (S.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
     } else if (kind === 'ranged') { if ((!S.ps.ranged || !SW.Inv.eq.ranged)) return; name = 'shot'; }
     else return;
-    if (kind === 'attack' || kind === 'heavy') name = SW.Skills.autoMove(S.ki, S.ps.kiCostMul, S.php / S.pmax) || name;
+    if ((kind === 'attack' && name !== 'counter') || kind === 'heavy') name = SW.Skills.autoMove(S.ki, S.ps.kiCostMul, S.php / S.pmax) || name;
     startMove(name);
   }
   function dodge() {
