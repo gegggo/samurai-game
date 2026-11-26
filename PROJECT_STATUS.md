@@ -1,17 +1,24 @@
-## Phase 26 – Zelda-Kampf + Welt-Fixes (Umsetzung abgeschlossen; Gerätetest offen)
+## Phase 26.1 – Sprint-Sperre + zusammenhängende Regionsübergänge (implementiert; erneuter Gerätetest offen)
+- Sprint: Bei 0 Ausdauer wird Sprint sofort beendet und gesperrt. Die Sperre bleibt auch bestehen, wenn die Taste weiter gehalten wird. Sie löst sich erst nach Loslassen und mindestens 20% wiederhergestellter Ausdauer. Der Sprintknopf zeigt den Erschöpfungszustand sichtbar an.
+- Karte: Die vorhandenen Landflächen sind im Layout bereits zu einer zusammenhängenden Landmasse verbunden; die Übergänge der späteren Regionen waren aber zu abrupt und ließen sie wie einzelne Inseln wirken.
+- Übergang: An Grenzen zwischen Erweiterungsregionen (ab Region 17) entsteht nun ein insgesamt 20 Tiles breiter, beidseitiger Übergangsstreifen. Er mischt deterministisch etwa 60% der neueren und 40% der angrenzenden älteren Region in größeren natürlichen Flecken. Küsten und Seen bleiben unverändert.
+- Die Terrain-Objekte und die Kartenfarben verwenden dieselbe gemischte Region; Quest-/Gebietserkennung bleibt auf den ursprünglichen Regionsgrenzen.
+- Technische Prüfung: Sprint-Erschöpfung und -Wiederfreigabe im isolierten Laufzeittest geprüft; Weltmodul mit den vier vorhandenen Layout-Segmenten geladen. Neuer iPhone-/Touch-Test für diese Korrektur steht noch aus.
+
+## Phase 26 – Zelda-Kampf + Welt-Fixes (vom Nutzer am Gerät getestet)
 - Boss-Arena: Boss-Leben und Boss-Schaden für Phasenbosse um 50 % erhöht; schwere Unterbrechungen durch Special-Attacken mit 2,2-Sekunden-Sperre gegen Spam abgesichert.
 - Zelda-Kampf: freie Kamera per Wischbewegung auf der rechten Bildschirmhälfte; Zielsperre standardmäßig aktiv und per Lock-Taste/Q umschaltbar; Sprint-Lunge bei Vorwärtsbewegung; aufladbarer schwerer Schlag (Heavy halten); Boss-Stürmer-Angriffe mit eigener Reichweite und sichtbarem Ausholen; Spielerbewegung/Ausweichrolle beschleunigt.
 - Bambuswald: Bambusobjekte sind durchquerbar; Dichte reduziert; Spawnzone am Bambus-Schrein und Straßenkorridor Richtung Dorf werden freigehalten.
 - Lager: Zelte prüfen jede Kachel ihrer gesamten Grundfläche, suchen bei Fels/Überlappung einen freien Platz und werden übersprungen, wenn kein sicherer Standort existiert.
 - Welt-Sprint: Shift (PC) oder Touch-Taste, 1,65× Laufgeschwindigkeit, Ausdauerverbrauch und Regeneration; Ausdauerleiste sichtbar.
 - Begriffe: sichtbare englische Ki-Bezeichnungen auf Stamina, deutsche auf Ausdauer umgestellt; interne Daten-/Variablennamen bleiben aus Kompatibilitätsgründen `ki`. Das zuvor versehentlich veränderte Item-Label „Travel Staminamono“ wurde auf „Travel Kimono“ korrigiert.
-- Technische Prüfung: 10 geänderte JavaScript-Dateien bestehen den Syntaxcheck; 5 JSON-Dateien sind gültig, Boss-Angriffsreferenzen und neue Moves sind vorhanden. Die Playwright-Regressionstests (`tests/regression.py`) und der echte iPhone-/Touch-Test wurden noch nicht ausgeführt.
+- Technische Prüfung: JavaScript-Syntax und JSON-Dateien geprüft; der Nutzer hat die Phase-26-Version am Gerät vollständig getestet. Die Playwright-Regressionstests (`tests/regression.py`) wurden in dieser Umgebung nicht ausgeführt.
 
 # Samurai Wanderer – Aktueller Projektstatus
 
 Stand: 26.11.2026
-Aktuelle Codeversion: **0.26.0**
-Cache-Version in `index.html`: **v107**
+Aktuelle Codeversion: **0.26.1**
+Cache-Version in `index.html`: **v108**
 Verbindliche Spezifikation: **Samurai Wanderer – Complete Project Specification v2.1**
 
 ## Kurzüberblick
