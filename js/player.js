@@ -28,8 +28,13 @@ SW.Player = (function () {
     p.face = Math.atan2(dy, dx);
     if (Math.abs(dx) > .001) p.dir = dx > 0 ? 1 : -1;
     p.anim += dt * sp * 2.2;
-    if (!blocked(p.x + dx, p.y)) p.x += dx;
-    if (!blocked(p.x, p.y + dy)) p.y += dy;
+    // Große dt-Werte (z. B. nach einem Tab-Wechsel) dürfen keine dünnen Hindernisse überspringen.
+    const steps = Math.max(1, Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / .2));
+    const sx = dx / steps, sy = dy / steps;
+    for (let i = 0; i < steps; i++) {
+      if (!blocked(p.x + sx, p.y)) p.x += sx;
+      if (!blocked(p.x, p.y + sy)) p.y += sy;
+    }
   };
   // Verschiebung mit Kollision (Ausweichrolle, Rückstoß)
   p.push = function (dx, dy) { if (!blocked(p.x + dx, p.y)) p.x += dx; if (!blocked(p.x, p.y + dy)) p.y += dy; };
