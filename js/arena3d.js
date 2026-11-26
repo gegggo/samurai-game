@@ -60,7 +60,7 @@ SW.Arena = (function () {
     S.pm.dur = S.pm.end - SWING + rec;
     if (m.ki) S.ki -= kiCost(m);
     if (m.inv) S.invT = m.inv;
-    if (name === 'heavy' || name === 'charged') S.st.heavy++; else if (name === 'counter') S.st.counter++; else if (m.ki) S.st.special++;
+    if (name === 'heavy' || name === 'charged') S.st.heavy++; else if (name === 'counter') S.st.counter++; else if (m.ki && name !== 'lunge') S.st.special++;
     S.breath = false;
     if (name === 'counter') say(T('combat_counter'), '#ffe27a');
   }
