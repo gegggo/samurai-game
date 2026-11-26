@@ -129,7 +129,7 @@ try:
     rec('Phase 19: Service Worker registriert', reg is True, str(reg))
     pg.reload(); pg.wait_for_timeout(1500); pg.wait_for_function("fetch('data/index.json').then(r => r.json()).then(j => Promise.all(j.files.concat(['../js/world.js', '../js/combat.js']).map(f => caches.match(f.startsWith('..') ? f.slice(3) : 'data/' + f, {ignoreSearch: true})))).then(a => a.every(x => !!x))", timeout=20000); pg.context.set_offline(True)
     try:
-        pg.reload(); pg.wait_for_timeout(1500); off = ev(pg, "typeof SW !== 'undefined' && !!SW.version && !!SW.World && SW.Menus ? SW.version : false")
+        pg.reload(); pg.wait_for_timeout(1500); off = ev(pg, "typeof SW !== 'undefined' && !!SW.version && !!SW.World && SW.Menus && SW.dataOk && SW.Data.editions ? SW.version : false")
     except Exception as ex: off = 'fehler ' + str(ex)[:80]
     pg.context.set_offline(False)
     pg.reload(); pg.wait_for_timeout(1500)  # Folgepruefung laeuft wieder online
