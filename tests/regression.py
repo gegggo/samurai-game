@@ -206,7 +206,7 @@ try:
     rec('Phase 24: 0 Haltbarkeit bleibt nach Laden erhalten; kaputte Waffe nicht ausruestbar; Schmied repariert gegen Muenzen+Eisen', r['persisted'] and r['noEquip'] and r['repaired'] and r['full'] and r['equip'], json.dumps(r))
     # 33 Phase 24: ausgeruestete Waffe reparieren
     r = ev(pg, """() => { const I=SW.Inv,S=SW.Shop,id='bow_hankyu'; I.edur.ranged=12; const t=S.repairTargets().find(x=>x.slot==='ranged'); if(!t)return {none:true}; const c=S.repairCost(t); I.coins=c.coins; I.bag.iron=c.iron; const ok=S.repair(t); return {ok,dur:I.durOf('ranged')}; }""")
-    rec('Phase 24: Auch ausgeruestete, beschaedigte Waffen lassen sich reparieren', not r['none'] and r['ok'] and r['dur']==60, json.dumps(r))
+    rec('Phase 24: Auch ausgeruestete, beschaedigte Waffen lassen sich reparieren', not r.get('none') and r['ok'] and r['dur']==60, json.dumps(r))
     # 34 Phase 24.1: Waffen sind Einzelstuecke; alte doppelte Spielstaende werden verlustarm bereinigt
     pg = start(b, errs)
     r = ev(pg, """() => { const I=SW.Inv;
