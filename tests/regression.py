@@ -356,7 +356,7 @@ try:
 
     # 49 Bewegung: Spieler darf nicht durch benachbarte feste Tiles laufen
     r = ev(pg, """() => {
-      const W=SW.World,P=SW.Player,I=SW.Input,old={x:P.x,y:P.y,stamina:P.stamina};
+      const W=SW.World,P=SW.Player,I=SW.Input,old={x:P.x,y:P.y,stamina:P.stamina,paused:SW.paused,sprint:I.sprint};
       let spot=null;
       for(let y=Math.max(2,Math.floor(W.spawn.y)-25);y<Math.min(W.HEIGHT-2,W.spawn.y+25)&&!spot;y++)
         for(let x=Math.max(2,Math.floor(W.spawn.x)-25);x<Math.min(W.WIDTH-2,W.spawn.x+25)&&!spot;x++){
@@ -368,7 +368,7 @@ try:
       SW.paused=false;I.sprint=false;P.x=spot.x+.5;P.y=spot.y+.5;P.stamina=100;
       const before=[P.x,P.y];P.update(.5,{x:spot.dx,y:spot.dy});
       const blocked=P.x===before[0]&&P.y===before[1];
-      P.x=old.x;P.y=old.y;P.stamina=old.stamina;
+      P.x=old.x;P.y=old.y;P.stamina=old.stamina;SW.paused=old.paused;I.sprint=old.sprint;
       return {blocked,spot};
     }""")
     rec('Exploit: Bewegung wird an festen Nachbar-Tiles durch Kollision gestoppt',
