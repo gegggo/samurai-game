@@ -34,7 +34,8 @@ SW.WCombat = (function () {
     P.php = was === 1 ? P.pmax : Math.min(P.pmax, P.php); P.ki = Math.min(P.kmax, P.ki === 1 ? P.kmax : P.ki);
     if (P.ps.ranged) D.moves.shot = { wind: P.ps.ranged.wind, rec: P.ps.ranged.rec, dmg: P.ps.ranged.dmg, ranged: true, anim: 'shot' };
     [0, 1].forEach(i => {
-      const b = $('cb-s' + i), id = SW.Skills.slots[i], on = !!(id && P.ps.slots[i]); // 2 Skill-Plätze: leer = Platzhalter für spätere Fähigkeiten
+      const b = $('cb-s' + i);
+      if (b) b.style.display = 'none';
       if (b) { b.style.display = on ? '' : 'none'; b.textContent = on ? T('sk_' + id) : ''; }
     });
     { const rb = $('cb-ranged'); if (rb) rb.style.display = P.ps.ranged ? '' : 'none'; }
@@ -64,6 +65,7 @@ SW.WCombat = (function () {
       if (P.ki < kiCost(D.moves[name])) { say(T('combat_noki'), '#8cf'); return; }
     } else if (kind === 'ranged') { if ((!P.ps.ranged || !SW.Inv.eq.ranged)) return; name = 'shot'; }
     else return;
+    if (kind === 'attack' || kind === 'heavy') name = SW.Skills.autoMove(P.ki, P.ps.kiCostMul, P.php / P.pmax) || name;
     startMove(name);
   }
   function dodge() {
@@ -120,7 +122,7 @@ SW.WCombat = (function () {
       if (w.st === 'rec' || w.st === 'stagger') dmg *= 1.3;
       const crit = Math.random() < ps.crit; if (crit) dmg *= ps.critMul || 1.5;
       dmg = Math.max(1, Math.round(dmg));
-      SW.Inv.wear(m.ranged ? ['ranged'] : ['main', 'side']); w.hp -= dmg; w.flash = .1; if (!m.ranged) P.ki = Math.min(P.kmax, P.ki + 4);
+      SW.Inv.wear(m.ranged ? ['ranged'] : [m.weaponSlot || 'main']); w.hp -= dmg; w.flash = .1; if (!m.ranged) P.ki = Math.min(P.kmax, P.ki + 4);
       flt(s.x, s.y - 1.2, dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
       if (heavyish && w.st === 'wind' && !(w.atk && w.atk.unblock)) { w.st = 'stagger'; w.t = 0; w.dur = .6; w.hits = 0; }
       if (heavyish) push(s, .35 * (1 + 3 * ps.knock));
@@ -329,7 +331,7 @@ SW.WCombat = (function () {
     if (!X.active || K.active || SW.paused) return; const k = e.key.toLowerCase();
     if (k === ' ') { held.block = true; e.preventDefault(); } else if (k === 'b') held.breath = true;
     else if (e.repeat) return;
-    else if (k === 'j') act('attack'); else if (k === 'k') act('heavy'); else if (k === 'l') act('special'); else if (k === 'u') act('s0'); else if (k === 'i') act('s1'); else if (k === 'h') act('ranged');
+    else if (k === 'j') act('attack'); else if (k === 'k') act('heavy'); else if (k === 'l') act('special'); else if (k === 'h') act('ranged');
     else if (k === 'x' || k === 'shift') dodge();
   });
   window.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (k === ' ') held.block = false; else if (k === 'b') held.breath = false; });
