@@ -5,7 +5,7 @@
 - Lager: Zelte prüfen jede Kachel ihrer gesamten Grundfläche, suchen bei Fels/Überlappung einen freien Platz und werden übersprungen, wenn kein sicherer Standort existiert.
 - Welt-Sprint: Shift (PC) oder Touch-Taste, 1,65× Laufgeschwindigkeit, Ausdauerverbrauch und Regeneration; Ausdauerleiste sichtbar.
 - Begriffe: sichtbare englische Ki-Bezeichnungen auf Stamina, deutsche auf Ausdauer umgestellt; interne Daten-/Variablennamen bleiben aus Kompatibilitätsgründen `ki`. Das zuvor versehentlich veränderte Item-Label „Travel Staminamono“ wurde auf „Travel Kimono“ korrigiert.
-- Technische Prüfung: JSON-Validierung, JavaScript-Syntaxprüfung und Regressionstests sind noch auszuführen; echter iPhone-Test bleibt offen.
+- Technische Prüfung: 10 geänderte JavaScript-Dateien bestehen den Syntaxcheck; 5 JSON-Dateien sind gültig, Boss-Angriffsreferenzen und neue Moves sind vorhanden. Die Playwright-Regressionstests (`tests/regression.py`) und der echte iPhone-/Touch-Test wurden noch nicht ausgeführt.
 
 # Samurai Wanderer – Aktueller Projektstatus
 

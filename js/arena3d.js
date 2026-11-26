@@ -39,6 +39,7 @@ SW.Arena = (function () {
       const b = $('cb-s' + i), id = SW.Skills.slots[i], on = !!(id && ps.slots[i]);
       if (b) { b.style.display = on ? '' : 'none'; b.textContent = on ? T('sk_' + id) : ''; }
     });
+    { const lb = $('cb-lock'); if (lb) { lb.textContent = T('lock_on_short'); lb.classList.add('lk'); } }
     K.active = true; A.active = true; SW.paused = false; SW.Input.reset();
     document.body.classList.add('combat');
   };
@@ -141,7 +142,7 @@ SW.Arena = (function () {
     if (f.st === 'wind') dmg *= 1 + ps.ambush;
     if (f.guarding && nm !== 'counter' && !m.ignoreGuard) {
       if (m.ranged) dmg *= .5;
-      else if ((m.guardBreak || nm === 'special') && f.staggerLock <= 0) { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; f.staggerLock = 2.2; say(T('combat_guard_break'), '#ffd27a'); }
+      else if ((m.guardBreak || nm === 'special') && (!S.def.phases || f.staggerLock <= 0)) { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; f.staggerLock = S.def.phases ? 2.2 : 0; say(T('combat_guard_break'), '#ffd27a'); }
       else dmg *= .25;
     } else if (S.def.armor && !heavyish) dmg *= 1 - S.def.armor;
     if (f.st === 'rec' || f.st === 'stagger') dmg *= 1.3;
@@ -149,7 +150,7 @@ SW.Arena = (function () {
     dmg = Math.max(1, Math.round(dmg));
     SW.Inv.wear(m.ranged ? ['ranged'] : [m.weaponSlot || 'main']); S.hp -= dmg; f.flash = .1; if (!m.ranged) S.ki = Math.min(S.kmax, S.ki + 4);
     flt(dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
-    if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock) && f.staggerLock <= 0) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; f.staggerLock = 2.2; }
+    if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock) && (!S.def.phases || f.staggerLock <= 0)) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; f.staggerLock = S.def.phases ? 2.2 : 0; }
     if (S.hp <= 0) { S.hp = 0; S.php = Math.min(S.pmax, S.php + S.pmax * ps.healWin); S.state = 'win'; S.t = 0; S.spot.dead = true; S.pm = null; reward(); return; }
     if (S.def.phases) {
       const r = S.hp / S.max; let n = S.phase;
@@ -173,7 +174,7 @@ SW.Arena = (function () {
     const f = S.boss, At = f.atk, ps = S.ps, p = ph();
     S.fswing = SWING; f.hits--;
     const dmg = Math.max(1, At.dmg * (S.def.dmg || 1) * K.tm(S.spot).dmg * (S.def.phases ? 1.5 : 1) - ps.def);
-    if (dist() > (At.range || REACH() + .7)) { /* Spieler ist aus dem markierten Angriffsbereich gelaufen */ }
+    if (dist() > (S.def.phases && At.range ? At.range : REACH() + .7)) { /* Spieler ist aus dem markierten Angriffsbereich gelaufen */ }
     else if (S.dodgeT > 0 || S.invT > 0) { say(T('combat_dodge_ok'), '#cfe'); S.ki = Math.min(S.kmax, S.ki + 3 + S.kmax * ps.kiDodge); S.st.dodge++; }
     else if (S.block && !At.unblock && S.parryOk && S.blockT <= ps.parry) {
       S.st.parry++; f.st = 'stagger'; f.t = 0; f.dur = 1.1; f.hits = 0; S.counterT = 1.4;
@@ -239,7 +240,7 @@ SW.Arena = (function () {
       }
     } else if (f.st === 'wind') {
       // Bestimmte Bossangriffe stürmen nach deutlich sichtbarem Ausholen nach vorn.
-      if (f.atk && f.atk.dash && f.t < f.dur) {
+      if (S.def.phases && f.atk && f.atk.dash && f.t < f.dur) {
         const stepD = dist(), dx = (S.px - f.x) / (stepD || 1), dy = (S.py - f.y) / (stepD || 1);
         if (stepD > 1.8) { f.x += dx * 3.6 * dt; f.y += dy * 3.6 * dt; }
       }
@@ -378,7 +379,6 @@ SW.Arena = (function () {
     txt(c, T('hud_hp'), mg, u * 4, u * 3, '#f4ecd8', 'left'); bar(c, mg + u * 5, u * 2.7, bw, bh, S.php / S.pmax, '#c8382c');
     txt(c, T('hud_ki'), mg, u * 9.4, u * 3, '#f4ecd8', 'left'); bar(c, mg + u * 5, u * 8.1, bw * .75, bh, S.ki / S.kmax, '#4aa3df');
     if (S.charging) { const cw2 = cw * .18, cx2 = (cw - cw2) / 2, cy2 = ch * .79; txt(c, T('combat_charge'), cw / 2, cy2 - u * 1.8, u * 3.2, '#ffe27a'); bar(c, cx2, cy2, cw2, u * 1.3, Math.min(1, S.chargeT / 1.35), '#ffe27a'); }
-    const lockButton = $('cb-lock'); if (lockButton) { lockButton.textContent = T(S.lockOn ? 'lock_on_short' : 'lock_off_short'); lockButton.classList.toggle('lk', S.lockOn); }
     const ew = cw * .34, ex = (cw - ew) / 2;
     txt(c, T('enemy_' + S.spot.type), cw / 2, u * 3.6, u * 3.6, '#f4ecd8');
     bar(c, ex, u * 6.2, ew, bh, S.hp / S.max, S.phase ? '#e0702a' : '#b5352b');
