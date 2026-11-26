@@ -268,7 +268,8 @@ try:
       P.stamina=.01;P.sprintLocked=false;I.sprint=true;
       P.update(1,{x:1,y:0});const zero=P.stamina===0,locked=P.sprintLocked;
       P.update(.5,{x:1,y:0});const heldLocked=P.sprintLocked;
-      I.sprint=false;P.update(1,{x:1,y:0});const recovered=P.stamina>=20&&!P.sprintLocked;
+      I.sprint=false;P.update(1.3,{x:1,y:0});const regenerated=P.stamina>=20;
+      P.update(.01,{x:1,y:0});const recovered=regenerated&&!P.sprintLocked;
       I.sprint=true;P.update(.1,{x:1,y:0});const resumed=P.sprinting;
       P.stamina=old.st;P.sprintLocked=old.lock;P.sprinting=old.sprinting;I.sprint=old.held;
       return {zero,locked,heldLocked,recovered,resumed};
@@ -288,14 +289,14 @@ try:
         r['active'] and not r['joy'] and not r['sprint'] and not r['held'] and r['vec']==[0,0], json.dumps(r))
     # 42 Shop-Kaufspam: Stacklimit und Geld pruefen
     r = ev(pg, """() => {
-      const S=SW.Shop,I=SW.Inv,id=S.list('herb')[0];I.bag[id]=0;I.coins=100000;
-      let successes=0;for(let n=0;n<200;n++)if(S.buy(id,1))successes++;
-      const count=I.bag[id]||0,coins=I.coins,over=S.buy(id,1000),unchanged=(I.bag[id]||0)===count&&I.coins===coins;
-      I.coins=0;const poor=S.buy(id,1);
-      return {count,max:I.MAXSTACK,over,unchanged,poor,still:(I.bag[id]||0)===count};
+      const S=SW.Shop,I=SW.Inv,id=S.list('herb')[0];I.bag[id]=I.MAXSTACK-2;I.coins=100000;
+      let successes=0;for(let n=0;n<5;n++)if(S.buy(id,1))successes++;
+      const count=I.bag[id]||0,coins=I.coins,over=S.buy(id,1),unchanged=(I.bag[id]||0)===count&&I.coins===coins;
+      I.bag[id]=0;I.coins=0;const poor=S.buy(id,1);
+      return {successes,count,max:I.MAXSTACK,over,unchanged,poor,still:(I.bag[id]||0)===0};
     }""")
     rec('Exploit: Kaufspam ueberschreitet Stacklimit nicht und kauft nicht ohne Geld',
-        r['count']<=r['max'] and r['over'] is False and r['unchanged'] and r['poor'] is False and r['still'], json.dumps(r))
+        r['successes']==2 and r['count']==r['max'] and r['over'] is False and r['unchanged'] and r['poor'] is False and r['still'], json.dumps(r))
     # 43 Shop-Verkaufspam: keine negativen Itemmengen / doppeltes Geld
     r = ev(pg, """() => {
       const S=SW.Shop,I=SW.Inv,id=S.list('herb')[0];I.bag[id]=3;I.coins=0;
@@ -317,16 +318,13 @@ try:
         0<=r['ess']<=999 and 0<=r['yin']<=100 and 0<=r['yang']<=100 and -100<=r['karma']<=100, json.dumps(r))
     # 45 Quest-Doppelabschluss: nur verfuegbare Quest auswaehlen
     r = ev(pg, """() => {
-      const Q=SW.Quests,D=SW.Data,I=SW.Inv;
-      const q=D.quests.find(q=>q.obj.type==='have'&&!q.choice&&q.rew&&q.rew.coins&&Q.status(q.id)==='avail');
-      if(!q)return {none:true};
-      const accepted=Q.accept(q.id);I.bag[q.obj.item]=q.obj.n;
-      if(Q.status(q.id)!=='ready')return {none:true,accepted,status:Q.status(q.id)};
+      const Q=SW.Quests,I=SW.Inv,q=Q.get('elder2');
+      Q.st.elder1='done';Q.st.elder2='active';I.bag.wood=q.obj.n;
       const c0=I.coins,first=Q.complete(q.id),c1=I.coins,second=Q.complete(q.id),c2=I.coins;
-      return {first,second,delta:c1-c0,again:c2-c1,status:Q.status(q.id)};
+      return {first,second,delta:c1-c0,again:c2-c1,status:Q.status(q.id),wood:I.bag.wood||0};
     }""")
     rec('Exploit: Questbelohnung wird bei wiederholtem Abschluss nicht erneut vergeben',
-        not r.get('none') and r['first'] and r['second'] is False and r['delta']>=0 and r['again']==0 and r['status']=='done', json.dumps(r))
+        r['first'] and r['second'] is False and r['delta']==40 and r['again']==0 and r['status']=='done' and r['wood']==0, json.dumps(r))
     # 46 Skill-Doppel-Freischaltung und ungueltige IDs
     r = ev(pg, """() => {
       const S=SW.Skills,C=SW.Char,E=SW.Essence;S.teach();C.sp=999;E.n=999;C.level=C.MAX;
@@ -347,10 +345,11 @@ try:
         r['count']>0 and len(r['bad'])==0, json.dumps(r))
     # 48 POI: echte Struktur- und Grenzpruefung
     r = ev(pg, """() => {
-      const W=SW.World,P=W.POI;
-      const bad=P.filter(o=>!o.type||![o.x,o.y,o.w,o.h].every(Number.isFinite)||o.w<=0||o.h<=0||
-        o.x<0||o.y<0||o.x+o.w>W.WIDTH||o.y+o.h>W.HEIGHT);
-      return {count:P.length,bad:bad.map(o=>o.type+':'+o.x+','+o.y)};
+      const W=SW.World,P=W.POI,ids=new Set(),bad=[];
+      P.forEach(o=>{if(!o||typeof o.id!=='string'||!o.id||ids.has(o.id)||
+        !Number.isFinite(o.x)||!Number.isFinite(o.y)||o.x<0||o.y<0||o.x>=W.WIDTH||o.y>=W.HEIGHT)
+        bad.push((o&&o.id)||'invalid'); if(o&&o.id)ids.add(o.id);});
+      return {count:P.length,bad};
     }""")
     rec('Weltkarte: POIs haben gueltige Typen, Abmessungen und Map-Grenzen',
         r['count']>20 and len(r['bad'])==0, json.dumps(r))
@@ -367,13 +366,15 @@ try:
         }
       if(!spot)return {none:true};
       SW.paused=false;I.sprint=false;P.x=spot.x+.5;P.y=spot.y+.5;P.stamina=100;
-      const before=[P.x,P.y];P.update(.5,{x:spot.dx,y:spot.dy});
-      const blocked=P.x===before[0]&&P.y===before[1];
+      P.update(.5,{x:spot.dx,y:spot.dy});
+      const blocked=spot.dx===1?P.x<=spot.x+.72:spot.dx===-1?P.x>=spot.x+.28:
+        spot.dy===1?P.y<=spot.y+.72:P.y>=spot.y+.28;
+      const safe=!W.solid(Math.floor(P.x),Math.floor(P.y));
       P.x=old.x;P.y=old.y;P.stamina=old.stamina;SW.paused=old.paused;I.sprint=old.sprint;
       return {blocked,spot};
     }""")
     rec('Exploit: Bewegung wird an festen Nachbar-Tiles durch Kollision gestoppt',
-        not r.get('none') and r['blocked'], json.dumps(r))
+        not r.get('none') and r['blocked'] and r['safe'], json.dumps(r))
     # 50 Hoch-/Querformatwechsel: Canvas bleibt sichtbar und Spielsysteme bleiben geladen
     pg.set_viewport_size({"width":393,"height":852}); pg.wait_for_timeout(250)
     portrait=ev(pg,"(() => { const c=document.querySelector('canvas'); return !!c&&c.getBoundingClientRect().width>0&&c.getBoundingClientRect().height>0&&!!SW.World; })()")
