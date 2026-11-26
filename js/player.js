@@ -11,7 +11,7 @@ SW.Player = (function () {
     const m = Math.hypot(v.x, v.y);
     p.moving = m > .01;
     if (!p.moving) { p.sprinting = false; p.stamina = Math.min(p.maxStamina, p.stamina + 16 * dt); p.anim = 0; return; }
-    const sprint = SW.Input.sprint && p.stamina > 0 && !SW.paused;
+    const sprint = SW.Input.sprint && p.stamina > 0 && !SW.paused && !SW.Combat.active && !(SW.WCombat && SW.WCombat.active);
     p.sprinting = !!sprint;
     if (sprint) p.stamina = Math.max(0, p.stamina - 24 * dt); else p.stamina = Math.min(p.maxStamina, p.stamina + 16 * dt);
     const sp = SW.CFG.SPEED * (sprint ? 1.65 : 1) * Math.min(1, m) * p.mul, dx = v.x / m * sp * dt, dy = v.y / m * sp * dt;

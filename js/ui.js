@@ -23,6 +23,7 @@ SW.UI = (function () {
     });
     $('menu-btn').onclick = () => toggle(true);
     $('menu-close').onclick = () => toggle(false);
+    const stamina = document.createElement('div'); stamina.id = 'world-stamina'; const fill = document.createElement('i'); fill.id = 'world-stamina-fill'; stamina.appendChild(fill); document.body.appendChild(stamina);
     const sprint = document.createElement('button'); sprint.id = 'world-sprint'; sprint.className = 'world-sprint'; sprint.textContent = SW.t('sprint');
     const sprintDown = e => { e.preventDefault(); SW.Input.sprintHeld = true; sprint.classList.add('on'); };
     const sprintUp = e => { e.preventDefault(); SW.Input.sprintHeld = false; sprint.classList.remove('on'); };
@@ -51,6 +52,7 @@ SW.UI = (function () {
   }
   // Sprachwechsel: Tab-Beschriftungen neu setzen
   U.relabel = function () {
+    const sb = $('world-sprint'); if (sb) sb.textContent = SW.t('sprint');
     [...$('menu-tabs').children].forEach(b => { b.firstChild.nodeValue = SW.t('tab_' + b.dataset.k); if (b.disabled) b.title = SW.t('locked', 4); });
   };
   // Nach Tabwechsel/Screenshot: iOS kann Offscreen-Canvas leeren -> Übersichtsbild neu aufbauen

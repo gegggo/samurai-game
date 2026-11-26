@@ -116,7 +116,7 @@ SW.Arena = (function () {
     if (f.st === 'wind') dmg *= 1 + ps.ambush;
     if (f.guarding && nm !== 'counter' && !m.ignoreGuard) {
       if (m.ranged) dmg *= .5;
-      else if (m.guardBreak || nm === 'special') { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; say(T('combat_guard_break'), '#ffd27a'); }
+      else if ((m.guardBreak || nm === 'special') && f.staggerLock <= 0) { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; f.staggerLock = 2.2; say(T('combat_guard_break'), '#ffd27a'); }
       else dmg *= .25;
     } else if (S.def.armor && !heavyish) dmg *= 1 - S.def.armor;
     if (f.st === 'rec' || f.st === 'stagger') dmg *= 1.3;
