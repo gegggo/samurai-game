@@ -209,7 +209,7 @@
    "slot": "armor",
    "type": "armor",
    "en": [
-    "Travel Kimono",
+    "Travel Staminamono",
     "Simple cloth clothing."
    ],
    "ed": "lite"
@@ -377,7 +377,7 @@
    "type": "weapon",
    "en": [
     "Moonlit Blade",
-    "Ki flows freely: techniques cost less, Ki returns faster."
+    "Stamina flows freely: techniques cost less, Stamina returns faster."
    ],
    "ed": "lite"
   },
@@ -553,7 +553,7 @@
    "slot": "mask",
    "type": "armor",
    "en": [
-    "Kitsune Mask",
+    "Staminatsune Mask",
     "Fox mask. Light on the feet, sharp for ambushes."
    ],
    "ed": "lite"
