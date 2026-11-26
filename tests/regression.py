@@ -234,7 +234,7 @@ try:
       I.wear(['side']); const b=[I.durOf('main'),I.durOf('side'),I.durOf('ranged')];
       I.wear(['ranged']); const c=[I.durOf('main'),I.durOf('side'),I.durOf('ranged')];
       return {a,b,c}; }""")
-    rec('Phase 24.1: Haltbarkeit wird nur in den jeweils uebergebenen Ausruestungsslots reduziert', JSON.stringify(r.a)==JSON.stringify([59,30,60]) and JSON.stringify(r.b)==JSON.stringify([59,29,60]) and JSON.stringify(r.c)==JSON.stringify([59,29,59]), json.dumps(r))
+    rec('Phase 24.1: Haltbarkeit wird nur in den jeweils uebergebenen Ausruestungsslots reduziert', r['a']==[59,30,60] and r['b']==[59,29,60] and r['c']==[59,29,59], json.dumps(r))
     # 37 Phase 24.2: ausgewaehlte aktive Skills loesen automatisch aus und benoetigen keinen Skill-Button
     r = ev(pg, """() => { const S=SW.Skills, old=Math.random; Math.random=()=>0;
       S.load({learned:{sm_a1:1},slots:['sm_a1',null],taught:1});
