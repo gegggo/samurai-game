@@ -93,7 +93,7 @@ try:
     pg.mouse.move(700, 200); pg.mouse.down(); pg.wait_for_timeout(100); right = ev(pg, "SW.Input.joy.active"); pg.mouse.up()
     rec('Joystick: links dynamisch, Loslassen stoppt, Deadzone, rechte Seite startet keinen Joystick', v[0] > .3 and v[2] and v2 == [0, 0, False] and dz == 0 and not right, '%s %s dz=%s right=%s' % (v, v2, dz, right))
     # 11 Karte/Schnellreise-Daten
-    r = ev(pg, "() => ({poi: SW.World.POI.length, shr: SW.Data.shrines.length, poi: SW.World.POI.length})")
+    r = ev(pg, "() => ({poi: SW.World.POI.length, shr: SW.Data.shrines.length})")
     rec('Welt: POI und Schreine vorhanden', r['poi'] > 20 and r['shr'] > 20, json.dumps(r))
     # 12 Phase 19: Speicher-Schnittstelle SW.Store
     pg = start(b, errs)
@@ -334,7 +334,7 @@ try:
       return {a,again,bad,learned:!!S.learned[n.id],spSpent:999-sp,essSpent:999-ess};
     }""")
     rec('Exploit: Skills koennen nicht doppelt oder mit unbekannter ID gelernt werden',
-        not r.get('none') and r['a'] and again is False and bad is False and r['learned'] and r['spSpent']>=0 and r['essSpent']>=0, json.dumps(r))
+        not r.get('none') and r['a'] and r['again'] is False and r['bad'] is False and r['learned'] and r['spSpent']>=0 and r['essSpent']>=0, json.dumps(r))
     # 47 Schnellreiseziele: Map-Grenzen und Kollisionen
     r = ev(pg, """() => {
       const W=SW.World,S=SW.Shrines,bad=[];
@@ -344,7 +344,7 @@ try:
     }""")
     rec('Weltkarte: alle Schnellreiseziele liegen innerhalb der Map und auf freien Tiles',
         r['count']>0 and r['bad'].length==0, json.dumps(r))
-    # 48 POI: echte Struktur- und Grenzpruefung statt wirkungslosem || true
+    # 48 POI: echte Struktur- und Grenzpruefung
     r = ev(pg, """() => {
       const W=SW.World,P=W.POI;
       const bad=P.filter(o=>!o.type||![o.x,o.y,o.w,o.h].every(Number.isFinite)||o.w<=0||o.h<=0||
