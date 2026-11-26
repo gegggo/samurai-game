@@ -30,9 +30,10 @@ SW.Shop = (function () {
   S.buy = function (id, amount) {
     const list = S.cur ? S.list(S.cur.role) : [].concat(...Object.keys(D.stock).map(S.list));
     if (S.cur && S.refuses(S.cur.role)) return false;
-    const p = S.price(id), have = I.bag[id] || 0;
+    const p = S.price(id), have = I.bag[id] || 0, item = it(id);
     amount = Math.floor(Number(amount) || 1);
-    amount = Math.min(amount, I.MAXSTACK - have, p > 0 ? Math.floor(I.coins / p) : 0);
+    if (item && item.type === 'weapon' && I.owned(id)) return false;
+    amount = Math.min(amount, item && item.type === 'weapon' ? 1 : I.MAXSTACK - have, p > 0 ? Math.floor(I.coins / p) : 0);
     if (!it(id) || p <= 0 || list.indexOf(id) < 0 || amount < 1) return false;
     if (!I.spend(p * amount)) return false;
     return I.add(id, amount);
@@ -94,7 +95,8 @@ SW.Shop = (function () {
   S.craftMax = function (r) {
     const coinMax = S.recipePrice(r) > 0 ? Math.floor(I.coins / S.recipePrice(r)) : I.MAXSTACK;
     const resourceMax = Object.keys(r.res).reduce((m, k) => r.res[k] > 0 ? Math.min(m, Math.floor((I.bag[k] || 0) / r.res[k])) : m, I.MAXSTACK);
-    return Math.max(0, Math.min(coinMax, resourceMax, I.MAXSTACK - (I.bag[r.id] || 0)));
+    if (it(r.id) && it(r.id).type === 'weapon' && I.owned(r.id)) return 0;
+    return Math.max(0, Math.min(coinMax, resourceMax, it(r.id) && it(r.id).type === 'weapon' ? 1 : I.MAXSTACK - (I.bag[r.id] || 0)));
   };
   S.canCraft = function (r, amount) { return S.craftMax(r) >= (amount || 1); };
   S.craft = function (r, amount) {
@@ -170,7 +172,7 @@ SW.Shop = (function () {
       S.list(role).forEach(id => {
         const p = S.price(id), r = add(el('div', 'row card'), nameChip(id), info(id));
         if (I.bag[id]) add(r, el('span', 'dim', T('owned') + ' ' + I.bag[id]));
-        const max = Math.min(I.MAXSTACK - (I.bag[id] || 0), Math.floor(I.coins / Math.max(1, p)));
+        const max = it(id).type === 'weapon' && I.owned(id) ? 0 : Math.min(it(id).type === 'weapon' ? 1 : I.MAXSTACK - (I.bag[id] || 0), Math.floor(I.coins / Math.max(1, p)));
         const qty = quantityInput(max);
         add(r, btn(T('buy') + ' ' + p, 'pri', () => { S.buy(id, 1); render(); }, max < 1));
         add(r, qty, btn('Buy X', 'pri', () => { S.buy(id, qty.value); render(); }, max < 1));
