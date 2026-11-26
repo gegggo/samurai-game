@@ -67,7 +67,7 @@ try:
     rec('Quest-Status bleibt nach Neuladen', st == 'done', str(st))
     # 6b Phase 25: Choice-Quests haben kein questweites rew; Anzeige muss sicher bleiben
     r = ev(pg, """() => { const Q=SW.Quests, D=SW.Data, c=D.quests.filter(q=>q.choice); return {empty:Q.rewText(undefined)==='', choices:c.length>0 && c.every(q=>q.choice.every(x=>x.rew && typeof x.rew==='object')), region:SW.World.regionAt(5600,2100)===19, pilot:D.quests.some(q=>q.id==='pilot4')}; }""")
-    rec('Phase 25: Reward-Guard, Choice-Quest-Daten und Pilot-Region', r.empty and r.choices and r.region and r.pilot, json.dumps(r))
+    rec('Phase 25: Reward-Guard, Choice-Quest-Daten und Pilot-Region', r['empty'] and r['choices'] and r['region'] and r['pilot'], json.dumps(r))
     # 7 Fortschrittswerte
     r = ev(pg, """() => { const C=SW.Char, E=SW.Essence, K=SW.Karma, o={}; const l0=C.level, sp0=C.sp, ap0=C.ap; C.addXp(C.need(C.level)); o.lv=C.level===l0+1; o.sp=C.sp===sp0+1; o.ap=C.ap===ap0+3;
       const e0=E.n; o.over=E.spend(e0+1); o.same=E.n===e0; o.neg=E.add(-5); o.nan=E.add(NaN);
