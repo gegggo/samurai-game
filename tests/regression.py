@@ -264,14 +264,15 @@ try:
         r['count']==25 and r['final'] and r['free'], json.dumps(r))
     # 40 Sprint-Erschoepfung und 20-Prozent-Entsperrung
     r = ev(pg, """() => {
-      const P=SW.Player,I=SW.Input,old={st:P.stamina,lock:P.sprintLocked,sprinting:P.sprinting,held:I.sprint};
+      const P=SW.Player,I=SW.Input,old={st:P.stamina,lock:P.sprintLocked,sprinting:P.sprinting,held:I.sprint,paused:SW.paused,combat:SW.Combat.active,wcombat:SW.WCombat&&SW.WCombat.active};
+      SW.paused=false;SW.Combat.active=false;if(SW.WCombat)SW.WCombat.active=false;
       P.stamina=.01;P.sprintLocked=false;I.sprint=true;
       P.update(1,{x:1,y:0});const zero=P.stamina===0,locked=P.sprintLocked;
       P.update(.5,{x:1,y:0});const heldLocked=P.sprintLocked;
       I.sprint=false;P.update(1.3,{x:1,y:0});const regenerated=P.stamina>=20;
       P.update(.01,{x:1,y:0});const recovered=regenerated&&!P.sprintLocked;
       I.sprint=true;P.update(.1,{x:1,y:0});const resumed=P.sprinting;
-      P.stamina=old.st;P.sprintLocked=old.lock;P.sprinting=old.sprinting;I.sprint=old.held;
+      P.stamina=old.st;P.sprintLocked=old.lock;P.sprinting=old.sprinting;I.sprint=old.held;SW.paused=old.paused;SW.Combat.active=old.combat;if(SW.WCombat)SW.WCombat.active=old.wcombat;
       return {zero,locked,heldLocked,recovered,resumed};
     }""")
     rec('Exploit: Sprint bleibt bei 0 gesperrt bis Loslassen und mindestens 20 Prozent',
