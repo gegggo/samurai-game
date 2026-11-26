@@ -42,6 +42,35 @@ SW.World = (function () {
   }
   const warpX = (x, y) => x + (vn(x / 12, y / 12, 11) - .5) * 6, warpY = (x, y) => y + (vn(x / 12, y / 12, 12) - .5) * 6; // unregelmäßige Ränder
   function regionAt(x, y) { const c = code(warpX(x, y), warpY(x, y)); return c ? (c & 127) - 1 : 0; }
+
+  // 20-Tile-Übergang an Erweiterungen: 60% neuere Region, 40% angrenzendes Altterrain.
+  // 10 Tiles Suchradius auf jeder Seite ergibt zusammen einen 20 Tiles breiten Übergang.
+  const MIX_DIRS = [[1,0],[-1,0],[0,1],[0,-1],[.70710678,.70710678],[.70710678,-.70710678],[-.70710678,.70710678],[-.70710678,-.70710678]];
+  const MIX_STEPS = [5, 10], MIX_THRESHOLD = .539;
+  function blendRegion(reg, wx, wy, x, y) {
+    let neighbor = -1, nearest = 11;
+    for (const d of MIX_DIRS) {
+      for (const dist of MIX_STEPS) {
+        const v = code(wx + d[0] * dist, wy + d[1] * dist);
+        if (!v || v > 127) break; // Küsten und Seen bleiben scharf abgegrenzt.
+        const other = v - 1;
+        if (other !== reg) {
+          if (Math.max(reg, other) >= 17 && dist < nearest) { neighbor = other; nearest = dist; }
+          break;
+        }
+      }
+    }
+    if (neighbor < 0) return reg;
+    const older = Math.min(reg, neighbor), newer = Math.max(reg, neighbor);
+    // Geklumptes, deterministisches Rauschen statt zufälliger Einzelpixel: ca. 60% neu / 40% alt.
+    return fbm(x * 1.8, y * 1.8, 200 + older * 31 + newer * 17) < MIX_THRESHOLD ? newer : older;
+  }
+  function terrainRegionAt(x, y) {
+    const wx = warpX(x, y), wy = warpY(x, y), v = code(wx, wy);
+    if (!v) return 0;
+    const reg = (v & 127) - 1;
+    return v > 127 ? reg : blendRegion(reg, wx, wy, x, y);
+  }
   // Linien (Straßen, Flüsse): geglättet, in 64er-Felder einsortiert (Abfrage nur im eigenen Feld, Segmente 8 Kacheln überlappt)
   function chaikin(p) { const q = [p[0]]; for (let i = 0; i < p.length - 1; i++) { const a = p[i], b = p[i + 1]; q.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]); } q.push(p[p.length - 1]); return q; }
   function lineIndex(key) {
@@ -124,9 +153,10 @@ SW.World = (function () {
     if (x < 0 || y < 0 || x >= WW || y >= HH) return T.SEA;
     const wx = warpX(x, y), wy = warpY(x, y), c = code(wx, wy);
     if (!c) return T.SEA; // Meer: schwarz, nicht betretbar
-    const reg = (c & 127) - 1, rd = lineDist(RI, wx, wy), road = rd < 1.6;
+    const baseReg = (c & 127) - 1, rd = lineDist(RI, wx, wy), road = rd < 1.6;
     if (c > 127) return road ? T.BRIDGE : code(wx + 7, wy) > 127 && code(wx - 7, wy) > 127 && code(wx, wy + 7) > 127 && code(wx, wy - 7) > 127 ? T.DEEP : T.WATER; // See
     if (lineDist(VI, wx, wy) < 2.5) return road ? T.BRIDGE : T.WATER; // Fluss, Brücke wo ein Weg kreuzt
+    const reg = blendRegion(baseReg, wx, wy, x, y);
     if (road && !(reg === 16 && mtn(x, y))) return T.PATH; // Karst-Berge gehen vor Wegen
     const g = ground(reg, x, y, rd);
     if (g === T.GRASS || g === T.FOREST || g === T.BAMBOO || g === T.DIRT) { // Sandsaum an Küste und Ufer
@@ -296,7 +326,7 @@ SW.World = (function () {
   if (CEN[17]) ZONES.push([4170, 1491, 80, 40]); // Sakura-Stadt: keine Bäume
   function objAt(x, y, t) {
     if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE && t !== T.SNOW && t !== T.ASH && t !== T.DUNE) return 0;
-    const reg = regionAt(x, y);
+    const reg = terrainRegionAt(x, y);
     if (reg === 16 && mtn(x, y)) return 0;
     // Bambus-Teleportpunkt und Hauptweg zum Dorf freihalten; Bambus bleibt zusätzlich durchquerbar.
     if (reg === 1 && (Math.hypot(x - CEN[1][0], y - CEN[1][1]) < 30 || roadDist(x, y) < 7.5)) return 0;
@@ -335,5 +365,5 @@ SW.World = (function () {
     return tt === T.ROCK || tt === T.WALL || tt === T.LAVA || tt === T.WATER || tt === T.DEEP || tt === T.SEA || (o(x, y) !== 0 && o(x, y) !== O.BAMBOO) || structSolid(x, y);
   }
   build();
-  return { mtn, WIDTH: WW, HEIGHT: HH, T, O, PAL, S, POI, CEN, h, terrain, regionAt, t, o, solid, buildVillageFence, spawn: { x: CEN[0][0] + .5, y: CEN[0][1] + 3.5 } };
+  return { mtn, WIDTH: WW, HEIGHT: HH, T, O, PAL, S, POI, CEN, h, terrain, regionAt, terrainRegionAt, t, o, solid, buildVillageFence, spawn: { x: CEN[0][0] + .5, y: CEN[0][1] + 3.5 } };
 })();

@@ -258,3 +258,6 @@ body.combat #cb-lock { display: block; }
 #world-stamina { display: flex; flex-direction: column; align-items: stretch; gap: 2px; height: auto; overflow: visible; border: 0; background: transparent; }
 #world-stamina-label { color: #f4ecd8; font: 600 10px Georgia,serif; text-align: center; text-shadow: 0 1px 3px #000; }
 #world-stamina-fill { height: 7px; border: 1px solid rgba(232,224,208,.65); border-radius: 5px; box-sizing: border-box; background: #4aa3df; }
+
+/* Phase 26.1: Sprint bleibt nach leerer Ausdauer bis zur Erholung gesperrt. */
+.world-sprint.exhausted, .world-sprint.exhausted.on { background: rgba(80,35,30,.78); border-color: #c87868; color: #e8b8a8; }
