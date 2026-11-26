@@ -299,7 +299,7 @@ SW.World = (function () {
     const reg = regionAt(x, y);
     if (reg === 16 && mtn(x, y)) return 0;
     // Bambus-Teleportpunkt und Hauptweg zum Dorf freihalten; Bambus bleibt zusätzlich durchquerbar.
-    if (reg === 1 && (Math.hypot(x - CEN[1][0], y - CEN[1][1]) < 18 || roadDist(x, y) < 7.5)) return 0;
+    if (reg === 1 && (Math.hypot(x - CEN[1][0], y - CEN[1][1]) < 30 || roadDist(x, y) < 7.5)) return 0;
     if (h(x, y, 77) >= (t === T.CAVE ? .06 : DENS[reg] === undefined ? .05 : DENS[reg])) return 0;
     for (let i = 0; i < ZONES.length; i++) { const z = ZONES[i]; if (Math.abs(x - z[0]) < z[2] && Math.abs(y - z[1]) < z[3] && t !== T.CAVE) return 0; }
     if (roadDist(x, y) < 3.5 || nearStruct(x, y, 1.5)) return 0;

@@ -59,7 +59,7 @@ SW.Arena = (function () {
     S.pm.dur = S.pm.end - SWING + rec;
     if (m.ki) S.ki -= kiCost(m);
     if (m.inv) S.invT = m.inv;
-    if (name === 'heavy') S.st.heavy++; else if (name === 'counter') S.st.counter++; else if (m.ki) S.st.special++;
+    if (name === 'heavy' || name === 'charged') S.st.heavy++; else if (name === 'counter') S.st.counter++; else if (m.ki) S.st.special++;
     S.breath = false;
     if (name === 'counter') say(T('combat_counter'), '#ffe27a');
   }
@@ -205,7 +205,7 @@ SW.Arena = (function () {
     if (want && !S.block) { S.parryOk = S.noBlockT >= .35; S.blockT = 0; }
     if (want) { S.blockT += dt; S.noBlockT = 0; } else S.noBlockT += dt;
     S.block = want; S.bl = clamp(S.bl + (want ? 1 : -1) * dt * 9, 0, 1);
-    S.breath = !want && !S.pm && S.dodgeT <= 0 && S.hurt <= 0 && Math.hypot(SW.Input.vec.x, SW.Input.vec.y) <= .15; // Atem automatisch bei Stillstand
+    S.breath = !want && !S.pm && !S.charging && S.dodgeT <= 0 && S.hurt <= 0 && Math.hypot(SW.Input.vec.x, SW.Input.vec.y) <= .15; // Atem automatisch bei Stillstand
     if (S.breath) S.st.breath += dt;
     S.ki = Math.min(S.kmax, S.ki + (ps.kiRegen + (S.breath ? 22 * ps.breathMul : 0)) * dt);
 
