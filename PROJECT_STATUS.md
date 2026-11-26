@@ -16,6 +16,16 @@
 
 # Samurai Wanderer – Aktueller Projektstatus
 
+Stand: 26.11.2026 · Version **0.26.2** · Cache **v109** (Gerätetest ausstehend)
+
+## 0.26.2 (implementiert, Dateien gesendet – Prüfung am Gerät ausstehend)
+- Menü (z-index 25) verdeckt Sprint/Stamina-HUD.
+- Wege (`PATH`) enden vor soliden Gebäuden (`nearSolid`, 1 Tile Rand; Zäune ausgenommen).
+- Schreinplattformen verkleinert (Radius 9/8/12/14 → 5/5/7/8).
+- Flüsterklamm war durch Felswand (ROCK) von Hauptland getrennt: ROCK an Regionsgrenzen ab Region 17 (40 Tiles) entfernt. Flood-Fill im Node-Test: Hauptland + Flüsterklamm = 1 Komponente.
+- Nicht getestet: iPhone, `tests/regression.py`. Risiko: Weg vor Haustüren kann 1 Tile kürzer enden.
+
+
 Stand: 26.11.2026
 Aktuelle Codeversion: **0.26.1**
 Cache-Version in `index.html`: **v108**
