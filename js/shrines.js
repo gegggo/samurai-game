@@ -37,7 +37,10 @@ SW.Shrines = (function () {
         for (let x = Math.floor((cx - searchRadius) / searchStep) * searchStep; x <= cx + searchRadius; x += searchStep) {
           const radius = Math.hypot(x - cx, y - cy);
           if (radius < 150 || radius > searchRadius) continue;
-          if (W.regionAt(x, y) !== reg || W.terrainRegionAt(x, y) !== reg) continue;
+          // regionAt prueft die echte Layout-Zugehoerigkeit. terrainRegionAt mischt
+          // an Regionsraendern absichtlich Nachbarbiome (60/40) und wuerde
+          // dort gueltige, begehbare Flaechen faelschlich ausschliessen.
+          if (W.regionAt(x, y) !== reg) continue;
           if (W.regionAt(x - 36, y) !== reg || W.regionAt(x + 36, y) !== reg ||
               W.regionAt(x, y - 36) !== reg || W.regionAt(x, y + 36) !== reg) continue;
           if (W.solid(x, y) || W.solid(x + 1, y) || W.solid(x - 1, y) ||
