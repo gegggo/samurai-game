@@ -103,6 +103,8 @@ try:
     b = p.chromium.launch(executable_path=shutil.which('chromium')) if shutil.which('chromium') else p.chromium.launch(); errs = []
     # 1 Speichern + Laden
     pg = start(b, errs)
+    region25_ok = ev(pg, "!!SW.World.CEN[25] && SW.World.regionAt(3260,3050) === 25 && SW.World.terrain(3260,3050) !== SW.World.T.SEA && SW.TEXT.en.reg_25 === 'Verdant Basin' && SW.TEXT.de.reg_25 === 'Grünes Becken'")
+    rec('Map: Region 25 center, terrain and EN/DE names', region25_ok)
     ev(pg, "SW.Inv.addCoins(123); SW.Char.addXp(200); SW.Essence.add(3); SW.Karma.add('t1', 10); SW.YinYang.gain('yin', 5); SW.Save.save();")
     before = ev(pg, "JSON.stringify([SW.Inv.coins, SW.Char.level, SW.Char.xp, SW.Essence.n, SW.Karma.v, SW.YinYang.yin])")
     cont(pg); after = ev(pg, "JSON.stringify([SW.Inv.coins, SW.Char.level, SW.Char.xp, SW.Essence.n, SW.Karma.v, SW.YinYang.yin])")
