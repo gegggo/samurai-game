@@ -225,12 +225,26 @@ SW.Trials = (function () {
     } else p.anim = 0;
     // Kombinationsraum: Bei aktivem Timer dreht eine bewusste Annäherung
     // an den Spiegel ihn auch dann, wenn die Kollision durch Tile-Rundung knapp verfehlt wird.
-    if (R.def.kind === 'combo' && R.pressureActive && v.y < -.01) tryRotateMirror(0, -1);
+    // Kombinationsraum: Bei aktivem Zeitfenster wird der Spiegel durch
+    // gezieltes Zulaufen aus kurzer Distanz zuverlässig in die Zielstellung gedreht.
+    if (R.def.kind === 'combo' && R.pressureActive && !R.beamSolved && m > .01) {
+      const mirror = R.mirrors[0];
+      if (mirror) {
+        const tx = mirror.x + .5 - p.x, ty = mirror.y + .5 - p.y;
+        const dist = Math.hypot(tx, ty);
+        if (dist < 1.6 && v.x * tx + v.y * ty > 0) {
+          mirror.orientation = 0;
+          R.mirrorCooldown = .45;
+          traceBeam();
+          say('tr_mirror_turn');
+        }
+      }
+    }
     if (!pushing) R.push.t = 0;
     if (R.def.kind === 'blocks' && !R.open && R.plates.every(pl => blockAt(pl.x, pl.y))) { R.open = true; say('tr_door'); }
     if (R.def.kind === 'combo' && !R.open) {
       if (!R.pressureActive && R.pressurePlate && Math.hypot(p.x - R.pressurePlate.x - .5, p.y - R.pressurePlate.y - .5) < .62) {
-        R.pressureActive = true; R.pressureTime = 8; traceBeam(); say('tr_combo_start');
+        R.pressureActive = true; R.pressureTime = 9; traceBeam(); say('tr_combo_start');
       }
       if (R.pressureActive && !R.beamSolved) {
         R.pressureTime = Math.max(0, R.pressureTime - dt);
