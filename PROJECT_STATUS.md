@@ -1,3 +1,11 @@
+## Version 0.32.0 – kleine Kartenluecken geschlossen, Gezeitentempel ergaenzt (27.11.2026)
+- Drei eingeschlossene Wasserluecken zwischen den bestehenden Regionen geschlossen: 4, 41 und 1.077 Rasterzellen (insgesamt 1.122).
+- Die groessere Bucht zwischen Sun Coast, Abandoned Fortress und Verdant Basin wurde als zusammenhaengendes Kuestentempel-Areal in Region 25 integriert; offene Aussenkuesten und Seen bleiben unberuehrt.
+- Neuer begehbarer **Gezeitentempel / Tide Temple** mit eigenem Schrein, Karten-POI und Schnellreise-Aktivierung.
+- Neue Dateien: `js/layout-gap-temples.js` und `tools/make_layout_gap_temple.py`; der Generator liest alle bestehenden Layouts, erkennt eingeschlossene Wasserkomponenten und fuellt nur diese Nullzellen.
+- Regression prueft eine zusammenhaengende Landmasse, keine eingeschlossenen Wasserluecken, Tempelstruktur, POI, Schrein und deutsche/englische Namen.
+- Asset-Cache auf v113 und Projektversion auf 0.32.0 angehoben. Vollstaendige CI- und iPhone-Sichtpruefung stehen noch aus.
+
 ## Version 0.31.0 – Region 25 schliesst die zentrale Kartenluecke (27.11.2026)
 - Neue Region 25 **Verdant Basin / Grünes Becken** zwischen Sun Coast (15), Abandoned Fortress (18), Cloudsteppe (23) und Jade Highlands (24).
 - Die neue, organische Landflaeche ist ueber direkte Rasterkontakte an alle vier Zielregionen angeschlossen. Keine Bruecken oder kuenstlichen Verbindungswege.
