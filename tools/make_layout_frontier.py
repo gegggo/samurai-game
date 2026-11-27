@@ -2,7 +2,7 @@
 """Erzeugt js/layout-frontier.js mit fuenf direkt angebauten Regionen und einer
 moderaten Erweiterung der bisherigen Kernland-Kueste. Alle alten Regionsmittelpunkte
 bleiben erhalten; Drachenwall (20) und Tal der Geister (21) werden groessenmaessig
-angepasst. Im Norden kommen Frostwall (22), Wolkensteppe (23) und Jadehochland (24) dazu.
+angepasst. Alle fuenf neuen Regionen liegen gemeinsam unterhalb der bestehenden Hauptkarte.
 Alle neuen Gebiete bilden breite natuerliche Landanschluesse; es gibt keine Wege/Bruecken.
 Aufruf: python3 tools/make_layout_frontier.py js/layout-frontier.js
 """
