@@ -396,7 +396,7 @@ SW.Trials = (function () {
   }
 
   T.debug = () => R; // nur für Tests
-  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L' || c === 'M').length, switches: d.map.join('').split('Q').length - 1, mirrors: d.map.join('').split('M').length - 1, pressure: d.map.join('').split('V').length - 1 } : null; };
+  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L' || c === 'M').length, switches: d.map.join('').split('Q').length - 1, mirrors: d.map.join('').split('M').length - 1, pressure: d.map.join('').split('V').length - 1, walls: d.map.join('').split('#').length - 1 } : null; };
   T.dump = () => ({ done: [...T.done] });
   T.load = function (d) {
     if (!d || !Array.isArray(d.done)) return;
