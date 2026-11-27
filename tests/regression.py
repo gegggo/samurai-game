@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regressionstests (Spec 33.5) im headless Chromium 852x393. Aufruf (im Repo-Root): python3 tests/regression.py
 Startet selbst einen lokalen Server. Ergebnis je Test: PASS / FAIL + Kurzergebnis. Kein Geraetetest."""
-import subprocess, sys, time, json, shutil
+import subprocess, sys, time, json, shutil, math
 from playwright.sync_api import sync_playwright
 srv = subprocess.Popen([sys.executable, '-m', 'http.server', '8124'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
 URL = 'http://localhost:8124/index.html'; R = []
@@ -114,9 +114,9 @@ def check_connected_mainland():
                     ocean[ni] = 1
                     queue.append(ni)
     enclosed_water = sum(1 for i, value in enumerate(grid) if value == 0 and not ocean[i])
-    return components, region_cells, contacts, region25_targets, enclosed_water
+    return components, region_cells, contacts, region25_targets, enclosed_water, grid, width, height
 
-components, region_cells, contacts, region25_targets, enclosed_water = check_connected_mainland()
+components, region_cells, contacts, region25_targets, enclosed_water, map_grid, map_width, map_height = check_connected_mainland()
 rec('Map: alle Regionen bilden eine einzige zusammenhaengende Landmasse',
     components == 1 and all(region_cells[r] > 0 and contacts[r] >= 10 for r in (17,18,19,20,21,22,23,24,25)),
     'components=%s regions=%s contacts=%s' % (components, region_cells, contacts))
@@ -124,6 +124,26 @@ rec('Map: Region 25 beruehrt Sun Coast, Abandoned Fortress, Cloudsteppe und Jade
     region_cells[25] >= 5000 and all(n >= 10 for n in region25_targets.values()),
     'Region25 targets=%s' % region25_targets)
 rec('Map: keine eingeschlossenen Wasserluecken', enclosed_water == 0, 'enclosed sea cells=%s' % enclosed_water)
+
+# Ovaler Sicherheitsrahmen und drei bekannte Kuesten-/Darstellungsstellen.
+oval_angle = math.radians(28.37)
+oval_cx, oval_cy, oval_rx, oval_ry = 2685, 2319, 3900, 2700
+oval_c, oval_s = math.cos(oval_angle), math.sin(oval_angle)
+oval_max = 0.0
+for i, value in enumerate(map_grid):
+    if 0 < value < 128:
+        x = (i % map_width) * 8 + 4
+        y = (i // map_width) * 8 + 4
+        dx, dy = x - oval_cx, y - oval_cy
+        u, v = dx * oval_c + dy * oval_s, -dx * oval_s + dy * oval_c
+        oval_max = max(oval_max, (u / oval_rx) ** 2 + (v / oval_ry) ** 2)
+rec('Map: Landkontur bleibt innerhalb des gedrehten ovalen Kartenrahmens',
+    oval_max <= 1.0, 'max ellipse score=%.4f' % oval_max)
+
+map_targets = [(987, 2847), (3162, 2643), (3183, 3339)]
+target_values = [map_grid[(y // 8) * map_width + (x // 8)] for x, y in map_targets]
+rec('Map: drei bekannte Kuestenstellen sind im Layout Land und keine offenen Rasterluecken',
+    all(0 < value < 128 for value in target_values), str(list(zip(map_targets, target_values))))
 
 try:
   with sync_playwright() as p:
@@ -134,6 +154,21 @@ try:
     rec('Map: Region 25 center, terrain and EN/DE names', region25_ok)
     gap_temple_ok = ev(pg, "SW.World.regionAt(3158,2640) === 25 && SW.World.POI.some(p => p.id === 'gaptemple') && SW.World.S.some(s => s.type === 'shrine' && s.x === 3150 && s.y === 2632) && !!SW.Shrines.get('gaptemple') && SW.TEXT.en.shr_gaptemple === 'Tide Temple' && SW.TEXT.de.shr_gaptemple === 'Gezeitentempel'")
     rec('Map: Gezeitentempel, POI, Schrein und EN/DE-Namen', gap_temple_ok)
+    r = ev(pg, """() => {
+      const points=[[987,2847],[3162,2643],[3183,3339]], c=document.createElement('canvas');
+      c.width=320;c.height=180;const ctx=c.getContext('2d'),old={x:SW.cam.x,y:SW.cam.y},out=[];
+      SW.Render.resize(320,180);
+      for(const [x,y] of points){
+        SW.cam.x=x;SW.cam.y=y;SW.Render.draw(ctx,320,180,0);
+        const px=Array.from(ctx.getImageData(174,104,1,1).data);
+        out.push({x,y,tile:SW.World.t(x,y),rgb:px.slice(0,3)});
+      }
+      SW.cam.x=old.x;SW.cam.y=old.y;
+      const game=document.getElementById('game');SW.Render.resize(game.width,game.height);
+      return out;
+    }""")
+    rec('Map: tatsaechliche Canvas-Darstellung zeigt an allen drei Stellen Land statt Schwarz',
+        len(r)==3 and all(p['tile']!=SW.World.T.SEA and sum(p['rgb'])>10 for p in r), json.dumps(r))
     ev(pg, "SW.Inv.addCoins(123); SW.Char.addXp(200); SW.Essence.add(3); SW.Karma.add('t1', 10); SW.YinYang.gain('yin', 5); SW.Save.save();")
     before = ev(pg, "JSON.stringify([SW.Inv.coins, SW.Char.level, SW.Char.xp, SW.Essence.n, SW.Karma.v, SW.YinYang.yin])")
     cont(pg); after = ev(pg, "JSON.stringify([SW.Inv.coins, SW.Char.level, SW.Char.xp, SW.Essence.n, SW.Karma.v, SW.YinYang.yin])")
