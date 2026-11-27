@@ -196,7 +196,7 @@ try:
     ok1 = ev(pg, "t => SW.Save.inspect(t).ok === true", ) if False else pg.evaluate("t => SW.Save.inspect(t).ok === true", txt)
     tam = txt.replace('"sum":', '"sum":1', 1)
     e2 = pg.evaluate("t => SW.Save.inspect(t).err", tam); e3 = pg.evaluate("SW.Save.inspect('kein json').err")
-    e4 = pg.evaluate("SW.Save.applyImport('{"sw":"x"}')"); still = ev(pg, "SW.Inv.coins >= 123")
+    e4 = pg.evaluate("SW.Save.applyImport('{\"sw\":\"x\"}')"); still = ev(pg, "SW.Inv.coins >= 123")
     rec('Export/Import: gueltig ok, manipuliert/ungueltig abgewiesen, Stand unveraendert', ok1 and e2 in ('sum', 'bad') and e3 == 'bad' and e4 is False and still, '%s %s %s' % (e2, e3, e4))
     # 5 Inventar
     r = ev(pg, """() => { const I=SW.Inv; I.bag={}; I.eq={}; const o={};
