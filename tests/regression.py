@@ -45,8 +45,8 @@ def check_connected_mainland():
                 x += count
     seen = bytearray(len(grid))
     components = 0
-    region_cells = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0, 24: 0}
-    contacts = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0, 24: 0}
+    region_cells = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0, 24: 0, 25: 0}
+    contacts = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0, 24: 0, 25: 0}
     for i, value in enumerate(grid):
         if 0 < value < 128 and value - 1 in region_cells:
             region_cells[value - 1] += 1
@@ -76,12 +76,27 @@ def check_connected_mainland():
                        0 < grid[(y+dy)*width+x+dx] < 128 and grid[(y+dy)*width+x+dx] != reg+1
                        for dx,dy in ((1,0),(-1,0),(0,1),(0,-1))):
                     contacts[reg] += 1
-    return components, region_cells, contacts
+    region25_targets = {15: 0, 18: 0, 23: 0, 24: 0}
+    target_codes = {16: 15, 19: 18, 24: 23, 25: 24}
+    for y in range(height):
+        for x in range(width):
+            if grid[y * width + x] != 26:
+                continue
+            for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < width and 0 <= ny < height:
+                    region = target_codes.get(grid[ny * width + nx])
+                    if region in region25_targets:
+                        region25_targets[region] += 1
+    return components, region_cells, contacts, region25_targets
 
-components, region_cells, contacts = check_connected_mainland()
+components, region_cells, contacts, region25_targets = check_connected_mainland()
 rec('Map: alle Regionen bilden eine einzige zusammenhaengende Landmasse',
-    components == 1 and all(region_cells[r] > 0 and contacts[r] >= 10 for r in (17,18,19,20,21,22,23,24)),
+    components == 1 and all(region_cells[r] > 0 and contacts[r] >= 10 for r in (17,18,19,20,21,22,23,24,25)),
     'components=%s regions=%s contacts=%s' % (components, region_cells, contacts))
+rec('Map: Region 25 beruehrt Sun Coast, Abandoned Fortress, Cloudsteppe und Jade Highlands direkt',
+    region_cells[25] >= 5000 and all(n >= 10 for n in region25_targets.values()),
+    'Region25 targets=%s' % region25_targets)
 
 try:
   with sync_playwright() as p:
