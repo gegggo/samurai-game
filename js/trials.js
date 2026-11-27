@@ -2,7 +2,7 @@
 // Schrein-Prüfungen (Phase 7a). Namensraum SW.Trials.
 // Ablauf: Schrein erwecken (Beten) -> Knopf "Enter" -> Innenraum (eigene Kachelkarte, Draufsicht) -> Aufgabe lösen -> Altar berühren -> Belohnung.
 // Belohnungen: Yin/Yang (Spielstil), Essence (nur Skilltree), XP. Keine Münzen. Jede Prüfung einmalig, gespeichert in SW.Trials.done.
-// Aufgabentypen: blocks, lanterns, switches, mirrors, combo und labyrinth.
+// Aufgabentypen: blocks, lanterns, switches, mirrors, combo, labyrinth, miniboss und movement.
 // Karte: # Wand | . Boden | B Block | P Platte | L Laterne | Q Schalter | V Zeitplatte | M Spiegel | F Lichtquelle | C Kristall | D Tür | A Altar | S Start | E Ausgang
 SW.Trials = (function () {
   const T = { active: false, done: new Set() }, tr = (k, n) => SW.t(k, n);
@@ -80,6 +80,14 @@ SW.Trials = (function () {
       }
       // Eingang vom Startpunkt und Ausgang zur verschlossenen Altartuer.
       g[14][12] = '.'; g[13][12] = '.'; g[13][11] = '.'; g[3][12] = '.';
+    } else if (kind === 'miniboss') {
+      // Kampfarena mit freiem Zentrum; der Wächter startet beim Betreten des inneren Kreises.
+      [[6,6],[18,6],[6,10],[18,10]].forEach(([x,y]) => { g[y][x] = '#'; });
+    } else if (kind === 'movement') {
+      // Drei zeitgesteuerte Sperren liegen auf einem schmalen Weg zum Altar.
+      for (let y = 3; y <= 14; y++) for (let x = 10; x <= 14; x++) g[y][x] = '.';
+      [11,8,5].forEach(y => { for (let x = 1; x < w - 1; x++) g[y][x] = '#'; g[y][12] = 'H'; });
+      g[9][12] = 'K'; g[6][12] = 'K';
     } else if (kind === 'combo') {
       // Erst die Zeitplatte im Sueden betreten, dann zum Spiegel laufen und ihn drehen.
       g[13][3] = 'V'; g[8][2] = 'F'; g[8][12] = 'M'; g[3][12] = 'C';
@@ -104,7 +112,7 @@ SW.Trials = (function () {
   SW.Shrines.expand();
   if (SW.Combat && SW.Combat.ensureShrineGuards) SW.Combat.ensureShrineGuards(D.shrines.filter(shrine => shrine.generated));
   D.shrines.forEach((shrine, index) => {
-    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 7 === 0 ? 'labyrinth' : (seed % 5 === 0 ? 'combo' : (seed % 4 === 0 ? 'mirrors' : (seed % 4 === 1 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns')))));
+    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 13 === 0 ? 'miniboss' : (seed % 11 === 0 ? 'movement' : (seed % 7 === 0 ? 'labyrinth' : (seed % 5 === 0 ? 'combo' : (seed % 4 === 0 ? 'mirrors' : (seed % 4 === 1 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns')))))));
     const variant = (seed >>> 4) % 16, order = [0,1,2,3,4];
     for (let i = order.length - 1; i > 0; i--) {
       const j = (seed + i * 13) % (i + 1), t = order[i]; order[i] = order[j]; order[j] = t;
@@ -112,24 +120,25 @@ SW.Trials = (function () {
     const tier = shrine.tier || 1;
     ROOMS[shrine.id] = {
       kind, name: old ? old.name : 'shr_' + shrine.id,
-      hint: kind === 'labyrinth' ? 'tr_hint_labyrinth' : (kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : (kind === 'combo' ? 'tr_hint_combo' : 'tr_hint_mirrors')))),
-      reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
+      hint: kind === 'labyrinth' ? 'tr_hint_labyrinth' : (kind === 'miniboss' ? 'tr_hint_miniboss' : (kind === 'movement' ? 'tr_hint_movement' : (kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : (kind === 'combo' ? 'tr_hint_combo' : 'tr_hint_mirrors')))))),
+      bossType: 'boss', tier, reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
       map: roomMap(kind, variant), order
     };
   });  let R = null, btnLeave = null, btnReset = null;
 
   const blockAt = (x, y) => R.blocks.find(b => b.x === x && b.y === y) || null;
+  const hazardActive = h => ((R.t + h.offset) % 2.8) < 1.15;
   function solid(x, y) {
     if (x < 0 || y < 0 || x >= R.w || y >= R.h) return true;
     const c = R.g[y][x];
-    return c === '#' || c === 'L' || c === 'M' || (c === 'D' && !R.open) || !!blockAt(x, y);
+    return c === '#' || c === 'L' || c === 'M' || (c === 'D' && !R.open) || (c === 'H' && R.hazards.some(h => h.x === x && h.y === y && hazardActive(h))) || !!blockAt(x, y);
   }
   const blocked = (x, y) => solid(Math.floor(x - RAD), Math.floor(y - RAD)) || solid(Math.floor(x + RAD), Math.floor(y - RAD)) ||
     solid(Math.floor(x - RAD), Math.floor(y + RAD)) || solid(Math.floor(x + RAD), Math.floor(y + RAD));
 
   function build(id) {
     const def = ROOMS[id], h = def.map.length, w = def.map[0].length;
-    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], switches: [], swOn: [], mirrors: [], beam: [], beamSolved: false, mirrorCooldown: 0, pressurePlate: null, pressureActive: false, pressureTime: 0, seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
+    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], switches: [], swOn: [], mirrors: [], hazards: [], checkpoints: [], checkpoint: { x: 12, y: 15 }, bossStarted: false, bossCooldown: 0, beam: [], beamSolved: false, mirrorCooldown: 0, pressurePlate: null, pressureActive: false, pressureTime: 0, seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
       p: { x: 5.5, y: 7.5, dir: 1, anim: 0, moving: false, face: 1.57 }, push: { k: '', t: 0 } };
     for (let y = 0; y < h; y++) {
       const row = [];
@@ -141,6 +150,8 @@ SW.Trials = (function () {
         else if (c === 'L') { R.lant.push({ x, y }); R.lit.push(false); R.lt.push(0); }
         else if (c === 'Q') { R.switches.push({ x, y }); R.swOn.push(false); }
         else if (c === 'M') R.mirrors.push({ x, y, orientation: 1 });
+        else if (c === 'H') R.hazards.push({ x, y, offset: R.hazards.length * .7 });
+        else if (c === 'K') R.checkpoints.push({ x, y, reached: false });
         else if (c === 'V') R.pressurePlate = { x, y };
         row.push(c);
       }
@@ -177,7 +188,15 @@ SW.Trials = (function () {
     T.done.add(id); if (SW.Skills) SW.Skills.check(); SW.Save.save();
     return o;
   }
-  T.duelWon = id => grant(id, ROOMS[id].reward);
+  T.duelWon = id => {
+    const o = grant(id, ROOMS[id].reward);
+    if (R && R.id === id && R.def.kind === 'miniboss') {
+      const lines = ['+' + o.xp + ' XP'].concat(o.lv);
+      if (o.yy.yin) lines.push('Yin +' + o.yy.yin); if (o.yy.yang) lines.push('Yang +' + o.yy.yang);
+      o.ess.forEach(x => lines.push('+' + x)); R.rew = lines; R.state = 'reward'; R.t = 0;
+    }
+    return o;
+  };
   function claim() {
     const o = grant(R.id, R.def.reward), L = ['+' + o.xp + ' XP'].concat(o.lv);
     if (o.yy.yin) L.push('Yin +' + o.yy.yin); if (o.yy.yang) L.push('Yang +' + o.yy.yang);
@@ -264,6 +283,27 @@ SW.Trials = (function () {
       }
     }
     if (!pushing) R.push.t = 0;
+    if (R.def.kind === 'miniboss') {
+      if (R.bossStarted && !SW.Combat.active && !T.done.has(R.id)) {
+        R.bossStarted = false; R.bossCooldown = 2; R.p.x = 12.5; R.p.y = 14.5; say('tr_miniboss_retry');
+      }
+      R.bossCooldown = Math.max(0, R.bossCooldown - dt);
+      if (!R.bossStarted && R.bossCooldown <= 0 && Math.hypot(p.x - 12.5, p.y - 5.5) < 1.05) {
+        R.bossStarted = true;
+        SW.Combat.start({ id: 'trial_' + R.id, type: R.def.bossType || 'boss', x: 12.5, y: 5.5, tier: R.def.tier || 1, trial: R.id, dead: false });
+        return;
+      }
+    }
+    if (R.def.kind === 'movement') {
+      R.checkpoints.forEach(cp => {
+        if (!cp.reached && Math.hypot(p.x - cp.x - .5, p.y - cp.y - .5) < .62) {
+          cp.reached = true; R.checkpoint = { x: cp.x, y: cp.y }; say('tr_movement_checkpoint');
+        }
+      });
+      const hit = R.hazards.find(h => hazardActive(h) && Math.hypot(p.x - h.x - .5, p.y - h.y - .5) < .48);
+      if (hit) { p.x = R.checkpoint.x + .5; p.y = R.checkpoint.y + .5; R.shake = .25; say('tr_movement_hit'); }
+      if (!R.open && R.checkpoints.every(cp => cp.reached) && p.y < 4.2) { R.open = true; say('tr_door'); }
+    }
     if (R.def.kind === 'blocks' && !R.open && R.plates.every(pl => blockAt(pl.x, pl.y))) { R.open = true; say('tr_door'); }
     if (R.def.kind === 'combo' && !R.open) {
       if (!R.pressureActive && R.pressurePlate && Math.hypot(p.x - R.pressurePlate.x - .5, p.y - R.pressurePlate.y - .5) < .62) {
@@ -319,6 +359,17 @@ SW.Trials = (function () {
       else if (g === 'E') { c.fillStyle = '#7a2e2a'; c.fillRect(px + u * .1, py, u * .8, u + 1); c.fillStyle = '#f2c14e'; c.fillRect(px + u * .1, py, u * .8, u * .06); }
       else if (g === 'F') { c.fillStyle = '#d5a83f'; c.fillRect(px + u * .2, py + u * .2, u * .6, u * .6); c.fillStyle = '#fff2a8'; c.fillRect(px + u * .38, py + u * .38, u * .24, u * .24); }
       else if (g === 'C') { c.fillStyle = '#6bd9e8'; c.beginPath(); c.moveTo(px + u * .5, py + u * .12); c.lineTo(px + u * .88, py + u * .5); c.lineTo(px + u * .5, py + u * .88); c.lineTo(px + u * .12, py + u * .5); c.closePath(); c.fill(); c.strokeStyle = '#d8fbff'; c.lineWidth = Math.max(2, u * .06); c.stroke(); }
+      else if (g === 'H') {
+        const h = R.hazards.find(o => o.x === x && o.y === y), active = h && hazardActive(h);
+        c.fillStyle = active ? '#d94a3f' : '#53616b'; c.fillRect(px + u * .08, py + u * .08, u * .84, u * .84);
+        c.strokeStyle = active ? '#ffb09a' : '#8db7bd'; c.lineWidth = Math.max(2, u * .07); c.strokeRect(px + u * .16, py + u * .16, u * .68, u * .68);
+        if (active) { c.globalCompositeOperation = 'lighter'; glow(c, px + u / 2, py + u / 2, u * .7, '#ff493b', .45); c.globalCompositeOperation = 'source-over'; }
+      }
+      else if (g === 'K') {
+        const cp = R.checkpoints.find(o => o.x === x && o.y === y), reached = cp && cp.reached;
+        c.fillStyle = reached ? '#d5a83f' : '#4b6570'; c.fillRect(px + u * .18, py + u * .18, u * .64, u * .64);
+        c.strokeStyle = reached ? '#fff0a0' : '#9ad2d8'; c.lineWidth = Math.max(2, u * .07); c.strokeRect(px + u * .18, py + u * .18, u * .64, u * .64);
+      }
       else if (g === 'V') {
         const on = R.pressureActive;
         c.fillStyle = on ? '#d5a83f' : '#686477'; c.fillRect(px + u * .12, py + u * .12, u * .76, u * .76);
@@ -346,6 +397,9 @@ SW.Trials = (function () {
     }
     if (R.def.kind === 'combo' && R.pressureActive && !R.beamSolved) {
       txt(c, tr('tr_timer') + ': ' + R.pressureTime.toFixed(1) + 's', cw / 2, ch * .105, Math.max(14 * dpr, u * .42), '#ffe27a');
+    }
+    if (R.def.kind === 'movement') {
+      txt(c, tr('tr_movement_progress') + ': ' + R.checkpoints.filter(cp => cp.reached).length + '/' + R.checkpoints.length, cw / 2, ch * .105, Math.max(14 * dpr, u * .42), '#9fe4e8');
     }
     if (R.def.kind === 'lanterns') {
       const n = R.def.order.length, x0 = ox + R.w * u / 2 - (n - 1) * u * .3;
@@ -396,7 +450,7 @@ SW.Trials = (function () {
   }
 
   T.debug = () => R; // nur für Tests
-  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L' || c === 'M').length, switches: d.map.join('').split('Q').length - 1, mirrors: d.map.join('').split('M').length - 1, pressure: d.map.join('').split('V').length - 1, walls: d.map.join('').split('#').length - 1 } : null; };
+  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, bossType: d.bossType || null, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L' || c === 'M').length, switches: d.map.join('').split('Q').length - 1, mirrors: d.map.join('').split('M').length - 1, pressure: d.map.join('').split('V').length - 1, hazards: d.map.join('').split('H').length - 1, checkpoints: d.map.join('').split('K').length - 1, walls: d.map.join('').split('#').length - 1 } : null; };
   T.dump = () => ({ done: [...T.done] });
   T.load = function (d) {
     if (!d || !Array.isArray(d.done)) return;
