@@ -271,7 +271,7 @@ try:
       for(let i=0;i<generated.length;i++) for(let j=0;j<i;j++)
         min=Math.min(min,Math.hypot(generated[i].x-generated[j].x,generated[i].y-generated[j].y));
       return {total:D.shrines.length, generated:generated.length, counts, min, layouts:new Set(info.filter(Boolean).map(x=>x.layout)).size,
-        rooms:info.length===D.shrines.length && info.every(x=>x && x.w===25 && x.h===17 && (x.kind==='blocks'||x.kind==='lanterns'||(x.kind==='switches'&&x.switches===3)||(x.kind==='mirrors'&&x.mirrors===1)||(x.kind==='combo'&&x.mirrors===1&&x.pressure===1)||(x.kind==='labyrinth'&&x.walls>100))) && ['blocks','lanterns','switches','mirrors','combo','labyrinth'].every(k=>info.some(x=>x.kind===k)),
+        rooms:info.length===D.shrines.length && info.every(x=>x && x.w===25 && x.h===17 && (x.kind==='blocks'||x.kind==='lanterns'||(x.kind==='switches'&&x.switches===3)||(x.kind==='mirrors'&&x.mirrors===1)||(x.kind==='combo'&&x.mirrors===1&&x.pressure===1)||(x.kind==='labyrinth'&&x.walls>100)||(x.kind==='miniboss'&&x.bossType==='shrine_guard')||(x.kind==='movement'&&x.hazards===3&&x.checkpoints===2))) && ['blocks','lanterns','switches','mirrors','combo','labyrinth','miniboss','movement'].every(k=>info.some(x=>x.kind===k)),
         can:D.shrines.every(x=>T.can(x.id))};
     }""")
     rec('Phase 0.34: jede Region hat fuenf Schreine; alle Schreine besitzen eine 25x17-Miniwelt-Pruefung',
@@ -326,6 +326,39 @@ try:
     }""")
     rec('Phase 0.39: Labyrinth ist verbunden, besitzt echte Sackgassen und fuehrt zur Altartuer',
         r.get('entered') and r['connected'] and r['walls']>100 and r['door'] and r['completed'], json.dumps(r))
+    # Phase 0.40: Mini-Boss-Schrein startet einen eigenen Schreinwaechter in der Boss-Arena.
+    r = ev(pg, \"\"\"() => {
+      const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='miniboss')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(); room.p.x=12.5; room.p.y=5.5; T.update(.02,{x:0,y:0});
+      const result={entered:true,kind:T.info(id).kind,bossType:T.info(id).bossType,defined:!!D.enemies.shrine_guard,
+        launched:SW.Combat.active&&SW.Arena.active,trial:room.bossStarted};
+      SW.Arena.active=false; SW.Combat.active=false; SW.paused=false; document.body.classList.remove('combat');
+      T.leave(); return result;
+    }\"\"\")
+    rec('Phase 0.40: Mini-Boss-Schrein startet den eigenen Schreinwaechter in der Boss-Arena',
+        r.get('entered') and r['kind']=='miniboss' and r['bossType']=='shrine_guard' and r['defined'] and r['launched'] and r['trial'], json.dumps(r))
+    # Phase 0.41: Bewegungsschrein hat drei getaktete Sperren, zwei Checkpoints und einen erreichbaren Altar.
+    r = ev(pg, \"\"\"() => {
+      const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='movement')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(), hazards=room.hazards.length, checkpoints=room.checkpoints.length;
+      room.t=0; room.p.x=12.5; room.p.y=11.5; T.update(.01,{x:0,y:0});
+      const reset=room.p.y===15.5;
+      room.t=0; room.p.x=12.5; room.p.y=12.5; T.update(.1,{x:0,y:-1});
+      const blocked=room.p.y===12.5;
+      room.t=1.2; room.p.x=12.5; room.p.y=12.5; T.update(.1,{x:0,y:-1});
+      const passable=room.p.y<12.5;
+      room.p.x=12.5; room.p.y=9.5; T.update(.02,{x:0,y:0});
+      room.p.x=12.5; room.p.y=6.5; T.update(.02,{x:0,y:0});
+      const saved=room.checkpoints.every(cp=>cp.reached);
+      room.p.x=12.5; room.p.y=3.5; T.update(.02,{x:0,y:0}); const open=room.open;
+      room.p.x=12.5; room.p.y=1.5; T.update(.02,{x:0,y:0}); const completed=room.state==='reward';
+      const result={entered:true,hazards,checkpoints,reset,blocked,passable,saved,open,completed};
+      T.leave(); return result;
+    }\"\"\")
+    rec('Phase 0.41: Bewegungsschrein prueft Sperren, Rueckwurf, Checkpoints und Altar',
+        r.get('entered') and r['hazards']==3 and r['checkpoints']==2 and r['reset'] and r['blocked'] and r['passable'] and r['saved'] and r['open'] and r['completed'], json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
     r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
       const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
