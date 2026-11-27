@@ -394,7 +394,7 @@ try:
       const locked=room.p.y===12.5&&!room.sequenceReady;
       for(const sw of room.switches){room.p.x=sw.x+.5;room.p.y=sw.y+.5;T.update(.02,{x:0,y:0});}
       const unlocked=room.sequenceReady&&room.swOn.every(Boolean);
-      room.p.x=12.5;room.p.y=12.5;room.t=.1;T.update(.1,{x:0,y:-1});
+      room.p.x=12.5;room.p.y=12.1;room.t=.1;T.update(.1,{x:0,y:-1});
       const timedGate=room.p.y===12.5;
       room.t=1.2;T.update(.1,{x:0,y:-1});const passable=room.p.y<12.5;
       room.p.x=12.5;room.p.y=9.5;T.update(.02,{x:0,y:0});
