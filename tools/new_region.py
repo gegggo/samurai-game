@@ -86,7 +86,7 @@ if not link:
         e2 = 2*err
         if e2 > -dy: err -= dy; x0 += sx
         if e2 < dx: err += dx; y0 += sy
-    radius = 6 + (REG % 5)  # 13-21 Layout-Kacheln Gesamtbreite
+    radius = 1  # 16 Weltkacheln Gesamtbreite (Layout-Zelle = 8); entspricht dem gewuenschten 10-20-Kachel-Uebergang
     for px, py in path_cells:
         for oy in range(-radius, radius + 1):
             for ox in range(-radius, radius + 1):
