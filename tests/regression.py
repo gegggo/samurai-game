@@ -373,7 +373,11 @@ try:
     # Phase 0.42: der schwerste Bewegungsschrein muss mit echtem Laufen und Warten abschliessbar bleiben.
     r = ev(pg, """() => {
       const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='movement')?.id;
-      if(!id||!T.enter(id))return {entered:false};
+      if(!id)return {entered:false};
+      // Phase 0.41 hat denselben Schrein bereits abgeschlossen; fuer diesen isolierten
+      // Mechaniktest wird nur sein Test-Fortschrittsflag zurueckgesetzt.
+      T.done.delete(id);
+      if(!T.enter(id))return {entered:false};
       const room=T.debug();room.rules=T.challengeProfile(3);room.hazards.forEach(h=>h.offset=0);room.t=.1;
       let steps=0;while(room.state==='play'&&room.p.y>1.5&&steps++<400)T.update(.02,{x:0,y:-1});
       const result={entered:true,steps,checkpoints:room.checkpoints.every(cp=>cp.reached),
