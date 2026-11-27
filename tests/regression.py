@@ -271,7 +271,7 @@ try:
       for(let i=0;i<generated.length;i++) for(let j=0;j<i;j++)
         min=Math.min(min,Math.hypot(generated[i].x-generated[j].x,generated[i].y-generated[j].y));
       return {total:D.shrines.length, generated:generated.length, counts, min, layouts:new Set(info.filter(Boolean).map(x=>x.layout)).size,
-        rooms:info.length===D.shrines.length && info.every(x=>x && x.w===25 && x.h===17 && (x.kind==='blocks'||x.kind==='lanterns'||(x.kind==='switches'&&x.switches===3)||(x.kind==='mirrors'&&x.mirrors===1)||(x.kind==='combo'&&x.mirrors===1&&x.pressure===1)||(x.kind==='labyrinth'&&x.walls>100)||(x.kind==='miniboss'&&x.bossType==='shrine_guard')||(x.kind==='movement'&&x.hazards===3&&x.checkpoints===2))) && ['blocks','lanterns','switches','mirrors','combo','labyrinth','miniboss','movement'].every(k=>info.some(x=>x.kind===k)),
+        rooms:info.length===D.shrines.length && info.every(x=>x && x.w===25 && x.h===17 && (x.kind==='blocks'||x.kind==='lanterns'||(x.kind==='switches'&&x.switches===3)||(x.kind==='mirrors'&&x.mirrors===1)||(x.kind==='combo'&&x.mirrors===1&&x.pressure===1)||(x.kind==='labyrinth'&&x.walls>100)||(x.kind==='miniboss'&&x.bossType==='shrine_guard')||(x.kind==='movement'&&x.hazards===3&&x.checkpoints===2)||(x.kind==='sequence'&&x.switches===3&&x.hazards===3&&x.checkpoints===2))) && ['blocks','lanterns','switches','mirrors','combo','labyrinth','miniboss','movement','sequence'].every(k=>info.some(x=>x.kind===k)),
         can:D.shrines.every(x=>T.can(x.id))};
     }""")
     rec('Phase 0.34: jede Region hat fuenf Schreine; alle Schreine besitzen eine 25x17-Miniwelt-Pruefung',
