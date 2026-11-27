@@ -152,6 +152,20 @@ try:
     pg = start(b, errs)
     region25_ok = ev(pg, "!!SW.World.CEN[25] && SW.World.regionAt(3260,3050) === 25 && SW.World.terrain(3260,3050) !== SW.World.T.SEA && SW.TEXT.en.reg_25 === 'Verdant Basin' && SW.TEXT.de.reg_25 === 'Grünes Becken'")
     rec('Map: Region 25 center, terrain and EN/DE names', region25_ok)
+    frontier_check = ev(pg, """() => {
+      const D=SW.Data,W=SW.World, regs=[20,21,22,23,24,25];
+      const prefixes=['dragon','spirit','frostwall','cloudsteppe','jade','basin'];
+      const bad=[]; let counts=[];
+      regs.forEach((reg,i)=>{
+        const p=prefixes[i], spots=D.spots.filter(x=>x.id.startsWith('e_'+p)), npcs=D.npcs.filter(x=>x.id==='n_'+({dragon:'dragonkeeper',spirit:'spiritguide',frostwall:'frostwarden',cloudsteppe:'cloudhermit',jade:'jadeenvoy',basin:'basinwarden'}[p])), ch=D.chests.filter(x=>x.id.startsWith('c_'+p));
+        const qs=D.quests.filter(x=>x.id.startsWith(({dragon:'dragon',spirit:'spirit',frostwall:'frostwall',cloudsteppe:'cloud',jade:'jade',basin:'basin'}[p])));
+        counts.push({reg,spots:spots.length,npcs:npcs.length,chests:ch.length,quests:qs.length});
+        [...spots,...npcs,...ch].forEach(x=>{if(W.regionAt(x.x,x.y)!==reg||W.solid(Math.floor(x.x),Math.floor(x.y)))bad.push({id:x.id,reg,actual:W.regionAt(x.x,x.y),solid:W.solid(Math.floor(x.x),Math.floor(x.y)),x:x.x,y:x.y});});
+        if(spots.length!==4||npcs.length!==1||ch.length!==2||qs.length!==2||!qs.some(q=>q.obj.type==='kill'&&spots.some(s=>s.id===q.obj.spot))||!qs.some(q=>q.req&&q.req.done===p))bad.push({reg,reason:'content-or-quest-link'});
+      });
+      return {counts,bad,version:SW.version};
+    }""")
+    rec('Phase 0.44: Regionen 20–25 haben je NPC, 2 Quests, 4 Gegner und 2 freie Truhen im richtigen Gebiet', not frontier_check['bad'] and all(x['spots']==4 and x['npcs']==1 and x['chests']==2 and x['quests']==2 for x in frontier_check['counts']), json.dumps(frontier_check))
     gap_temple_ok = ev(pg, "SW.World.regionAt(3158,2640) === 25 && SW.World.POI.some(p => p.id === 'gaptemple') && SW.World.S.some(s => s.type === 'shrine' && s.x === 3150 && s.y === 2632) && !!SW.Shrines.get('gaptemple') && SW.TEXT.en.shr_gaptemple === 'Tide Temple' && SW.TEXT.de.shr_gaptemple === 'Gezeitentempel'")
     rec('Map: Gezeitentempel, POI, Schrein und EN/DE-Namen', gap_temple_ok)
     r = ev(pg, """() => {

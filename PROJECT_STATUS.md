@@ -1,3 +1,10 @@
+## Version 0.38.0 – Regionale Inhalte für Regionen 20–25 (28.11.2026)
+- Sechs Erweiterungsregionen erhalten je einen eigenen Questgeber, zwei aufeinander aufbauende Nebenquests, vier Gegner inklusive Questziel und zwei Truhen.
+- Neue Questketten: Drachenwall (Leuchtfeuer/Wachtposten), Tal der Geister (Angriffe/Verletzte), Frostwall (Pass/Wache), Wolkensteppe (Höhenweg/Schutzhütte), Jadehochland (Relikt/Schreinlager), Grünes Becken (Weg/Wegmarkierungen).
+- Schreine und Schreinmechaniken bleiben unverändert. Bestehende Gebiete, IDs und Spielstände werden nicht ersetzt.
+- Neue Daten: `data/world.json`, `data/quests.json`; neue EN/DE-Texte in `js/region-frontier.js`; Spielversion 0.38.0.
+- Regression prüft die neuen Inhalte, Questverweise sowie Regionszuordnung und freie Positionen. CI-/Gerätetest nach Umsetzung.
+
 ## Version 0.37.0 – Mehrstufige Kombinationsschreine (27.11.2026)
 - Zusammengesetzter Pruefungsablauf aus zwei vorhandenen Mechaniken: erst drei Bodenschalter im Vorraum aktivieren, danach einen zeitgesteuerten Parcours mit drei Sperren und zwei Checkpoints absolvieren.
 - Der Parcours bleibt bis zur Aktivierung aller Schalter physisch gesperrt. Danach gelten die vorhandenen Tier-1-bis-Tier-3-Zeitprofile; Treffer setzen den Spieler auf den letzten Checkpoint zurueck.

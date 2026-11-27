@@ -644,6 +644,216 @@
    },
    "ed": "lite",
    "tier": 2
+  },
+  {
+   "id": "dragon1",
+   "giver": "n_dragonkeeper",
+   "obj": {
+    "type": "kill",
+    "spot": "e_dragonq"
+   },
+   "rew": {
+    "coins": 180,
+    "xp": 150,
+    "karma": 5
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "dragon2",
+   "giver": "n_dragonkeeper",
+   "obj": {
+    "type": "have",
+    "item": "wood",
+    "n": 6
+   },
+   "req": {
+    "done": "dragon1"
+   },
+   "rew": {
+    "coins": 110,
+    "xp": 110,
+    "ess": 1,
+    "karma": 4
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "spirit1",
+   "giver": "n_spiritguide",
+   "obj": {
+    "type": "kill",
+    "spot": "e_spiritq"
+   },
+   "rew": {
+    "coins": 170,
+    "xp": 145,
+    "karma": 5
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "spirit2",
+   "giver": "n_spiritguide",
+   "obj": {
+    "type": "have",
+    "item": "iron",
+    "n": 5
+   },
+   "req": {
+    "done": "spirit1"
+   },
+   "rew": {
+    "coins": 100,
+    "xp": 105,
+    "ess": 1,
+    "karma": 4
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "frostwall1",
+   "giver": "n_frostwarden",
+   "obj": {
+    "type": "kill",
+    "spot": "e_frostwallq"
+   },
+   "rew": {
+    "coins": 175,
+    "xp": 145,
+    "karma": 5
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "frostwall2",
+   "giver": "n_frostwarden",
+   "obj": {
+    "type": "have",
+    "item": "herb",
+    "n": 3
+   },
+   "req": {
+    "done": "frostwall1"
+   },
+   "rew": {
+    "coins": 95,
+    "xp": 105,
+    "ess": 1,
+    "karma": 4
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "cloud1",
+   "giver": "n_cloudhermit",
+   "obj": {
+    "type": "kill",
+    "spot": "e_cloudsteppeq"
+   },
+   "rew": {
+    "coins": 165,
+    "xp": 140,
+    "karma": 5
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "cloud2",
+   "giver": "n_cloudhermit",
+   "obj": {
+    "type": "have",
+    "item": "stone",
+    "n": 5
+   },
+   "req": {
+    "done": "cloud1"
+   },
+   "rew": {
+    "coins": 100,
+    "xp": 105,
+    "ess": 1,
+    "karma": 4
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "jade1",
+   "giver": "n_jadeenvoy",
+   "obj": {
+    "type": "kill",
+    "spot": "e_jadeq"
+   },
+   "rew": {
+    "coins": 190,
+    "xp": 155,
+    "karma": 5
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "jade2",
+   "giver": "n_jadeenvoy",
+   "obj": {
+    "type": "have",
+    "item": "herb",
+    "n": 3
+   },
+   "req": {
+    "done": "jade1"
+   },
+   "rew": {
+    "coins": 110,
+    "xp": 115,
+    "ess": 1,
+    "karma": 4
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "basin1",
+   "giver": "n_basinwarden",
+   "obj": {
+    "type": "kill",
+    "spot": "e_basinq"
+   },
+   "rew": {
+    "coins": 175,
+    "xp": 150,
+    "karma": 5
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "basin2",
+   "giver": "n_basinwarden",
+   "obj": {
+    "type": "have",
+    "item": "stone",
+    "n": 5
+   },
+   "req": {
+    "done": "basin1"
+   },
+   "rew": {
+    "coins": 105,
+    "xp": 110,
+    "ess": 1,
+    "karma": 4
+   },
+   "ed": "lite",
+   "tier": 3
   }
  ]
 }

@@ -1618,6 +1618,198 @@
    "y": 2045,
    "ed": "lite",
    "tier": 2
+  },
+  {
+   "id": "e_dragon1",
+   "type": "ronin",
+   "x": 2922,
+   "y": 4126,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_dragon2",
+   "type": "samurai",
+   "x": 2952,
+   "y": 4146,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_dragon3",
+   "type": "spearman",
+   "x": 2924,
+   "y": 4178,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_dragonq",
+   "type": "armored",
+   "x": 2962,
+   "y": 4188,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_spirit1",
+   "type": "bandit",
+   "x": 4322,
+   "y": 4176,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_spirit2",
+   "type": "swift",
+   "x": 4352,
+   "y": 4196,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_spirit3",
+   "type": "ronin",
+   "x": 4324,
+   "y": 4228,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_spiritq",
+   "type": "samurai",
+   "x": 4362,
+   "y": 4238,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_frostwall1",
+   "type": "spearman",
+   "x": 1622,
+   "y": 3526,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_frostwall2",
+   "type": "armored",
+   "x": 1652,
+   "y": 3546,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_frostwall3",
+   "type": "swift",
+   "x": 1624,
+   "y": 3578,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_frostwallq",
+   "type": "samurai",
+   "x": 1662,
+   "y": 3588,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_cloudsteppe1",
+   "type": "swift",
+   "x": 2306,
+   "y": 3316,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_cloudsteppe2",
+   "type": "ronin",
+   "x": 2336,
+   "y": 3336,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_cloudsteppe3",
+   "type": "spearman",
+   "x": 2308,
+   "y": 3368,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_cloudsteppeq",
+   "type": "samurai",
+   "x": 2346,
+   "y": 3378,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_jade1",
+   "type": "samurai",
+   "x": 3722,
+   "y": 3626,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_jade2",
+   "type": "armored",
+   "x": 3752,
+   "y": 3646,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_jade3",
+   "type": "ronin",
+   "x": 3724,
+   "y": 3678,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_jadeq",
+   "type": "spearman",
+   "x": 3762,
+   "y": 3688,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_basin1",
+   "type": "bandit",
+   "x": 3282,
+   "y": 3026,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_basin2",
+   "type": "ronin",
+   "x": 3312,
+   "y": 3046,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_basin3",
+   "type": "swift",
+   "x": 3284,
+   "y": 3078,
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "e_basinq",
+   "type": "samurai",
+   "x": 3322,
+   "y": 3088,
+   "ed": "lite",
+   "tier": 3
   }
  ],
  "shrines": [
@@ -2478,6 +2670,138 @@
    "rar": "uncommon",
    "ed": "lite",
    "tier": 2
+  },
+  {
+   "id": "c_dragon1",
+   "x": 2852,
+   "y": 4178,
+   "give": {
+    "ess": 1
+   },
+   "rar": "rare",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_dragon2",
+   "x": 2970,
+   "y": 4112,
+   "give": {
+    "coins": 180
+   },
+   "rar": "uncommon",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_spirit1",
+   "x": 4252,
+   "y": 4228,
+   "give": {
+    "ess": 1
+   },
+   "rar": "rare",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_spirit2",
+   "x": 4370,
+   "y": 4162,
+   "give": {
+    "coins": 180
+   },
+   "rar": "uncommon",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_frostwall1",
+   "x": 1552,
+   "y": 3578,
+   "give": {
+    "ess": 1
+   },
+   "rar": "rare",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_frostwall2",
+   "x": 1670,
+   "y": 3512,
+   "give": {
+    "coins": 180
+   },
+   "rar": "uncommon",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_cloudsteppe1",
+   "x": 2236,
+   "y": 3368,
+   "give": {
+    "ess": 1
+   },
+   "rar": "rare",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_cloudsteppe2",
+   "x": 2354,
+   "y": 3302,
+   "give": {
+    "coins": 180
+   },
+   "rar": "uncommon",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_jade1",
+   "x": 3652,
+   "y": 3678,
+   "give": {
+    "ess": 1
+   },
+   "rar": "rare",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_jade2",
+   "x": 3770,
+   "y": 3612,
+   "give": {
+    "coins": 180
+   },
+   "rar": "uncommon",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_basin1",
+   "x": 3212,
+   "y": 3078,
+   "give": {
+    "ess": 1
+   },
+   "rar": "rare",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "c_basin2",
+   "x": 3330,
+   "y": 3012,
+   "give": {
+    "coins": 180
+   },
+   "rar": "uncommon",
+   "ed": "lite",
+   "tier": 3
   }
  ],
  "npcs": [
@@ -2821,6 +3145,72 @@
    "hat": "#c8b070",
    "ed": "lite",
    "tier": 2
+  },
+  {
+   "id": "n_dragonkeeper",
+   "role": "dragonkeeper",
+   "q": true,
+   "x": 2870,
+   "y": 4135,
+   "robe": "#6b4c32",
+   "hat": "#c8a86a",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "n_spiritguide",
+   "role": "spiritguide",
+   "q": true,
+   "x": 4270,
+   "y": 4185,
+   "robe": "#4c5a68",
+   "hat": "#b5c5d0",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "n_frostwarden",
+   "role": "frostwarden",
+   "q": true,
+   "x": 1570,
+   "y": 3535,
+   "robe": "#596b7a",
+   "hat": "#d8e2ed",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "n_cloudhermit",
+   "role": "cloudhermit",
+   "q": true,
+   "x": 2254,
+   "y": 3325,
+   "robe": "#7a6a4a",
+   "hat": "#a68c62",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "n_jadeenvoy",
+   "role": "jadeenvoy",
+   "q": true,
+   "x": 3670,
+   "y": 3635,
+   "robe": "#42604a",
+   "hat": "#8eaa78",
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "n_basinwarden",
+   "role": "basinwarden",
+   "q": true,
+   "x": 3230,
+   "y": 3035,
+   "robe": "#5b6b46",
+   "hat": "#b4c48a",
+   "ed": "lite",
+   "tier": 3
   }
  ],
  "drops": {
