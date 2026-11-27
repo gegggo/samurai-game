@@ -262,6 +262,20 @@ try:
     # 11 Karte/Schnellreise-Daten
     r = ev(pg, "() => ({poi: SW.World.POI.length, shr: SW.Data.shrines.length})")
     rec('Welt: POI und Schreine vorhanden', r['poi'] > 20 and r['shr'] > 20, json.dumps(r))
+    # 11b Phase 0.34: fuenf Schreine je Region, grosse Miniwelt-Pruefungen
+    r = ev(pg, """() => {
+      const D=SW.Data, W=SW.World, T=SW.Trials, counts=Array(26).fill(0);
+      D.shrines.forEach(s => { const reg=W.regionAt(s.x,s.y); if (reg>=0 && reg<26) counts[reg]++; });
+      const generated=D.shrines.filter(s=>s.generated), info=D.shrines.map(s=>T.info(s.id));
+      let min=Infinity;
+      for(let i=0;i<generated.length;i++) for(let j=0;j<i;j++)
+        min=Math.min(min,Math.hypot(generated[i].x-generated[j].x,generated[i].y-generated[j].y));
+      return {total:D.shrines.length, generated:generated.length, counts, min,
+        rooms:info.length===D.shrines.length && info.every(x=>x && x.w===25 && x.h===17 && (x.kind==='blocks'||x.kind==='lanterns')),
+        can:D.shrines.every(x=>T.can(x.id))};
+    }""")
+    rec('Phase 0.34: jede Region hat fuenf Schreine; alle Schreine besitzen eine 25x17-Miniwelt-Pruefung',
+        r['counts'] == [5] * 26 and r['total'] == 130 and r['generated'] == 93 and r['min'] >= 220 and r['rooms'] and r['can'], json.dumps(r))
     # 12 Phase 19: Speicher-Schnittstelle SW.Store
     pg = start(b, errs)
     r = ev(pg, """() => { const o={}, S=SW.Store; S.setItem('t19','x'); o.rt=S.getItem('t19')==='x'; S.removeItem('t19'); o.rm=S.getItem('t19')===null;
