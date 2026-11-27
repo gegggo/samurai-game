@@ -391,11 +391,11 @@ try:
       const T=SW.Trials,id=SW.Data.shrines.find(s=>T.info(s.id).sequence)?.id;
       if(!id||!T.enter(id))return {entered:false};
       const room=T.debug();room.p.x=12.5;room.p.y=12.1;T.update(.02,{x:0,y:-1});
-      const locked=room.p.y===12.5&&!room.sequenceReady;
+      const locked=room.p.y===12.1&&!room.sequenceReady;
       for(const sw of room.switches){room.p.x=sw.x+.5;room.p.y=sw.y+.5;T.update(.02,{x:0,y:0});}
       const unlocked=room.sequenceReady&&room.swOn.every(Boolean);
       room.p.x=12.5;room.p.y=12.1;room.t=.1;T.update(.1,{x:0,y:-1});
-      const timedGate=room.p.y===12.5;
+      const timedGate=room.p.y===12.1;
       room.t=1.2;T.update(.1,{x:0,y:-1});const passable=room.p.y<12.5;
       room.p.x=12.5;room.p.y=9.5;T.update(.02,{x:0,y:0});
       room.p.x=12.5;room.p.y=6.5;T.update(.02,{x:0,y:0});
