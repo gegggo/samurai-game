@@ -155,15 +155,15 @@ try:
     frontier_check = ev(pg, """() => {
       const D=SW.Data,W=SW.World, regs=[20,21,22,23,24,25];
       const prefixes=['dragon','spirit','frostwall','cloudsteppe','jade','basin'];
-      const bad=[]; let counts=[];
+      const bad=[]; let counts=[], suggestions={};
       regs.forEach((reg,i)=>{
         const p=prefixes[i], spots=D.spots.filter(x=>x.id.startsWith('e_'+p)), npcs=D.npcs.filter(x=>x.id==='n_'+({dragon:'dragonkeeper',spirit:'spiritguide',frostwall:'frostwarden',cloudsteppe:'cloudhermit',jade:'jadeenvoy',basin:'basinwarden'}[p])), ch=D.chests.filter(x=>x.id.startsWith('c_'+p));
         const qs=D.quests.filter(x=>x.id.startsWith(({dragon:'dragon',spirit:'spirit',frostwall:'frostwall',cloudsteppe:'cloud',jade:'jade',basin:'basin'}[p])));
         counts.push({reg,spots:spots.length,npcs:npcs.length,chests:ch.length,quests:qs.length});
-        [...spots,...npcs,...ch].forEach(x=>{if(W.regionAt(x.x,x.y)!==reg||W.solid(Math.floor(x.x),Math.floor(x.y)))bad.push({id:x.id,reg,actual:W.regionAt(x.x,x.y),solid:W.solid(Math.floor(x.x),Math.floor(x.y)),x:x.x,y:x.y});});
-        if(spots.length!==4||npcs.length!==1||ch.length!==2||qs.length!==2||!qs.some(q=>q.obj.type==='kill'&&spots.some(s=>s.id===q.obj.spot))||!qs.some(q=>q.req&&q.req.done===p))bad.push({reg,reason:'content-or-quest-link'});
+        [...spots,...npcs,...ch].forEach(x=>{if(W.regionAt(x.x,x.y)!==reg||W.solid(Math.floor(x.x),Math.floor(x.y))){bad.push({id:x.id,reg,actual:W.regionAt(x.x,x.y),solid:W.solid(Math.floor(x.x),Math.floor(x.y)),x:x.x,y:x.y});let best=null;for(let rad=1;rad<=80&&!best;rad++)for(let dy=-rad;dy<=rad&&!best;dy++)for(let dx=-rad;dx<=rad;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==rad)continue;const xx=Math.floor(x.x)+dx,yy=Math.floor(x.y)+dy;if(W.regionAt(xx,yy)===reg&&!W.solid(xx,yy)){best={x:xx+.5,y:yy+.5,dist:Math.hypot(dx,dy)};break;}}if(best)suggestions[x.id]=best;}});
+        if(spots.length!==4||npcs.length!==1||ch.length!==2||qs.length!==2||!qs.some(q=>q.obj.type==='kill'&&spots.some(s=>s.id===q.obj.spot))||!qs.some(q=>q.req&&q.req.done===({dragon:'dragon1',spirit:'spirit1',frostwall:'frostwall1',cloudsteppe:'cloud1',jade:'jade1',basin:'basin1'}[p])))bad.push({reg,reason:'content-or-quest-link'});
       });
-      return {counts,bad,version:SW.version};
+      return {counts,bad,suggestions,version:SW.version};
     }""")
     rec('Phase 0.44: Regionen 20–25 haben je NPC, 2 Quests, 4 Gegner und 2 freie Truhen im richtigen Gebiet', not frontier_check['bad'] and all(x['spots']==4 and x['npcs']==1 and x['chests']==2 and x['quests']==2 for x in frontier_check['counts']), json.dumps(frontier_check))
     gap_temple_ok = ev(pg, "SW.World.regionAt(3158,2640) === 25 && SW.World.POI.some(p => p.id === 'gaptemple') && SW.World.S.some(s => s.type === 'shrine' && s.x === 3150 && s.y === 2632) && !!SW.Shrines.get('gaptemple') && SW.TEXT.en.shr_gaptemple === 'Tide Temple' && SW.TEXT.de.shr_gaptemple === 'Gezeitentempel'")
