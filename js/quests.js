@@ -152,6 +152,7 @@ SW.Quests = (function () {
     titleEl.textContent = T('npc_' + cur.role); body.innerHTML = '';
     if (view) { detail(view); return; }
     add(body, el('div', 'dlgtext', T('dl_' + cur.role + '_' + tone())));
+    if (cur.role === 'master') add(body, btn(T('master_scrolls'), '', () => { const master = cur; Q.close(); SW.Shop.openMaster(master); }));
     const mine = D.quests.filter(q => q.giver === cur.id);
     let refused = false;
     mine.forEach(q => {

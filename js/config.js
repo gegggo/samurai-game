@@ -1,7 +1,7 @@
 'use strict';
 // Globaler Namespace, Konstanten, zentrale Texte (Sprachsystem folgt Phase 6).
 const SW = {
-  version: '0.39.0',
+  version: '0.39.1',
   CFG: { W: 8000, H: 5200, SPEED: 5, OV: 8 }, // Welt wächst nach rechts/unten (Ursprung oben links); neue Regionen als Segment js/layout-<name>.js
   lang: (function () { try { const l = localStorage.getItem('sw_lang'); return l === 'de' ? 'de' : 'en'; } catch (e) { return 'en'; } })(),
   paused: false,
@@ -11,7 +11,7 @@ const SW = {
     pin_max: 'Marker limit reached (10). Remove one first.', pin_at: 'Marker at X {n}', pin_remove: 'Remove marker', travel_loading: 'Travelling to {n}…', travel_to: 'Travel to {n}?', travel_off: '{n} is not activated yet', travel_go: 'Travel', travel_cancel: 'Cancel', travel_blocked: 'Travel not possible now',
     leg_village: 'Village', leg_temple: 'Temple', leg_camp: 'Camp', leg_place: 'Place',
     tab_map: 'Map', tab_inventory: 'Inventory', tab_equipment: 'Equipment', tab_skills: 'Skills',
-    tab_skilltree: 'Skilltree', tab_quests: 'Quests', tab_character: 'Character',
+    tab_skilltree: 'Skilltree', tab_quests: 'Quests', tab_character: 'Character', master_scrolls: 'Read found scrolls',
     tab_karma: 'Karma & Yin-Yang', tab_settings: 'Settings',
     reg_0: 'Hinode Village', reg_1: 'Bamboo Forest', reg_2: 'Mountain Shrine',
     reg_3: 'Western Woods', reg_4: 'Mirror Lake', reg_5: 'Iron Peaks',

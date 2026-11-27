@@ -233,6 +233,12 @@ SW.Shop = (function () {
     SW.paused = true; SW.Input.reset(); root.classList.add('open'); if (act) act.style.display = 'none';
     render(); return true;
   };
+  S.openMaster = function (npc) {
+    if (!npc || npc.role !== 'master' || SW.paused || SW.Combat.active) return false;
+    ensure(); S.cur = npc; S.tab = '';
+    SW.paused = true; SW.Input.reset(); root.classList.add('open'); if (act) act.style.display = 'none';
+    render(); return true;
+  };
   S.close = function () {
     if (!S.cur) return;
     S.cur = null; if (root) root.classList.remove('open');

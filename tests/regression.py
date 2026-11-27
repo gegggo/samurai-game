@@ -231,6 +231,26 @@ try:
     rec('Quest: annehmen, bereit, abschliessen, Belohnung genau einmal, Gegenstand abgegeben', not r.get('none') and r['acc'] and r['s1'] == 'ready' and r['c1'] and r['dc'] == r['exp'] and not r['c2'] and r['dc2'] == r['exp'] and r['left'] == 0, json.dumps(r))
     qid = r.get('id'); cont(pg); st = ev(pg, "id => SW.Quests.st[id]") if False else pg.evaluate("id => SW.Quests.st[id]", qid)
     rec('Quest-Status bleibt nach Neuladen', st == 'done', str(st))
+    # Phase 0.39.1: Schriftzeichen, Wörterbuch, Schattenpforte und Meister-Menü.
+    r = ev(pg, """() => {
+      const I=SW.Inscriptions,Q=SW.Quests,D=SW.Data,W=SW.World,oldI=I.dump(),oldQ=Object.assign({},Q.st);
+      const regions=I.list.every(g=>W.regionAt(g.x,g.y)===g.region);
+      const free=I.list.every(g=>!W.solid(Math.floor(g.x),Math.floor(g.y)));
+      const phrase=I.list.map(g=>g.letter).join('');
+      const q1=D.quests.find(q=>q.id==='main_glyphs'),q2=D.quests.find(q=>q.id==='main_gate');
+      const chain=!!q1&&!!q2&&q1.category==='main'&&q2.category==='main'&&q1.req.done==='elder3'&&q1.obj.type==='inscriptions'&&q1.obj.n===12&&q2.req.done==='main_glyphs'&&q2.obj.type==='gate';
+      I.load({found:[],gateOpened:false}); I.list.forEach(g=>I.collect(g.id));
+      Q.st.main_glyphs='done'; Q.st.main_gate='active';
+      const visible=I.gateVisible(),blocked=W.solid(Math.floor(I.gate.x),Math.floor(I.gate.y));
+      const opened=I.openGate(),passable=!W.solid(Math.floor(I.gate.x),Math.floor(I.gate.y));
+      const persisted=Q.dump().ins.found.length===12&&Q.dump().ins.gateOpened===true;
+      const master=SW.Shop.npcs.find(n=>n.id==='n_master'); Q.open(master);
+      const scrollButton=[...document.querySelectorAll('#dlg button')].some(b=>b.textContent===SW.t('master_scrolls')); Q.close();
+      I.load(oldI); Object.keys(Q.st).forEach(k=>delete Q.st[k]); Object.assign(Q.st,oldQ);
+      return {count:I.total(),regions,free,phrase,chain,visible,blocked,opened,passable,persisted,master:!!master,scrollButton,openMaster:typeof SW.Shop.openMaster==='function'};
+    }""")
+    rec('Phase 0.39.1: 12 Schriftzeichen in richtigen Regionen, Wörterbuchfolge, Tor-Kollision/Speicherung und Meister-Schriftrollen',
+        r.count===12 && r.regions && r.free && r.phrase==='THEGATEOPENS' && r.chain && r.visible && r.blocked && r.opened && r.passable && r.persisted && r.master && r.scrollButton && r.openMaster, json.dumps(r))
         # 6b Phase 25 / Map 0.29: Choice-Quests und alle fuenf neuen Regionen
     r = ev(pg, """() => {
       const Q=SW.Quests, D=SW.Data, c=D.quests.filter(q=>q.choice);
