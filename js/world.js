@@ -349,7 +349,7 @@ SW.World = (function () {
   }
   // Keine Objekte (Bäume, Felsen) rund um Orte: [Mitte x, Mitte y, Halbbreite, Halbhöhe]
   const ZONES = [[CEN[2][0], CEN[2][1], 20, 20], [CEN[8][0], CEN[8][1], 52, 52], [CEN[0][0], CEN[0][1], 26, 20], [CAMP[0], CAMP[1], 24, 18], [CEN[6][0], CEN[6][1], 15, 12]];
-  for (let r = 9; r <= 24; r++) if (CEN[r]) ZONES.push([CEN[r][0], CEN[r][1], 10, 10]);
+  for (let r = 9; r <= 25; r++) if (CEN[r]) ZONES.push([CEN[r][0], CEN[r][1], 10, 10]);
   if (CEN[17]) ZONES.push([4170, 1491, 80, 40]); // Sakura-Stadt: keine Bäume
   function objAt(x, y, t) {
     if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE && t !== T.SNOW && t !== T.ASH && t !== T.DUNE) return 0;
