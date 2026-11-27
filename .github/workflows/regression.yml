@@ -43,11 +43,13 @@ jobs:
           python -m py_compile tests/regression.py
           python -m py_compile tests/exploit_regression.py
           python -m py_compile tools/make_layout_interstice.py
+          python -m py_compile tools/make_layout_gap_temple.py
 
-      - name: Verify generated Region 25 layout
+      - name: Verify generated map overlays
         run: |
           python tools/make_layout_interstice.py
-          git diff --exit-code -- js/layout-interstice.js
+          python tools/make_layout_gap_temple.py
+          git diff --exit-code -- js/layout-interstice.js js/layout-gap-temples.js
 
       - name: Run full regression suite
         run: python tests/regression.py
