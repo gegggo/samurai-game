@@ -173,8 +173,8 @@ for gy in range(H):
         combined_grid[gy, gx] = int(expanded_grid[gy, gx]) if expanded_grid[gy, gx] else region_for(x, y)
 
 # Kleine Wasserluecken zwischen den fuenf neuen Gebieten schliessen.
-# Nur Nulzellen innerhalb von 8 Rasterzellen zur neuen Landmasse werden
-# mit dem jeweils naechstgelegenen Regionslabel aufgefuellt; alte Regionen/Seen bleiben.
+# Nur Nulzellen im Umkreis von 8 Rasterzellen werden mit der naechsten neuen
+# Region gefuellt. Alte Regionen und Seen bleiben unveraendert.
 new_land = (combined_grid >= 21) & (combined_grid <= 25)
 expanded_new_land = binary_dilation(new_land, structure=disk(8))
 _, nearest_new = distance_transform_edt(~new_land, return_indices=True)
@@ -187,8 +187,6 @@ counts = {rid: 0 for rid in range(25)}
 for gy in range(H):
     row = []
     for gx in range(W):
-        x = X0 + gx * CELL + CELL // 2
-        y = Y0 + gy * CELL + CELL // 2
         value = int(combined_grid[gy, gx])
         if 1 <= value <= 25:
             counts[value - 1] += 1
