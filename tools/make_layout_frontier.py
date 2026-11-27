@@ -2,7 +2,7 @@
 """Erzeugt js/layout-frontier.js mit fuenf direkt angebauten Regionen und einer
 moderaten Erweiterung der bisherigen Kernland-Kueste. Alle alten Regionsmittelpunkte
 bleiben erhalten; Drachenwall (20) und Tal der Geister (21) werden groessenmaessig
-angepasst. Alle fuenf neuen Regionen liegen gemeinsam unterhalb der bestehenden Hauptkarte.
+angepasst. Alle fuenf neuen Regionen liegen gemeinsam unterhalb der bestehenden Hauptkarte (0.30.0: um 1800 nach Westen, mittig unter der Suedkueste).
 Alle neuen Gebiete bilden breite natuerliche Landanschluesse; es gibt keine Wege/Bruecken.
 Aufruf: python3 tools/make_layout_frontier.py js/layout-frontier.js
 """
@@ -21,21 +21,21 @@ W, H = (X1 - X0) // CELL, (Y1 - Y0) // CELL
 
 # Mittelpunktpositionen der bisherigen zwei Regionen bleiben unveraendert.
 REGIONS = {
-    20: (4700, 4150, 520, 360, 1.2),  # Drachenwall
-    21: (6100, 4200, 500, 360, 2.4),  # Tal der Geister
-    22: (3400, 3550, 420, 320, 0.7),  # Frostwall
-    23: (4300, 3600, 480, 300, 1.8),  # Wolkensteppe
-    24: (5500, 3650, 450, 320, 2.8),  # Jadehochland
+    20: (2900, 4150, 520, 360, 1.2),  # Drachenwall
+    21: (4300, 4200, 500, 360, 2.4),  # Tal der Geister
+    22: (1600, 3550, 420, 320, 0.7),  # Frostwall
+    23: (2500, 3600, 480, 300, 1.8),  # Wolkensteppe
+    24: (3700, 3650, 450, 320, 2.8),  # Jadehochland
 }
 
 # Abgerundete, organische Landbuchten statt gerader Verbindungskorridore.
 # Die Zusatzellipsen gehoeren jeweils zur Region und ueberlappen deren Kern.
 REGION_LOBES = {
-    20: [(4400, 3850, 600, 320, 0.9), (5000, 3950, 520, 300, 1.5)],
-    21: [(5650, 4050, 600, 320, 2.1)],
-    22: [(3300, 3220, 600, 300, 0.2)],
-    23: [(3900, 3330, 600, 300, 1.4)],
-    24: [(5100, 3800, 600, 320, 2.6), (5750, 4000, 430, 280, 2.2)],
+    20: [(2600, 3850, 600, 320, 0.9), (3200, 3950, 520, 300, 1.5)],
+    21: [(3850, 4050, 600, 320, 2.1)],
+    22: [(1500, 3220, 600, 300, 0.2)],
+    23: [(2100, 3330, 600, 300, 1.4)],
+    24: [(3300, 3800, 600, 320, 2.6), (3950, 4000, 430, 280, 2.2)],
 }
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -188,8 +188,8 @@ metadata = {
     'id': 'frontier', 'x0': 0, 'y0': 0, 'x1': X1, 'y1': Y1,
     'cell': CELL, 'w': X1 // CELL, 'h': Y1 // CELL,
     'centers': {
-        '20': [4700, 4150], '21': [6100, 4200],
-        '22': [3400, 3550], '23': [4300, 3600], '24': [5500, 3650],
+        '20': [2900, 4150], '21': [4300, 4200],
+        '22': [1600, 3550], '23': [2500, 3600], '24': [3700, 3650],
     },
     'roads': [], 'rivers': [],
 }
