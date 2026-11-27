@@ -2,8 +2,8 @@
 // Schrein-Prüfungen (Phase 7a). Namensraum SW.Trials.
 // Ablauf: Schrein erwecken (Beten) -> Knopf "Enter" -> Innenraum (eigene Kachelkarte, Draufsicht) -> Aufgabe lösen -> Altar berühren -> Belohnung.
 // Belohnungen: Yin/Yang (Spielstil), Essence (nur Skilltree), XP. Keine Münzen. Jede Prüfung einmalig, gespeichert in SW.Trials.done.
-// Aufgabentypen: blocks, lanterns, switches und mirrors (Lichtstrahl mit einem drehbaren Spiegel zum Kristall lenken).
-// Karte: # Wand | . Boden | B Block | P Platte | L Laterne | Q Schalter | M Spiegel | F Lichtquelle | C Kristall | D Tür | A Altar | S Start | E Ausgang
+// Aufgabentypen: blocks, lanterns, switches, mirrors und combo (Druckplatte aktiviert einen zeitlich begrenzten Spiegelraum).
+// Karte: # Wand | . Boden | B Block | P Platte | L Laterne | Q Schalter | V Zeitplatte | M Spiegel | F Lichtquelle | C Kristall | D Tür | A Altar | S Start | E Ausgang
 SW.Trials = (function () {
   const T = { active: false, done: new Set() }, tr = (k, n) => SW.t(k, n);
   const RAD = .3, SPEED = 4, TAU = 6.2832, COL = ['#e0452f', '#f2c14e', '#4a8fe0', '#f4ecd8'];
@@ -61,12 +61,15 @@ SW.Trials = (function () {
     } else if (kind === 'switches') {
       // Drei Bodenschalter liegen auf gut erreichbaren, voneinander getrennten Wegen.
       [[3,8],[12,13],[21,8]].forEach(([x,y]) => { g[y][x] = 'Q'; });
+    } else if (kind === 'combo') {
+      // Erst die Zeitplatte im Sueden betreten, dann zum Spiegel laufen und ihn drehen.
+      g[13][3] = 'V'; g[8][2] = 'F'; g[8][12] = 'M'; g[3][12] = 'C';
     } else {
       // Ein Lichtstrahl kommt von Westen; der Spiegel muss ihn nach Norden zum Kristall lenken.
       g[8][2] = 'F'; g[8][12] = 'M'; g[3][12] = 'C';
     }
     // Spiegelung erzeugt weitere Grundrisse, ohne Start, Ausgang oder Altar zu verschieben.
-    const mirror = variant >= 8;
+    const mirror = variant >= 8 && kind !== 'combo';
     return g.map(row => (mirror ? row.slice().reverse() : row).join(''));
   }
 
@@ -78,7 +81,7 @@ SW.Trials = (function () {
   SW.Shrines.expand();
   if (SW.Combat && SW.Combat.ensureShrineGuards) SW.Combat.ensureShrineGuards(D.shrines.filter(shrine => shrine.generated));
   D.shrines.forEach((shrine, index) => {
-    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 4 === 0 ? 'mirrors' : (seed % 4 === 1 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns')));
+    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 5 === 0 ? 'combo' : (seed % 4 === 0 ? 'mirrors' : (seed % 4 === 1 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns'))));
     const variant = (seed >>> 4) % 16, order = [0,1,2,3,4];
     for (let i = order.length - 1; i > 0; i--) {
       const j = (seed + i * 13) % (i + 1), t = order[i]; order[i] = order[j]; order[j] = t;
@@ -86,7 +89,7 @@ SW.Trials = (function () {
     const tier = shrine.tier || 1;
     ROOMS[shrine.id] = {
       kind, name: old ? old.name : 'shr_' + shrine.id,
-      hint: kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : 'tr_hint_mirrors')),
+      hint: kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : (kind === 'combo' ? 'tr_hint_combo' : 'tr_hint_mirrors'))),
       reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
       map: roomMap(kind, variant), order
     };
@@ -103,7 +106,7 @@ SW.Trials = (function () {
 
   function build(id) {
     const def = ROOMS[id], h = def.map.length, w = def.map[0].length;
-    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], switches: [], swOn: [], mirrors: [], beam: [], beamSolved: false, mirrorCooldown: 0, seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
+    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], switches: [], swOn: [], mirrors: [], beam: [], beamSolved: false, mirrorCooldown: 0, pressurePlate: null, pressureActive: false, pressureTime: 0, seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
       p: { x: 5.5, y: 7.5, dir: 1, anim: 0, moving: false, face: 1.57 }, push: { k: '', t: 0 } };
     for (let y = 0; y < h; y++) {
       const row = [];
@@ -115,6 +118,7 @@ SW.Trials = (function () {
         else if (c === 'L') { R.lant.push({ x, y }); R.lit.push(false); R.lt.push(0); }
         else if (c === 'Q') { R.switches.push({ x, y }); R.swOn.push(false); }
         else if (c === 'M') R.mirrors.push({ x, y, orientation: 1 });
+        else if (c === 'V') R.pressurePlate = { x, y };
         row.push(c);
       }
       R.g.push(row);
@@ -172,7 +176,8 @@ SW.Trials = (function () {
     return true;
   }
   function traceBeam() {
-    if (!R || R.def.kind !== 'mirrors') return;
+    if (!R || (R.def.kind !== 'mirrors' && R.def.kind !== 'combo')) return;
+    if (R.def.kind === 'combo' && !R.pressureActive) { R.beam = []; R.beamSolved = false; return; }
     const x0 = 2, y0 = 8; let x = x0, y = y0, dx = 1, dy = 0, hit = false;
     const path = [{ x: x + .5, y: y + .5 }], seen = new Set();
     for (let step = 0; step < 80; step++) {
@@ -194,7 +199,7 @@ SW.Trials = (function () {
     if (hit && !R.open) { R.open = true; say('tr_door'); }
   }
   function tryRotateMirror(sx, sy) {
-    if (!R || R.def.kind !== 'mirrors' || R.mirrorCooldown > 0) return false;
+    if (!R || (R.def.kind !== 'mirrors' && R.def.kind !== 'combo') || R.mirrorCooldown > 0) return false;
     const p = R.p;
     const m = R.mirrors.find(o => {
       const dx = o.x + .5 - p.x, dy = o.y + .5 - p.y;
@@ -220,6 +225,19 @@ SW.Trials = (function () {
     } else p.anim = 0;
     if (!pushing) R.push.t = 0;
     if (R.def.kind === 'blocks' && !R.open && R.plates.every(pl => blockAt(pl.x, pl.y))) { R.open = true; say('tr_door'); }
+    if (R.def.kind === 'combo' && !R.open) {
+      if (!R.pressureActive && R.pressurePlate && Math.hypot(p.x - R.pressurePlate.x - .5, p.y - R.pressurePlate.y - .5) < .62) {
+        R.pressureActive = true; R.pressureTime = 8; traceBeam(); say('tr_combo_start');
+      }
+      if (R.pressureActive && !R.beamSolved) {
+        R.pressureTime = Math.max(0, R.pressureTime - dt);
+        if (R.pressureTime <= 0) {
+          R.pressureActive = false;
+          R.mirrors.forEach(m => { m.orientation = 1; });
+          traceBeam(); say('tr_combo_expired');
+        }
+      }
+    }
     if (R.def.kind === 'switches' && !R.open) {
       R.switches.forEach((sw, i) => {
         if (!R.swOn[i] && Math.hypot(p.x - sw.x - .5, p.y - sw.y - .5) < .62) {
@@ -260,6 +278,11 @@ SW.Trials = (function () {
       else if (g === 'E') { c.fillStyle = '#7a2e2a'; c.fillRect(px + u * .1, py, u * .8, u + 1); c.fillStyle = '#f2c14e'; c.fillRect(px + u * .1, py, u * .8, u * .06); }
       else if (g === 'F') { c.fillStyle = '#d5a83f'; c.fillRect(px + u * .2, py + u * .2, u * .6, u * .6); c.fillStyle = '#fff2a8'; c.fillRect(px + u * .38, py + u * .38, u * .24, u * .24); }
       else if (g === 'C') { c.fillStyle = '#6bd9e8'; c.beginPath(); c.moveTo(px + u * .5, py + u * .12); c.lineTo(px + u * .88, py + u * .5); c.lineTo(px + u * .5, py + u * .88); c.lineTo(px + u * .12, py + u * .5); c.closePath(); c.fill(); c.strokeStyle = '#d8fbff'; c.lineWidth = Math.max(2, u * .06); c.stroke(); }
+      else if (g === 'V') {
+        const on = R.pressureActive;
+        c.fillStyle = on ? '#d5a83f' : '#686477'; c.fillRect(px + u * .12, py + u * .12, u * .76, u * .76);
+        c.strokeStyle = on ? '#fff0a0' : '#aaa5b7'; c.lineWidth = Math.max(2, u * .07); c.strokeRect(px + u * .2, py + u * .2, u * .6, u * .6);
+      }
       else if (g === 'Q') {
         const si = R.switches.findIndex(sw => sw.x === x && sw.y === y), on = si >= 0 && R.swOn[si];
         c.fillStyle = on ? '#d5a83f' : '#686477'; c.beginPath(); c.arc(px + u / 2, py + u / 2, u * .3, 0, TAU); c.fill();
@@ -276,9 +299,12 @@ SW.Trials = (function () {
     for (let y = 0; y < R.h; y++) for (let x = 0; x < R.w; x++) if (R.g[y][x] === 'A') it.push({ y: y + .7, f: () => altar(c, x, y, ox, oy, u, time) });
     it.push({ y: R.p.y + .1, f: () => SW.Render.drawPlayer(c, Math.round(ox + R.p.x * u), Math.round(oy + (R.p.y + .3) * u), u, R.p) });
     it.sort((a, b) => a.y - b.y).forEach(o => o.f());
-    if (R.def.kind === 'mirrors' && R.beam.length > 1) {
+    if ((R.def.kind === 'mirrors' || R.def.kind === 'combo') && R.beam.length > 1) {
       c.save(); c.globalCompositeOperation = 'lighter'; c.strokeStyle = R.beamSolved ? '#a8f4ff' : '#f5d875'; c.lineWidth = Math.max(2, u * .12); c.shadowColor = c.strokeStyle; c.shadowBlur = u * .55; c.beginPath();
       R.beam.forEach((p, i) => { const x = ox + p.x * u, y = oy + p.y * u; if (!i) c.moveTo(x, y); else c.lineTo(x, y); }); c.stroke(); c.restore();
+    }
+    if (R.def.kind === 'combo' && R.pressureActive && !R.beamSolved) {
+      txt(c, tr('tr_timer') + ': ' + R.pressureTime.toFixed(1) + 's', cw / 2, ch * .105, Math.max(14 * dpr, u * .42), '#ffe27a');
     }
     if (R.def.kind === 'lanterns') {
       const n = R.def.order.length, x0 = ox + R.w * u / 2 - (n - 1) * u * .3;
@@ -329,7 +355,7 @@ SW.Trials = (function () {
   }
 
   T.debug = () => R; // nur für Tests
-  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L' || c === 'M').length, switches: d.map.join('').split('Q').length - 1, mirrors: d.map.join('').split('M').length - 1 } : null; };
+  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L' || c === 'M').length, switches: d.map.join('').split('Q').length - 1, mirrors: d.map.join('').split('M').length - 1, pressure: d.map.join('').split('V').length - 1 } : null; };
   T.dump = () => ({ done: [...T.done] });
   T.load = function (d) {
     if (!d || !Array.isArray(d.done)) return;
@@ -338,13 +364,13 @@ SW.Trials = (function () {
 
   Object.assign(SW.TEXT.en, {
     tr_enter: 'Enter', tr_leave: 'Leave', tr_reset: 'Reset', tr_done: 'Trial complete', tr_door: 'The door opens.', tr_wrong: 'The flames die. Try again.',
-    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.', tr_hint_switches: 'Find all three floor switches and step on each one to open the altar door.', tr_hint_mirrors: 'Walk into the mirror to turn it. Redirect the light beam from the western source into the crystal above.', tr_mirror_turn: 'The mirror turns.',
+    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.', tr_hint_switches: 'Find all three floor switches and step on each one to open the altar door.', tr_hint_mirrors: 'Walk into the mirror to turn it. Redirect the light beam from the western source into the crystal above.', tr_hint_combo: 'Step on the pressure plate, then hurry to the mirror. Turn it before the eight-second timer runs out.', tr_combo_start: 'The mechanism is active. Eight seconds!', tr_combo_expired: 'Time ran out. The mirror resets.', tr_timer: 'Time', tr_mirror_turn: 'The mirror turns.',
     trn_village: 'Trial of Stillness', trn_bamboo: 'Trial of Flames', trn_mountain: 'Trial of Stone', trn_hermit: 'Trial of Patience',
     trn_lookout: 'Trial of Balance', trn_fishers: 'Trial of Ripples', trn_ruins: 'Trial of the Ancients', trn_cave: 'Trial of Steel'
   });
   SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
     tr_enter: 'Betreten', tr_leave: 'Verlassen', tr_reset: 'Neustart', tr_done: 'Prüfung bestanden', tr_door: 'Die Tür öffnet sich.', tr_wrong: 'Die Flammen erlöschen. Versuche es erneut.',
-    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.', tr_hint_switches: 'Finde alle drei Bodenschalter und tritt auf jeden, um die Altartür zu öffnen.', tr_hint_mirrors: 'Laufe gegen den Spiegel, um ihn zu drehen. Lenke den Lichtstrahl von der westlichen Lichtquelle in den Kristall im Norden.', tr_mirror_turn: 'Der Spiegel dreht sich.',
+    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.', tr_hint_switches: 'Finde alle drei Bodenschalter und tritt auf jeden, um die Altartür zu öffnen.', tr_hint_mirrors: 'Laufe gegen den Spiegel, um ihn zu drehen. Lenke den Lichtstrahl von der westlichen Lichtquelle in den Kristall im Norden.', tr_hint_combo: 'Tritt auf die Druckplatte und laufe dann schnell zum Spiegel. Drehe ihn, bevor die acht Sekunden abgelaufen sind.', tr_combo_start: 'Der Mechanismus ist aktiv. Acht Sekunden!', tr_combo_expired: 'Die Zeit ist abgelaufen. Der Spiegel stellt sich zurück.', tr_timer: 'Zeit', tr_mirror_turn: 'Der Spiegel dreht sich.',
     trn_village: 'Prüfung der Stille', trn_bamboo: 'Prüfung der Flammen', trn_mountain: 'Prüfung des Steins', trn_hermit: 'Prüfung der Geduld',
     trn_lookout: 'Prüfung des Gleichgewichts', trn_fishers: 'Prüfung der Wellen', trn_ruins: 'Prüfung der Uralten', trn_cave: 'Prüfung des Stahls'
   });
