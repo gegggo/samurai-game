@@ -143,11 +143,11 @@ try:
         empty:Q.rewText(undefined)==='',
         choices:c.length>0 && c.every(q=>q.choice.every(x=>x.rew && typeof x.rew==='object')),
         region:SW.World.regionAt(5600,2100)===19,
-        dragon:SW.World.regionAt(4700,4150)===20,
-        spirit:SW.World.regionAt(6100,4200)===21,
-        frost:SW.World.regionAt(3400,3550)===22,
-        cloud:SW.World.regionAt(4300,3600)===23,
-        jade:SW.World.regionAt(5500,3650)===24,
+        dragon:SW.World.regionAt(2900,4150)===20,
+        spirit:SW.World.regionAt(4300,4200)===21,
+        frost:SW.World.regionAt(1600,3550)===22,
+        cloud:SW.World.regionAt(2500,3600)===23,
+        jade:SW.World.regionAt(3700,3650)===24,
         pilot:D.quests.some(q=>q.id==='pilot4')
       };
     }""")
