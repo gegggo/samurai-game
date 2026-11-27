@@ -64,6 +64,7 @@ SW.Trials = (function () {
     } else if (kind === 'labyrinth') {
       // Eigenstaendiges, garantiert verbundenes Labyrinth (Tiefensuche mit Ruecksprung).
       for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) g[y][x] = '#';
+      g[1][12] = 'A'; g[2][12] = 'D'; g[15][12] = 'S';
       const start = { x: 11, y: 13 }, stack = [start], visited = new Set([start.x + ',' + start.y]);
       g[start.y][start.x] = '.';
       while (stack.length) {
