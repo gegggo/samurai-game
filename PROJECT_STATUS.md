@@ -1,3 +1,10 @@
+## 0.29.0 – Korrektur der Kartenpositionen
+- Nutzerkorrektur nach iPhone-Screenshot: Alle fuenf neuen Regionen (20–24) liegen gemeinsam unterhalb der bisherigen Hauptkarte, nicht mehr rechts/oben.
+- Alte Hauptkarte, bestehende Regionspositionen und Kernflaechen bleiben unveraendert.
+- Weltkarte nach unten auf 8000 × 5200 erweitert; neue Gebiete liegen im Bereich Y 3.2k–4.6k und sind als breite, organische Landmasse direkt an die suedliche Kuestenlinie angeschlossen.
+- Keine Bruecken oder kuenstlichen Verbindungswege. Regionszentren, Layout-Metadaten und Generator synchronisiert.
+- iPhone-Test von 0.29.0 noch offen.
+
 ## Zwischenstand 0.27.0 – erste Erweiterung um Drachenwall und Tal der Geister
 - Die Weltkarte wurde nach Osten und Süden erweitert (8000 × 4000 Tiles).
 - Region 20 **Drachenwall / Dragonwall** liegt nordöstlich, Region 21 **Tal der Geister / Spirit Valley** südöstlich.
