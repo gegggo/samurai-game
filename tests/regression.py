@@ -276,6 +276,12 @@ try:
     }""")
     rec('Phase 0.34: jede Region hat fuenf Schreine; alle Schreine besitzen eine 25x17-Miniwelt-Pruefung',
         sum(1 for n in r['counts'] if n == 5) >= 23 and sum(1 for n in r['counts'] if 3 <= n < 5) <= 3 and all(3 <= n <= 5 for n in r['counts']) and r['total'] == sum(r['counts']) and r['generated'] == r['total'] - 37 and r['min'] >= 220 and r['rooms'] and r['can'], json.dumps(r))
+    # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
+    r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
+      const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
+      return {generated:gen.length, missing:missing.map(s=>s.id)};
+    }""")
+    rec('Phase 0.34: auch generierte Schreine besitzen mindestens zwei nahe Waechter', not r['missing'], json.dumps(r))
     # 12 Phase 19: Speicher-Schnittstelle SW.Store
     pg = start(b, errs)
     r = ev(pg, """() => { const o={}, S=SW.Store; S.setItem('t19','x'); o.rt=S.getItem('t19')==='x'; S.removeItem('t19'); o.rm=S.getItem('t19')===null;
