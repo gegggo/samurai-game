@@ -29,10 +29,14 @@ SW.Shrines = (function () {
       const center = W.CEN[reg];
       if (!center || counts[reg] >= target) continue;
       const candidates = [], cx = center[0], cy = center[1];
-      for (let y = Math.floor(cy - 960); y <= cy + 960; y += 48) {
-        for (let x = Math.floor(cx - 960); x <= cx + 960; x += 48) {
+      // Die bisherigen 1.050 Einheiten decken die Randbereiche mehrerer
+      // Regionen nicht ab. Die Suche bleibt auf die jeweilige Region begrenzt,
+      // wird aber bis 2.200 Einheiten erweitert und feiner abgetastet.
+      const searchRadius = 2200, searchStep = 32;
+      for (let y = Math.floor((cy - searchRadius) / searchStep) * searchStep; y <= cy + searchRadius; y += searchStep) {
+        for (let x = Math.floor((cx - searchRadius) / searchStep) * searchStep; x <= cx + searchRadius; x += searchStep) {
           const radius = Math.hypot(x - cx, y - cy);
-          if (radius < 150 || radius > 1050) continue;
+          if (radius < 150 || radius > searchRadius) continue;
           if (W.regionAt(x, y) !== reg || W.terrainRegionAt(x, y) !== reg) continue;
           if (W.regionAt(x - 36, y) !== reg || W.regionAt(x + 36, y) !== reg ||
               W.regionAt(x, y - 36) !== reg || W.regionAt(x, y + 36) !== reg) continue;
