@@ -133,7 +133,8 @@ SW.Quests = (function () {
     add(body, el('div', 'dim', T('q_goal') + ': ' + Q.objText(q)));
     const hasReward = !!(q.rew && (q.rew.coins || q.rew.xp || q.rew.ess || q.rew.karma));
     if (s === 'avail') {
-      if (hasReward) add(body, el('div', 'ok', T('q_reward') + ': ' + Q.rewText(q.rew)));
+      if (q.choice) { add(body, el('div', 'dim', T('q_choose'))); q.choice.forEach(ch => add(body, el('div', 'dim', Q.rewText(ch.rew)))); }
+      else if (hasReward) add(body, el('div', 'ok', T('q_reward') + ': ' + Q.rewText(q.rew)));
       add(body, add(el('div', 'row'), btn(T('q_accept'), 'pri', () => { Q.accept(id); go(null); }), btn(T('q_back'), '', () => go(null))));
     } else if (s === 'ready') {
       if (q.choice) {
@@ -200,7 +201,8 @@ SW.Quests = (function () {
       add(det, el('h3', '', T('qn_' + qsel)), el('div', 'chip', T('qs_' + s)), el('div', 'dlgtext', T('qd_' + qsel)));
       add(det, el('div', '', T('q_goal') + ': ' + Q.objText(q)), el('div', 'dim', T('q_from') + ': ' + T('npc_' + npc(q.giver).role)));
       if (q.category === 'main') add(det, el('div', 'chip', T('q_story')));
-      if (q.rew && (q.rew.coins || q.rew.xp || q.rew.ess || q.rew.karma)) add(det, el('div', 'ok', T('q_reward') + ': ' + (q.choice ? q.choice.map(c => Q.rewText(c.rew)).join('  /  ') : Q.rewText(q.rew))));
+      const rewards = q.choice ? q.choice.map(c => Q.rewText(c.rew)).filter(Boolean).join('  /  ') : Q.rewText(q.rew);
+      if (rewards) add(det, el('div', 'ok', T('q_reward') + ': ' + rewards));
       if (s === 'done' && Q.ch[qsel]) add(det, el('div', 'dim', T('qc_' + qsel + '_' + Q.ch[qsel])));
       add(lay, list, det); add(root2, lay);
     }
