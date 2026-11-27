@@ -2,10 +2,10 @@
 - Die acht vorhandenen Schrein-Grundtypen bleiben vorerst die Basis: Steinplatten, Laternenfolge, Bodenschalter, Spiegel, Zeit-/Spiegel-Kombination, Labyrinth, Mini-Boss und Bewegung. Ein weiterer Typ wird erst ergaenzt, wenn er eine klar neue Spielmechanik bietet.
 - Schrein-Regeln sind jetzt ueber ein darstellungsunabhaengiges Schwierigkeitsprofil definiert. Dieses Profil kann spaeter auch von einer echten 3D-Schrein-Szene verwendet werden.
 - Kombinationsschreine erhalten je nach Regionstier 12 / 9 / 7 Sekunden.
-- Bewegungsschreine erhalten je nach Tier kuerzere und engere Zeitfenster (2,55 / 2,20 / 1,90 Sekunden offene Passage). Die drei Sperren sind zeitlich auf einen durchgehenden Lauf abgestimmt.
+- Bewegungsschreine erhalten je nach Tier kuerzere und engere Zeitfenster (2,75 / 2,40 / 2,10 Sekunden offene Passage). Die drei Sperren sind zeitlich auf einen durchgehenden Lauf abgestimmt.
 - Textmeldung beim Start des Zeitraetsels ist nicht mehr auf eine feste Sekundenzahl beschraenkt; die sichtbare Zeitanzeige ist massgeblich.
 - Neue Regressionen pruefen die drei Schwierigkeitsprofile und einen echten Durchlauf des schwierigsten Bewegungsschreins.
-- Spielversion 0.36.0; Cache fuer `js/trials.js` auf v127. Vollstaendige CI-Pruefung laeuft; iPhone-Sichttest steht noch aus.
+- Spielversion 0.36.0; Cache fuer `js/trials.js` auf v128. Vollstaendige CI-Pruefung laeuft; iPhone-Sichttest steht noch aus.
 
 ## Version 0.34.0 – Schreine und groessere Schrein-Pruefungen (27.11.2026)
 - Zielverteilung: fuenf Schreine je Region (Regionen 0–25); vorhandene Schreine bleiben erhalten. Neue Positionen werden auf begehbarem Terrain gesucht und mit mindestens 220 Weltkacheln Abstand zu bestehenden Schreinen ausgewaehlt.
@@ -90,7 +90,7 @@
 
 # Samurai Wanderer – Aktueller Projektstatus
 
-Stand: 27.11.2026 · Version **0.36.0** · Cache **v127** (Schrein-Schwierigkeitsstaffelung implementiert; CI-Pruefung ausstehend)
+Stand: 27.11.2026 · Version **0.36.0** · Cache **v128** (Schrein-Schwierigkeitsstaffelung implementiert; CI-Pruefung ausstehend)
 
 ## 0.26.2 (vom Nutzer am iPhone vollständig getestet)
 - Menü (z-index 25) verdeckt Sprint/Stamina-HUD.
