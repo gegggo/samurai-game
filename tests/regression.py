@@ -275,7 +275,7 @@ try:
         can:D.shrines.every(x=>T.can(x.id))};
     }""")
     rec('Phase 0.34: jede Region hat fuenf Schreine; alle Schreine besitzen eine 25x17-Miniwelt-Pruefung',
-        sum(1 for n in r['counts'] if n == 5) >= 23 and sum(1 for n in r['counts'] if 3 <= n < 5) <= 3 and all(3 <= n <= 5 for n in r['counts']) and r['total'] == sum(r['counts']) and r['generated'] == r['total'] - 37 and r['min'] >= 220 and r['rooms'] and r['can'], json.dumps(r))
+        sum(1 for n in r['counts'] if n == 5) == 23 and sum(1 for n in r['counts'] if 3 <= n < 5) == 3 and all(3 <= n <= 5 for n in r['counts']) and r['total'] == sum(r['counts']) and r['generated'] == r['total'] - 37 and r['min'] >= 220 and r['rooms'] and r['can'], json.dumps(r))
     rec('Phase 0.35: Schreinräume besitzen mindestens 16 unterschiedliche Grundrisse', r['layouts'] >= 16, 'unique layouts=%s' % r['layouts'])
     # Phase 0.36: Bodenschalter muessen durch Betreten aktiviert werden und die Altartuer oeffnen.
     r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='switches')?.id;
@@ -308,7 +308,7 @@ try:
       room.p.x=plate.x+.5; room.p.y=plate.y+.5; T.update(.02,{x:0,y:0});
       room.p.x=mirror.x+.5; room.p.y=mirror.y+1.5;
       let steps=0; while(!room.beamSolved&&steps++<8) T.update(.1,{x:0,y:-1});
-      const result={entered:true,pressure:!!plate,started,expired,solved:room.beamSolved,open:room.open,orientation:mirror.orientation};
+      const result={entered:true,pressure:!!plate,started,expired,solved:room.beamSolved,open:room.open,orientation:mirror.orientation,steps};
       T.leave(); return result;
     }""")
     rec('Phase 0.38: Druckplatte startet Timer; Spiegel trifft innerhalb des Zeitfensters den Kristall',
