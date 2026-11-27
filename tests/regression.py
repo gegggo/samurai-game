@@ -161,14 +161,14 @@ try:
       for(const [x,y] of points){
         SW.cam.x=x;SW.cam.y=y;SW.Render.draw(ctx,320,180,0);
         const px=Array.from(ctx.getImageData(174,104,1,1).data);
-        out.push({x,y,tile:SW.World.t(x,y),rgb:px.slice(0,3)});
+        out.push({x,y,tile:SW.World.t(x,y),land:SW.World.t(x,y)!==SW.World.T.SEA,rgb:px.slice(0,3)});
       }
       SW.cam.x=old.x;SW.cam.y=old.y;
       const game=document.getElementById('game');SW.Render.resize(game.width,game.height);
       return out;
     }""")
     rec('Map: tatsaechliche Canvas-Darstellung zeigt an allen drei Stellen Land statt Schwarz',
-        len(r)==3 and all(p['tile']!=SW.World.T.SEA and sum(p['rgb'])>10 for p in r), json.dumps(r))
+        len(r)==3 and all(p['land'] and sum(p['rgb'])>10 for p in r), json.dumps(r))
     ev(pg, "SW.Inv.addCoins(123); SW.Char.addXp(200); SW.Essence.add(3); SW.Karma.add('t1', 10); SW.YinYang.gain('yin', 5); SW.Save.save();")
     before = ev(pg, "JSON.stringify([SW.Inv.coins, SW.Char.level, SW.Char.xp, SW.Essence.n, SW.Karma.v, SW.YinYang.yin])")
     cont(pg); after = ev(pg, "JSON.stringify([SW.Inv.coins, SW.Char.level, SW.Char.xp, SW.Essence.n, SW.Karma.v, SW.YinYang.yin])")
