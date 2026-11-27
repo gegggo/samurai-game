@@ -1,3 +1,11 @@
+## Version 0.33.0 – abgerundete, oval ausgerichtete Aussenkueste (27.11.2026)
+- Die Kuestenkontur wird mit einem kreisfoermigen Morphological Closing geglaettet (Radius 16 Rasterzellen = 128 Weltkacheln). Flache Einbuchtungen und eckige Uebergaenge werden aufgefuellt; tiefe Buchten und Seen bleiben erhalten.
+- 967 leere Kuestenzellen werden ergaenzt. Jede neue Zelle uebernimmt die naechstgelegene bestehende Region; vorhandenes Land und Seen werden nicht ueberschrieben.
+- Der Uebergang bei X987/Y2847 wird geschlossen. X3162/Y2643 und X3183/Y3339 bleiben als Landstellen erhalten.
+- Ein gedrehter ovaler Sicherheitsrahmen prueft, dass keine Land-Auslaeufer ausserhalb der ungefaehren NW-SO-Ovalform liegen.
+- Neue Dateien: `js/layout-coastline.js` und `tools/make_layout_coastline.py`.
+- Regression erweitert: statische Rasterpruefung plus echte Canvas-Pixelpruefung an allen drei Koordinaten. CI und iPhone-Sichttest stehen noch aus.
+
 ## Version 0.32.0 – kleine Kartenluecken geschlossen, Gezeitentempel ergaenzt (27.11.2026)
 - Drei eingeschlossene Wasserluecken zwischen den bestehenden Regionen geschlossen: 4, 41 und 1.077 Rasterzellen (insgesamt 1.122).
 - Die groessere Bucht zwischen Sun Coast, Abandoned Fortress und Verdant Basin wurde als zusammenhaengendes Kuestentempel-Areal in Region 25 integriert; offene Aussenkuesten und Seen bleiben unberuehrt.
