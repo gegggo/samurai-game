@@ -406,7 +406,7 @@ try:
       T.leave();return result;
     }""")
     rec('Phase 0.43: drei Schalter schalten den Zeitparcours frei; Sperren, Checkpoints und Altar funktionieren',
-        r.get('entered')&&r['locked']&&r['unlocked']&&r['timedGate']&&r['passable']&&r['checkpoints']&&r['opened']&&r['completed']&&r['switches']==3&&r['hazards']==3,json.dumps(r))
+        r.get('entered') and r['locked'] and r['unlocked'] and r['timedGate'] and r['passable'] and r['checkpoints'] and r['opened'] and r['completed'] and r['switches']==3 and r['hazards']==3,json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
     r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
       const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
