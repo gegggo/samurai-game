@@ -45,8 +45,8 @@ def check_connected_mainland():
                 x += count
     seen = bytearray(len(grid))
     components = 0
-    region_cells = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0}
-    contacts = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0}
+    region_cells = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0, 24: 0}
+    contacts = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0, 24: 0}
     for i, value in enumerate(grid):
         if 0 < value < 128 and value - 1 in region_cells:
             region_cells[value - 1] += 1
@@ -73,14 +73,14 @@ def check_connected_mainland():
                 if grid[y * width + x] != reg + 1:
                     continue
                 if any(0 <= x+dx < width and 0 <= y+dy < height and
-                       0 < grid[(y+dy)*width+x+dx] < reg+1
+                       0 < grid[(y+dy)*width+x+dx] < 128 and grid[(y+dy)*width+x+dx] != reg+1
                        for dx,dy in ((1,0),(-1,0),(0,1),(0,-1))):
                     contacts[reg] += 1
     return components, region_cells, contacts
 
 components, region_cells, contacts = check_connected_mainland()
 rec('Map: alle Regionen bilden eine einzige zusammenhaengende Landmasse',
-    components == 1 and all(region_cells[r] > 0 and contacts[r] >= 10 for r in (17,18,19,20,21)),
+    components == 1 and all(region_cells[r] > 0 and contacts[r] >= 10 for r in (17,18,19,20,21,22,23,24)),
     'components=%s regions=%s contacts=%s' % (components, region_cells, contacts))
 
 try:

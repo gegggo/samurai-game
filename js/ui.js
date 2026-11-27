@@ -185,7 +185,7 @@ SW.UI = (function () {
   function explore(n) { const m = SW.Char.addXp(n); if (m.length) showBanner(m.join(' ')); }
 
   // Flächenfarbe je Region (Index = W.regionAt)
-  const RCOL = [[143, 160, 95], [74, 122, 58], [138, 130, 112], [58, 100, 56], [64, 112, 96], [126, 118, 108], [118, 106, 92], [140, 100, 60], [88, 78, 98], [44, 84, 56], [128, 126, 120], [88, 112, 70], [225, 232, 238], [118, 62, 42], [214, 176, 98], [205, 190, 140], [140, 124, 108], [214, 150, 176], [132, 112, 104], [76, 104, 116], [105, 112, 126], [73, 105, 84]];
+  const RCOL = [[143, 160, 95], [74, 122, 58], [138, 130, 112], [58, 100, 56], [64, 112, 96], [126, 118, 108], [118, 106, 92], [140, 100, 60], [88, 78, 98], [44, 84, 56], [128, 126, 120], [88, 112, 70], [225, 232, 238], [118, 62, 42], [214, 176, 98], [205, 190, 140], [140, 124, 108], [214, 150, 176], [132, 112, 104], [76, 104, 116], [105, 112, 126], [73, 105, 84], [175, 196, 211], [175, 154, 112], [82, 132, 94]];
   // Übersichtsbild der Welt, schrittweise erzeugt (blockiert den Start nicht)
   function stepOverview() {
     if (ovRow >= OSH) return;
@@ -286,11 +286,11 @@ SW.UI = (function () {
     const used = []; // belegte Textfelder: überlappende Namen entfallen (beim Hineinzoomen erscheinen sie)
     const lab = (s, x, y, a, big) => { c.font = '700 ' + ((big ? 14 : 11) * d) + 'px sans-serif'; const tw = c.measureText(s).width / 2 + 3 * d, th = (big ? 14 : 11) * d; if (used.some(u => Math.abs(u[0] - x) < u[2] + tw && Math.abs(u[1] - y) < u[3] + th)) return; used.push([x, y, tw, th / 2]); c.globalAlpha = a; c.lineJoin = 'round'; c.lineWidth = 3 * d; c.strokeStyle = 'rgba(15,20,30,.85)'; c.strokeText(s, x, y); c.fillStyle = '#fff'; c.fillText(s, x, y); c.globalAlpha = 1; };
     const poiNames = W.POI.map(o => SW.t('poi_' + o.id));
-    for (let r = 0; r < W.CEN.length; r++) { const n = SW.t('reg_' + r), m = W.CEN[r]; if (m && poiNames.indexOf(n) < 0) lab(n, X(m[0]), Y(m[1]) - 14 * d, U.seen.has(r) ? 1 : .75, 1); } // gleichnamige Orte nicht doppelt beschriften
+    for (let r = 0; r < W.CEN.length; r++) { const n = SW.t('reg_' + r), m = W.CEN[r]; if (m && (v.z < 1.35 || poiNames.indexOf(n) < 0)) lab(n, X(m[0]), Y(m[1]) - 14 * d, U.seen.has(r) ? 1 : .75, 1); } // gleichnamige Orte nicht doppelt beschriften
     // Orte: Symbol je Art (Dorf = Haus, Tempel/Ruine/Höhle = Tor, Lager = Zelt, sonst Raute). Alle immer sichtbar, unentdeckte gedämpft.
     const pois = W.POI.slice().sort((a, b) => (KIND[b.id] ? 1 : 0) - (KIND[a.id] ? 1 : 0) || U.disc.has(b.id) - U.disc.has(a.id));
     pois.slice().reverse().forEach(o => poiIcon(c, KIND[o.id] || 'n', X(o.x), Y(o.y), 7 * d, U.disc.has(o.id), d)); // wichtige Symbole zuletzt = obenauf
-    pois.forEach(o => { // Beschriftung: wichtige zuerst, Ausweichpositionen gegen Überlappung
+    if (v.z >= 1.35) pois.forEach(o => { // POI-Namen erst beim Hineinzoomen: Uebersicht bleibt lesbar
       const x = X(o.x), y = Y(o.y), got = U.disc.has(o.id), s = SW.t('poi_' + o.id);
       const dys = KIND[o.id] ? [17, -13, 31, -27] : [16, -12];
       c.font = '700 ' + (11 * d) + 'px sans-serif';
