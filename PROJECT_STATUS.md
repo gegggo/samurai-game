@@ -4,7 +4,7 @@
 - Der Ablauf nutzt denselben 25×17-Raum und die vorhandene Bewegungs-/Schalterlogik. Deutsche und englische Hinweise sowie Fortschrittsanzeige ergaenzt.
 - Nur ein Teil der generierten Schreine nutzt diese Kombination; die acht Grundmechaniken bleiben erhalten.
 - Regression erweitert: Schalter-Sperre, Freischaltung, Checkpoints, drei Zeitbarrieren und Altarabschluss.
-- Spielversion 0.37.0; Cache fuer `js/trials.js` auf v129 und `js/config.js` auf v116. Vollstaendige CI-Pruefung und iPhone-Sichttest stehen noch aus.
+- Spielversion 0.37.0; Cache fuer `js/trials.js` auf v129 und `js/config.js` auf v116. GitHub Actions erfolgreich: 80 Regressionstests und 6 Exploit-Tests bestanden, 0 fehlgeschlagen. iPhone-Sichttest steht noch aus.
 
 ## Version 0.36.0 – Schwierigkeitsstaffelung fuer Schreine (27.11.2026)
 - Die acht vorhandenen Schrein-Grundtypen bleiben vorerst die Basis: Steinplatten, Laternenfolge, Bodenschalter, Spiegel, Zeit-/Spiegel-Kombination, Labyrinth, Mini-Boss und Bewegung. Ein weiterer Typ wird erst ergaenzt, wenn er eine klar neue Spielmechanik bietet.
