@@ -25,6 +25,9 @@ SW.Shrines = (function () {
     const target = 5, counts = Array(26).fill(0);
     D.shrines.forEach(d => { const r = W.regionAt(d.x, d.y); if (r >= 0 && r < counts.length) counts[r]++; });
     let added = 0;
+    // Der 220er-Mindestabstand gilt fuer neu platzierte Schreine untereinander.
+    // Bestehende feste Schreine sind landmarks und sollen die regionale Erweiterung nicht blockieren.
+    const placed = D.shrines.filter(d => d.generated).map(d => ({ x: d.x, y: d.y }));
     for (let reg = 0; reg < counts.length; reg++) {
       const center = W.CEN[reg];
       if (!center || counts[reg] >= target) continue;
@@ -53,7 +56,7 @@ SW.Shrines = (function () {
         for (let i = 0; i < candidates.length; i++) {
           const c = candidates[i];
           let nearest = Infinity;
-          for (const d of D.shrines) nearest = Math.min(nearest, Math.hypot(c.x - d.x, c.y - d.y));
+          for (const d of placed) nearest = Math.min(nearest, Math.hypot(c.x - d.x, c.y - d.y));
           if (nearest < 220) continue;
           const jitter = ((c.x * 17 + c.y * 31 + reg * 13) % 23) / 23;
           const score = nearest - Math.abs(c.radius - 560) * .12 + jitter;
@@ -71,6 +74,7 @@ SW.Shrines = (function () {
         const p = free(c.x, c.y);
         S.list.push({ id, x: p.x, y: p.y });
         counts[reg]++; added++;
+        placed.push({ x: c.x, y: c.y });
         for (let i = candidates.length - 1; i >= 0; i--) {
           if (Math.hypot(candidates[i].x - c.x, candidates[i].y - c.y) < 220) candidates.splice(i, 1);
         }
