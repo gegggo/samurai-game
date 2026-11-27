@@ -288,14 +288,14 @@ try:
     rec('Phase 0.36: Drei Bodenschalter lassen sich betreten und oeffnen danach die Altartuer',
         r.get('entered') and r['count']==3 and r['activated']==3 and r['open'], json.dumps(r))
     # Phase 0.37: Spiegel durch Anlaufen drehen und Lichtstrahl auf den Kristall lenken.
-    r = ev(pg, \"\"\"() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='mirrors')?.id;
+    r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='mirrors')?.id;
       if(!id || !T.enter(id)) return {entered:false};
       const room=T.debug(), m=room.mirrors[0]; m.orientation=1;
       room.p.x=m.x+.5; room.p.y=m.y+1.5;
       let steps=0; while(!room.beamSolved && steps++<8) T.update(.1,{x:0,y:-1});
       const result={entered:true,mirrors:room.mirrors.length,orientation:m.orientation,solved:room.beamSolved,open:room.open,steps};
       T.leave(); return result;
-    }\"\"\")
+    }""")
     rec('Phase 0.37: Spiegel laesst sich durch Anlaufen drehen und lenkt den Strahl zum Kristall',
         r.get('entered') and r['mirrors']==1 and r['orientation']==0 and r['solved'] and r['open'], json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
