@@ -41,6 +41,24 @@ SW.Combat = (function () {
     });
   })();
 
+  // Nachtraeglich erzeugte Schreine erhalten dieselbe Waechter-Grundausstattung.
+  K.ensureShrineGuards = function (shrines) {
+    const light = ['bandit', 'ronin', 'spearman'], mid = ['ronin', 'swift', 'spearman', 'samurai'], hard = ['samurai', 'armored', 'swift', 'spearman'];
+    (shrines || []).forEach(sh => {
+      const c = free(sh.x, sh.y);
+      let have = K.spots.filter(e => !e.night && !e.amb && Math.hypot(e.x - c.x, e.y - c.y) < 22).length;
+      const si = Math.max(0, D.shrines.indexOf(sh));
+      const reg = W.regionAt(Math.floor(c.x), Math.floor(c.y)), L = (reg >= 12 || reg === 5 || reg === 8 || reg === 16) ? hard : (reg === 0 || reg === 1 || reg === 3) ? light : mid;
+      for (let n = 1; have < 2; n++) {
+        const id = 'g_' + sh.id + '_' + n;
+        if (K.spots.some(e => e.id === id)) continue;
+        const g = (si * 2.4 + n * 3.1) % TAU, p = free(c.x + Math.cos(g) * 6, c.y + Math.sin(g) * 6);
+        K.spots.push({ id, type: L[(si + n) % L.length], x: p.x, y: p.y, dead: false, night: false, respawn: false, kv: undefined, tier: sh.tier });
+        have++;
+      }
+    });
+  };
+
   K.playerStats = function () { return SW.Char ? SW.Char.combat() : D.player; }; // echte Charakterwerte (Phase 3)
 
   // Nachtgegner: nur nachts aktiv; wiederkehrende kommen mit jeder neuen Nacht zurück
