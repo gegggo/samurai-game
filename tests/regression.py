@@ -687,6 +687,33 @@ try:
     rec('Weltkarte: POIs haben gueltige Typen, Abmessungen und Map-Grenzen',
         r['count']>20 and len(r['bad'])==0, json.dumps(r))
 
+    # Phase 0.45: Schriftzeichen und Hauptquest-Tor
+    r = ev(pg, """() => {
+      const I=SW.Inscriptions,W=SW.World,bad=[],ids=new Set(),letters=I.list.map(g=>g.letter).join('');
+      I.list.forEach(g=>{const x=Math.floor(g.x),y=Math.floor(g.y);if(!g.id||ids.has(g.id)||!Number.isFinite(g.x)||!Number.isFinite(g.y)||W.regionAt(x,y)!==g.region||W.solid(x,y))bad.push(g.id);ids.add(g.id);});
+      const g=I.gate,gx=Math.floor(g.x),gy=Math.floor(g.y);
+      if(W.regionAt(gx,gy)!==g.region||W.solid(gx,gy)||I.list.some(s=>Math.hypot(s.x-g.x,s.y-g.y)<5))bad.push('gate');
+      return {count:I.total(),unique:ids.size,letters,regions:new Set(I.list.map(s=>s.region)).size,bad};
+    }""")
+    rec('Phase 0.45: 12 erfundene Zeichen liegen eindeutig, frei und in zwölf vorgesehenen Regionen; das Tor ist frei', r['count']==12 and r['unique']==12 and r['letters']=='THEGATEOPENS' and r['regions']==12 and not r['bad'], json.dumps(r))
+    r = ev(pg, """() => {
+      const I=SW.Inscriptions,Q=SW.Quests,old=Q.dump();let out={};
+      try{
+        Object.keys(Q.st).forEach(k=>delete Q.st[k]);Object.keys(Q.ch).forEach(k=>delete Q.ch[k]);I.load({found:[],gateOpened:false});Q.st.elder3='done';
+        const available=Q.status('main_glyphs')==='avail',accepted=Q.accept('main_glyphs');
+        for(let i=0;i<11;i++)I.collect(I.list[i].id);
+        const partial=I.count()===11&&Q.status('main_glyphs')==='active'&&!I.gateVisible();
+        const last=I.collect(I.list[11].id),ready=Q.status('main_glyphs')==='ready';
+        const report=Q.complete('main_glyphs'),visible=I.gateVisible()&&Q.status('main_gate')==='avail',blocked=I.blocks(Math.floor(I.gate.x),Math.floor(I.gate.y));
+        const gateAccepted=Q.accept('main_gate'),opened=I.openGate(),gateReady=Q.status('main_gate')==='ready';
+        const passable=!I.blocks(Math.floor(I.gate.x),Math.floor(I.gate.y)),gateReport=Q.complete('main_gate'),saved=Q.dump();Q.load(saved);
+        const restored=I.count()===12&&I.isGateOpened()&&Q.status('main_gate')==='done';
+        out={available,accepted,partial,last,ready,report,visible,blocked,gateAccepted,opened,gateReady,passable,gateReport,restored};
+      }finally{Object.keys(Q.st).forEach(k=>delete Q.st[k]);Object.keys(Q.ch).forEach(k=>delete Q.ch[k]);Q.load(old);}
+      return out;
+    }""")
+    rec('Phase 0.45: Alle Zeichen sind Pflicht, das Tor wird danach sichtbar und begehbar; Wörterbuch und Torstatus werden gespeichert', all(r[k] for k in ['available','accepted','partial','last','ready','report','visible','blocked','gateAccepted','opened','gateReady','passable','gateReport','restored']), json.dumps(r))
+
     # 49 Bewegung: Spieler darf nicht durch benachbarte feste Tiles laufen
     r = ev(pg, """() => {
       const W=SW.World,P=SW.Player,I=SW.Input,old={x:P.x,y:P.y,stamina:P.stamina,paused:SW.paused,sprint:I.sprint};

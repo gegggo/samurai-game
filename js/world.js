@@ -398,7 +398,7 @@ SW.World = (function () {
   function o(x, y) { if (x < 0 || y < 0 || x >= WW || y >= HH) return 0; return chunk(x >> 4, y >> 4).o[(y & 15) * 16 + (x & 15)]; }
   function solid(x, y) {
     const tt = t(x, y);
-    return tt === T.ROCK || tt === T.WALL || tt === T.LAVA || tt === T.WATER || tt === T.DEEP || tt === T.SEA || (o(x, y) !== 0 && o(x, y) !== O.BAMBOO) || structSolid(x, y);
+    return tt === T.ROCK || tt === T.WALL || tt === T.LAVA || tt === T.WATER || tt === T.DEEP || tt === T.SEA || (o(x, y) !== 0 && o(x, y) !== O.BAMBOO) || structSolid(x, y) || !!(SW.Inscriptions && SW.Inscriptions.blocks(x, y));
   }
   build();
   return { mtn, WIDTH: WW, HEIGHT: HH, T, O, PAL, S, POI, CEN, h, terrain, regionAt, terrainRegionAt, t, o, solid, buildVillageFence, spawn: { x: CEN[0][0] + .5, y: CEN[0][1] + 3.5 } };
