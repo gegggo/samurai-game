@@ -303,8 +303,8 @@ try:
       if(!id || !T.enter(id)) return {entered:false};
       const room=T.debug(), plate=room.pressurePlate, mirror=room.mirrors[0];
       room.p.x=plate.x+.5; room.p.y=plate.y+.5; T.update(.02,{x:0,y:0});
-      const started=room.pressureActive&&room.pressureTime>7.9;
-      T.update(8.1,{x:0,y:0}); const expired=!room.pressureActive&&mirror.orientation===1;
+      const started=room.pressureActive&&room.pressureTime>8.9;
+      T.update(9.1,{x:0,y:0}); const expired=!room.pressureActive&&mirror.orientation===1;
       room.p.x=plate.x+.5; room.p.y=plate.y+.5; T.update(.02,{x:0,y:0});
       room.p.x=mirror.x+.5; room.p.y=mirror.y+1.5;
       let steps=0; while(!room.beamSolved&&steps++<8) T.update(.1,{x:0,y:-1});
