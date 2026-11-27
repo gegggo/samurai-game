@@ -157,7 +157,7 @@ SW.Trials = (function () {
         else if (c === 'L') { R.lant.push({ x, y }); R.lit.push(false); R.lt.push(0); }
         else if (c === 'Q') { R.switches.push({ x, y }); R.swOn.push(false); }
         else if (c === 'M') R.mirrors.push({ x, y, orientation: 1 });
-        else if (c === 'H') R.hazards.push({ x, y, offset: R.hazards.length * .7 });
+        else if (c === 'H') R.hazards.push({ x, y, offset: (11 - y) / 3 * .7 });
         else if (c === 'K') R.checkpoints.push({ x, y, reached: false });
         else if (c === 'V') R.pressurePlate = { x, y };
         row.push(c);
