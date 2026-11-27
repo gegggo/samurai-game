@@ -270,12 +270,13 @@ try:
       let min=Infinity;
       for(let i=0;i<generated.length;i++) for(let j=0;j<i;j++)
         min=Math.min(min,Math.hypot(generated[i].x-generated[j].x,generated[i].y-generated[j].y));
-      return {total:D.shrines.length, generated:generated.length, counts, min,
+      return {total:D.shrines.length, generated:generated.length, counts, min, layouts:new Set(info.filter(Boolean).map(x=>x.layout)).size,
         rooms:info.length===D.shrines.length && info.every(x=>x && x.w===25 && x.h===17 && (x.kind==='blocks'||x.kind==='lanterns')),
         can:D.shrines.every(x=>T.can(x.id))};
     }""")
     rec('Phase 0.34: jede Region hat fuenf Schreine; alle Schreine besitzen eine 25x17-Miniwelt-Pruefung',
         sum(1 for n in r['counts'] if n == 5) >= 23 and sum(1 for n in r['counts'] if 3 <= n < 5) <= 3 and all(3 <= n <= 5 for n in r['counts']) and r['total'] == sum(r['counts']) and r['generated'] == r['total'] - 37 and r['min'] >= 220 and r['rooms'] and r['can'], json.dumps(r))
+    rec('Phase 0.35: Schreinräume besitzen mindestens 16 unterschiedliche Grundrisse', r['layouts'] >= 16, 'unique layouts=%s' % r['layouts'])
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
     r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
       const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
