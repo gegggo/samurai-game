@@ -1,10 +1,22 @@
-## Map-Erweiterung – Drachenwall + Tal der Geister (implementiert; Gerätetest offen)
+## Zwischenstand 0.27.0 – erste Erweiterung um Drachenwall und Tal der Geister
 - Die Weltkarte wurde nach Osten und Süden erweitert (8000 × 4000 Tiles).
 - Region 20 **Drachenwall / Dragonwall** liegt nordöstlich, Region 21 **Tal der Geister / Spirit Valley** südöstlich.
 - Beide Regionen sind als breite, organische Landflächen direkt an die bestehende Landmasse angebaut. Es wurden keine Brücken oder Verbindungswege zwischen den Regionen ergänzt.
 - Bestehendes Terrain wird vom neuen Layout nicht überschrieben; die vorhandene 60/40-Übergangsmischung greift an den Regionsgrenzen.
 - Neue POI-Kartenbeschriftungen, deutsche/englische Namen, Regionsfarben und regionale Terrain-Generierung ergänzt. Noch keine Dörfer, Tempel, Dungeons oder Quests platziert – dafür bleibt die Fläche frei.
 - Statische Landverbindungsprüfung: PASS (eine zusammenhängende Landmasse; beide neuen Regionen mit Landkontakt). JavaScript-Syntax, JSON-Dateien und isolierter Weltmodul-Laufzeittest: PASS. Der vollständige Playwright-Lauf wurde versucht, aber der Browser blockiert in dieser Umgebung lokale Testserver (`ERR_BLOCKED_BY_ADMINISTRATOR`). iPhone-/Touch-Test dieser Kartenerweiterung steht noch aus.
+
+## Map-Überarbeitung 0.28.0 – Regionen 20–24 und Größenanpassung (27.11.2026)
+
+- Die Mittelpunkte aller bestehenden Regionen bleiben unverändert.
+- Die Küstenfläche der ursprünglichen Kernregionen 0–16 wurde dort moderat erweitert, wo freies Land direkt angrenzt. Bestehende Kernformen und Seen bleiben erhalten; enge Nachbarregionen werden nicht pauschal in gleich große geometrische Flächen umgeschnitten.
+- Drachenwall (20) und Tal der Geister (21) behalten ihre bisherigen Mittelpunkte; ihre Flächen wurden in den gleichen Größenkorridor wie die neuen Regionen gebracht.
+- Drei nördliche Regionen ergänzt: Frostwall (22), Wolkensteppe (23) und Jadehochland (24).
+- Alle fünf neuen Regionen sind ohne Brücken oder künstliche Wege direkt in dieselbe Landmasse integriert.
+- Neue POI-Zentren, EN/DE-Kartennamen und passende Biome ergänzt.
+- Kartenübersicht bereinigt: POI-Textbeschriftungen erscheinen erst beim Hineinzoomen; Regionsnamen bleiben in der Übersicht sichtbar.
+- Regressionstest prüft, dass alle Landregionen eine einzige zusammenhängende Landmasse bilden und die Erweiterungsregionen direkten Landkontakt haben.
+- Statische Kartenprüfung und isolierter Weltmodul-Laufzeittest bestanden. Vollständiger Playwright-Lauf wurde versucht, aber der Browser blockiert in dieser Umgebung lokale Testserver (`ERR_BLOCKED_BY_ADMINISTRATOR`). iPhone-/Touch-Test steht noch aus.
 
 ## Phase 26.1 – Sprint-Sperre + zusammenhängende Regionsübergänge (implementiert; vom Nutzer am Gerät getestet)
 - Sprint: Bei 0 Ausdauer wird Sprint sofort beendet und gesperrt. Die Sperre bleibt auch bestehen, wenn die Taste weiter gehalten wird. Sie löst sich erst nach Loslassen und mindestens 20% wiederhergestellter Ausdauer. Der Sprintknopf zeigt den Erschöpfungszustand sichtbar an.
@@ -24,7 +36,7 @@
 
 # Samurai Wanderer – Aktueller Projektstatus
 
-Stand: 27.11.2026 · Version **0.27.0** · Cache **v110** (Map-Erweiterung implementiert; Gerätetest offen)
+Stand: 27.11.2026 · Version **0.28.0** · Cache **v111** (Map-Erweiterung implementiert; Gerätetest offen)
 
 ## 0.26.2 (vom Nutzer am iPhone vollständig getestet)
 - Menü (z-index 25) verdeckt Sprint/Stamina-HUD.
