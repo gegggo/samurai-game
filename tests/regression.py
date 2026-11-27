@@ -196,7 +196,7 @@ try:
     ok1 = ev(pg, "t => SW.Save.inspect(t).ok === true", ) if False else pg.evaluate("t => SW.Save.inspect(t).ok === true", txt)
     tam = txt.replace('"sum":', '"sum":1', 1)
     e2 = pg.evaluate("t => SW.Save.inspect(t).err", tam); e3 = pg.evaluate("SW.Save.inspect('kein json').err")
-    e4 = pg.evaluate("SW.Save.applyImport('{\"sw\":\"x\"}')"); still = ev(pg, "SW.Inv.coins >= 123")
+    e4 = pg.evaluate("SW.Save.applyImport('{"sw":"x"}')"); still = ev(pg, "SW.Inv.coins >= 123")
     rec('Export/Import: gueltig ok, manipuliert/ungueltig abgewiesen, Stand unveraendert', ok1 and e2 in ('sum', 'bad') and e3 == 'bad' and e4 is False and still, '%s %s %s' % (e2, e3, e4))
     # 5 Inventar
     r = ev(pg, """() => { const I=SW.Inv; I.bag={}; I.eq={}; const o={};
@@ -327,7 +327,7 @@ try:
     rec('Phase 0.39: Labyrinth ist verbunden, besitzt echte Sackgassen und fuehrt zur Altartuer',
         r.get('entered') and r['connected'] and r['walls']>100 and r['door'] and r['completed'], json.dumps(r))
     # Phase 0.40: Mini-Boss-Schrein startet einen eigenen Schreinwaechter in der Boss-Arena.
-    r = ev(pg, \"\"\"() => {
+    r = ev(pg, """() => {
       const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='miniboss')?.id;
       if(!id || !T.enter(id)) return {entered:false};
       const room=T.debug(); room.p.x=12.5; room.p.y=5.5; T.update(.02,{x:0,y:0});
@@ -335,11 +335,11 @@ try:
         launched:SW.Combat.active&&SW.Arena.active,trial:room.bossStarted};
       SW.Arena.active=false; SW.Combat.active=false; SW.paused=false; document.body.classList.remove('combat');
       T.leave(); return result;
-    }\"\"\")
+    }""")
     rec('Phase 0.40: Mini-Boss-Schrein startet den eigenen Schreinwaechter in der Boss-Arena',
         r.get('entered') and r['kind']=='miniboss' and r['bossType']=='shrine_guard' and r['defined'] and r['launched'] and r['trial'], json.dumps(r))
     # Phase 0.41: Bewegungsschrein hat drei getaktete Sperren, zwei Checkpoints und einen erreichbaren Altar.
-    r = ev(pg, \"\"\"() => {
+    r = ev(pg, """() => {
       const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='movement')?.id;
       if(!id || !T.enter(id)) return {entered:false};
       const room=T.debug(), hazards=room.hazards.length, checkpoints=room.checkpoints.length;
@@ -356,7 +356,7 @@ try:
       room.p.x=12.5; room.p.y=1.5; T.update(.02,{x:0,y:0}); const completed=room.state==='reward';
       const result={entered:true,hazards,checkpoints,reset,blocked,passable,saved,open,completed};
       T.leave(); return result;
-    }\"\"\")
+    }""")
     rec('Phase 0.41: Bewegungsschrein prueft Sperren, Rueckwurf, Checkpoints und Altar',
         r.get('entered') and r['hazards']==3 and r['checkpoints']==2 and r['reset'] and r['blocked'] and r['passable'] and r['saved'] and r['open'] and r['completed'], json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
