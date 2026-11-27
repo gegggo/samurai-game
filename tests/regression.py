@@ -17,7 +17,7 @@ def check_connected_mainland():
     import os, re
     from collections import deque
     html = open('index.html', encoding='utf-8').read()
-    files = re.findall(r'<script src="(js/layout[^"]+\.js)', html)
+    files = re.findall(r'<script src="(js/layout[^"]*\.js)', html)
     segs = []
     for path in files:
         src = open(path, encoding='utf-8').read()
@@ -45,8 +45,8 @@ def check_connected_mainland():
                 x += count
     seen = bytearray(len(grid))
     components = 0
-    region_cells = {17: 0, 18: 0, 19: 0}
-    contacts = {17: 0, 18: 0, 19: 0}
+    region_cells = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0}
+    contacts = {17: 0, 18: 0, 19: 0, 20: 0, 21: 0}
     for i, value in enumerate(grid):
         if 0 < value < 128 and value - 1 in region_cells:
             region_cells[value - 1] += 1
@@ -80,7 +80,7 @@ def check_connected_mainland():
 
 components, region_cells, contacts = check_connected_mainland()
 rec('Map: alle Regionen bilden eine einzige zusammenhaengende Landmasse',
-    components == 1 and all(region_cells[r] > 0 and contacts[r] >= 10 for r in (17,18,19)),
+    components == 1 and all(region_cells[r] > 0 and contacts[r] >= 10 for r in (17,18,19,20,21)),
     'components=%s regions=%s contacts=%s' % (components, region_cells, contacts))
 
 try:
@@ -137,8 +137,8 @@ try:
     qid = r.get('id'); cont(pg); st = ev(pg, "id => SW.Quests.st[id]") if False else pg.evaluate("id => SW.Quests.st[id]", qid)
     rec('Quest-Status bleibt nach Neuladen', st == 'done', str(st))
     # 6b Phase 25: Choice-Quests haben kein questweites rew; Anzeige muss sicher bleiben
-    r = ev(pg, """() => { const Q=SW.Quests, D=SW.Data, c=D.quests.filter(q=>q.choice); return {empty:Q.rewText(undefined)==='', choices:c.length>0 && c.every(q=>q.choice.every(x=>x.rew && typeof x.rew==='object')), region:SW.World.regionAt(5600,2100)===19, pilot:D.quests.some(q=>q.id==='pilot4')}; }""")
-    rec('Phase 25: Reward-Guard, Choice-Quest-Daten und Pilot-Region', r['empty'] and r['choices'] and r['region'] and r['pilot'], json.dumps(r))
+    r = ev(pg, """() => { const Q=SW.Quests, D=SW.Data, c=D.quests.filter(q=>q.choice); return {empty:Q.rewText(undefined)==='', choices:c.length>0 && c.every(q=>q.choice.every(x=>x.rew && typeof x.rew==='object')), region:SW.World.regionAt(5600,2100)===19, dragon:SW.World.regionAt(6650,1570)===20, spirit:SW.World.regionAt(7000,2910)===21, pilot:D.quests.some(q=>q.id==='pilot4')}; }""")
+    rec('Phase 25/Map: Reward-Guard, Pilot-Region und neue Regionen 20–21', r['empty'] and r['choices'] and r['region'] and r['dragon'] and r['spirit'] and r['pilot'], json.dumps(r))
     # 7 Fortschrittswerte
     r = ev(pg, """() => { const C=SW.Char, E=SW.Essence, K=SW.Karma, o={}; const l0=C.level, sp0=C.sp, ap0=C.ap; C.addXp(C.need(C.level)); o.lv=C.level===l0+1; o.sp=C.sp===sp0+1; o.ap=C.ap===ap0+3;
       const e0=E.n; o.over=E.spend(e0+1); o.same=E.n===e0; o.neg=E.add(-5); o.nan=E.add(NaN);

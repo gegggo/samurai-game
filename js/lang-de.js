@@ -230,3 +230,6 @@ for (let i = 1; i <= 3; i++) Object.assign(SW.TEXT.de, {
   ['qn_pris' + i]: 'Gefangener im Käfig ' + i, ['qd_pris' + i]: 'Die Banditen halten mich in diesem Käfig. Besiege die Wache davor, dann bin ich frei.', ['qo_pris' + i]: 'Besiege die Wache des Käfigs',
   ['qdone_pris' + i]: 'Die Wache ist besiegt. Was machst du mit mir?', ['qc_pris' + i + '_free']: 'Freilassen', ['qc_pris' + i + '_sell']: 'Gegen Lösegeld ausliefern'
 });
+
+// Phase 27: neue Kartenregionen
+Object.assign(SW.TEXT.de, { reg_20: 'Drachenwall', reg_21: 'Tal der Geister', poi_dragonwall: 'Drachenwall', poi_spiritvalley: 'Tal der Geister' });

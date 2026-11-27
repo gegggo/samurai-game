@@ -1,9 +1,17 @@
-## Phase 26.1 – Sprint-Sperre + zusammenhängende Regionsübergänge (implementiert; erneuter Gerätetest offen)
+## Map-Erweiterung – Drachenwall + Tal der Geister (implementiert; Gerätetest offen)
+- Die Weltkarte wurde nach Osten und Süden erweitert (8000 × 4000 Tiles).
+- Region 20 **Drachenwall / Dragonwall** liegt nordöstlich, Region 21 **Tal der Geister / Spirit Valley** südöstlich.
+- Beide Regionen sind als breite, organische Landflächen direkt an die bestehende Landmasse angebaut. Es wurden keine Brücken oder Verbindungswege zwischen den Regionen ergänzt.
+- Bestehendes Terrain wird vom neuen Layout nicht überschrieben; die vorhandene 60/40-Übergangsmischung greift an den Regionsgrenzen.
+- Neue POI-Kartenbeschriftungen, deutsche/englische Namen, Regionsfarben und regionale Terrain-Generierung ergänzt. Noch keine Dörfer, Tempel, Dungeons oder Quests platziert – dafür bleibt die Fläche frei.
+- Statische Landverbindungsprüfung: PASS (eine zusammenhängende Landmasse; beide neuen Regionen mit Landkontakt). JavaScript-Syntax, JSON-Dateien und isolierter Weltmodul-Laufzeittest: PASS. Der vollständige Playwright-Lauf wurde versucht, aber der Browser blockiert in dieser Umgebung lokale Testserver (`ERR_BLOCKED_BY_ADMINISTRATOR`). iPhone-/Touch-Test dieser Kartenerweiterung steht noch aus.
+
+## Phase 26.1 – Sprint-Sperre + zusammenhängende Regionsübergänge (implementiert; vom Nutzer am Gerät getestet)
 - Sprint: Bei 0 Ausdauer wird Sprint sofort beendet und gesperrt. Die Sperre bleibt auch bestehen, wenn die Taste weiter gehalten wird. Sie löst sich erst nach Loslassen und mindestens 20% wiederhergestellter Ausdauer. Der Sprintknopf zeigt den Erschöpfungszustand sichtbar an.
 - Karte: Die vorhandenen Landflächen sind im Layout bereits zu einer zusammenhängenden Landmasse verbunden; die Übergänge der späteren Regionen waren aber zu abrupt und ließen sie wie einzelne Inseln wirken.
 - Übergang: An Grenzen zwischen Erweiterungsregionen (ab Region 17) entsteht nun ein insgesamt 20 Tiles breiter, beidseitiger Übergangsstreifen. Er mischt deterministisch etwa 60% der neueren und 40% der angrenzenden älteren Region in größeren natürlichen Flecken. Küsten und Seen bleiben unverändert.
 - Die Terrain-Objekte und die Kartenfarben verwenden dieselbe gemischte Region; Quest-/Gebietserkennung bleibt auf den ursprünglichen Regionsgrenzen.
-- Technische Prüfung: Sprint-Erschöpfung und -Wiederfreigabe im isolierten Laufzeittest geprüft; Weltmodul mit den vier vorhandenen Layout-Segmenten geladen. Neuer iPhone-/Touch-Test für diese Korrektur steht noch aus.
+- Technische Prüfung: Sprint-Erschöpfung und -Wiederfreigabe im isolierten Laufzeittest geprüft; Weltmodul mit den vorhandenen Layout-Segmenten geladen. Der Nutzer hat die Version 0.26.2 inklusive dieser Korrektur am iPhone vollständig getestet.
 
 ## Phase 26 – Zelda-Kampf + Welt-Fixes (vom Nutzer am Gerät getestet)
 - Boss-Arena: Boss-Leben und Boss-Schaden für Phasenbosse um 50 % erhöht; schwere Unterbrechungen durch Special-Attacken mit 2,2-Sekunden-Sperre gegen Spam abgesichert.
@@ -16,14 +24,14 @@
 
 # Samurai Wanderer – Aktueller Projektstatus
 
-Stand: 26.11.2026 · Version **0.26.2** · Cache **v109** (Gerätetest ausstehend)
+Stand: 27.11.2026 · Version **0.27.0** · Cache **v110** (Map-Erweiterung implementiert; Gerätetest offen)
 
-## 0.26.2 (implementiert, Dateien gesendet – Prüfung am Gerät ausstehend)
+## 0.26.2 (vom Nutzer am iPhone vollständig getestet)
 - Menü (z-index 25) verdeckt Sprint/Stamina-HUD.
 - Wege (`PATH`) enden vor soliden Gebäuden (`nearSolid`, 1 Tile Rand; Zäune ausgenommen).
 - Schreinplattformen verkleinert (Radius 9/8/12/14 → 5/5/7/8).
 - Flüsterklamm war durch Felswand (ROCK) von Hauptland getrennt: ROCK an Regionsgrenzen ab Region 17 (40 Tiles) entfernt. Flood-Fill im Node-Test: Hauptland + Flüsterklamm = 1 Komponente.
-- Nicht getestet: iPhone, `tests/regression.py`. Risiko: Weg vor Haustüren kann 1 Tile kürzer enden.
+- Getestet: vom Nutzer auf dem iPhone vollständig abgeschlossen. Der Weg vor Haustüren kann weiterhin an einzelnen Stellen 1 Tile kürzer enden; im Gerätetest ist kein blockierender Fehler aufgefallen.
 
 
 Stand: 26.11.2026

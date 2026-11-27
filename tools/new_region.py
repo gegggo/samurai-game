@@ -16,7 +16,7 @@ if len(a) != 8: sys.exit(__doc__)
 RID, REG, EN, DE = a[0], int(a[1]), a[2], a[3]; CX, CY, RX, RY = map(int, a[4:8])
 if not re.fullmatch(r'[a-z0-9]+', RID) or REG < 20 or tier not in (1, 2, 3): sys.exit('ID klein/alphanumerisch, REG >= 20, tier 1-3')
 if os.path.exists('js/layout-%s.js' % RID): sys.exit('js/layout-%s.js existiert schon' % RID)
-CELL, WW, HH = 8, 6200, 3200
+CELL, WW, HH = 8, 8000, 4000
 LAND = REG + 1
 X0, Y0 = max(0, (CX - int(RX * 1.2) - 40) // CELL * CELL), max(0, (CY - int(RY * 1.2) - 40) // CELL * CELL)
 X1, Y1 = min(WW, -(-(CX + int(RX * 1.2) + 40) // CELL) * CELL), min(HH, -(-(CY + int(RY * 1.2) + 40) // CELL) * CELL)
