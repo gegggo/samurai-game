@@ -1,3 +1,11 @@
+## Version 0.31.0 – Region 25 schliesst die zentrale Kartenluecke (27.11.2026)
+- Neue Region 25 **Verdant Basin / Grünes Becken** zwischen Sun Coast (15), Abandoned Fortress (18), Cloudsteppe (23) und Jade Highlands (24).
+- Die neue, organische Landflaeche ist ueber direkte Rasterkontakte an alle vier Zielregionen angeschlossen. Keine Bruecken oder kuenstlichen Verbindungswege.
+- Bestehende Landzellen, Regionskerne, Seen und die Mittelpunkte der bisherigen Regionen werden vom additiven Overlay nicht ueberschrieben.
+- Neue Dateien: `js/layout-interstice.js` und `tools/make_layout_interstice.py`; der Generator prueft Flaechengroesse, Zusammenhaengigkeit und die vier direkten Regionskontakte.
+- Regionsname, deutsches Label, Terrain-Biom und Dichte fuer Region 25 ergaenzt; Regressionstest prueft eine zusammenhaengende Landmasse und die vier Zielkontakte.
+- Die Rasterberechnung ergab 7.737 neue Landzellen und direkten Kontakt zu allen vier Gebieten. Vollstaendiger Playwright-Regressionslauf und iPhone-Sichtpruefung stehen noch aus.
+
 ## Version 0.30.0 – neue Kartenpositionierung (27.11.2026)
 - Fuenf neue Regionen 20–24 gemeinsam suedlich unterhalb der bestehenden Hauptkarte angeordnet; Positionen nach der Nutzerskizze weiter nach Westen verschoben und mittig unter der Suedkueste platziert.
 - Weltgrenze auf 8000 × 5200 erweitert. Alte Regionsmittelpunkte bleiben laut Generator erhalten; die beiden bestehenden Erweiterungsregionen 20/21 wurden in die neue suedliche Landmasse integriert.

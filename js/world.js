@@ -6,7 +6,7 @@ SW.World = (function () {
   const PAL = [[98,142,70],[58,102,58],[118,150,84],[112,108,112],[58,128,168],[34,88,134],[180,150,100],[130,92,58],[214,196,146],[150,148,150],[58,52,66],[150,122,86],[232,238,244],[74,62,60],[226,92,34],[226,190,120],[176,170,160],[160,138,110],[0,0,0]];
   // Regionen 0-8: Dorf, Bambus, Schrein, Wald, See, Gebirge, Ruinen, Banditen, Höhlen; 9-16 siehe Namen reg_N. Mitten aus dem Layout (CEN).
   const ROCKY = [2, 2, .66, 2, 2, .56, 2, 2, .58, 2, 2, 2];
-  const DENS = [.05, .08, .12, .2, .03, .07, .05, .07, .05, .14, .12, .06, .07, .04, .02, .03, .05, .1, .06, .08, .045, .17, .06, .09, .14];
+  const DENS = [.05, .08, .12, .2, .03, .07, .05, .07, .05, .14, .12, .06, .07, .04, .02, .03, .05, .1, .06, .08, .045, .17, .06, .09, .14, .11];
 
   function h(x, y, s) {
     let n = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1442695041)) | 0;
@@ -137,6 +137,7 @@ SW.World = (function () {
     if (reg === 22) return d < 18 ? T.STONE : d > 85 && f > .64 ? T.ROCK : T.SNOW; // Frostwall: kalte Nordhaenge
     if (reg === 23) return d < 16 ? T.STONE : f > .69 ? T.ROCK : f < .30 ? T.FOREST : T.GRASS; // Wolkensteppe: offene Hochlandebenen
     if (reg === 24) return d < 16 ? T.STONE : f > .52 ? T.FOREST : f > .35 ? T.BAMBOO : T.GRASS; // Jadehochland: dichter Jade-Wald
+    if (reg === 25) return d < 16 ? T.STONE : f > .62 ? T.BAMBOO : f > .43 ? T.FOREST : T.GRASS; // Verdant Basin: bewaldetes, gruenes Hochland
     return T.GRASS; // 16 Karst
   }
   // Gelände einer Landkachel je Region (procedural)
@@ -348,7 +349,7 @@ SW.World = (function () {
   }
   // Keine Objekte (Bäume, Felsen) rund um Orte: [Mitte x, Mitte y, Halbbreite, Halbhöhe]
   const ZONES = [[CEN[2][0], CEN[2][1], 20, 20], [CEN[8][0], CEN[8][1], 52, 52], [CEN[0][0], CEN[0][1], 26, 20], [CAMP[0], CAMP[1], 24, 18], [CEN[6][0], CEN[6][1], 15, 12]];
-  for (let r = 9; r <= 24; r++) if (CEN[r]) ZONES.push([CEN[r][0], CEN[r][1], 10, 10]);
+  for (let r = 9; r <= 25; r++) if (CEN[r]) ZONES.push([CEN[r][0], CEN[r][1], 10, 10]);
   if (CEN[17]) ZONES.push([4170, 1491, 80, 40]); // Sakura-Stadt: keine Bäume
   function objAt(x, y, t) {
     if (t !== T.GRASS && t !== T.FOREST && t !== T.BAMBOO && t !== T.CAVE && t !== T.SNOW && t !== T.ASH && t !== T.DUNE) return 0;

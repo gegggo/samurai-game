@@ -42,6 +42,12 @@ jobs:
         run: |
           python -m py_compile tests/regression.py
           python -m py_compile tests/exploit_regression.py
+          python -m py_compile tools/make_layout_interstice.py
+
+      - name: Verify generated Region 25 layout
+        run: |
+          python tools/make_layout_interstice.py
+          git diff --exit-code -- js/layout-interstice.js
 
       - name: Run full regression suite
         run: python tests/regression.py
