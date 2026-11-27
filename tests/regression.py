@@ -369,7 +369,7 @@ try:
           tiers[0].barrierWindow>tiers[1].barrierWindow&&tiers[1].barrierWindow>tiers[2].barrierWindow};
     }""")
     rec('Phase 0.42: Schwierigkeitsprofile Tier 1–3 werden schrittweise anspruchsvoller, bleiben aber passierbar',
-        r['combo']==[12,9,7] and r['periods']==[3.4,3.2,3] and r['active']==[.85,1,1.1] and r['windows']==[2.55,2.2,1.9] and r['bounded'] and r['ordered'], json.dumps(r))
+        r['combo']==[12,9,7] and r['periods']==[3.6,3.4,3.2] and r['active']==[.85,1,1.1] and r['windows']==[2.75,2.4,2.1] and r['bounded'] and r['ordered'], json.dumps(r))
     # Phase 0.42: der schwerste Bewegungsschrein muss mit echtem Laufen und Warten abschliessbar bleiben.
     r = ev(pg, """() => {
       const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='movement')?.id;
