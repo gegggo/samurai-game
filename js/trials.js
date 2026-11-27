@@ -223,6 +223,9 @@ SW.Trials = (function () {
       if (!blocked(p.x + dx, p.y)) p.x += dx; else if (Math.abs(dx) >= Math.abs(dy) * .8) { pushing = tryPush(dx > 0 ? 1 : -1, 0, dt); tryRotateMirror(dx > 0 ? 1 : -1, 0); }
       if (!blocked(p.x, p.y + dy)) p.y += dy; else if (Math.abs(dy) >= Math.abs(dx) * .8) { pushing = tryPush(0, dy > 0 ? 1 : -1, dt) || pushing; tryRotateMirror(0, dy > 0 ? 1 : -1); }
     } else p.anim = 0;
+    // Kombinationsraum: Bei aktivem Timer dreht eine bewusste Annäherung
+    // an den Spiegel ihn auch dann, wenn die Kollision durch Tile-Rundung knapp verfehlt wird.
+    if (R.def.kind === 'combo' && R.pressureActive && v.y < -.01) tryRotateMirror(0, -1);
     if (!pushing) R.push.t = 0;
     if (R.def.kind === 'blocks' && !R.open && R.plates.every(pl => blockAt(pl.x, pl.y))) { R.open = true; say('tr_door'); }
     if (R.def.kind === 'combo' && !R.open) {
