@@ -312,7 +312,7 @@ try:
       T.leave(); return result;
     }""")
     rec('Phase 0.38: Druckplatte startet Timer; Spiegel trifft innerhalb des Zeitfensters den Kristall',
-        r.get('entered')&&r['pressure']&&r['started']&&r['expired']&&r['solved']&&r['open']&&r['orientation']==0, json.dumps(r))
+        r.get('entered') and r['pressure'] and r['started'] and r['expired'] and r['solved'] and r['open'] and r['orientation']==0, json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
     r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
       const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
