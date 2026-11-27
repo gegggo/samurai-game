@@ -145,11 +145,11 @@ def main():
     }
     output = (
         "'use strict';\n"
-        '// Region 25: organischer Landanschluss zwischen Sun Coast, Abandoned Fortress, Cloudsteppe und Jade Highlands.\\n'
-        '// Additives Overlay: vorhandene Landzellen und Seen bleiben unangetastet; keine Bruecken oder Wege.\\n'
-        'SW.Layouts = SW.Layouts || [];\\n'
+        '// Region 25: organischer Landanschluss zwischen Sun Coast, Abandoned Fortress, Cloudsteppe und Jade Highlands.\n'
+        '// Additives Overlay: vorhandene Landzellen und Seen bleiben unangetastet; keine Bruecken oder Wege.\n'
+        'SW.Layouts = SW.Layouts || [];\n'
         'SW.Layouts.push(Object.assign(' + json.dumps(metadata, separators=(',', ':')) +
-        ", { rows: '" + '|'.join(rle(row) for row in grid) + "' }));\\n"
+        ", { rows: '" + '|'.join(rle(row) for row in grid) + "' }));\n"
     )
     OUTPUT.write_text(output, encoding='utf-8')
     print(f'Erstellt: {OUTPUT} ({count} Rasterzellen; Kontakte: {contacts})')
