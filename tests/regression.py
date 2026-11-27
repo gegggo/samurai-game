@@ -136,18 +136,21 @@ try:
     rec('Quest: annehmen, bereit, abschliessen, Belohnung genau einmal, Gegenstand abgegeben', not r.get('none') and r['acc'] and r['s1'] == 'ready' and r['c1'] and r['dc'] == r['exp'] and not r['c2'] and r['dc2'] == r['exp'] and r['left'] == 0, json.dumps(r))
     qid = r.get('id'); cont(pg); st = ev(pg, "id => SW.Quests.st[id]") if False else pg.evaluate("id => SW.Quests.st[id]", qid)
     rec('Quest-Status bleibt nach Neuladen', st == 'done', str(st))
-    # 6b Phase 25 / Map 0.29: Choice-Quests + alle fuenf neuen Regionen an den aktuellen Sued-Positionen
-    r = ev(pg, \"\"\"() => { const Q=SW.Quests, D=SW.Data, c=D.quests.filter(q=>q.choice); return {
-      empty:Q.rewText(undefined)==='',
-      choices:c.length>0 && c.every(q=>q.choice.every(x=>x.rew && typeof x.rew==='object')),
-      region:SW.World.regionAt(5600,2100)===19,
-      dragon:SW.World.regionAt(4700,4150)===20,
-      spirit:SW.World.regionAt(6100,4200)===21,
-      frost:SW.World.regionAt(3400,3550)===22,
-      cloud:SW.World.regionAt(4300,3600)===23,
-      jade:SW.World.regionAt(5500,3650)===24,
-      pilot:D.quests.some(q=>q.id==='pilot4')
-    }; }\"\"\")
+        # 6b Phase 25 / Map 0.29: Choice-Quests und alle fuenf neuen Regionen
+    r = ev(pg, """() => {
+      const Q=SW.Quests, D=SW.Data, c=D.quests.filter(q=>q.choice);
+      return {
+        empty:Q.rewText(undefined)==='',
+        choices:c.length>0 && c.every(q=>q.choice.every(x=>x.rew && typeof x.rew==='object')),
+        region:SW.World.regionAt(5600,2100)===19,
+        dragon:SW.World.regionAt(4700,4150)===20,
+        spirit:SW.World.regionAt(6100,4200)===21,
+        frost:SW.World.regionAt(3400,3550)===22,
+        cloud:SW.World.regionAt(4300,3600)===23,
+        jade:SW.World.regionAt(5500,3650)===24,
+        pilot:D.quests.some(q=>q.id==='pilot4')
+      };
+    }""")
     rec('Phase 25/Map 0.29: Reward-Guard, Pilot-Region und neue Regionen 20–24 unterhalb der Hauptkarte',
         r['empty'] and r['choices'] and r['region'] and r['dragon'] and r['spirit'] and r['frost'] and r['cloud'] and r['jade'] and r['pilot'], json.dumps(r))
 
