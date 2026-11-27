@@ -12,9 +12,9 @@ SW.Trials = (function () {
   // Schwierigkeitsprofil bleibt von Darstellung und Eingabemethode getrennt,
   // damit dieselben Regeln später auch in einer echten 3D-Szene gelten.
   const TIER_RULES = {
-    1: { comboTime: 12, barrierPeriod: 3.4, barrierActive: .85 },
-    2: { comboTime: 9, barrierPeriod: 3.2, barrierActive: 1.0 },
-    3: { comboTime: 7, barrierPeriod: 3.0, barrierActive: 1.1 }
+    1: { comboTime: 12, barrierPeriod: 3.6, barrierActive: .85 },
+    2: { comboTime: 9, barrierPeriod: 3.4, barrierActive: 1.0 },
+    3: { comboTime: 7, barrierPeriod: 3.2, barrierActive: 1.1 }
   };
   function challengeProfile(tier) {
     const level = Math.max(1, Math.min(3, Math.floor(Number(tier) || 1)));
