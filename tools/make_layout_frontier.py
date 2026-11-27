@@ -16,26 +16,26 @@ from scipy.ndimage import binary_dilation, distance_transform_edt
 from skimage.morphology import disk
 
 CELL = 8
-X0, Y0, X1, Y1 = 0, 0, 8000, 4000
+X0, Y0, X1, Y1 = 0, 0, 8000, 5200
 W, H = (X1 - X0) // CELL, (Y1 - Y0) // CELL
 
 # Mittelpunktpositionen der bisherigen zwei Regionen bleiben unveraendert.
 REGIONS = {
-    20: (6650, 1570, 470, 400, 1.2),  # Drachenwall
-    21: (7000, 2910, 420, 350, 2.4),  # Tal der Geister
-    22: (5600, 390, 400, 320, 0.7),   # Frostwall
-    23: (6550, 370, 470, 350, 1.8),   # Wolkensteppe
-    24: (7510, 430, 460, 360, 2.8),   # Jadehochland
+    20: (4700, 4150, 520, 360, 1.2),  # Drachenwall
+    21: (6100, 4200, 500, 360, 2.4),  # Tal der Geister
+    22: (3400, 3550, 420, 320, 0.7),  # Frostwall
+    23: (4300, 3600, 480, 300, 1.8),  # Wolkensteppe
+    24: (5500, 3650, 450, 320, 2.8),  # Jadehochland
 }
 
 # Abgerundete, organische Landbuchten statt gerader Verbindungskorridore.
 # Die Zusatzellipsen gehoeren jeweils zur Region und ueberlappen deren Kern.
 REGION_LOBES = {
-    20: [(5850, 1770, 400, 300, 0.9)],
-    21: [(5950, 2600, 740, 350, 2.1)],
-    22: [(5900, 820, 350, 240, 0.2), (5400, 1390, 520, 360, 0.6)],
-    23: [(6500, 1050, 500, 350, 1.4)],
-    24: [(7000, 850, 360, 260, 2.6)],
+    20: [(4400, 3850, 600, 320, 0.9), (5000, 3950, 520, 300, 1.5)],
+    21: [(5650, 4050, 600, 320, 2.1)],
+    22: [(3300, 3220, 600, 300, 0.2)],
+    23: [(3900, 3330, 600, 300, 1.4)],
+    24: [(5100, 3800, 600, 320, 2.6), (5750, 4000, 430, 280, 2.2)],
 }
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -188,8 +188,8 @@ metadata = {
     'id': 'frontier', 'x0': 0, 'y0': 0, 'x1': X1, 'y1': Y1,
     'cell': CELL, 'w': X1 // CELL, 'h': Y1 // CELL,
     'centers': {
-        '20': [6650, 1570], '21': [7000, 2910],
-        '22': [5600, 390], '23': [6550, 370], '24': [7510, 430],
+        '20': [4700, 4150], '21': [6100, 4200],
+        '22': [3400, 3550], '23': [4300, 3600], '24': [5500, 3650],
     },
     'roads': [], 'rivers': [],
 }
