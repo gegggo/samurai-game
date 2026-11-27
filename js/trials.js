@@ -9,6 +9,13 @@ SW.Trials = (function () {
   const RAD = .3, SPEED = 4, TAU = 6.2832, COL = ['#e0452f', '#f2c14e', '#4a8fe0', '#f4ecd8'];
   const ROOMS = {};
   const D = SW.Data;
+  Object.assign(SW.TEXT.en, {
+    enemy_shrine_guard: 'Shrine Guardian',
+    tr_hint_miniboss: 'Enter the inner ring and defeat the shrine guardian.',
+    tr_miniboss_retry: 'The guardian awaits you again. Try once more.',
+    tr_hint_movement: 'Cross the three timed barriers. Wait for a safe opening and use the marked checkpoints.',
+    tr_movement_checkpoint: 'Checkpoint reached.', tr_movement_hit: 'The barrier pushed you back.', tr_movement_progress: 'Checkpoints'
+  });
   const legacy = {
     village: { kind: 'blocks', name: 'trn_village', reward: { xp: 40, yin: 3 } },
     bamboo: { kind: 'lanterns', name: 'trn_bamboo', reward: { xp: 40, yin: 2, ess: 1 } },
