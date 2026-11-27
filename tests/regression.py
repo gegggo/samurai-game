@@ -278,13 +278,13 @@ try:
         sum(1 for n in r['counts'] if n == 5) >= 23 and sum(1 for n in r['counts'] if 3 <= n < 5) <= 3 and all(3 <= n <= 5 for n in r['counts']) and r['total'] == sum(r['counts']) and r['generated'] == r['total'] - 37 and r['min'] >= 220 and r['rooms'] and r['can'], json.dumps(r))
     rec('Phase 0.35: Schreinräume besitzen mindestens 16 unterschiedliche Grundrisse', r['layouts'] >= 16, 'unique layouts=%s' % r['layouts'])
     # Phase 0.36: Bodenschalter muessen durch Betreten aktiviert werden und die Altartuer oeffnen.
-    r = ev(pg, \"\"\"() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='switches')?.id;
+    r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='switches')?.id;
       if(!id || !T.enter(id)) return {entered:false};
       const room=T.debug(), targets=room.switches.map(s=>({x:s.x+.5,y:s.y+.5}));
       targets.forEach(p=>{room.p.x=p.x;room.p.y=p.y;T.update(.02,{x:0,y:0});});
       const result={entered:true,count:room.switches.length,activated:room.swOn.filter(Boolean).length,open:room.open};
       T.leave(); return result;
-    }\"\"\")
+    }""")
     rec('Phase 0.36: Drei Bodenschalter lassen sich betreten und oeffnen danach die Altartuer',
         r.get('entered') and r['count']==3 and r['activated']==3 and r['open'], json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
