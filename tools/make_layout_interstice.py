@@ -144,7 +144,7 @@ def main():
         'centers': {'25': list(CENTER)}, 'roads': [], 'rivers': [],
     }
     output = (
-        "'use strict';\\n"
+        "'use strict';\n"
         '// Region 25: organischer Landanschluss zwischen Sun Coast, Abandoned Fortress, Cloudsteppe und Jade Highlands.\\n'
         '// Additives Overlay: vorhandene Landzellen und Seen bleiben unangetastet; keine Bruecken oder Wege.\\n'
         'SW.Layouts = SW.Layouts || [];\\n'
