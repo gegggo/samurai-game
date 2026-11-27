@@ -198,7 +198,7 @@ SW.Trials = (function () {
     const p = R.p;
     const m = R.mirrors.find(o => {
       const dx = o.x + .5 - p.x, dy = o.y + .5 - p.y;
-      return Math.hypot(dx, dy) < .9 && dx * sx + dy * sy > 0;
+      return Math.hypot(dx, dy) < 1.2 && dx * sx + dy * sy > 0;
     });
     if (!m) return false;
     m.orientation = 1 - m.orientation; R.mirrorCooldown = .45; traceBeam();
