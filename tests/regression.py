@@ -390,7 +390,7 @@ try:
     r = ev(pg, """() => {
       const T=SW.Trials,id=SW.Data.shrines.find(s=>T.info(s.id).sequence)?.id;
       if(!id||!T.enter(id))return {entered:false};
-      const room=T.debug();room.p.x=12.5;room.p.y=12.5;T.update(.02,{x:0,y:-1});
+      const room=T.debug();room.p.x=12.5;room.p.y=12.1;T.update(.02,{x:0,y:-1});
       const locked=room.p.y===12.5&&!room.sequenceReady;
       for(const sw of room.switches){room.p.x=sw.x+.5;room.p.y=sw.y+.5;T.update(.02,{x:0,y:0});}
       const unlocked=room.sequenceReady&&room.swOn.every(Boolean);
