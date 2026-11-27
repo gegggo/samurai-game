@@ -1,3 +1,11 @@
+## Version 0.37.0 – Mehrstufige Kombinationsschreine (27.11.2026)
+- Zusammengesetzter Pruefungsablauf aus zwei vorhandenen Mechaniken: erst drei Bodenschalter im Vorraum aktivieren, danach einen zeitgesteuerten Parcours mit drei Sperren und zwei Checkpoints absolvieren.
+- Der Parcours bleibt bis zur Aktivierung aller Schalter physisch gesperrt. Danach gelten die vorhandenen Tier-1-bis-Tier-3-Zeitprofile; Treffer setzen den Spieler auf den letzten Checkpoint zurueck.
+- Der Ablauf nutzt denselben 25×17-Raum und die vorhandene Bewegungs-/Schalterlogik. Deutsche und englische Hinweise sowie Fortschrittsanzeige ergaenzt.
+- Nur ein Teil der generierten Schreine nutzt diese Kombination; die acht Grundmechaniken bleiben erhalten.
+- Regression erweitert: Schalter-Sperre, Freischaltung, Checkpoints, drei Zeitbarrieren und Altarabschluss.
+- Spielversion 0.37.0; Cache fuer `js/trials.js` auf v129. Vollstaendige CI-Pruefung und iPhone-Sichttest stehen noch aus.
+
 ## Version 0.36.0 – Schwierigkeitsstaffelung fuer Schreine (27.11.2026)
 - Die acht vorhandenen Schrein-Grundtypen bleiben vorerst die Basis: Steinplatten, Laternenfolge, Bodenschalter, Spiegel, Zeit-/Spiegel-Kombination, Labyrinth, Mini-Boss und Bewegung. Ein weiterer Typ wird erst ergaenzt, wenn er eine klar neue Spielmechanik bietet.
 - Schrein-Regeln sind jetzt ueber ein darstellungsunabhaengiges Schwierigkeitsprofil definiert. Dieses Profil kann spaeter auch von einer echten 3D-Schrein-Szene verwendet werden.

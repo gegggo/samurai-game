@@ -104,6 +104,12 @@ SW.Trials = (function () {
     } else if (kind === 'miniboss') {
       // Kampfarena mit freiem Zentrum; der Wächter startet beim Betreten des inneren Kreises.
       [[6,6],[18,6],[6,10],[18,10]].forEach(([x,y]) => { g[y][x] = '#'; });
+    } else if (kind === 'sequence') {
+      // Drei Bodenschalter schalten den anschliessenden Zeitparcours frei.
+      for (let y = 3; y <= 14; y++) for (let x = 10; x <= 14; x++) g[y][x] = '.';
+      [[4,12],[20,12],[12,13]].forEach(([x,y]) => { g[y][x] = 'Q'; });
+      [11,8,5].forEach(y => { for (let x = 1; x < w - 1; x++) g[y][x] = '#'; g[y][12] = 'H'; });
+      g[9][12] = 'K'; g[6][12] = 'K';
     } else if (kind === 'movement') {
       // Drei zeitgesteuerte Sperren liegen auf einem schmalen Weg zum Altar.
       for (let y = 3; y <= 14; y++) for (let x = 10; x <= 14; x++) g[y][x] = '.';
@@ -133,7 +139,7 @@ SW.Trials = (function () {
   SW.Shrines.expand();
   if (SW.Combat && SW.Combat.ensureShrineGuards) SW.Combat.ensureShrineGuards(D.shrines.filter(shrine => shrine.generated));
   D.shrines.forEach((shrine, index) => {
-    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 13 === 0 ? 'miniboss' : (seed % 11 === 0 ? 'movement' : (seed % 7 === 0 ? 'labyrinth' : (seed % 5 === 0 ? 'combo' : (seed % 4 === 0 ? 'mirrors' : (seed % 4 === 1 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns')))))));
+    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 17 === 0 ? 'sequence' : (seed % 13 === 0 ? 'miniboss' : (seed % 11 === 0 ? 'movement' : (seed % 7 === 0 ? 'labyrinth' : (seed % 5 === 0 ? 'combo' : (seed % 4 === 0 ? 'mirrors' : (seed % 4 === 1 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns'))))))));
     const variant = (seed >>> 4) % 16, order = [0,1,2,3,4];
     for (let i = order.length - 1; i > 0; i--) {
       const j = (seed + i * 13) % (i + 1), t = order[i]; order[i] = order[j]; order[j] = t;
@@ -141,7 +147,7 @@ SW.Trials = (function () {
     const tier = shrine.tier || 1;
     ROOMS[shrine.id] = {
       kind, name: old ? old.name : 'shr_' + shrine.id,
-      hint: kind === 'labyrinth' ? 'tr_hint_labyrinth' : (kind === 'miniboss' ? 'tr_hint_miniboss' : (kind === 'movement' ? 'tr_hint_movement' : (kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : (kind === 'combo' ? 'tr_hint_combo' : 'tr_hint_mirrors')))))),
+      hint: kind === 'sequence' ? 'tr_hint_sequence' : (kind === 'labyrinth' ? 'tr_hint_labyrinth' : (kind === 'miniboss' ? 'tr_hint_miniboss' : (kind === 'movement' ? 'tr_hint_movement' : (kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : (kind === 'combo' ? 'tr_hint_combo' : 'tr_hint_mirrors'))))))),
       bossType: 'shrine_guard', tier, reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
       map: roomMap(kind, variant), order
     };
@@ -152,14 +158,14 @@ SW.Trials = (function () {
   function solid(x, y) {
     if (x < 0 || y < 0 || x >= R.w || y >= R.h) return true;
     const c = R.g[y][x];
-    return c === '#' || c === 'L' || c === 'M' || (c === 'D' && !R.open) || (c === 'H' && R.hazards.some(h => h.x === x && h.y === y && hazardActive(h))) || !!blockAt(x, y);
+    return c === '#' || c === 'L' || c === 'M' || (c === 'D' && !R.open) || (c === 'H' && (R.def.kind === 'sequence' && !R.sequenceReady || R.hazards.some(h => h.x === x && h.y === y && hazardActive(h)))) || !!blockAt(x, y);
   }
   const blocked = (x, y) => solid(Math.floor(x - RAD), Math.floor(y - RAD)) || solid(Math.floor(x + RAD), Math.floor(y - RAD)) ||
     solid(Math.floor(x - RAD), Math.floor(y + RAD)) || solid(Math.floor(x + RAD), Math.floor(y + RAD));
 
   function build(id) {
     const def = ROOMS[id], h = def.map.length, w = def.map[0].length;
-    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], switches: [], swOn: [], mirrors: [], hazards: [], checkpoints: [], checkpoint: { x: 12, y: 15 }, bossStarted: false, bossCooldown: 0, rules: challengeProfile(def.tier), beam: [], beamSolved: false, mirrorCooldown: 0, pressurePlate: null, pressureActive: false, pressureTime: 0, seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
+    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], switches: [], swOn: [], mirrors: [], hazards: [], checkpoints: [], checkpoint: { x: 12, y: 15 }, bossStarted: false, bossCooldown: 0, sequenceReady: false, rules: challengeProfile(def.tier), beam: [], beamSolved: false, mirrorCooldown: 0, pressurePlate: null, pressureActive: false, pressureTime: 0, seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
       p: { x: 5.5, y: 7.5, dir: 1, anim: 0, moving: false, face: 1.57 }, push: { k: '', t: 0 } };
     for (let y = 0; y < h; y++) {
       const row = [];
@@ -315,7 +321,7 @@ SW.Trials = (function () {
         return;
       }
     }
-    if (R.def.kind === 'movement') {
+    if (R.def.kind === 'movement' || (R.def.kind === 'sequence' && R.sequenceReady)) {
       R.checkpoints.forEach(cp => {
         if (!cp.reached && Math.hypot(p.x - cp.x - .5, p.y - cp.y - .5) < .62) {
           cp.reached = true; R.checkpoint = { x: cp.x, y: cp.y }; say('tr_movement_checkpoint');
@@ -340,11 +346,14 @@ SW.Trials = (function () {
       }
     }
     if (R.def.kind === 'labyrinth' && !R.open && Math.hypot(p.x - 12.5, p.y - 2.5) < 1.15) { R.open = true; say('tr_door'); }
-    if (R.def.kind === 'switches' && !R.open) {
+    if ((R.def.kind === 'switches' || R.def.kind === 'sequence') && !R.open && !R.sequenceReady) {
       R.switches.forEach((sw, i) => {
         if (!R.swOn[i] && Math.hypot(p.x - sw.x - .5, p.y - sw.y - .5) < .62) {
           R.swOn[i] = true;
-          if (R.swOn.every(Boolean)) { R.open = true; say('tr_door'); }
+          if (R.swOn.every(Boolean)) {
+            if (R.def.kind === 'sequence') { R.sequenceReady = true; say('tr_sequence_ready'); }
+            else { R.open = true; say('tr_door'); }
+          }
         }
       });
     }
@@ -422,6 +431,11 @@ SW.Trials = (function () {
     if (R.def.kind === 'movement') {
       txt(c, tr('tr_movement_progress') + ': ' + R.checkpoints.filter(cp => cp.reached).length + '/' + R.checkpoints.length, cw / 2, ch * .105, Math.max(14 * dpr, u * .42), '#9fe4e8');
     }
+    if (R.def.kind === 'sequence') {
+      const count = R.swOn.filter(Boolean).length, passed = R.checkpoints.filter(cp => cp.reached).length;
+      const status = R.sequenceReady ? tr('tr_movement_progress') + ': ' + passed + '/' + R.checkpoints.length : tr('tr_sequence_switches') + ': ' + count + '/' + R.switches.length;
+      txt(c, status, cw / 2, ch * .105, Math.max(14 * dpr, u * .42), R.sequenceReady ? '#9fe4e8' : '#ffe27a');
+    }
     if (R.def.kind === 'lanterns') {
       const n = R.def.order.length, x0 = ox + R.w * u / 2 - (n - 1) * u * .3;
       R.def.order.forEach((li, i) => { const x = x0 + i * u * .6, y = oy + u * .5; c.fillStyle = COL[li]; c.globalAlpha = i < R.seq ? 1 : .55; c.beginPath(); c.arc(x, y, u * .17, 0, TAU); c.fill(); c.globalAlpha = 1; c.strokeStyle = '#000'; c.lineWidth = 2; c.stroke(); });
@@ -471,7 +485,7 @@ SW.Trials = (function () {
   }
 
   T.debug = () => R; // nur für Tests
-  T.info = id => { const d = ROOMS[id]; if (!d) return null; const rules = challengeProfile(d.tier); return { w: d.map[0].length, h: d.map.length, kind: d.kind, bossType: d.bossType || null, tier: rules.tier, comboTime: rules.comboTime, barrierPeriod: rules.barrierPeriod, barrierActive: rules.barrierActive, barrierWindow: rules.barrierWindow, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L' || c === 'M').length, switches: d.map.join('').split('Q').length - 1, mirrors: d.map.join('').split('M').length - 1, pressure: d.map.join('').split('V').length - 1, hazards: d.map.join('').split('H').length - 1, checkpoints: d.map.join('').split('K').length - 1, walls: d.map.join('').split('#').length - 1 }; };
+  T.info = id => { const d = ROOMS[id]; if (!d) return null; const rules = challengeProfile(d.tier); return { w: d.map[0].length, h: d.map.length, kind: d.kind, bossType: d.bossType || null, tier: rules.tier, comboTime: rules.comboTime, barrierPeriod: rules.barrierPeriod, barrierActive: rules.barrierActive, barrierWindow: rules.barrierWindow, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L' || c === 'M').length, switches: d.map.join('').split('Q').length - 1, sequence: d.kind === 'sequence', mirrors: d.map.join('').split('M').length - 1, pressure: d.map.join('').split('V').length - 1, hazards: d.map.join('').split('H').length - 1, checkpoints: d.map.join('').split('K').length - 1, walls: d.map.join('').split('#').length - 1 }; };
   T.dump = () => ({ done: [...T.done] });
   T.load = function (d) {
     if (!d || !Array.isArray(d.done)) return;
@@ -480,13 +494,13 @@ SW.Trials = (function () {
 
   Object.assign(SW.TEXT.en, {
     tr_enter: 'Enter', tr_leave: 'Leave', tr_reset: 'Reset', tr_done: 'Trial complete', tr_door: 'The door opens.', tr_wrong: 'The flames die. Try again.',
-    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.', tr_hint_switches: 'Find all three floor switches and step on each one to open the altar door.', tr_hint_mirrors: 'Walk into the mirror to turn it. Redirect the light beam from the western source into the crystal above.', tr_hint_combo: 'Step on the pressure plate, then hurry to the mirror. Turn it before the timer runs out.', tr_hint_labyrinth: 'Find your way through the maze and reach the sealed altar door.', tr_combo_start: 'The mechanism is active. Move!', tr_combo_expired: 'Time ran out. The mirror resets.', tr_timer: 'Time', tr_mirror_turn: 'The mirror turns.',
+    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.', tr_hint_switches: 'Find all three floor switches and step on each one to open the altar door.', tr_hint_mirrors: 'Walk into the mirror to turn it. Redirect the light beam from the western source into the crystal above.', tr_hint_combo: 'Step on the pressure plate, then hurry to the mirror. Turn it before the timer runs out.', tr_hint_labyrinth: 'Find your way through the maze and reach the sealed altar door.', tr_hint_sequence: 'Activate all three floor switches in the lower chamber. This unlocks a timed passage with two checkpoints; cross all three barriers to reach the altar.', tr_sequence_ready: 'All switches are active. The timed passage is unlocked.', tr_sequence_switches: 'Switches', tr_combo_start: 'The mechanism is active. Move!', tr_combo_expired: 'Time ran out. The mirror resets.', tr_timer: 'Time', tr_mirror_turn: 'The mirror turns.',
     trn_village: 'Trial of Stillness', trn_bamboo: 'Trial of Flames', trn_mountain: 'Trial of Stone', trn_hermit: 'Trial of Patience',
     trn_lookout: 'Trial of Balance', trn_fishers: 'Trial of Ripples', trn_ruins: 'Trial of the Ancients', trn_cave: 'Trial of Steel', trn_labyrinth: 'Trial of the Lost Path'
   });
   SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
     tr_enter: 'Betreten', tr_leave: 'Verlassen', tr_reset: 'Neustart', tr_done: 'Prüfung bestanden', tr_door: 'Die Tür öffnet sich.', tr_wrong: 'Die Flammen erlöschen. Versuche es erneut.',
-    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.', tr_hint_switches: 'Finde alle drei Bodenschalter und tritt auf jeden, um die Altartür zu öffnen.', tr_hint_mirrors: 'Laufe gegen den Spiegel, um ihn zu drehen. Lenke den Lichtstrahl von der westlichen Lichtquelle in den Kristall im Norden.', tr_hint_combo: 'Tritt auf die Druckplatte und laufe dann schnell zum Spiegel. Drehe ihn, bevor die Zeit abläuft.', tr_hint_labyrinth: 'Finde den Weg durch das Labyrinth und erreiche die verschlossene Altartür.', tr_combo_start: 'Der Mechanismus ist aktiv. Beeil dich!', tr_combo_expired: 'Die Zeit ist abgelaufen. Der Spiegel stellt sich zurück.', tr_timer: 'Zeit', tr_mirror_turn: 'Der Spiegel dreht sich.',
+    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.', tr_hint_switches: 'Finde alle drei Bodenschalter und tritt auf jeden, um die Altartür zu öffnen.', tr_hint_mirrors: 'Laufe gegen den Spiegel, um ihn zu drehen. Lenke den Lichtstrahl von der westlichen Lichtquelle in den Kristall im Norden.', tr_hint_combo: 'Tritt auf die Druckplatte und laufe dann schnell zum Spiegel. Drehe ihn, bevor die Zeit abläuft.', tr_hint_labyrinth: 'Finde den Weg durch das Labyrinth und erreiche die verschlossene Altartür.', tr_hint_sequence: 'Aktiviere alle drei Bodenschalter in der unteren Kammer. Dadurch wird ein zeitgesteuerter Weg mit zwei Checkpoints freigeschaltet. Überquere alle drei Sperren, um den Altar zu erreichen.', tr_sequence_ready: 'Alle Schalter sind aktiv. Der Zeitparcours ist freigeschaltet.', tr_sequence_switches: 'Schalter', tr_combo_start: 'Der Mechanismus ist aktiv. Beeil dich!', tr_combo_expired: 'Die Zeit ist abgelaufen. Der Spiegel stellt sich zurück.', tr_timer: 'Zeit', tr_mirror_turn: 'Der Spiegel dreht sich.',
     trn_village: 'Prüfung der Stille', trn_bamboo: 'Prüfung der Flammen', trn_mountain: 'Prüfung des Steins', trn_hermit: 'Prüfung der Geduld',
     trn_lookout: 'Prüfung des Gleichgewichts', trn_fishers: 'Prüfung der Wellen', trn_ruins: 'Prüfung der Uralten', trn_cave: 'Prüfung des Stahls', trn_labyrinth: 'Prüfung des Irrwegs'
   });

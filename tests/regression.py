@@ -386,6 +386,27 @@ try:
     }""")
     rec('Phase 0.42: Bewegungsschrein Tier 3 ist nach Timing-Warten und durchgehendem Laufen abschliessbar',
         r.get('entered') and r['steps']<400 and r['checkpoints'] and r['opened'] and r['completed'], json.dumps(r))
+    # Phase 0.43: zusammengesetzter Schrein verlangt erst Schalter, dann den Zeitparcours.
+    r = ev(pg, """() => {
+      const T=SW.Trials,id=SW.Data.shrines.find(s=>T.info(s.id).sequence)?.id;
+      if(!id||!T.enter(id))return {entered:false};
+      const room=T.debug();room.p.x=12.5;room.p.y=12.5;T.update(.02,{x:0,y:-1});
+      const locked=room.p.y===12.5&&!room.sequenceReady;
+      for(const sw of room.switches){room.p.x=sw.x+.5;room.p.y=sw.y+.5;T.update(.02,{x:0,y:0});}
+      const unlocked=room.sequenceReady&&room.swOn.every(Boolean);
+      room.p.x=12.5;room.p.y=12.5;room.t=.1;T.update(.1,{x:0,y:-1});
+      const timedGate=room.p.y===12.5;
+      room.t=1.2;T.update(.1,{x:0,y:-1});const passable=room.p.y<12.5;
+      room.p.x=12.5;room.p.y=9.5;T.update(.02,{x:0,y:0});
+      room.p.x=12.5;room.p.y=6.5;T.update(.02,{x:0,y:0});
+      const checkpoints=room.checkpoints.every(cp=>cp.reached);
+      room.p.x=12.5;room.p.y=3.5;T.update(.02,{x:0,y:0});const opened=room.open;
+      room.p.x=12.5;room.p.y=1.5;T.update(.02,{x:0,y:0});const completed=room.state==='reward';
+      const result={entered:true,locked,unlocked,timedGate,passable,checkpoints,opened,completed,switches:room.switches.length,hazards:room.hazards.length};
+      T.leave();return result;
+    }""")
+    rec('Phase 0.43: drei Schalter schalten den Zeitparcours frei; Sperren, Checkpoints und Altar funktionieren',
+        r.get('entered')&&r['locked']&&r['unlocked']&&r['timedGate']&&r['passable']&&r['checkpoints']&&r['opened']&&r['completed']&&r['switches']==3&&r['hazards']==3,json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
     r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
       const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
