@@ -1872,6 +1872,13 @@
    "y": 2100.5,
    "ed": "lite",
    "tier": 2
+  },
+  {
+   "id": "gaptemple",
+   "x": 3159,
+   "y": 2653,
+   "ed": "lite",
+   "tier": 3
   }
  ],
  "chests": [
