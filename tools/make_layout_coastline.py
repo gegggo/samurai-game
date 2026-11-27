@@ -145,8 +145,9 @@ def main():
         raise RuntimeError('Keine Kuestenzellen zum Runden gefunden')
     if not all(owner[i] for i in filled):
         raise RuntimeError('Kuesten-Zellen ohne angrenzende Region gefunden')
+    filled_set = set(filled)
     target = (2847 // CELL) * WIDTH + (987 // CELL)
-    if target not in set(filled):
+    if target not in filled_set:
         raise RuntimeError('Der Kuestenuebergang bei X987/Y2847 wurde nicht geschlossen')
 
     # Ovaler Sicherheitsrahmen (gedrehte Ellipse entlang der NW-SO-Ausrichtung).
@@ -169,7 +170,7 @@ def main():
     x0, y0, x1, y1 = min(xs), min(ys), max(xs) + 1, max(ys) + 1
     rows = []
     for y in range(y0, y1):
-        row = [owner[y * WIDTH + x] if (y * WIDTH + x) in set(filled) else 0 for x in range(x0, x1)]
+        row = [owner[y * WIDTH + x] if (y * WIDTH + x) in filled_set else 0 for x in range(x0, x1)]
         rows.append(rle(row))
     metadata = {'id': 'coastline-rounding', 'x0': x0 * CELL, 'y0': y0 * CELL,
                 'x1': x1 * CELL, 'y1': y1 * CELL, 'cell': CELL,
