@@ -283,6 +283,14 @@ SW.World = (function () {
       [[-27, -20], [26, -20], [-27, 18], [26, 18]].forEach(o => add('tower', fx + o[0], fy + o[1], 2, 2));
       add('hall', fx - 7, fy - 14, 14, 8); [[-14, 4], [14, 4], [-14, -4], [14, -4]].forEach(o => add('pillar', fx + o[0], fy + o[1], 1, 1));
     }
+    if (CEN[25]) { // 0.32.0: Gezeitentempel im geschlossenen Becken zwischen Sun Coast und Abandoned Fortress.
+      const tx = 3150, ty = 2632;
+      add('shrine', tx, ty, 18, 12);
+      [[tx - 3, ty - 2], [tx + 20, ty - 2], [tx - 3, ty + 10], [tx + 20, ty + 10]].forEach(o => add('pillar', o[0], o[1], 1, 1));
+      add('toriipost', tx + 5, ty + 14, 1, 1, false);
+      add('toriipost', tx + 12, ty + 14, 1, 1, false);
+      add('lintel', tx + 5, ty + 14, 8, 1, false);
+    }
     { const [gx, gy] = CEN[10]; add('hall', gx - 9, gy - 19, 14, 8); [[-6, -1], [-2, -1], [6, -1]].forEach(o => add('dummy', gx + o[0], gy + o[1], 1, 1)); } // 0.14.0 Meistertempel + Trainingsplatz (Steingarten)
     // Index
     S.forEach(indexStructure);
@@ -301,6 +309,7 @@ SW.World = (function () {
     if (CEN[22]) POI.push({ id: 'frostwall', x: CEN[22][0], y: CEN[22][1] });
     if (CEN[23]) POI.push({ id: 'cloudsteppe', x: CEN[23][0], y: CEN[23][1] });
     if (CEN[24]) POI.push({ id: 'jadehighlands', x: CEN[24][0], y: CEN[24][1] });
+    if (CEN[25]) POI.push({ id: 'gaptemple', x: 3159, y: 2653 });
   }
 
   // Dauerhafte Quest-Bauten. Werden aus dem Quest-Spielstand rekonstruiert.
