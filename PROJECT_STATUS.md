@@ -395,3 +395,8 @@ Essence-Kosten `skills-data.js`; Belohnungen `combat-data.js` (rewards), `items-
 
 ## Nächster Schritt
 Gerätetest 0.18.0 (Phase 19), dann Phase 20 laut `docs/Langzeit.md` Kap. 10. Davor gelisteter Stand: 0.17.0 auf Gerät bestätigt.
+## Kartenkorrektur – Regionen 20–24
+- Kleine schwarze Wasserluecken direkt zwischen den fuenf suedlichen Regionen werden im Umkreis von 8 Rasterzellen mit dem jeweils naechsten Regionslabel geschlossen.
+- `js/layout-frontier.js` und `tools/make_layout_frontier.py` enthalten die Anpassung.
+- Das aeussere Meer bleibt erhalten; alte Regionen und Seen werden nicht aufgefuellt.
+- Regressionstest und iPhone-Sichtpruefung fuer diese Aenderung stehen noch aus.
