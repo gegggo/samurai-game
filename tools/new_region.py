@@ -2,19 +2,19 @@
 """Generator fuer eine neue, nahtlos angebaute Region (REG >= 20).
 Aufruf im Projekt-Root:
   python3 tools/new_region.py ID REG "Name EN" "Name DE" CX CY RX RY [--tier N]
-Die Region wird automatisch mit dem naechsten bestehenden Land verbunden. Der Anschluss
-ist ein organischer Landkorridor (10-20 Layout-Kacheln breit), keine Bruecke. In der
-Uebergangszone gehoeren ca. 60% der neuen Kacheln zur neuen Region und 40% zur
-angrenzenden alten Region. --link bleibt nur aus Kompatibilitaet mit alten Aufrufen erhalten.
+Die Region wird als organische Landflaeche direkt an die Hauptkarte angebaut.
+Es werden keine Inseln, Bruecken oder Verbindungskorridore erzeugt. Die neue Flaeche
+muss das bestehende Land breit ueberlappen; bestehende Land- und Seetiles bleiben
+unveraendert. Die 60/40-Mischung am Rand entsteht durch terrainRegionAt in world.js.
 Erzeugt Layout/Textdateien, Schrein-Datensatz und Script-Tags. Danach Inhalte/Bauten ergaenzen
 und tools/validate_data.py ausfuehren."""
 import sys, re, json, math, glob, os
 a = [x for x in sys.argv[1:]]; link = None; tier = 2
-if '--link' in a: i = a.index('--link'); link = [int(v) for v in a[i + 1].split(',')]; del a[i:i + 2]
+if '--link' in a: sys.exit('--link wird nicht mehr unterstuetzt: CX/CY/RX/RY muessen die neue Landflaeche direkt an die Hauptkarte anbauen.')
 if '--tier' in a: i = a.index('--tier'); tier = int(a[i + 1]); del a[i:i + 2]
 if len(a) != 8: sys.exit(__doc__)
 RID, REG, EN, DE = a[0], int(a[1]), a[2], a[3]; CX, CY, RX, RY = map(int, a[4:8])
-if not re.fullmatch(r'[a-z0-9]+', RID) or REG < 20 or tier not in (1, 2, 3): sys.exit('ID klein/alphanumerisch, REG >= 19, tier 1-3')
+if not re.fullmatch(r'[a-z0-9]+', RID) or REG < 20 or tier not in (1, 2, 3): sys.exit('ID klein/alphanumerisch, REG >= 20, tier 1-3')
 if os.path.exists('js/layout-%s.js' % RID): sys.exit('js/layout-%s.js existiert schon' % RID)
 CELL, WW, HH = 8, 5000, 3000
 M = 40
@@ -42,73 +42,41 @@ def load(path):
             x += n
     return seg['cell'], g
 
-# Bestehende Landzellen aller Segmente sammeln; neue Region darf keine davon ueberdecken.
-existing = {}
+# Bestehende Land- und Seetiles sammeln. Sie duerfen nicht ueberschrieben werden.
+existing, occupied = {}, set()
 for path in sorted(glob.glob('js/layout*.js')):
     c, part = load(path)
-    for (x, y), value in part.items():
-        if value < 128: existing[(x, y)] = value
+    for pos, value in part.items():
+        occupied.add(pos)
+        if value < 128: existing[pos] = value
 
+# Neue Flaeche als breite, organische Erweiterung rasterisieren. Ueberlappende
+# bestehende Zellen bleiben unveraendert; nur Meer wird mit der neuen Region gefuellt.
 island_cells = []
 for y in range(Y0, Y1, CELL):
     for x in range(X0, X1, CELL):
-        if island(x + CELL / 2, y + CELL / 2):
-            if (x, y) in existing:
-                sys.exit('Neue Insel ueberlappt bestehendes Land bei %d,%d. Andere Position/Groesse waehlen.' % (x, y))
+        if island(x + CELL / 2, y + CELL / 2) and (x, y) not in occupied:
             island_cells.append((x, y))
-if not island_cells: sys.exit('Die neue Insel enthaelt keine Landzellen.')
+if not island_cells: sys.exit('Die Erweiterung enthaelt keine neuen Landzellen.')
 
-# Automatischer, organischer Landanschluss statt Bruecke.
-connector = {}
-if not link:
-    old_points = list(existing)
-    if not old_points: sys.exit('Kein bestehendes Land zum Anbauen gefunden.')
-    try:
-        import numpy as np
-        from scipy.spatial import cKDTree
-        tree = cKDTree(np.asarray(old_points, dtype=float))
-        distances, indexes = tree.query(np.asarray(island_cells, dtype=float), k=1)
-        n = int(np.argmin(distances)); new_anchor = island_cells[n]; old_anchor = old_points[int(indexes[n])]
-    except Exception:
-        # Fallback ohne SciPy: grobe Suche auf ausgeduennten Landpunkten.
-        sample = old_points[::max(1, len(old_points) // 12000)]
-        new_sample = island_cells[::max(1, len(island_cells) // 1200)]
-        new_anchor, old_anchor = min(((a, b) for a in new_sample for b in sample), key=lambda pair: (pair[0][0]-pair[1][0])**2 + (pair[0][1]-pair[1][1])**2)
-    old_code = existing[old_anchor]
-    # Bresenham im Layout-Raster, danach organisch verbreiterter Korridor.
-    x0, y0 = old_anchor[0] // CELL, old_anchor[1] // CELL
-    x1, y1 = new_anchor[0] // CELL, new_anchor[1] // CELL
-    dx, dy = abs(x1-x0), abs(y1-y0); sx = 1 if x0 < x1 else -1; sy = 1 if y0 < y1 else -1; err = dx-dy
-    path_cells = []
-    while True:
-        path_cells.append((x0, y0))
-        if x0 == x1 and y0 == y1: break
-        e2 = 2*err
-        if e2 > -dy: err -= dy; x0 += sx
-        if e2 < dx: err += dx; y0 += sy
-    radius = 1  # 16 Weltkacheln Gesamtbreite (Layout-Zelle = 8); entspricht dem gewuenschten 10-20-Kachel-Uebergang
-    for px, py in path_cells:
-        for oy in range(-radius, radius + 1):
-            for ox in range(-radius, radius + 1):
-                if ox*ox + oy*oy > radius*radius: continue
-                gx, gy = (px + ox) * CELL, (py + oy) * CELL
-                if not (0 <= gx < WW and 0 <= gy < HH) or (gx, gy) in existing or (gx, gy) in island_cells: continue
-                # Cluster statt Schachbrett: stabile 60/40-Aufteilung ueber grobe 2x2-Zellen.
-                h = ( ((gx // (CELL*2))*73856093) ^ ((gy // (CELL*2))*19349663) ^ (REG*83492791) ) & 0xffffffff
-                cluster_new = (h % 100) < 60
-                connector[(gx, gy)] = LAND if cluster_new else old_code
-else:
-    # Legacy-Aufruf: alter Landstreifen; bestehendes Land wird nicht ueberschrieben.
-    for y in range(Y0, Y1, CELL):
-        for x in range(X0, X1, CELL):
-            if link[0] <= x + CELL/2 < link[2] and abs(y + CELL/2 - link[1]) < 15 and (x,y) not in existing:
-                connector[(x,y)] = LAND
+# Der neue Landkoerper muss breit direkt an bestehendes Land anschliessen.
+touch = set()
+for x, y in island_cells:
+    for p in ((x-CELL,y),(x+CELL,y),(x,y-CELL),(x,y+CELL)):
+        if p in existing: touch.add(p)
+if len(touch) < 10:
+    sys.exit('Die Flaeche beruehrt die Hauptlandmasse nicht breit genug (%d Kontaktzellen). CX/CY/RX/RY anpassen.' % len(touch))
+xs, ys = [p[0] for p in touch], [p[1] for p in touch]
+if max(max(xs)-min(xs), max(ys)-min(ys)) < CELL * 8:
+    sys.exit('Der Landanschluss ist zu schmal. Die Ueberlappung muss mindestens 8 Layoutzellen breit sein.')
 
-all_points = island_cells + list(connector)
+connector = {}  # Keine Korridore/Bruecken: der neue Umriss selbst muss anschliessen.
+
+all_points = island_cells
 X0 = max(0, min(x for x,y in all_points) - CELL*2); Y0 = max(0, min(y for x,y in all_points) - CELL*2)
 X1 = min(WW, max(x for x,y in all_points) + CELL*3); Y1 = min(HH, max(y for x,y in all_points) + CELL*3)
 W, H = (X1-X0)//CELL, (Y1-Y0)//CELL
-cellmap = {p: LAND for p in island_cells}; cellmap.update(connector)
+cellmap = {p: LAND for p in island_cells}
 cells = [[cellmap.get((X0+i*CELL, Y0+j*CELL), 0) for i in range(W)] for j in range(H)]
 
 def b36(n):
@@ -136,4 +104,4 @@ h = open(index_path).read(); v = re.search(r'\?v=(\d+)', h).group(1)
 h = re.sub(r'(<script src="js/layout[^\n]*\n)(?!<script src="js/layout)', lambda m: m.group(1) + '<script src="js/layout-%s.js?v=%s" defer></script>\n' % (RID, v), h, 1)
 h = re.sub(r'(<script src="js/lang-de\.js[^\n]*\n)', lambda m: m.group(1) + '<script src="js/region-%s.js?v=%s" defer></script>\n' % (RID, v), h, 1)
 open(index_path, 'w').write(h)
-print('OK: Region %d "%s" bei %d,%d; Landanschluss %d Zellen, 60/40-Uebergang. Dateien: js/layout-%s.js, js/region-%s.js; Schrein %s in data/world.json; index.html angepasst.' % (REG, EN, CX, CY, len(connector), RID, RID, RID))
+print('OK: Region %d "%s" bei %d,%d als breite Landflaeche angebaut; %d neue Landzellen, 60/40-Uebergang ueber world.js. Dateien: js/layout-%s.js, js/region-%s.js; Schrein %s in data/world.json; index.html angepasst.' % (REG, EN, CX, CY, len(island_cells), RID, RID, RID))
