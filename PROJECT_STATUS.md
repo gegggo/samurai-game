@@ -1,3 +1,10 @@
+## Version 0.30.0 – neue Kartenpositionierung (27.11.2026)
+- Fuenf neue Regionen 20–24 gemeinsam suedlich unterhalb der bestehenden Hauptkarte angeordnet; Positionen nach der Nutzerskizze weiter nach Westen verschoben und mittig unter der Suedkueste platziert.
+- Weltgrenze auf 8000 × 5200 erweitert. Alte Regionsmittelpunkte bleiben laut Generator erhalten; die beiden bestehenden Erweiterungsregionen 20/21 wurden in die neue suedliche Landmasse integriert.
+- Neue Landflaechen sind organisch und direkt angebaut; keine Bruecken oder kuenstlichen Wege.
+- Upload-Dateien integriert: js/layout-frontier.js, js/config.js (Version 0.30.0), tools/make_layout_frontier.py und tests/regression.py.
+- Lokale Syntaxpruefung bestanden: node --check fuer config.js/layout-frontier.js; py_compile fuer Generator und Regressionstests. Vollstaendiger Playwright-Lauf und iPhone-Test noch offen.
+
 ## 0.29.0 – Korrektur der Kartenpositionen
 - Nutzerkorrektur nach iPhone-Screenshot: Alle fuenf neuen Regionen (20–24) liegen gemeinsam unterhalb der bisherigen Hauptkarte, nicht mehr rechts/oben.
 - Alte Hauptkarte, bestehende Regionspositionen und Kernflaechen bleiben unveraendert.
