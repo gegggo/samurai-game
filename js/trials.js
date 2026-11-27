@@ -64,6 +64,10 @@ SW.Trials = (function () {
     } else if (kind === 'combo') {
       // Erst die Zeitplatte im Sueden betreten, dann zum Spiegel laufen und ihn drehen.
       g[13][3] = 'V'; g[8][2] = 'F'; g[8][12] = 'M'; g[3][12] = 'C';
+      // Der Lichtweg im Kombinationsraum bleibt frei: erst waagerecht zum
+      // Spiegel, danach senkrecht nach oben zum Kristall.
+      for (let x = 3; x < 12; x++) g[8][x] = '.';
+      for (let y = 4; y < 8; y++) g[y][12] = '.';
     } else {
       // Ein Lichtstrahl kommt von Westen; der Spiegel muss ihn nach Norden zum Kristall lenken.
       g[8][2] = 'F'; g[8][12] = 'M'; g[3][12] = 'C';
