@@ -50,6 +50,7 @@ SW.Trials = (function () {
     return h >>> 0;
   }
   SW.Shrines.expand();
+  if (SW.Combat && SW.Combat.ensureShrineGuards) SW.Combat.ensureShrineGuards(D.shrines.filter(shrine => shrine.generated));
   D.shrines.forEach((shrine, index) => {
     const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed & 1 ? 'blocks' : 'lanterns');
     const variant = (seed >>> 4) % 3, order = [0,1,2,3,4];
