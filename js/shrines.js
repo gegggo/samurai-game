@@ -22,7 +22,10 @@ SW.Shrines = (function () {
   S.expand = function () {
     if (S.expanded) return 0;
     S.expanded = true;
-    const target = 5, counts = Array(26).fill(0);
+    const counts = Array(26).fill(0);
+    // Drei Regionen erhalten bewusst weniger Schreine, weil dort das begehbare
+    // Terrain fuer fuenf Standorte zu eng ist: Region 9 = 3, Regionen 17/22 = 4.
+    const targetForRegion = reg => reg === 9 ? 3 : (reg === 17 || reg === 22 ? 4 : 5);
     D.shrines.forEach(d => { const r = W.regionAt(d.x, d.y); if (r >= 0 && r < counts.length) counts[r]++; });
     let added = 0;
     // Der 220er-Mindestabstand gilt fuer neu platzierte Schreine untereinander.
@@ -30,6 +33,7 @@ SW.Shrines = (function () {
     const placed = D.shrines.filter(d => d.generated).map(d => ({ x: d.x, y: d.y }));
     for (let reg = 0; reg < counts.length; reg++) {
       const center = W.CEN[reg];
+      const target = targetForRegion(reg);
       if (!center || counts[reg] >= target) continue;
       const candidates = [], cx = center[0], cy = center[1];
       // Die bisherigen 1.050 Einheiten decken die Randbereiche mehrerer
