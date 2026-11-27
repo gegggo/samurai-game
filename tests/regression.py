@@ -88,15 +88,42 @@ def check_connected_mainland():
                     region = target_codes.get(grid[ny * width + nx])
                     if region in region25_targets:
                         region25_targets[region] += 1
-    return components, region_cells, contacts, region25_targets
+    # Nullzellen, die nicht mit dem Kartenrand verbunden sind, sind eingeschlossene Wasserluecken.
+    ocean = bytearray(len(grid))
+    queue = deque()
+    for x in range(width):
+        for y in (0, height - 1):
+            i = y * width + x
+            if grid[i] == 0 and not ocean[i]:
+                ocean[i] = 1
+                queue.append(i)
+    for y in range(height):
+        for x in (0, width - 1):
+            i = y * width + x
+            if grid[i] == 0 and not ocean[i]:
+                ocean[i] = 1
+                queue.append(i)
+    while queue:
+        i = queue.popleft()
+        x, y = i % width, i // width
+        for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < width and 0 <= ny < height:
+                ni = ny * width + nx
+                if grid[ni] == 0 and not ocean[ni]:
+                    ocean[ni] = 1
+                    queue.append(ni)
+    enclosed_water = sum(1 for i, value in enumerate(grid) if value == 0 and not ocean[i])
+    return components, region_cells, contacts, region25_targets, enclosed_water
 
-components, region_cells, contacts, region25_targets = check_connected_mainland()
+components, region_cells, contacts, region25_targets, enclosed_water = check_connected_mainland()
 rec('Map: alle Regionen bilden eine einzige zusammenhaengende Landmasse',
     components == 1 and all(region_cells[r] > 0 and contacts[r] >= 10 for r in (17,18,19,20,21,22,23,24,25)),
     'components=%s regions=%s contacts=%s' % (components, region_cells, contacts))
 rec('Map: Region 25 beruehrt Sun Coast, Abandoned Fortress, Cloudsteppe und Jade Highlands direkt',
     region_cells[25] >= 5000 and all(n >= 10 for n in region25_targets.values()),
     'Region25 targets=%s' % region25_targets)
+rec('Map: keine eingeschlossenen Wasserluecken', enclosed_water == 0, 'enclosed sea cells=%s' % enclosed_water)
 
 try:
   with sync_playwright() as p:
@@ -105,6 +132,8 @@ try:
     pg = start(b, errs)
     region25_ok = ev(pg, "!!SW.World.CEN[25] && SW.World.regionAt(3260,3050) === 25 && SW.World.terrain(3260,3050) !== SW.World.T.SEA && SW.TEXT.en.reg_25 === 'Verdant Basin' && SW.TEXT.de.reg_25 === 'Grünes Becken'")
     rec('Map: Region 25 center, terrain and EN/DE names', region25_ok)
+    gap_temple_ok = ev(pg, "SW.World.regionAt(3158,2640) === 25 && SW.World.POI.some(p => p.id === 'gaptemple') && SW.World.S.some(s => s.type === 'shrine' && s.x === 3150 && s.y === 2632) && !!SW.Shrines.get('gaptemple') && SW.TEXT.en.shr_gaptemple === 'Tide Temple' && SW.TEXT.de.shr_gaptemple === 'Gezeitentempel'")
+    rec('Map: Gezeitentempel, POI, Schrein und EN/DE-Namen', gap_temple_ok)
     ev(pg, "SW.Inv.addCoins(123); SW.Char.addXp(200); SW.Essence.add(3); SW.Karma.add('t1', 10); SW.YinYang.gain('yin', 5); SW.Save.save();")
     before = ev(pg, "JSON.stringify([SW.Inv.coins, SW.Char.level, SW.Char.xp, SW.Essence.n, SW.Karma.v, SW.YinYang.yin])")
     cont(pg); after = ev(pg, "JSON.stringify([SW.Inv.coins, SW.Char.level, SW.Char.xp, SW.Essence.n, SW.Karma.v, SW.YinYang.yin])")
