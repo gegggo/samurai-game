@@ -740,6 +740,51 @@
     }
    ],
    "weapon": "sword"
+  },
+  "shrine_guard": {
+   "dmg": 0.9,
+   "hp": 160,
+   "look": {
+    "cape": "#183b48",
+    "cloth": "#315c68",
+    "helm": "#142a35",
+    "legs": "#172a30",
+    "plate": "#557b80",
+    "trim": "#d7bb72"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "slash",
+      "slash",
+      "heavy"
+     ],
+     "gap": [
+      1.15,
+      1.65
+     ],
+     "guard": 0.12,
+     "speed": 0.9
+    },
+    {
+     "at": 0.5,
+     "atk": [
+      "slash",
+      "flurry",
+      "thrust",
+      "heavy"
+     ],
+     "gap": [
+      0.8,
+      1.2
+     ],
+     "guard": 0.16,
+     "speed": 1.12
+    }
+   ],
+   "weapon": "sword",
+   "arena": "warden"
   }
  },
  "arenas": {
