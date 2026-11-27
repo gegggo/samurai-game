@@ -12,6 +12,77 @@ def start(b, errs):
 def cont(pg):
     pg.reload(); pg.wait_for_timeout(1000); pg.get_by_text('Continue').click(); pg.wait_for_timeout(500)
 def ev(pg, js): return pg.evaluate(js)
+# Statische Kartenpruefung: alle Landregionen muessen eine zusammenhaengende Landmasse bilden.
+def check_connected_mainland():
+    import os, re
+    from collections import deque
+    html = open('index.html', encoding='utf-8').read()
+    files = re.findall(r'<script src="(js/layout[^"]+\.js)', html)
+    segs = []
+    for path in files:
+        src = open(path, encoding='utf-8').read()
+        a = src.index('Object.assign(') + 14
+        b = src.index(', { rows:')
+        meta = json.loads(src[a:b])
+        raw = src[src.index("rows: '") + 7:src.rindex("'")]
+        segs.append((meta, raw.split('|')))
+    width = max(m['x1'] for m, _ in segs) // 8
+    height = max(m['y1'] for m, _ in segs) // 8
+    grid = [0] * (width * height)
+    for m, rows in segs:
+        for y, row in enumerate(rows):
+            x = 0
+            for token in row.split(','):
+                pair = token.split('*')
+                value = int(pair[0], 36)
+                count = int(pair[1]) if len(pair) > 1 else 1
+                if value:
+                    for k in range(count):
+                        gx = m['x0'] // 8 + x + k
+                        gy = m['y0'] // 8 + y
+                        if 0 <= gx < width and 0 <= gy < height:
+                            grid[gy * width + gx] = value
+                x += count
+    seen = bytearray(len(grid))
+    components = 0
+    region_cells = {17: 0, 18: 0, 19: 0}
+    contacts = {17: 0, 18: 0, 19: 0}
+    for i, value in enumerate(grid):
+        if 0 < value < 128 and value - 1 in region_cells:
+            region_cells[value - 1] += 1
+        if value == 0 or value >= 128 or seen[i]:
+            continue
+        components += 1
+        queue = deque([i])
+        seen[i] = 1
+        while queue:
+            j = queue.popleft()
+            x, y = j % width, j // width
+            for dx, dy in ((1,0),(-1,0),(0,1),(0,-1)):
+                nx, ny = x + dx, y + dy
+                if not (0 <= nx < width and 0 <= ny < height):
+                    continue
+                ni = ny * width + nx
+                nv = grid[ni]
+                if 0 < nv < 128 and not seen[ni]:
+                    seen[ni] = 1
+                    queue.append(ni)
+    for reg in contacts:
+        for y in range(height):
+            for x in range(width):
+                if grid[y * width + x] != reg + 1:
+                    continue
+                if any(0 <= x+dx < width and 0 <= y+dy < height and
+                       0 < grid[(y+dy)*width+x+dx] < reg+1
+                       for dx,dy in ((1,0),(-1,0),(0,1),(0,-1))):
+                    contacts[reg] += 1
+    return components, region_cells, contacts
+
+components, region_cells, contacts = check_connected_mainland()
+rec('Map: alle Regionen bilden eine einzige zusammenhaengende Landmasse',
+    components == 1 and all(region_cells[r] > 0 and contacts[r] >= 10 for r in (17,18,19)),
+    'components=%s regions=%s contacts=%s' % (components, region_cells, contacts))
+
 try:
   with sync_playwright() as p:
     b = p.chromium.launch(executable_path=shutil.which('chromium')) if shutil.which('chromium') else p.chromium.launch(); errs = []
