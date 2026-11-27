@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Erzeugt js/layout-frontier.js mit zwei organisch angebauten Regionen.
-Drachenwall (20) und Tal der Geister (21) erweitern die bestehende Landmasse.
-Es werden keine Wege oder Brücken zwischen den Regionen angelegt.
+"""Erzeugt js/layout-frontier.js mit fuenf direkt angebauten Regionen und einer
+moderaten Erweiterung der bisherigen Kernland-Kueste. Alle alten Regionsmittelpunkte
+bleiben erhalten; Drachenwall (20) und Tal der Geister (21) werden groessenmaessig
+angepasst. Im Norden kommen Frostwall (22), Wolkensteppe (23) und Jadehochland (24) dazu.
+Alle neuen Gebiete bilden breite natuerliche Landanschluesse; es gibt keine Wege/Bruecken.
 Aufruf: python3 tools/make_layout_frontier.py js/layout-frontier.js
 """
 import json
@@ -9,12 +11,32 @@ import math
 import re
 import sys
 from pathlib import Path
+import numpy as np
+from scipy.ndimage import binary_dilation, distance_transform_edt
+from skimage.morphology import disk
 
 CELL = 8
-X0, Y0, X1, Y1 = 5200, 700, 8000, 3880
+X0, Y0, X1, Y1 = 0, 0, 8000, 4000
 W, H = (X1 - X0) // CELL, (Y1 - Y0) // CELL
-REG_DRAGON, REG_SPIRIT = 20, 21
-LAND_DRAGON, LAND_SPIRIT = REG_DRAGON + 1, REG_SPIRIT + 1
+
+# Mittelpunktpositionen der bisherigen zwei Regionen bleiben unveraendert.
+REGIONS = {
+    20: (6650, 1570, 470, 400, 1.2),  # Drachenwall
+    21: (7000, 2910, 420, 350, 2.4),  # Tal der Geister
+    22: (5600, 390, 400, 320, 0.7),   # Frostwall
+    23: (6550, 370, 470, 350, 1.8),   # Wolkensteppe
+    24: (7510, 430, 460, 360, 2.8),   # Jadehochland
+}
+
+# Abgerundete, organische Landbuchten statt gerader Verbindungskorridore.
+# Die Zusatzellipsen gehoeren jeweils zur Region und ueberlappen deren Kern.
+REGION_LOBES = {
+    20: [(5850, 1770, 400, 300, 0.9)],
+    21: [(5950, 2600, 740, 350, 2.1)],
+    22: [(5900, 820, 350, 240, 0.2), (5400, 1390, 520, 360, 0.6)],
+    23: [(6500, 1050, 500, 350, 1.4)],
+    24: [(7000, 850, 360, 260, 2.6)],
+}
 
 ROOT = Path(__file__).resolve().parents[1]
 OLD_LAYOUTS = [
@@ -25,6 +47,7 @@ OLD_LAYOUTS = [
     ROOT / 'js/layout-landmass.js',
 ]
 
+
 def base36(value):
     chars = '0123456789abcdefghijklmnopqrstuvwxyz'
     if value == 0:
@@ -34,6 +57,7 @@ def base36(value):
         value, rem = divmod(value, 36)
         result = chars[rem] + result
     return result
+
 
 def rle(values):
     output = []
@@ -46,6 +70,7 @@ def rle(values):
         output.append(f'{token}*{j-i}' if j-i > 1 else token)
         i = j
     return ','.join(output)
+
 
 def load_existing():
     segments = []
@@ -65,16 +90,18 @@ def load_existing():
                 count = int(pair[1]) if len(pair) > 1 else 1
                 row.extend([value] * count)
             if len(row) != meta['w']:
-                raise RuntimeError(f'Ungültige Zeilenbreite in {path.name}: {len(row)} statt {meta["w"]}')
+                raise RuntimeError(f'Ungueltige Zeilenbreite in {path.name}: {len(row)} statt {meta["w"]}')
             rows.append(row)
         if len(rows) != meta['h']:
-            raise RuntimeError(f'Ungültige Zeilenhöhe in {path.name}')
+            raise RuntimeError(f'Ungueltige Zeilenhoehe in {path.name}')
         segments.append((meta, rows))
     return segments
 
+
 EXISTING = load_existing()
+
+
 def old_code(x, y):
-    # Gleiche Reihenfolge wie index.html: spätere vorhandene Segmente liegen oben.
     for meta, rows in reversed(EXISTING):
         if meta['x0'] <= x < meta['x1'] and meta['y0'] <= y < meta['y1']:
             ix = (x - meta['x0']) // CELL
@@ -84,69 +111,97 @@ def old_code(x, y):
                 return value
     return 0
 
-def inside_ellipse(x, y, cx, cy, rx, ry, phase):
+
+def ellipse_score(x, y, spec):
+    cx, cy, rx, ry, phase = spec
     angle = math.atan2(y - cy, x - cx)
-    wobble = 1 + .045 * math.sin(3 * angle + phase) + .027 * math.sin(6 * angle + phase * .7)
+    wobble = 1 + .035 * math.sin(3 * angle + phase) + .022 * math.sin(6 * angle + phase * .7)
     dx = (x - cx) / (rx * wobble)
     dy = (y - cy) / (ry * wobble)
-    return dx * dx + dy * dy < 1
+    score = dx * dx + dy * dy
+    return score if score < 1 else None
 
-def near_segment(x, y, a, b, radius):
-    ax, ay = a
-    bx, by = b
-    vx, vy = bx - ax, by - ay
-    length2 = vx * vx + vy * vy
-    t = max(0.0, min(1.0, ((x - ax) * vx + (y - ay) * vy) / length2))
-    px, py = ax + t * vx, ay + t * vy
-    return (x - px) ** 2 + (y - py) ** 2 <= radius * radius
 
 def region_for(x, y):
-    in_spirit = inside_ellipse(x, y, 7000, 2910, 1000, 900, 2.4)
-    in_dragon = inside_ellipse(x, y, 6650, 1570, 1000, 850, 1.2)
-    if in_spirit:
-        return LAND_SPIRIT
-    if in_dragon:
-        return LAND_DRAGON
-    # Breite, natürlich geformte Landhälse – ausdrücklich keine Wege/Brücken.
-    if near_segment(x, y, (5260, 2390), (6370, 2790), 410):
-        return LAND_SPIRIT
-    if near_segment(x, y, (5480, 1780), (6050, 1870), 360):
-        return LAND_DRAGON
-    return 0
+    # Bestehende Zentren 20/21 und ihre runden Landbuchten behalten die Prioritaet.
+    for rid in (21, 20):
+        scores = [ellipse_score(x, y, REGIONS[rid])]
+        scores.extend(ellipse_score(x, y, shape) for shape in REGION_LOBES.get(rid, []))
+        if any(score is not None for score in scores):
+            return rid + 1
+
+    # Ueberlappende Nordgebiete werden am naechstgelegenen normierten Kern/Lobus getrennt.
+    candidates = []
+    for rid in (22, 23, 24):
+        scores = [ellipse_score(x, y, REGIONS[rid])]
+        scores.extend(ellipse_score(x, y, shape) for shape in REGION_LOBES.get(rid, []))
+        scores = [score for score in scores if score is not None]
+        if scores:
+            candidates.append((min(scores), rid))
+    return min(candidates)[1] + 1 if candidates else 0
+
+
+# Existing main-map regions keep their exact centres and inner borders.
+# The coastline is widened modestly; added tiles inherit the nearest existing region.
+old_grid = np.zeros((H, W), dtype=np.uint8)
+for gy in range(H):
+    for gx in range(W):
+        x = X0 + gx * CELL + CELL // 2
+        y = Y0 + gy * CELL + CELL // 2
+        old_grid[gy, gx] = old_code(x, y)
+
+old_land = (old_grid >= 1) & (old_grid <= 20)
+old_lakes = (old_grid >= 128) & (old_grid < 256)
+# Only the original core regions (0–16) gain a little coastal space; later east/south
+# regions are left at their intended size to avoid one large region absorbing the growth.
+core_land = (old_grid >= 1) & (old_grid <= 17)
+y_idx, x_idx = np.indices((H, W))
+expanded_land = binary_dilation(core_land, structure=disk(13))
+expanded_land &= (old_grid == 0) & (x_idx * CELL <= 5200) & (y_idx * CELL <= 3200)
+_, nearest = distance_transform_edt(~core_land, return_indices=True)
+nearest_labels = old_grid[nearest[0], nearest[1]]
+expanded_grid = old_grid.copy()
+expanded_grid[expanded_land] = nearest_labels[expanded_land]
+# Existing lake cells retain their original lake IDs.
+expanded_grid[old_lakes] = old_grid[old_lakes]
 
 rows = []
-counts = {REG_DRAGON: 0, REG_SPIRIT: 0}
+counts = {rid: 0 for rid in range(25)}
 for gy in range(H):
     row = []
     for gx in range(W):
         x = X0 + gx * CELL + CELL // 2
         y = Y0 + gy * CELL + CELL // 2
-        # Bereits vorhandenes Terrain bleibt unverändert. Neue Zellen füllen nur Meer.
-        if old_code(x, y):
-            value = 0
+        if expanded_grid[gy, gx]:
+            value = int(expanded_grid[gy, gx])
         else:
             value = region_for(x, y)
-        if value:
+        if 1 <= value <= 25:
             counts[value - 1] += 1
         row.append(value)
     rows.append(rle(row))
 
-if min(counts.values()) < 5000:
-    raise RuntimeError(f'Neue Regionen sind zu klein oder fehlen: {counts}')
-
+for rid in range(20, 25):
+    if counts[rid] < 5000:
+        raise RuntimeError(f'Neue Region {rid} ist zu klein oder fehlt: {counts[rid]}')
 metadata = {
-    'id': 'frontier', 'x0': X0, 'y0': Y0, 'x1': X1, 'y1': Y1,
-    'cell': CELL, 'w': W, 'h': H,
-    'centers': {'20': [6650, 1570], '21': [7000, 2910]},
+    'id': 'frontier', 'x0': 0, 'y0': 0, 'x1': X1, 'y1': Y1,
+    'cell': CELL, 'w': X1 // CELL, 'h': Y1 // CELL,
+    'centers': {
+        '20': [6650, 1570], '21': [7000, 2910],
+        '22': [5600, 390], '23': [6550, 370], '24': [7510, 430],
+    },
     'roads': [], 'rivers': [],
 }
 output = (
     "'use strict';\n"
-    '// Map-Erweiterung – zwei additive Landregionen: Drachenwall (20) und Tal der Geister (21).\n'
-    '// Das Segment füllt ausschließlich Meer; bestehendes Land bleibt unverändert. Keine Brücken/Wege.\n'
+    '// Karten-Erweiterung: Regionen 20–24, direkt an die vergroesserte bestehende Landmasse angebaut.\n'
+    '// Keine Bruecken/Wege; Zentren und innere alte Regionsflaechen bleiben erhalten.\n'
     'SW.Layouts = SW.Layouts || [];\n'
     'SW.Layouts.push(Object.assign(' + json.dumps(metadata, separators=(',', ':')) +
     ", { rows: '" + '|'.join(rows) + "' }));\n"
 )
 Path(sys.argv[1]).write_text(output, encoding='utf-8')
-print(f'Erstellt: {sys.argv[1]} | Drachenwall: {counts[20]} Zellen | Tal der Geister: {counts[21]} Zellen')
+print('Erstellt:', sys.argv[1])
+for rid, count in counts.items():
+    print(f'  Region {rid}: {count:,} Rasterzellen (8x8 Tiles)')
