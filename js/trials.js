@@ -23,25 +23,45 @@ SW.Trials = (function () {
   function roomMap(kind, variant) {
     const w = 25, h = 17, g = Array.from({ length: h }, () => Array(w).fill('#'));
     for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) g[y][x] = '.';
+
+    // Acht Grundrisse: Seitenkammern, Säulenhallen und versetzte Korridore.
+    // Die Hauptwege zu den Rätselobjekten bleiben bewusst frei.
     const walls = [
       [[6,6],[6,7],[18,6],[18,7],[8,11],[16,11],[8,12],[16,12]],
-      [[5,6],[5,7],[19,6],[19,7],[9,11],[15,11],[9,12],[15,12]],
-      [[7,6],[7,7],[17,6],[17,7],[8,10],[16,10],[8,11],[16,11]]
-    ][variant % 3];
-    walls.forEach(([x,y]) => { g[y][x] = '#'; });
+      [[6,5],[6,6],[6,7],[18,5],[18,6],[18,7],[9,11],[10,11],[14,11],[15,11]],
+      [[8,4],[8,5],[8,6],[16,4],[16,5],[16,6],[8,10],[8,11],[16,10],[16,11]],
+      [[3,6],[4,6],[5,6],[6,6],[7,6],[17,6],[18,6],[19,6],[20,6],[21,6],[6,10],[7,10],[8,10],[16,10],[17,10],[18,10]],
+      [[5,4],[5,5],[5,11],[5,12],[19,4],[19,5],[19,11],[19,12],[9,7],[9,8],[15,7],[15,8]],
+      [[7,3],[7,4],[7,5],[17,3],[17,4],[17,5],[7,11],[7,12],[17,11],[17,12],[10,8],[14,8]],
+      [[4,7],[4,8],[4,9],[20,7],[20,8],[20,9],[8,4],[9,4],[15,4],[16,4],[8,12],[9,12],[15,12],[16,12]],
+      [[9,4],[9,5],[9,6],[9,7],[15,9],[15,10],[15,11],[15,12],[6,8],[7,8],[17,8],[18,8]]
+    ];
+    walls[variant % 8].forEach(([x,y]) => { g[y][x] = '#'; });
+
     g[1][12] = 'A'; g[2][12] = 'D'; g[15][12] = 'S'; g[16][12] = 'E';
     if (kind === 'blocks') {
-      const lanes = [[3,12,21],[4,12,20],[3,11,21]][variant % 3];
-      lanes.forEach(x => { g[4][x] = 'P'; g[9][x] = 'B'; });
+      const layouts = [
+        [[3,12,21],4,9], [[4,12,20],3,11], [[5,12,19],5,10], [[3,11,21],4,10],
+        [[4,10,20],5,11], [[5,12,19],3,9], [[3,12,21],5,11], [[4,12,20],4,10]
+      ];
+      const [xs, py, by] = layouts[variant % 8];
+      xs.forEach(x => { g[py][x] = 'P'; g[by][x] = 'B'; });
     } else {
       const sets = [
         [[3,4],[21,4],[3,12],[21,12],[12,8]],
         [[4,4],[20,4],[4,12],[20,12],[12,8]],
-        [[3,5],[21,5],[3,11],[21,11],[12,8]]
+        [[3,5],[21,5],[3,11],[21,11],[12,8]],
+        [[4,3],[20,3],[4,13],[20,13],[12,9]],
+        [[3,4],[21,4],[6,12],[18,12],[12,7]],
+        [[5,4],[19,4],[3,11],[21,11],[12,8]],
+        [[3,3],[21,3],[3,13],[21,13],[12,8]],
+        [[4,5],[20,5],[5,12],[19,12],[12,7]]
       ];
-      sets[variant % 3].forEach(([x,y]) => { g[y][x] = 'L'; });
+      sets[variant % 8].forEach(([x,y]) => { g[y][x] = 'L'; });
     }
-    return g.map(row => row.join(''));
+    // Spiegelung erzeugt weitere Grundrisse, ohne Start, Ausgang oder Altar zu verschieben.
+    const mirror = variant >= 8;
+    return g.map(row => (mirror ? row.slice().reverse() : row).join(''));
   }
 
   function hashId(id) {
@@ -53,7 +73,7 @@ SW.Trials = (function () {
   if (SW.Combat && SW.Combat.ensureShrineGuards) SW.Combat.ensureShrineGuards(D.shrines.filter(shrine => shrine.generated));
   D.shrines.forEach((shrine, index) => {
     const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed & 1 ? 'blocks' : 'lanterns');
-    const variant = (seed >>> 4) % 3, order = [0,1,2,3,4];
+    const variant = (seed >>> 4) % 16, order = [0,1,2,3,4];
     for (let i = order.length - 1; i > 0; i--) {
       const j = (seed + i * 13) % (i + 1), t = order[i]; order[i] = order[j]; order[j] = t;
     }
@@ -238,7 +258,7 @@ SW.Trials = (function () {
   }
 
   T.debug = () => R; // nur für Tests
-  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L').length } : null; };
+  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L').length } : null; };
   T.dump = () => ({ done: [...T.done] });
   T.load = function (d) {
     if (!d || !Array.isArray(d.done)) return;
