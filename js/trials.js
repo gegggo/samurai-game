@@ -7,40 +7,63 @@
 SW.Trials = (function () {
   const T = { active: false, done: new Set() }, tr = (k, n) => SW.t(k, n);
   const RAD = .3, SPEED = 4, TAU = 6.2832, COL = ['#e0452f', '#f2c14e', '#4a8fe0', '#f4ecd8'];
-  const ROOMS = {
-    village: {
-      kind: 'blocks', name: 'trn_village', hint: 'tr_hint_blocks', reward: { xp: 40, yin: 3 },
-      map: ['###########', '#P##.A.##P#', '#.###D###.#', '#.........#', '#..B...B..#', '#.........#', '#...#.#...#', '#....S....#', '#####E#####']
-    },
-    bamboo: {
-      kind: 'lanterns', name: 'trn_bamboo', hint: 'tr_hint_lanterns', reward: { xp: 40, yin: 2, ess: 1 }, order: [2, 3, 0, 1],
-      map: ['###########', '#####A#####', '#####D#####', '#.........#', '#.L.....L.#', '#....#....#', '#.L.....L.#', '#....S....#', '#####E#####']
-    },
-    // 7b: weitere Schreine. Gleiche Aufgabentypen, andere Räume. Belohnungen: nur XP, Yin/Yang, Essence (keine Münzen).
-    mountain: {
-      kind: 'blocks', name: 'trn_mountain', hint: 'tr_hint_blocks', reward: { xp: 50, yin: 3, ess: 1 },
-      map: ['###########', '#P##.A.##P#', '#.###D###.#', '#.........#', '#.B..B..B.#', '#.........#', '#....P....#', '#....S....#', '#####E#####']
-    },
-    hermit: {
-      kind: 'lanterns', name: 'trn_hermit', hint: 'tr_hint_lanterns', reward: { xp: 45, yin: 3 }, order: [1, 3, 0, 2],
-      map: ['###########', '#####A#####', '#####D#####', '#.L.....L.#', '#.........#', '#..#...#..#', '#.L.....L.#', '#....S....#', '#####E#####']
-    },
-    lookout: {
-      kind: 'blocks', name: 'trn_lookout', hint: 'tr_hint_blocks', reward: { xp: 50, yin: 2, ess: 1 },
-      map: ['###########', '#P##.A.##P#', '#.###D###.#', '#.........#', '#.#..B..#.#', '#..B...B..#', '#.........#', '#....S....#', '#####E#####']
-    },
-    fishers: {
-      kind: 'lanterns', name: 'trn_fishers', hint: 'tr_hint_lanterns', reward: { xp: 45, yin: 2 }, order: [2, 0, 3, 1],
-      map: ['###########', '#####A#####', '#####D#####', '#..L...L..#', '#.........#', '#L.......L#', '#.........#', '#....S....#', '#####E#####']
-    },
-    ruins: {
-      kind: 'blocks', name: 'trn_ruins', hint: 'tr_hint_blocks', reward: { xp: 60, yin: 3, ess: 2 },
-      map: ['###########', '#####A#####', '#####D#####', '#.P.....P.#', '#....P....#', '#.#.....#.#', '#...BBB...#', '#....S....#', '#####E#####']
-    },
-    // Duell-Prüfung (Yang): kein Raum, direkter Kampf gegen einen Elitegegner. Sieg = Belohnung, Niederlage = später erneut versuchen.
-    cave: { kind: 'duel', name: 'trn_cave', foe: 'elite', reward: { xp: 80, yang: 5, ess: 2 } }
+  const ROOMS = {};
+  const D = SW.Data;
+  const legacy = {
+    village: { kind: 'blocks', name: 'trn_village', reward: { xp: 40, yin: 3 } },
+    bamboo: { kind: 'lanterns', name: 'trn_bamboo', reward: { xp: 40, yin: 2, ess: 1 } },
+    mountain: { kind: 'blocks', name: 'trn_mountain', reward: { xp: 50, yin: 3, ess: 1 } },
+    hermit: { kind: 'lanterns', name: 'trn_hermit', reward: { xp: 45, yin: 3 } },
+    lookout: { kind: 'blocks', name: 'trn_lookout', reward: { xp: 50, yin: 2, ess: 1 } },
+    fishers: { kind: 'lanterns', name: 'trn_fishers', reward: { xp: 45, yin: 2 } },
+    ruins: { kind: 'blocks', name: 'trn_ruins', reward: { xp: 60, yin: 3, ess: 2 } },
+    cave: { kind: 'blocks', name: 'trn_cave', reward: { xp: 80, yang: 5, ess: 2 } }
   };
-  let R = null, btnLeave = null, btnReset = null;
+
+  function roomMap(kind, variant) {
+    const w = 25, h = 17, g = Array.from({ length: h }, () => Array(w).fill('#'));
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) g[y][x] = '.';
+    const walls = [
+      [[6,6],[6,7],[18,6],[18,7],[8,11],[16,11],[8,12],[16,12]],
+      [[5,6],[5,7],[19,6],[19,7],[9,11],[15,11],[9,12],[15,12]],
+      [[7,6],[7,7],[17,6],[17,7],[8,10],[16,10],[8,11],[16,11]]
+    ][variant % 3];
+    walls.forEach(([x,y]) => { g[y][x] = '#'; });
+    g[1][12] = 'A'; g[2][12] = 'D'; g[15][12] = 'S'; g[16][12] = 'E';
+    if (kind === 'blocks') {
+      const lanes = [[3,12,21],[4,12,20],[3,11,21]][variant % 3];
+      lanes.forEach(x => { g[4][x] = 'P'; g[9][x] = 'B'; });
+    } else {
+      const sets = [
+        [[3,4],[21,4],[3,12],[21,12],[12,8]],
+        [[4,4],[20,4],[4,12],[20,12],[12,8]],
+        [[3,5],[21,5],[3,11],[21,11],[12,8]]
+      ];
+      sets[variant % 3].forEach(([x,y]) => { g[y][x] = 'L'; });
+    }
+    return g.map(row => row.join(''));
+  }
+
+  function hashId(id) {
+    let h = 2166136261;
+    for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619);
+    return h >>> 0;
+  }
+  SW.Shrines.expand();
+  D.shrines.forEach((shrine, index) => {
+    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed & 1 ? 'blocks' : 'lanterns');
+    const variant = (seed >>> 4) % 3, order = [0,1,2,3,4];
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = (seed + i * 13) % (i + 1), t = order[i]; order[i] = order[j]; order[j] = t;
+    }
+    const tier = shrine.tier || 1;
+    ROOMS[shrine.id] = {
+      kind, name: old ? old.name : 'shr_' + shrine.id,
+      hint: kind === 'blocks' ? 'tr_hint_blocks' : 'tr_hint_lanterns',
+      reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
+      map: roomMap(kind, variant), order
+    };
+  });  let R = null, btnLeave = null, btnReset = null;
 
   const blockAt = (x, y) => R.blocks.find(b => b.x === x && b.y === y) || null;
   function solid(x, y) {
@@ -78,7 +101,6 @@ SW.Trials = (function () {
   T.enter = function (id) {
     if (!T.can(id) || SW.Combat.active || SW.paused) return false;
     const def = ROOMS[id];
-    if (def.kind === 'duel') { const s = SW.Shrines.get(id); SW.Combat.start({ id: 'tr_' + id, type: def.foe, x: s.x, y: s.y, dead: false, trial: id }); return true; }
     ensure(); btnLeave.textContent = tr('tr_leave'); btnReset.textContent = tr('tr_reset');
     build(id); T.active = true; document.body.classList.add('trial'); SW.Input.reset(); return true;
   };
@@ -215,6 +237,7 @@ SW.Trials = (function () {
   }
 
   T.debug = () => R; // nur für Tests
+  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L').length } : null; };
   T.dump = () => ({ done: [...T.done] });
   T.load = function (d) {
     if (!d || !Array.isArray(d.done)) return;
@@ -223,13 +246,13 @@ SW.Trials = (function () {
 
   Object.assign(SW.TEXT.en, {
     tr_enter: 'Enter', tr_leave: 'Leave', tr_reset: 'Reset', tr_done: 'Trial complete', tr_door: 'The door opens.', tr_wrong: 'The flames die. Try again.',
-    tr_hint_blocks: 'Push the stone blocks onto the plates.', tr_hint_lanterns: 'Light the lanterns in the order shown above.',
+    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.',
     trn_village: 'Trial of Stillness', trn_bamboo: 'Trial of Flames', trn_mountain: 'Trial of Stone', trn_hermit: 'Trial of Patience',
     trn_lookout: 'Trial of Balance', trn_fishers: 'Trial of Ripples', trn_ruins: 'Trial of the Ancients', trn_cave: 'Trial of Steel'
   });
   SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
     tr_enter: 'Betreten', tr_leave: 'Verlassen', tr_reset: 'Neustart', tr_done: 'Prüfung bestanden', tr_door: 'Die Tür öffnet sich.', tr_wrong: 'Die Flammen erlöschen. Versuche es erneut.',
-    tr_hint_blocks: 'Schiebe die Steinblöcke auf die Platten.', tr_hint_lanterns: 'Entzünde die Laternen in der oben gezeigten Farbreihenfolge.',
+    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.',
     trn_village: 'Prüfung der Stille', trn_bamboo: 'Prüfung der Flammen', trn_mountain: 'Prüfung des Steins', trn_hermit: 'Prüfung der Geduld',
     trn_lookout: 'Prüfung des Gleichgewichts', trn_fishers: 'Prüfung der Wellen', trn_ruins: 'Prüfung der Uralten', trn_cave: 'Prüfung des Stahls'
   });
