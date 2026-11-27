@@ -271,7 +271,7 @@ try:
       for(let i=0;i<generated.length;i++) for(let j=0;j<i;j++)
         min=Math.min(min,Math.hypot(generated[i].x-generated[j].x,generated[i].y-generated[j].y));
       return {total:D.shrines.length, generated:generated.length, counts, min, layouts:new Set(info.filter(Boolean).map(x=>x.layout)).size,
-        rooms:info.length===D.shrines.length && info.every(x=>x && x.w===25 && x.h===17 && (x.kind==='blocks'||x.kind==='lanterns'||(x.kind==='switches'&&x.switches===3)||(x.kind==='mirrors'&&x.mirrors===1))) && ['blocks','lanterns','switches','mirrors'].every(k=>info.some(x=>x.kind===k)),
+        rooms:info.length===D.shrines.length && info.every(x=>x && x.w===25 && x.h===17 && (x.kind==='blocks'||x.kind==='lanterns'||(x.kind==='switches'&&x.switches===3)||(x.kind==='mirrors'&&x.mirrors===1)||(x.kind==='combo'&&x.mirrors===1&&x.pressure===1))) && ['blocks','lanterns','switches','mirrors','combo'].every(k=>info.some(x=>x.kind===k)),
         can:D.shrines.every(x=>T.can(x.id))};
     }""")
     rec('Phase 0.34: jede Region hat fuenf Schreine; alle Schreine besitzen eine 25x17-Miniwelt-Pruefung',
@@ -298,6 +298,21 @@ try:
     }""")
     rec('Phase 0.37: Spiegel laesst sich durch Anlaufen drehen und lenkt den Strahl zum Kristall',
         r.get('entered') and r['mirrors']==1 and r['orientation']==0 and r['solved'] and r['open'], json.dumps(r))
+    # Phase 0.38: Druckplatte startet ein Zeitfenster; der Spiegel muss darin gedreht werden.
+    r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='combo')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(), plate=room.pressurePlate, mirror=room.mirrors[0];
+      room.p.x=plate.x+.5; room.p.y=plate.y+.5; T.update(.02,{x:0,y:0});
+      const started=room.pressureActive&&room.pressureTime>7.9;
+      T.update(8.1,{x:0,y:0}); const expired=!room.pressureActive&&mirror.orientation===1;
+      room.p.x=plate.x+.5; room.p.y=plate.y+.5; T.update(.02,{x:0,y:0});
+      room.p.x=mirror.x+.5; room.p.y=mirror.y+1.5;
+      let steps=0; while(!room.beamSolved&&steps++<8) T.update(.1,{x:0,y:-1});
+      const result={entered:true,pressure:!!plate,started,expired,solved:room.beamSolved,open:room.open,orientation:mirror.orientation};
+      T.leave(); return result;
+    }""")
+    rec('Phase 0.38: Druckplatte startet Timer; Spiegel trifft innerhalb des Zeitfensters den Kristall',
+        r.get('entered')&&r['pressure']&&r['started']&&r['expired']&&r['solved']&&r['open']&&r['orientation']==0, json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
     r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
       const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
