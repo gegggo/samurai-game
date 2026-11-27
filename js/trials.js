@@ -2,8 +2,8 @@
 // Schrein-Prüfungen (Phase 7a). Namensraum SW.Trials.
 // Ablauf: Schrein erwecken (Beten) -> Knopf "Enter" -> Innenraum (eigene Kachelkarte, Draufsicht) -> Aufgabe lösen -> Altar berühren -> Belohnung.
 // Belohnungen: Yin/Yang (Spielstil), Essence (nur Skilltree), XP. Keine Münzen. Jede Prüfung einmalig, gespeichert in SW.Trials.done.
-// Aufgabentypen: blocks (Steinblöcke auf Platten schieben), lanterns (Laternen in gezeigter Farbreihenfolge entzünden).
-// Karte: # Wand | . Boden | B Block | P Platte | L Laterne | D Tür (zu bis gelöst) | A Altar | S Start | E Ausgang
+// Aufgabentypen: blocks (Steinblöcke auf Platten schieben), lanterns (Laternen in Reihenfolge entzünden), switches (Bodenschalter aktivieren).
+// Karte: # Wand | . Boden | B Block | P Platte | L Laterne | Q Bodenschalter | D Tür | A Altar | S Start | E Ausgang
 SW.Trials = (function () {
   const T = { active: false, done: new Set() }, tr = (k, n) => SW.t(k, n);
   const RAD = .3, SPEED = 4, TAU = 6.2832, COL = ['#e0452f', '#f2c14e', '#4a8fe0', '#f4ecd8'];
@@ -46,7 +46,7 @@ SW.Trials = (function () {
       ];
       const [xs, py, by] = layouts[variant % 8];
       xs.forEach(x => { g[py][x] = 'P'; g[by][x] = 'B'; });
-    } else {
+    } else if (kind === 'lanterns') {
       const sets = [
         [[3,4],[21,4],[3,12],[21,12],[12,8]],
         [[4,4],[20,4],[4,12],[20,12],[12,8]],
@@ -58,6 +58,9 @@ SW.Trials = (function () {
         [[4,5],[20,5],[5,12],[19,12],[12,7]]
       ];
       sets[variant % 8].forEach(([x,y]) => { g[y][x] = 'L'; });
+    } else {
+      // Drei Bodenschalter liegen auf gut erreichbaren, voneinander getrennten Wegen.
+      [[3,8],[12,13],[21,8]].forEach(([x,y]) => { g[y][x] = 'Q'; });
     }
     // Spiegelung erzeugt weitere Grundrisse, ohne Start, Ausgang oder Altar zu verschieben.
     const mirror = variant >= 8;
@@ -72,7 +75,7 @@ SW.Trials = (function () {
   SW.Shrines.expand();
   if (SW.Combat && SW.Combat.ensureShrineGuards) SW.Combat.ensureShrineGuards(D.shrines.filter(shrine => shrine.generated));
   D.shrines.forEach((shrine, index) => {
-    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed & 1 ? 'blocks' : 'lanterns');
+    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 3 === 0 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns'));
     const variant = (seed >>> 4) % 16, order = [0,1,2,3,4];
     for (let i = order.length - 1; i > 0; i--) {
       const j = (seed + i * 13) % (i + 1), t = order[i]; order[i] = order[j]; order[j] = t;
@@ -80,7 +83,7 @@ SW.Trials = (function () {
     const tier = shrine.tier || 1;
     ROOMS[shrine.id] = {
       kind, name: old ? old.name : 'shr_' + shrine.id,
-      hint: kind === 'blocks' ? 'tr_hint_blocks' : 'tr_hint_lanterns',
+      hint: kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : 'tr_hint_switches'),
       reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
       map: roomMap(kind, variant), order
     };
@@ -97,7 +100,7 @@ SW.Trials = (function () {
 
   function build(id) {
     const def = ROOMS[id], h = def.map.length, w = def.map[0].length;
-    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
+    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], switches: [], swOn: [], seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
       p: { x: 5.5, y: 7.5, dir: 1, anim: 0, moving: false, face: 1.57 }, push: { k: '', t: 0 } };
     for (let y = 0; y < h; y++) {
       const row = [];
@@ -107,6 +110,7 @@ SW.Trials = (function () {
         else if (c === 'S') { R.p.x = x + .5; R.p.y = y + .5; c = '.'; }
         else if (c === 'P') R.plates.push({ x, y });
         else if (c === 'L') { R.lant.push({ x, y }); R.lit.push(false); R.lt.push(0); }
+        else if (c === 'Q') { R.switches.push({ x, y }); R.swOn.push(false); }
         row.push(c);
       }
       R.g.push(row);
@@ -177,6 +181,14 @@ SW.Trials = (function () {
     } else p.anim = 0;
     if (!pushing) R.push.t = 0;
     if (R.def.kind === 'blocks' && !R.open && R.plates.every(pl => blockAt(pl.x, pl.y))) { R.open = true; say('tr_door'); }
+    if (R.def.kind === 'switches' && !R.open) {
+      R.switches.forEach((sw, i) => {
+        if (!R.swOn[i] && Math.hypot(p.x - sw.x - .5, p.y - sw.y - .5) < .62) {
+          R.swOn[i] = true;
+          if (R.swOn.every(Boolean)) { R.open = true; say('tr_door'); }
+        }
+      });
+    }
     if (R.def.kind === 'lanterns' && !R.open) {
       R.lant.forEach((l, i) => {
         if (R.lit[i]) return;
@@ -207,6 +219,12 @@ SW.Trials = (function () {
       c.fillStyle = (x + y) % 2 ? '#3a3846' : '#363442'; c.fillRect(px, py, u + 1, u + 1);
       if (g === 'P') { const on = !!blockAt(x, y); c.fillStyle = on ? '#f2c14e' : '#5a586a'; c.fillRect(px + u * .15, py + u * .15, u * .7, u * .7); c.fillStyle = on ? '#fff0b0' : '#2e2c3a'; c.fillRect(px + u * .25, py + u * .25, u * .5, u * .5); }
       else if (g === 'E') { c.fillStyle = '#7a2e2a'; c.fillRect(px + u * .1, py, u * .8, u + 1); c.fillStyle = '#f2c14e'; c.fillRect(px + u * .1, py, u * .8, u * .06); }
+      else if (g === 'Q') {
+        const si = R.switches.findIndex(sw => sw.x === x && sw.y === y), on = si >= 0 && R.swOn[si];
+        c.fillStyle = on ? '#d5a83f' : '#686477'; c.beginPath(); c.arc(px + u / 2, py + u / 2, u * .3, 0, TAU); c.fill();
+        c.strokeStyle = on ? '#fff0a0' : '#aaa5b7'; c.lineWidth = Math.max(2, u * .06); c.stroke();
+        c.fillStyle = on ? '#fff3bd' : '#292733'; c.fillRect(px + u * .42, py + u * .42, u * .16, u * .16);
+      }
       else if (g === 'D' && !R.open) { c.fillStyle = '#6a4424'; c.fillRect(px, py, u + 1, u + 1); c.fillStyle = '#3e2814'; for (let i = 1; i < 4; i++) c.fillRect(px + u * i / 4 - 1, py, 3, u); c.fillStyle = '#b5352b'; c.beginPath(); c.arc(px + u / 2, py + u / 2, u * .16, 0, TAU); c.fill(); }
     }
     // Objekte nach Tiefe
@@ -258,7 +276,7 @@ SW.Trials = (function () {
   }
 
   T.debug = () => R; // nur für Tests
-  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L').length } : null; };
+  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L').length, switches: d.map.join('').split('Q').length - 1 } : null; };
   T.dump = () => ({ done: [...T.done] });
   T.load = function (d) {
     if (!d || !Array.isArray(d.done)) return;
@@ -267,13 +285,13 @@ SW.Trials = (function () {
 
   Object.assign(SW.TEXT.en, {
     tr_enter: 'Enter', tr_leave: 'Leave', tr_reset: 'Reset', tr_done: 'Trial complete', tr_door: 'The door opens.', tr_wrong: 'The flames die. Try again.',
-    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.',
+    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.', tr_hint_switches: 'Find all three floor switches and step on each one to open the altar door.',
     trn_village: 'Trial of Stillness', trn_bamboo: 'Trial of Flames', trn_mountain: 'Trial of Stone', trn_hermit: 'Trial of Patience',
     trn_lookout: 'Trial of Balance', trn_fishers: 'Trial of Ripples', trn_ruins: 'Trial of the Ancients', trn_cave: 'Trial of Steel'
   });
   SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
     tr_enter: 'Betreten', tr_leave: 'Verlassen', tr_reset: 'Neustart', tr_done: 'Prüfung bestanden', tr_door: 'Die Tür öffnet sich.', tr_wrong: 'Die Flammen erlöschen. Versuche es erneut.',
-    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.',
+    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.', tr_hint_switches: 'Finde alle drei Bodenschalter und tritt auf jeden, um die Altartür zu öffnen.',
     trn_village: 'Prüfung der Stille', trn_bamboo: 'Prüfung der Flammen', trn_mountain: 'Prüfung des Steins', trn_hermit: 'Prüfung der Geduld',
     trn_lookout: 'Prüfung des Gleichgewichts', trn_fishers: 'Prüfung der Wellen', trn_ruins: 'Prüfung der Uralten', trn_cave: 'Prüfung des Stahls'
   });
