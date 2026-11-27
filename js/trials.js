@@ -121,7 +121,7 @@ SW.Trials = (function () {
     ROOMS[shrine.id] = {
       kind, name: old ? old.name : 'shr_' + shrine.id,
       hint: kind === 'labyrinth' ? 'tr_hint_labyrinth' : (kind === 'miniboss' ? 'tr_hint_miniboss' : (kind === 'movement' ? 'tr_hint_movement' : (kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : (kind === 'combo' ? 'tr_hint_combo' : 'tr_hint_mirrors')))))),
-      bossType: 'boss', tier, reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
+      bossType: 'shrine_guard', tier, reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
       map: roomMap(kind, variant), order
     };
   });  let R = null, btnLeave = null, btnReset = null;
