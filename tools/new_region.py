@@ -9,23 +9,17 @@ unveraendert. Die 60/40-Mischung am Rand entsteht durch terrainRegionAt in world
 Erzeugt Layout/Textdateien, Schrein-Datensatz und Script-Tags. Danach Inhalte/Bauten ergaenzen
 und tools/validate_data.py ausfuehren."""
 import sys, re, json, math, glob, os
-a = [x for x in sys.argv[1:]]; link = None; tier = 2
+a = [x for x in sys.argv[1:]]; tier = 2
 if '--link' in a: sys.exit('--link wird nicht mehr unterstuetzt: CX/CY/RX/RY muessen die neue Landflaeche direkt an die Hauptkarte anbauen.')
 if '--tier' in a: i = a.index('--tier'); tier = int(a[i + 1]); del a[i:i + 2]
 if len(a) != 8: sys.exit(__doc__)
 RID, REG, EN, DE = a[0], int(a[1]), a[2], a[3]; CX, CY, RX, RY = map(int, a[4:8])
 if not re.fullmatch(r'[a-z0-9]+', RID) or REG < 20 or tier not in (1, 2, 3): sys.exit('ID klein/alphanumerisch, REG >= 20, tier 1-3')
 if os.path.exists('js/layout-%s.js' % RID): sys.exit('js/layout-%s.js existiert schon' % RID)
-CELL, WW, HH = 8, 5000, 3000
-M = 40
+CELL, WW, HH = 8, 6200, 3200
 LAND = REG + 1
-X0, Y0 = max(0, (CX - int(RX * 1.2) - M) // CELL * CELL), max(0, (CY - int(RY * 1.2) - M) // CELL * CELL)
-X1, Y1 = min(WW, -(-(CX + int(RX * 1.2) + M) // CELL) * CELL), min(HH, -(-(CY + int(RY * 1.2) + M) // CELL) * CELL)
-if link:
-    X0 = max(0, min(X0, link[0] - 8, link[2] - 8) // CELL * CELL)
-    X1 = min(WW, -(-max(X1, link[0] + 8, link[2] + 8) // CELL) * CELL)
-    Y0 = max(0, min(Y0, (link[1] - 20) // CELL * CELL))
-    Y1 = min(HH, -(-max(Y1, link[1] + 20) // CELL) * CELL)
+X0, Y0 = max(0, (CX - int(RX * 1.2) - 40) // CELL * CELL), max(0, (CY - int(RY * 1.2) - 40) // CELL * CELL)
+X1, Y1 = min(WW, -(-(CX + int(RX * 1.2) + 40) // CELL) * CELL), min(HH, -(-(CY + int(RY * 1.2) + 40) // CELL) * CELL)
 
 def island(x, y):
     t = math.atan2(y - CY, x - CX); w = 1 + .07 * math.sin(3 * t + 1) + .05 * math.sin(5 * t + 2)
@@ -69,8 +63,6 @@ if len(touch) < 10:
 xs, ys = [p[0] for p in touch], [p[1] for p in touch]
 if max(max(xs)-min(xs), max(ys)-min(ys)) < CELL * 8:
     sys.exit('Der Landanschluss ist zu schmal. Die Ueberlappung muss mindestens 8 Layoutzellen breit sein.')
-
-connector = {}  # Keine Korridore/Bruecken: der neue Umriss selbst muss anschliessen.
 
 all_points = island_cells
 X0 = max(0, min(x for x,y in all_points) - CELL*2); Y0 = max(0, min(y for x,y in all_points) - CELL*2)
