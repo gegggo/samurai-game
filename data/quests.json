@@ -854,6 +854,33 @@
    },
    "ed": "lite",
    "tier": 3
+  },
+  {
+   "id": "main_glyphs",
+   "category": "main",
+   "giver": "n_master",
+   "req": {
+    "done": "elder3"
+   },
+   "obj": {
+    "type": "inscriptions",
+    "n": 12
+   },
+   "ed": "lite",
+   "tier": 2
+  },
+  {
+   "id": "main_gate",
+   "category": "main",
+   "giver": "n_master",
+   "req": {
+    "done": "main_glyphs"
+   },
+   "obj": {
+    "type": "gate"
+   },
+   "ed": "lite",
+   "tier": 3
   }
  ]
 }
