@@ -301,10 +301,10 @@ try:
     # Phase 0.38: Druckplatte startet ein Zeitfenster; der Spiegel muss darin gedreht werden.
     r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='combo')?.id;
       if(!id || !T.enter(id)) return {entered:false};
-      const room=T.debug(), plate=room.pressurePlate, mirror=room.mirrors[0];
+      const room=T.debug(), plate=room.pressurePlate, mirror=room.mirrors[0], duration=T.info(id).comboTime;
       room.p.x=plate.x+.5; room.p.y=plate.y+.5; T.update(.02,{x:0,y:0});
-      const started=room.pressureActive&&room.pressureTime>8.9;
-      T.update(9.1,{x:0,y:0}); const expired=!room.pressureActive&&mirror.orientation===1;
+      const started=room.pressureActive&&room.pressureTime>duration-.1;
+      T.update(duration+.1,{x:0,y:0}); const expired=!room.pressureActive&&mirror.orientation===1;
       room.p.x=plate.x+.5; room.p.y=plate.y+.5; T.update(.02,{x:0,y:0});
       room.p.x=mirror.x+.5; room.p.y=mirror.y+1.5;
       let steps=0; while(!room.beamSolved&&steps++<8) T.update(.1,{x:0,y:-1});
@@ -359,6 +359,29 @@ try:
     }""")
     rec('Phase 0.41: Bewegungsschrein prueft Sperren, Rueckwurf, Checkpoints und Altar',
         r.get('entered') and r['hazards']==3 and r['checkpoints']==2 and r['reset'] and r['blocked'] and r['passable'] and r['saved'] and r['open'] and r['completed'], json.dumps(r))
+    # Phase 0.42: Schreine skalieren nach Regionstier; Zeitfenster bleiben fuer den Parcours passierbar.
+    r = ev(pg, """() => {
+      const T=SW.Trials, tiers=[1,2,3].map(n=>T.challengeProfile(n));
+      return {combo:tiers.map(x=>x.comboTime),periods:tiers.map(x=>x.barrierPeriod),
+        active:tiers.map(x=>x.barrierActive),windows:tiers.map(x=>x.barrierWindow),
+        bounded:tiers.every(x=>x.barrierWindow>=1.5),
+        ordered:tiers[0].comboTime>tiers[1].comboTime&&tiers[1].comboTime>tiers[2].comboTime&&
+          tiers[0].barrierWindow>tiers[1].barrierWindow&&tiers[1].barrierWindow>tiers[2].barrierWindow};
+    }""")
+    rec('Phase 0.42: Schwierigkeitsprofile Tier 1–3 werden schrittweise anspruchsvoller, bleiben aber passierbar',
+        r['combo']==[12,9,7] and r['periods']==[3.4,3.2,3] and r['active']==[.85,1,1.1] and r['windows']==[2.55,2.2,1.9] and r['bounded'] and r['ordered'], json.dumps(r))
+    # Phase 0.42: der schwerste Bewegungsschrein muss mit echtem Laufen und Warten abschliessbar bleiben.
+    r = ev(pg, """() => {
+      const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='movement')?.id;
+      if(!id||!T.enter(id))return {entered:false};
+      const room=T.debug();room.rules=T.challengeProfile(3);room.hazards.forEach(h=>h.offset=0);room.t=.1;
+      let steps=0;while(room.state==='play'&&room.p.y>1.5&&steps++<400)T.update(.02,{x:0,y:-1});
+      const result={entered:true,steps,checkpoints:room.checkpoints.every(cp=>cp.reached),
+        opened:room.open,completed:room.state==='reward',y:room.p.y};
+      T.leave();return result;
+    }""")
+    rec('Phase 0.42: Bewegungsschrein Tier 3 ist nach Timing-Warten und durchgehendem Laufen abschliessbar',
+        r.get('entered') and r['steps']<400 and r['checkpoints'] and r['opened'] and r['completed'], json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
     r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
       const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
