@@ -2,8 +2,8 @@
 // Schrein-Prüfungen (Phase 7a). Namensraum SW.Trials.
 // Ablauf: Schrein erwecken (Beten) -> Knopf "Enter" -> Innenraum (eigene Kachelkarte, Draufsicht) -> Aufgabe lösen -> Altar berühren -> Belohnung.
 // Belohnungen: Yin/Yang (Spielstil), Essence (nur Skilltree), XP. Keine Münzen. Jede Prüfung einmalig, gespeichert in SW.Trials.done.
-// Aufgabentypen: blocks (Steinblöcke auf Platten schieben), lanterns (Laternen in Reihenfolge entzünden), switches (Bodenschalter aktivieren).
-// Karte: # Wand | . Boden | B Block | P Platte | L Laterne | Q Bodenschalter | D Tür | A Altar | S Start | E Ausgang
+// Aufgabentypen: blocks, lanterns, switches und mirrors (Lichtstrahl mit einem drehbaren Spiegel zum Kristall lenken).
+// Karte: # Wand | . Boden | B Block | P Platte | L Laterne | Q Schalter | M Spiegel | F Lichtquelle | C Kristall | D Tür | A Altar | S Start | E Ausgang
 SW.Trials = (function () {
   const T = { active: false, done: new Set() }, tr = (k, n) => SW.t(k, n);
   const RAD = .3, SPEED = 4, TAU = 6.2832, COL = ['#e0452f', '#f2c14e', '#4a8fe0', '#f4ecd8'];
@@ -58,9 +58,12 @@ SW.Trials = (function () {
         [[4,5],[20,5],[5,12],[19,12],[12,7]]
       ];
       sets[variant % 8].forEach(([x,y]) => { g[y][x] = 'L'; });
-    } else {
+    } else if (kind === 'switches') {
       // Drei Bodenschalter liegen auf gut erreichbaren, voneinander getrennten Wegen.
       [[3,8],[12,13],[21,8]].forEach(([x,y]) => { g[y][x] = 'Q'; });
+    } else {
+      // Ein Lichtstrahl kommt von Westen; der Spiegel muss ihn nach Norden zum Kristall lenken.
+      g[8][2] = 'F'; g[8][12] = 'M'; g[3][12] = 'C';
     }
     // Spiegelung erzeugt weitere Grundrisse, ohne Start, Ausgang oder Altar zu verschieben.
     const mirror = variant >= 8;
@@ -75,7 +78,7 @@ SW.Trials = (function () {
   SW.Shrines.expand();
   if (SW.Combat && SW.Combat.ensureShrineGuards) SW.Combat.ensureShrineGuards(D.shrines.filter(shrine => shrine.generated));
   D.shrines.forEach((shrine, index) => {
-    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 3 === 0 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns'));
+    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 4 === 0 ? 'mirrors' : (seed % 4 === 1 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns')));
     const variant = (seed >>> 4) % 16, order = [0,1,2,3,4];
     for (let i = order.length - 1; i > 0; i--) {
       const j = (seed + i * 13) % (i + 1), t = order[i]; order[i] = order[j]; order[j] = t;
@@ -83,7 +86,7 @@ SW.Trials = (function () {
     const tier = shrine.tier || 1;
     ROOMS[shrine.id] = {
       kind, name: old ? old.name : 'shr_' + shrine.id,
-      hint: kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : 'tr_hint_switches'),
+      hint: kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : 'tr_hint_mirrors')),
       reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
       map: roomMap(kind, variant), order
     };
@@ -93,14 +96,14 @@ SW.Trials = (function () {
   function solid(x, y) {
     if (x < 0 || y < 0 || x >= R.w || y >= R.h) return true;
     const c = R.g[y][x];
-    return c === '#' || c === 'L' || (c === 'D' && !R.open) || !!blockAt(x, y);
+    return c === '#' || c === 'L' || c === 'M' || (c === 'D' && !R.open) || !!blockAt(x, y);
   }
   const blocked = (x, y) => solid(Math.floor(x - RAD), Math.floor(y - RAD)) || solid(Math.floor(x + RAD), Math.floor(y - RAD)) ||
     solid(Math.floor(x - RAD), Math.floor(y + RAD)) || solid(Math.floor(x + RAD), Math.floor(y + RAD));
 
   function build(id) {
     const def = ROOMS[id], h = def.map.length, w = def.map[0].length;
-    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], switches: [], swOn: [], seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
+    R = { id, def, w, h, g: [], blocks: [], plates: [], lant: [], lit: [], lt: [], switches: [], swOn: [], mirrors: [], beam: [], beamSolved: false, mirrorCooldown: 0, seq: 0, open: false, state: 'play', t: 0, msg: '', msgT: 0, shake: 0, rew: null,
       p: { x: 5.5, y: 7.5, dir: 1, anim: 0, moving: false, face: 1.57 }, push: { k: '', t: 0 } };
     for (let y = 0; y < h; y++) {
       const row = [];
@@ -111,11 +114,13 @@ SW.Trials = (function () {
         else if (c === 'P') R.plates.push({ x, y });
         else if (c === 'L') { R.lant.push({ x, y }); R.lit.push(false); R.lt.push(0); }
         else if (c === 'Q') { R.switches.push({ x, y }); R.swOn.push(false); }
+        else if (c === 'M') R.mirrors.push({ x, y, orientation: 1 });
         row.push(c);
       }
       R.g.push(row);
     }
     R.msg = tr(def.hint); R.msgT = 6;
+    if (def.kind === 'mirrors') traceBeam();
   }
   function ensure() {
     if (btnLeave) return;
@@ -166,9 +171,43 @@ SW.Trials = (function () {
     }
     return true;
   }
+  function traceBeam() {
+    if (!R || R.def.kind !== 'mirrors') return;
+    const x0 = 2, y0 = 8; let x = x0, y = y0, dx = 1, dy = 0, hit = false;
+    const path = [{ x: x + .5, y: y + .5 }], seen = new Set();
+    for (let step = 0; step < 80; step++) {
+      x += dx; y += dy;
+      if (x < 0 || y < 0 || x >= R.w || y >= R.h || R.g[y][x] === '#') break;
+      path.push({ x: x + .5, y: y + .5 });
+      if (R.g[y][x] === 'C') { hit = true; break; }
+      if (R.g[y][x] === 'M') {
+        const key = x + ',' + y + ',' + dx + ',' + dy;
+        if (seen.has(key)) break;
+        seen.add(key);
+        const m = R.mirrors.find(o => o.x === x && o.y === y);
+        if (!m) break;
+        if (m.orientation === 0) { const ndx = -dy; dy = -dx; dx = ndx; }
+        else { const ndx = dy; dy = dx; dx = ndx; }
+      }
+    }
+    R.beam = path; R.beamSolved = hit;
+    if (hit && !R.open) { R.open = true; say('tr_door'); }
+  }
+  function tryRotateMirror(sx, sy) {
+    if (!R || R.def.kind !== 'mirrors' || R.mirrorCooldown > 0) return false;
+    const p = R.p;
+    const m = R.mirrors.find(o => {
+      const dx = o.x + .5 - p.x, dy = o.y + .5 - p.y;
+      return Math.hypot(dx, dy) < .9 && dx * sx + dy * sy > 0;
+    });
+    if (!m) return false;
+    m.orientation = 1 - m.orientation; R.mirrorCooldown = .45; traceBeam();
+    say('tr_mirror_turn'); return true;
+  }
+
   T.update = function (dt, v) {
     if (!R) return;
-    R.t += dt; R.shake = Math.max(0, R.shake - dt); if (R.msgT > 0) R.msgT -= dt;
+    R.t += dt; R.shake = Math.max(0, R.shake - dt); R.mirrorCooldown = Math.max(0, R.mirrorCooldown - dt); if (R.msgT > 0) R.msgT -= dt;
     const k = Math.exp(-dt * 16); R.blocks.forEach(b => { b.ox *= k; b.oy *= k; });
     if (R.state === 'reward') { if (R.t > 4.5) T.leave(); return; }
     const p = R.p, m = Math.hypot(v.x, v.y); let pushing = false;
@@ -176,8 +215,8 @@ SW.Trials = (function () {
     if (p.moving) {
       const sp = SPEED * Math.min(1, m), dx = v.x / m * sp * dt, dy = v.y / m * sp * dt;
       p.face = Math.atan2(dy, dx); if (Math.abs(dx) > .001) p.dir = dx > 0 ? 1 : -1; p.anim += dt * sp * 2.2;
-      if (!blocked(p.x + dx, p.y)) p.x += dx; else if (Math.abs(dx) >= Math.abs(dy) * .8) pushing = tryPush(dx > 0 ? 1 : -1, 0, dt);
-      if (!blocked(p.x, p.y + dy)) p.y += dy; else if (Math.abs(dy) >= Math.abs(dx) * .8) pushing = tryPush(0, dy > 0 ? 1 : -1, dt) || pushing;
+      if (!blocked(p.x + dx, p.y)) p.x += dx; else if (Math.abs(dx) >= Math.abs(dy) * .8) { pushing = tryPush(dx > 0 ? 1 : -1, 0, dt); tryRotateMirror(dx > 0 ? 1 : -1, 0); }
+      if (!blocked(p.x, p.y + dy)) p.y += dy; else if (Math.abs(dy) >= Math.abs(dx) * .8) { pushing = tryPush(0, dy > 0 ? 1 : -1, dt) || pushing; tryRotateMirror(0, dy > 0 ? 1 : -1); }
     } else p.anim = 0;
     if (!pushing) R.push.t = 0;
     if (R.def.kind === 'blocks' && !R.open && R.plates.every(pl => blockAt(pl.x, pl.y))) { R.open = true; say('tr_door'); }
@@ -219,6 +258,8 @@ SW.Trials = (function () {
       c.fillStyle = (x + y) % 2 ? '#3a3846' : '#363442'; c.fillRect(px, py, u + 1, u + 1);
       if (g === 'P') { const on = !!blockAt(x, y); c.fillStyle = on ? '#f2c14e' : '#5a586a'; c.fillRect(px + u * .15, py + u * .15, u * .7, u * .7); c.fillStyle = on ? '#fff0b0' : '#2e2c3a'; c.fillRect(px + u * .25, py + u * .25, u * .5, u * .5); }
       else if (g === 'E') { c.fillStyle = '#7a2e2a'; c.fillRect(px + u * .1, py, u * .8, u + 1); c.fillStyle = '#f2c14e'; c.fillRect(px + u * .1, py, u * .8, u * .06); }
+      else if (g === 'F') { c.fillStyle = '#d5a83f'; c.fillRect(px + u * .2, py + u * .2, u * .6, u * .6); c.fillStyle = '#fff2a8'; c.fillRect(px + u * .38, py + u * .38, u * .24, u * .24); }
+      else if (g === 'C') { c.fillStyle = '#6bd9e8'; c.beginPath(); c.moveTo(px + u * .5, py + u * .12); c.lineTo(px + u * .88, py + u * .5); c.lineTo(px + u * .5, py + u * .88); c.lineTo(px + u * .12, py + u * .5); c.closePath(); c.fill(); c.strokeStyle = '#d8fbff'; c.lineWidth = Math.max(2, u * .06); c.stroke(); }
       else if (g === 'Q') {
         const si = R.switches.findIndex(sw => sw.x === x && sw.y === y), on = si >= 0 && R.swOn[si];
         c.fillStyle = on ? '#d5a83f' : '#686477'; c.beginPath(); c.arc(px + u / 2, py + u / 2, u * .3, 0, TAU); c.fill();
@@ -230,10 +271,15 @@ SW.Trials = (function () {
     // Objekte nach Tiefe
     const it = [];
     R.blocks.forEach(b => it.push({ y: b.y + b.oy + .5, f: () => block(c, b, ox, oy, u) }));
+    R.mirrors.forEach(m => it.push({ y: m.y + .7, f: () => drawMirror(c, m, ox, oy, u) }));
     R.lant.forEach((l, i) => it.push({ y: l.y + .6, f: () => lantern(c, l, i, ox, oy, u, time) }));
     for (let y = 0; y < R.h; y++) for (let x = 0; x < R.w; x++) if (R.g[y][x] === 'A') it.push({ y: y + .7, f: () => altar(c, x, y, ox, oy, u, time) });
     it.push({ y: R.p.y + .1, f: () => SW.Render.drawPlayer(c, Math.round(ox + R.p.x * u), Math.round(oy + (R.p.y + .3) * u), u, R.p) });
     it.sort((a, b) => a.y - b.y).forEach(o => o.f());
+    if (R.def.kind === 'mirrors' && R.beam.length > 1) {
+      c.save(); c.globalCompositeOperation = 'lighter'; c.strokeStyle = R.beamSolved ? '#a8f4ff' : '#f5d875'; c.lineWidth = Math.max(2, u * .12); c.shadowColor = c.strokeStyle; c.shadowBlur = u * .55; c.beginPath();
+      R.beam.forEach((p, i) => { const x = ox + p.x * u, y = oy + p.y * u; if (!i) c.moveTo(x, y); else c.lineTo(x, y); }); c.stroke(); c.restore();
+    }
     if (R.def.kind === 'lanterns') {
       const n = R.def.order.length, x0 = ox + R.w * u / 2 - (n - 1) * u * .3;
       R.def.order.forEach((li, i) => { const x = x0 + i * u * .6, y = oy + u * .5; c.fillStyle = COL[li]; c.globalAlpha = i < R.seq ? 1 : .55; c.beginPath(); c.arc(x, y, u * .17, 0, TAU); c.fill(); c.globalAlpha = 1; c.strokeStyle = '#000'; c.lineWidth = 2; c.stroke(); });
@@ -251,6 +297,13 @@ SW.Trials = (function () {
     const j = SW.Input.joy;
     if (j.active) { c.strokeStyle = 'rgba(232,224,208,.5)'; c.lineWidth = 3 * dpr; c.beginPath(); c.arc(j.bx * dpr, j.by * dpr, SW.Input.RAD * dpr, 0, TAU); c.stroke(); c.fillStyle = 'rgba(232,224,208,.35)'; c.beginPath(); c.arc(j.cx * dpr, j.cy * dpr, 26 * dpr, 0, TAU); c.fill(); }
   };
+  function drawMirror(c, m, ox, oy, u) {
+    const x = ox + (m.x + .5) * u, y = oy + (m.y + .5) * u;
+    c.save(); c.translate(x, y); c.rotate(m.orientation === 0 ? -Math.PI / 4 : Math.PI / 4);
+    c.fillStyle = '#454d61'; c.fillRect(-u * .38, -u * .1, u * .76, u * .2);
+    c.fillStyle = '#b7eaf0'; c.fillRect(-u * .32, -u * .06, u * .64, u * .12);
+    c.strokeStyle = '#e9ffff'; c.lineWidth = Math.max(2, u * .05); c.strokeRect(-u * .32, -u * .06, u * .64, u * .12); c.restore();
+  }
   function block(c, b, ox, oy, u) {
     const px = ox + (b.x + b.ox) * u, py = oy + (b.y + b.oy) * u, on = R.g[b.y][b.x] === 'P';
     c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(px + u * .1, py + u * .82, u * .84, u * .14);
@@ -276,7 +329,7 @@ SW.Trials = (function () {
   }
 
   T.debug = () => R; // nur für Tests
-  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L').length, switches: d.map.join('').split('Q').length - 1 } : null; };
+  T.info = id => { const d = ROOMS[id]; return d ? { w: d.map[0].length, h: d.map.length, kind: d.kind, layout: hashId(d.map.join('')), objects: d.map.join('').split('').filter(c => c === 'B' || c === 'P' || c === 'L' || c === 'M').length, switches: d.map.join('').split('Q').length - 1, mirrors: d.map.join('').split('M').length - 1 } : null; };
   T.dump = () => ({ done: [...T.done] });
   T.load = function (d) {
     if (!d || !Array.isArray(d.done)) return;
@@ -285,13 +338,13 @@ SW.Trials = (function () {
 
   Object.assign(SW.TEXT.en, {
     tr_enter: 'Enter', tr_leave: 'Leave', tr_reset: 'Reset', tr_done: 'Trial complete', tr_door: 'The door opens.', tr_wrong: 'The flames die. Try again.',
-    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.', tr_hint_switches: 'Find all three floor switches and step on each one to open the altar door.',
+    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.', tr_hint_switches: 'Find all three floor switches and step on each one to open the altar door.', tr_hint_mirrors: 'Walk into the mirror to turn it. Redirect the light beam from the western source into the crystal above.', tr_mirror_turn: 'The mirror turns.',
     trn_village: 'Trial of Stillness', trn_bamboo: 'Trial of Flames', trn_mountain: 'Trial of Stone', trn_hermit: 'Trial of Patience',
     trn_lookout: 'Trial of Balance', trn_fishers: 'Trial of Ripples', trn_ruins: 'Trial of the Ancients', trn_cave: 'Trial of Steel'
   });
   SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
     tr_enter: 'Betreten', tr_leave: 'Verlassen', tr_reset: 'Neustart', tr_done: 'Prüfung bestanden', tr_door: 'Die Tür öffnet sich.', tr_wrong: 'Die Flammen erlöschen. Versuche es erneut.',
-    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.', tr_hint_switches: 'Finde alle drei Bodenschalter und tritt auf jeden, um die Altartür zu öffnen.',
+    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.', tr_hint_switches: 'Finde alle drei Bodenschalter und tritt auf jeden, um die Altartür zu öffnen.', tr_hint_mirrors: 'Laufe gegen den Spiegel, um ihn zu drehen. Lenke den Lichtstrahl von der westlichen Lichtquelle in den Kristall im Norden.', tr_mirror_turn: 'Der Spiegel dreht sich.',
     trn_village: 'Prüfung der Stille', trn_bamboo: 'Prüfung der Flammen', trn_mountain: 'Prüfung des Steins', trn_hermit: 'Prüfung der Geduld',
     trn_lookout: 'Prüfung des Gleichgewichts', trn_fishers: 'Prüfung der Wellen', trn_ruins: 'Prüfung der Uralten', trn_cave: 'Prüfung des Stahls'
   });
