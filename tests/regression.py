@@ -313,6 +313,19 @@ try:
     }""")
     rec('Phase 0.38: Druckplatte startet Timer; Spiegel trifft innerhalb des Zeitfensters den Kristall',
         r.get('entered') and r['pressure'] and r['started'] and r['expired'] and r['solved'] and r['open'] and r['orientation']==0, json.dumps(r))
+    # Phase 0.39: Labyrinth besitzt einen durchgaengigen Weg vom Eingang bis zur Altartuer.
+    r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='labyrinth')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(), start={x:Math.floor(room.p.x),y:Math.floor(room.p.y)}, goal={x:12,y:3}, q=[start], seen=new Set([start.x+','+start.y]);
+      for(let i=0;i<q.length;i++){ const p=q[i]; for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){ const x=p.x+dx,y=p.y+dy,k=x+','+y;
+        if(x<0||y<0||x>=room.w||y>=room.h||seen.has(k)||room.g[y][x]==='#') continue; seen.add(k); q.push({x,y}); }}
+      const connected=seen.has(goal.x+','+goal.y), walls=room.g.flat().filter(c=>c==='#').length;
+      room.p.x=12.5; room.p.y=3.5; T.update(.02,{x:0,y:0}); const door=room.open;
+      room.p.x=12.5; room.p.y=1.5; T.update(.02,{x:0,y:0}); const completed=room.state==='reward';
+      const result={entered:true,connected,walls,door,completed}; T.leave(); return result;
+    }""")
+    rec('Phase 0.39: Labyrinth ist verbunden, besitzt echte Sackgassen und fuehrt zur Altartuer',
+        r.get('entered') and r['connected'] and r['walls']>100 and r['door'] and r['completed'], json.dumps(r))
     # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
     r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
       const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
