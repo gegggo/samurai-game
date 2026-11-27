@@ -1,8 +1,8 @@
 'use strict';
 // Globaler Namespace, Konstanten, zentrale Texte (Sprachsystem folgt Phase 6).
 const SW = {
-  version: '0.28.0',
-  CFG: { W: 8000, H: 4000, SPEED: 5, OV: 8 }, // Welt wächst nur nach rechts/unten (Ursprung oben links); neue Regionen als Segment js/layout-<name>.js
+  version: '0.29.0',
+  CFG: { W: 8000, H: 5200, SPEED: 5, OV: 8 }, // Welt wächst nach rechts/unten (Ursprung oben links); neue Regionen als Segment js/layout-<name>.js
   lang: (function () { try { const l = localStorage.getItem('sw_lang'); return l === 'de' ? 'de' : 'en'; } catch (e) { return 'en'; } })(),
   paused: false,
   TEXT: { en: {
