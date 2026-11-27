@@ -165,6 +165,23 @@ expanded_grid[expanded_land] = nearest_labels[expanded_land]
 # Existing lake cells retain their original lake IDs.
 expanded_grid[old_lakes] = old_grid[old_lakes]
 
+combined_grid = np.zeros((H, W), dtype=np.uint8)
+for gy in range(H):
+    for gx in range(W):
+        x = X0 + gx * CELL + CELL // 2
+        y = Y0 + gy * CELL + CELL // 2
+        combined_grid[gy, gx] = int(expanded_grid[gy, gx]) if expanded_grid[gy, gx] else region_for(x, y)
+
+# Kleine Wasserluecken zwischen den fuenf neuen Gebieten schliessen.
+# Nur Nulzellen innerhalb von 8 Rasterzellen zur neuen Landmasse werden
+# mit dem jeweils naechstgelegenen Regionslabel aufgefuellt; alte Regionen/Seen bleiben.
+new_land = (combined_grid >= 21) & (combined_grid <= 25)
+expanded_new_land = binary_dilation(new_land, structure=disk(8))
+_, nearest_new = distance_transform_edt(~new_land, return_indices=True)
+nearest_new_labels = combined_grid[nearest_new[0], nearest_new[1]]
+fill_gaps = expanded_new_land & (combined_grid == 0)
+combined_grid[fill_gaps] = nearest_new_labels[fill_gaps]
+
 rows = []
 counts = {rid: 0 for rid in range(25)}
 for gy in range(H):
@@ -172,10 +189,7 @@ for gy in range(H):
     for gx in range(W):
         x = X0 + gx * CELL + CELL // 2
         y = Y0 + gy * CELL + CELL // 2
-        if expanded_grid[gy, gx]:
-            value = int(expanded_grid[gy, gx])
-        else:
-            value = region_for(x, y)
+        value = int(combined_grid[gy, gx])
         if 1 <= value <= 25:
             counts[value - 1] += 1
         row.append(value)
