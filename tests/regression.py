@@ -250,7 +250,7 @@ try:
       return {count:I.total(),regions,free,phrase,chain,visible,blocked,opened,passable,persisted,master:!!master,scrollButton,openMaster:typeof SW.Shop.openMaster==='function'};
     }""")
     rec('Phase 0.39.1: 12 Schriftzeichen in richtigen Regionen, Wörterbuchfolge, Tor-Kollision/Speicherung und Meister-Schriftrollen',
-        r.count===12 && r.regions && r.free && r.phrase==='THEGATEOPENS' && r.chain && r.visible && r.blocked && r.opened && r.passable && r.persisted && r.master && r.scrollButton && r.openMaster, json.dumps(r))
+        r.get('count') == 12 and r.get('regions') and r.get('free') and r.get('phrase') == 'THEGATEOPENS' and r.get('chain') and r.get('visible') and r.get('blocked') and r.get('opened') and r.get('passable') and r.get('persisted') and r.get('master') and r.get('scrollButton') and r.get('openMaster'), json.dumps(r))
         # 6b Phase 25 / Map 0.29: Choice-Quests und alle fuenf neuen Regionen
     r = ev(pg, """() => {
       const Q=SW.Quests, D=SW.Data, c=D.quests.filter(q=>q.choice);
