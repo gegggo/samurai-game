@@ -1,3 +1,10 @@
+## Version 0.34.0 – Schreine und groessere Schrein-Pruefungen (27.11.2026)
+- Zielverteilung: fuenf Schreine je Region (Regionen 0–25); vorhandene Schreine bleiben erhalten. Neue Positionen werden auf begehbarem Terrain gesucht und mit mindestens 220 Weltkacheln Abstand zu bestehenden Schreinen ausgewaehlt.
+- Die zusaetzlichen Schreine werden zur Laufzeit aus den Regionszentren ermittelt; IDs, Namen (DE/EN), Stufe und Speicherbarkeit werden automatisch ergaenzt.
+- Alle Schrein-Pruefungen verwenden nun eine groessere 25×17-Kachel-Miniwelt mit drei verschiebbaren Steinen und Druckplatten oder fuenf Laternen in einer Reihenfolge. Die fruehere Duell-Ausnahme am Hoehlenschrein ist in eine Raetselpruefung umgewandelt.
+- Der Start-Ladebildschirm bleibt mindestens 4 Sekunden sichtbar (zuvor 1,5 Sekunden).
+- Asset-Cache auf v115 und Spielversion auf 0.34.0 angehoben. Vollstaendige CI- und iPhone-Pruefung ausstehend.
+
 ## Version 0.33.0 – abgerundete, oval ausgerichtete Aussenkueste (27.11.2026)
 - Die Kuestenkontur wird mit einem kreisfoermigen Morphological Closing geglaettet (Radius 16 Rasterzellen = 128 Weltkacheln). Flache Einbuchtungen und eckige Uebergaenge werden aufgefuellt; tiefe Buchten und Seen bleiben erhalten.
 - 967 leere Kuestenzellen werden ergaenzt. Jede neue Zelle uebernimmt die naechstgelegene bestehende Region; vorhandenes Land und Seen werden nicht ueberschrieben.
