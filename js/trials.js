@@ -2,7 +2,7 @@
 // Schrein-Prüfungen (Phase 7a). Namensraum SW.Trials.
 // Ablauf: Schrein erwecken (Beten) -> Knopf "Enter" -> Innenraum (eigene Kachelkarte, Draufsicht) -> Aufgabe lösen -> Altar berühren -> Belohnung.
 // Belohnungen: Yin/Yang (Spielstil), Essence (nur Skilltree), XP. Keine Münzen. Jede Prüfung einmalig, gespeichert in SW.Trials.done.
-// Aufgabentypen: blocks, lanterns, switches, mirrors und combo (Druckplatte aktiviert einen zeitlich begrenzten Spiegelraum).
+// Aufgabentypen: blocks, lanterns, switches, mirrors, combo und labyrinth.
 // Karte: # Wand | . Boden | B Block | P Platte | L Laterne | Q Schalter | V Zeitplatte | M Spiegel | F Lichtquelle | C Kristall | D Tür | A Altar | S Start | E Ausgang
 SW.Trials = (function () {
   const T = { active: false, done: new Set() }, tr = (k, n) => SW.t(k, n);
@@ -61,6 +61,24 @@ SW.Trials = (function () {
     } else if (kind === 'switches') {
       // Drei Bodenschalter liegen auf gut erreichbaren, voneinander getrennten Wegen.
       [[3,8],[12,13],[21,8]].forEach(([x,y]) => { g[y][x] = 'Q'; });
+    } else if (kind === 'labyrinth') {
+      // Eigenstaendiges, garantiert verbundenes Labyrinth (Tiefensuche mit Ruecksprung).
+      for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) g[y][x] = '#';
+      const start = { x: 11, y: 13 }, stack = [start], visited = new Set([start.x + ',' + start.y]);
+      g[start.y][start.x] = '.';
+      while (stack.length) {
+        const cur = stack[stack.length - 1];
+        const dirs = [[2,0],[-2,0],[0,2],[0,-2]];
+        const shift = (variant + stack.length) % dirs.length;
+        const ordered = dirs.slice(shift).concat(dirs.slice(0, shift));
+        const next = ordered.map(([dx,dy]) => ({ x: cur.x + dx, y: cur.y + dy, dx, dy }))
+          .filter(n => n.x >= 1 && n.x <= 23 && n.y >= 3 && n.y <= 13 && !visited.has(n.x + ',' + n.y));
+        if (!next.length) { stack.pop(); continue; }
+        const n = next[0]; visited.add(n.x + ',' + n.y);
+        g[cur.y + n.dy / 2][cur.x + n.dx / 2] = '.'; g[n.y][n.x] = '.'; stack.push({ x: n.x, y: n.y });
+      }
+      // Eingang vom Startpunkt und Ausgang zur verschlossenen Altartuer.
+      g[14][12] = '.'; g[13][12] = '.'; g[13][11] = '.'; g[3][12] = '.';
     } else if (kind === 'combo') {
       // Erst die Zeitplatte im Sueden betreten, dann zum Spiegel laufen und ihn drehen.
       g[13][3] = 'V'; g[8][2] = 'F'; g[8][12] = 'M'; g[3][12] = 'C';
@@ -85,7 +103,7 @@ SW.Trials = (function () {
   SW.Shrines.expand();
   if (SW.Combat && SW.Combat.ensureShrineGuards) SW.Combat.ensureShrineGuards(D.shrines.filter(shrine => shrine.generated));
   D.shrines.forEach((shrine, index) => {
-    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 5 === 0 ? 'combo' : (seed % 4 === 0 ? 'mirrors' : (seed % 4 === 1 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns'))));
+    const old = legacy[shrine.id], seed = hashId(shrine.id), kind = old ? old.kind : (seed % 7 === 0 ? 'labyrinth' : (seed % 5 === 0 ? 'combo' : (seed % 4 === 0 ? 'mirrors' : (seed % 4 === 1 ? 'switches' : (seed & 1 ? 'blocks' : 'lanterns')))));
     const variant = (seed >>> 4) % 16, order = [0,1,2,3,4];
     for (let i = order.length - 1; i > 0; i--) {
       const j = (seed + i * 13) % (i + 1), t = order[i]; order[i] = order[j]; order[j] = t;
@@ -93,7 +111,7 @@ SW.Trials = (function () {
     const tier = shrine.tier || 1;
     ROOMS[shrine.id] = {
       kind, name: old ? old.name : 'shr_' + shrine.id,
-      hint: kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : (kind === 'combo' ? 'tr_hint_combo' : 'tr_hint_mirrors'))),
+      hint: kind === 'labyrinth' ? 'tr_hint_labyrinth' : (kind === 'blocks' ? 'tr_hint_blocks' : (kind === 'lanterns' ? 'tr_hint_lanterns' : (kind === 'switches' ? 'tr_hint_switches' : (kind === 'combo' ? 'tr_hint_combo' : 'tr_hint_mirrors')))),
       reward: old ? old.reward : { xp: 50 + tier * 10, yin: 2 + Math.min(2, tier), ess: tier === 3 ? 1 : 0 },
       map: roomMap(kind, variant), order
     };
@@ -259,6 +277,7 @@ SW.Trials = (function () {
         }
       }
     }
+    if (R.def.kind === 'labyrinth' && !R.open && Math.hypot(p.x - 12.5, p.y - 2.5) < 1.15) { R.open = true; say('tr_door'); }
     if (R.def.kind === 'switches' && !R.open) {
       R.switches.forEach((sw, i) => {
         if (!R.swOn[i] && Math.hypot(p.x - sw.x - .5, p.y - sw.y - .5) < .62) {
@@ -385,15 +404,15 @@ SW.Trials = (function () {
 
   Object.assign(SW.TEXT.en, {
     tr_enter: 'Enter', tr_leave: 'Leave', tr_reset: 'Reset', tr_done: 'Trial complete', tr_door: 'The door opens.', tr_wrong: 'The flames die. Try again.',
-    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.', tr_hint_switches: 'Find all three floor switches and step on each one to open the altar door.', tr_hint_mirrors: 'Walk into the mirror to turn it. Redirect the light beam from the western source into the crystal above.', tr_hint_combo: 'Step on the pressure plate, then hurry to the mirror. Turn it before the eight-second timer runs out.', tr_combo_start: 'The mechanism is active. Eight seconds!', tr_combo_expired: 'Time ran out. The mirror resets.', tr_timer: 'Time', tr_mirror_turn: 'The mirror turns.',
+    tr_hint_blocks: 'Explore the chambers and push all three stones onto their plates.', tr_hint_lanterns: 'Explore the shrine grounds and light the five lanterns in the order shown above.', tr_hint_switches: 'Find all three floor switches and step on each one to open the altar door.', tr_hint_mirrors: 'Walk into the mirror to turn it. Redirect the light beam from the western source into the crystal above.', tr_hint_combo: 'Step on the pressure plate, then hurry to the mirror. Turn it before the timer runs out.', tr_hint_labyrinth: 'Find your way through the maze and reach the sealed altar door.', tr_combo_start: 'The mechanism is active. Eight seconds!', tr_combo_expired: 'Time ran out. The mirror resets.', tr_timer: 'Time', tr_mirror_turn: 'The mirror turns.',
     trn_village: 'Trial of Stillness', trn_bamboo: 'Trial of Flames', trn_mountain: 'Trial of Stone', trn_hermit: 'Trial of Patience',
-    trn_lookout: 'Trial of Balance', trn_fishers: 'Trial of Ripples', trn_ruins: 'Trial of the Ancients', trn_cave: 'Trial of Steel'
+    trn_lookout: 'Trial of Balance', trn_fishers: 'Trial of Ripples', trn_ruins: 'Trial of the Ancients', trn_cave: 'Trial of Steel', trn_labyrinth: 'Trial of the Lost Path'
   });
   SW.TEXT.de = Object.assign(SW.TEXT.de || {}, {
     tr_enter: 'Betreten', tr_leave: 'Verlassen', tr_reset: 'Neustart', tr_done: 'Prüfung bestanden', tr_door: 'Die Tür öffnet sich.', tr_wrong: 'Die Flammen erlöschen. Versuche es erneut.',
-    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.', tr_hint_switches: 'Finde alle drei Bodenschalter und tritt auf jeden, um die Altartür zu öffnen.', tr_hint_mirrors: 'Laufe gegen den Spiegel, um ihn zu drehen. Lenke den Lichtstrahl von der westlichen Lichtquelle in den Kristall im Norden.', tr_hint_combo: 'Tritt auf die Druckplatte und laufe dann schnell zum Spiegel. Drehe ihn, bevor die acht Sekunden abgelaufen sind.', tr_combo_start: 'Der Mechanismus ist aktiv. Acht Sekunden!', tr_combo_expired: 'Die Zeit ist abgelaufen. Der Spiegel stellt sich zurück.', tr_timer: 'Zeit', tr_mirror_turn: 'Der Spiegel dreht sich.',
+    tr_hint_blocks: 'Erkunde die Kammern und schiebe alle drei Steine auf ihre Platten.', tr_hint_lanterns: 'Erkunde das Schreinareal und entzünde die fünf Laternen in der oben gezeigten Reihenfolge.', tr_hint_switches: 'Finde alle drei Bodenschalter und tritt auf jeden, um die Altartür zu öffnen.', tr_hint_mirrors: 'Laufe gegen den Spiegel, um ihn zu drehen. Lenke den Lichtstrahl von der westlichen Lichtquelle in den Kristall im Norden.', tr_hint_combo: 'Tritt auf die Druckplatte und laufe dann schnell zum Spiegel. Drehe ihn, bevor die Zeit abläuft.', tr_hint_labyrinth: 'Finde den Weg durch das Labyrinth und erreiche die verschlossene Altartür.', tr_combo_start: 'Der Mechanismus ist aktiv. Acht Sekunden!', tr_combo_expired: 'Die Zeit ist abgelaufen. Der Spiegel stellt sich zurück.', tr_timer: 'Zeit', tr_mirror_turn: 'Der Spiegel dreht sich.',
     trn_village: 'Prüfung der Stille', trn_bamboo: 'Prüfung der Flammen', trn_mountain: 'Prüfung des Steins', trn_hermit: 'Prüfung der Geduld',
-    trn_lookout: 'Prüfung des Gleichgewichts', trn_fishers: 'Prüfung der Wellen', trn_ruins: 'Prüfung der Uralten', trn_cave: 'Prüfung des Stahls'
+    trn_lookout: 'Prüfung des Gleichgewichts', trn_fishers: 'Prüfung der Wellen', trn_ruins: 'Prüfung der Uralten', trn_cave: 'Prüfung des Stahls', trn_labyrinth: 'Prüfung des Irrwegs'
   });
   return T;
 })();
