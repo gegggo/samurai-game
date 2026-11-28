@@ -304,6 +304,7 @@ SW.Render = (function () {
     for (let i = 0; i < np.length; i++) { const e = np[i]; if (SW.Shop.on(e) && e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) items.push({ k: -5, s: e, key: e.y + .3 }); }
     const shr = SW.Shrines.list;
     for (let i = 0; i < shr.length; i++) { const e = shr[i]; if (e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) { items.push({ k: -6, s: e, key: e.y + .3 }); glows.push(e.x, e.y - .7, SW.Shrines.isOn(e.id) ? 5 : 2.2); } }
+    if(SW.Seals&&SW.Seals.altarVisible()){items.push({k:-9,s:SW.Seals.altar,key:SW.Seals.altar.y+.3});items.push({k:-10,s:SW.Seals.portal,key:SW.Seals.portal.y+.3});}
     if(SW.Inscriptions){SW.Inscriptions.list.forEach(e=>{if(!SW.Inscriptions.isFound(e.id)&&e.x>x0-1&&e.x<x1+1&&e.y>y0-1&&e.y<y1+2){items.push({k:-7,s:e,key:e.y+.3});glows.push(e.x,e.y-.45,1.15);}});if(SW.Inscriptions.gateVisible()){const e=SW.Inscriptions.gate;if(e.x>x0-2&&e.x<x1+2&&e.y>y0-2&&e.y<y1+2){items.push({k:-8,s:e,key:e.y+.3});glows.push(e.x,e.y-1,SW.Inscriptions.isGateOpened()?4:1.6);}}}
     items.push({ k: -2, key: p.y + .3 });
     items.sort((a, b) => a.key - b.key);
@@ -311,6 +312,8 @@ SW.Render = (function () {
       const it = items[i];
       if (it.k === -2) { drawPlayer(c, Math.round(p.x * u + ox), Math.round((p.y + .3) * u + oy), u, p); continue; }
       if (it.k === -1) { drawStruct(c, it.s, ox, oy, u); continue; }
+      if (it.k === -10) { SW.Seals.drawPortal(c,Math.round(it.s.x*u+ox),Math.round((it.s.y+.3)*u+oy),u,time); continue; }
+      if (it.k === -9) { SW.Seals.drawAltar(c,Math.round(it.s.x*u+ox),Math.round((it.s.y+.3)*u+oy),u,time); continue; }
       if (it.k === -8) { forgottenGate(c,Math.round(it.s.x*u+ox),Math.round((it.s.y+.3)*u+oy),u,SW.Inscriptions.isGateOpened(),time); continue; }
       if (it.k === -7) { inscription(c,it.s,Math.round(it.s.x*u+ox),Math.round((it.s.y+.3)*u+oy),u,time); continue; }
       if (it.k === -6) { shrineObj(c, it.s, Math.round(it.s.x * u + ox), Math.round((it.s.y + .3) * u + oy), u, time); continue; }
