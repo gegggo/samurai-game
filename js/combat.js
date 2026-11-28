@@ -239,8 +239,7 @@ SW.Combat = (function () {
   // ---------- Belohnungen (Phase 3): jedes System bekommt nur seinen Teil ----------
   function reward() {
     if (S.spot.trial) { const o = SW.Trials.duelWon(S.spot.trial); Object.assign(o, { coins: 0, items: [], karma: 0, secret: null }); S.rew = o; SW.Save.touch(); return; } // Schrein-Duell: nur Prüfungsbelohnung, keine Münzen/Beute
-    S.rew = grant(S.spot, S.st);
-    if (S.spot.seal && SW.Seals) { const gem = SW.Seals.bossDefeated(S.spot); if (gem) S.rew.items.push(T('seal_found', T('seal_gem_' + gem))); }
+    S.rew = K.grant(S.spot, S.st);
     SW.Save.touch();
   }
   // Belohnung für einen besiegten Gegner (Arena und Weltkampf): spot = Gegnerpunkt, st = Kampfstatistik für Yin/Yang
@@ -263,7 +262,11 @@ SW.Combat = (function () {
     SW.Save.touch();
     return out;
   }
-  K.grant = grant;
+  K.grant = function (spot, st) {
+    const out = grant(spot, st);
+    if (spot && spot.seal && SW.Seals) { const gem = SW.Seals.bossDefeated(spot); if (gem) out.items.push(T('seal_found', T('seal_gem_' + gem))); }
+    return out;
+  };
 
   // ---------- Update ----------
   function fight(dt) {
