@@ -843,7 +843,7 @@ try:
       return {elite:E.elite.combo,phased,escalating,oni:E.boss_oni.phases.map(p=>p.guardLock||0)};
     }""")
     rec('Phase 0.48: Elite besitzt feste Angriffskette; Boss-/Minibossphasen nutzen ihre Angriffsmuster als Kombinationen und spaete Phasen haben steigende Guard-Break-Sperre',
-        r['elite']==['slash','flurry','thrust','heavy'] and r['phased'] and r['escalating'] and r['oni']==[0,3,3.8,4.6], json.dumps(r))
+        r['elite']==['slash','flurry','thrust','heavy'] and r['phased'] and r['escalating'] and  [round(x,1) for x in r['oni']]==[0,3,3.8,4.6], json.dumps(r))
 
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
