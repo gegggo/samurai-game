@@ -785,6 +785,304 @@
    ],
    "weapon": "sword",
    "arena": "warden"
+  },
+  "mini_ruby": {
+   "arena": "summit",
+   "dmg": 1.28,
+   "hp": 350,
+   "weapon": "sword",
+   "look": {
+    "cloth": "#7b2028",
+    "helm": "#3a1018",
+    "legs": "#241014",
+    "plate": "#a33a3a",
+    "trim": "#f0a04a"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "heavy",
+      "slash",
+      "thrust"
+     ],
+     "gap": [
+      1.2,
+      1.8
+     ],
+     "guard": 0.2,
+     "speed": 1
+    },
+    {
+     "at": 0.66,
+     "atk": [
+      "sweep",
+      "heavy",
+      "thrust",
+      "flurry"
+     ],
+     "gap": [
+      0.9,
+      1.35
+     ],
+     "guard": 0.18,
+     "speed": 1.2
+    },
+    {
+     "at": 0.32,
+     "atk": [
+      "rage",
+      "sweep",
+      "flurry",
+      "crush"
+     ],
+     "gap": [
+      0.65,
+      1
+     ],
+     "guard": 0.12,
+     "speed": 1.4
+    }
+   ]
+  },
+  "mini_emerald": {
+   "arena": "temple",
+   "dmg": 1.22,
+   "hp": 330,
+   "weapon": "spear",
+   "look": {
+    "cloth": "#285b3b",
+    "hair": "#151b12",
+    "legs": "#1d3024",
+    "plate": "#3b8b59",
+    "trim": "#a6d88c"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "thrust",
+      "slash",
+      "thrust"
+     ],
+     "gap": [
+      1.1,
+      1.7
+     ],
+     "guard": 0.25,
+     "speed": 1.05
+    },
+    {
+     "at": 0.66,
+     "atk": [
+      "flurry",
+      "thrust",
+      "sweep",
+      "slash"
+     ],
+     "gap": [
+      0.85,
+      1.3
+     ],
+     "guard": 0.3,
+     "speed": 1.25
+    },
+    {
+     "at": 0.32,
+     "atk": [
+      "storm",
+      "thrust",
+      "crush",
+      "flurry"
+     ],
+     "gap": [
+      0.6,
+      0.95
+     ],
+     "guard": 0.18,
+     "speed": 1.45
+    }
+   ]
+  },
+  "mini_onyx": {
+   "arena": "ruins",
+   "dmg": 1.32,
+   "hp": 370,
+   "weapon": "sword",
+   "look": {
+    "cape": "#171923",
+    "cloth": "#292b38",
+    "helm": "#101117",
+    "legs": "#15151d",
+    "plate": "#454653",
+    "trim": "#9b8cbf"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "slash",
+      "flurry",
+      "heavy"
+     ],
+     "gap": [
+      1,
+      1.6
+     ],
+     "guard": 0.3,
+     "speed": 1.1
+    },
+    {
+     "at": 0.66,
+     "atk": [
+      "flurry",
+      "sweep",
+      "thrust",
+      "heavy"
+     ],
+     "gap": [
+      0.8,
+      1.2
+     ],
+     "guard": 0.2,
+     "speed": 1.3
+    },
+    {
+     "at": 0.32,
+     "atk": [
+      "storm",
+      "rage",
+      "flurry",
+      "thrust"
+     ],
+     "gap": [
+      0.55,
+      0.9
+     ],
+     "guard": 0.12,
+     "speed": 1.5
+    }
+   ]
+  },
+  "mini_sapphire": {
+   "arena": "warden",
+   "dmg": 1.3,
+   "hp": 360,
+   "weapon": "spear",
+   "look": {
+    "cape": "#182d48",
+    "cloth": "#254b70",
+    "helm": "#14243a",
+    "legs": "#16263a",
+    "plate": "#3976a5",
+    "trim": "#9bd8f0"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "thrust",
+      "sweep",
+      "slash"
+     ],
+     "gap": [
+      1.15,
+      1.75
+     ],
+     "guard": 0.22,
+     "speed": 1
+    },
+    {
+     "at": 0.66,
+     "atk": [
+      "sweep",
+      "thrust",
+      "flurry",
+      "heavy"
+     ],
+     "gap": [
+      0.85,
+      1.3
+     ],
+     "guard": 0.2,
+     "speed": 1.25
+    },
+    {
+     "at": 0.32,
+     "atk": [
+      "storm",
+      "crush",
+      "thrust",
+      "rage"
+     ],
+     "gap": [
+      0.6,
+      0.95
+     ],
+     "guard": 0.15,
+     "speed": 1.45
+    }
+   ]
+  },
+  "mini_amethyst": {
+   "arena": "oni",
+   "dmg": 1.38,
+   "hp": 390,
+   "weapon": "sword",
+   "look": {
+    "cape": "#321b45",
+    "cloth": "#56336e",
+    "helm": "#241331",
+    "legs": "#1b1024",
+    "plate": "#70458d",
+    "trim": "#d4a0f0"
+   },
+   "phases": [
+    {
+     "at": 1,
+     "atk": [
+      "heavy",
+      "slash",
+      "sweep"
+     ],
+     "gap": [
+      1.1,
+      1.7
+     ],
+     "guard": 0.25,
+     "speed": 1.05
+    },
+    {
+     "at": 0.66,
+     "atk": [
+      "sweep",
+      "flurry",
+      "heavy",
+      "thrust"
+     ],
+     "gap": [
+      0.8,
+      1.25
+     ],
+     "guard": 0.2,
+     "speed": 1.3
+    },
+    {
+     "at": 0.32,
+     "atk": [
+      "storm",
+      "rage",
+      "crush",
+      "flurry"
+     ],
+     "gap": [
+      0.55,
+      0.9
+     ],
+     "guard": 0.12,
+     "speed": 1.55
+    }
+   ]
   }
  },
  "arenas": {
