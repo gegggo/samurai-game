@@ -742,7 +742,7 @@ try:
         escalating:b.phases.every((p,i,a)=>i===0||p.speed>a[i-1].speed&&p.gap[0]<a[i-1].gap[0])};
     }""")
     rec('Phase 0.46: Finaler Oni besitzt 15.300 HP auf Tier 3 und vier zunehmend schnellere Bossphasen',
-        r['base']==9000 and r['effective']==15300 and r['damage']==1.6 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
+        r['base']==9000 and r['effective']==15300 and r['damage']==1.84 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
 
     # Phase 0.47: Gegner-Lebenspunkte nach Staerke staffeln; Oni bleibt separat
     r = ev(pg, """() => {
@@ -754,7 +754,18 @@ try:
       return {count:Object.keys(expected).length,bad,oni:E.boss_oni&&E.boss_oni.hp};
     }""")
     rec('Phase 0.47: Normale Gegner erhalten 1,5x, starke Gegner/Bosse 2x HP; Oni bleibt bei 9.000 Basis-HP',
-        r['count']==19 and r['bad'].length===0 and r['oni']==9000, json.dumps(r))
+        r['count']==19 and len(r['bad'])==0 and r['oni']==9000, json.dumps(r))
+
+    # Phase 0.47: Schwerer Schwierigkeitsstandard - mehr Schaden, kuerzere Pausen, schnellere Phasen
+    r = ev(pg, \"\"\"() => {
+      const E=SW.Data.enemies, ids=Object.keys(E);
+      return {count:ids.length,allDamage:ids.every(k=>E[k].dmg>=1.03),
+        allGaps:ids.every(k=>!E[k].gap||E[k].gap[0]<=2),
+        oni:E.boss_oni.dmg,oniPhaseSpeed:E.boss_oni.phases.map(p=>p.speed),
+        oniGaps:E.boss_oni.phases.map(p=>p.gap)};
+    }\"\"\")
+    rec('Phase 0.47: Gegner verursachen mehr Schaden; Angriffsabstaende sinken und Bossphasen werden schneller',
+        r['count']==19 and r['allDamage'] and r['oni']==1.84 and r['oniPhaseSpeed']==[1.24,1.43,1.62,1.81], json.dumps(r))
 
     # Phase 0.46: fuenf einzigartige Minibosse liegen in verschiedenen Regionen und nutzen eigene Bossphasen
     r = ev(pg, """() => {
