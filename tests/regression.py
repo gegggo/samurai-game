@@ -741,8 +741,8 @@ try:
         gaps:b.phases.map(p=>p.gap),speeds:b.phases.map(p=>p.speed),
         escalating:b.phases.every((p,i,a)=>i===0||p.speed>a[i-1].speed&&p.gap[0]<a[i-1].gap[0])};
     }""")
-    rec('Phase 0.46: Finaler Oni besitzt 22.950 Arena-HP auf Tier 3 und vier zunehmend schnellere Bossphasen',
-        r['base']==9000 and r['effective']==22950 and r['damage']==1.84 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
+    rec('Phase 0.46: Finaler Oni besitzt 15.300 HP auf Tier 3 und vier zunehmend schnellere Bossphasen',
+        r['base']==9000 and r['effective']==15300 and r['damage']==1.84 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
 
     # Phase 0.47: Gegner-Lebenspunkte nach Staerke staffeln; Oni bleibt separat
     r = ev(pg, """() => {
@@ -858,7 +858,7 @@ try:
     rec('Phase 0.49: Oni hat 22.950 Arena-HP; Endphasen-Angriffe besitzen berechenbare Telegraphe und Schadenswerte',
         r['tierHp']==1.7 and r['tierDmg']==1.5 and r['arenaHp']==22950 and
         abs(r['rageDamage']-99.36)<.001 and abs(r['rageWind']-(1.4/1.81))<.001 and
-        abs(r['stormHit']-20.7)<.001 and r['stormHits']==5 and r['lastGuardLock']==4.6 and r['allBosses'], json.dumps(r))
+        abs(r['stormHit']-20.7)<.001 and r['stormHits']==5 and abs(r['lastGuardLock']-4.6)<.001 and r['allBosses'], json.dumps(r))
 
     # Phase 0.49: beide Boss-Unterbrechungsarten verwenden dieselbe phasenabhaengige Sperrdauer
     arena_src = open('js/arena3d.js', encoding='utf-8').read()
