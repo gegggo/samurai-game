@@ -25,7 +25,7 @@ SW.Combat = (function () {
     }
     return { x, y };
   }
-  D.spots.forEach(s => { const p = free(s.x, s.y); K.spots.push({ id: s.id, type: s.type, x: p.x, y: p.y, dead: false, night: !!s.night, respawn: !!s.respawn, kv: s.kv, tier: s.tier }); });
+  D.spots.forEach(s => { const p = free(s.x, s.y); K.spots.push({ id: s.id, type: s.type, x: p.x, y: p.y, dead: false, night: !!s.night, respawn: !!s.respawn, kv: s.kv, tier: s.tier, seal: s.seal }); });
 
   // 0.11.0: jeder Schrein hat mindestens 2 Wächter in 22 Kacheln (fehlende werden ergänzt, feste IDs g_<schrein>_<n>, gespeichert wie alle Gegner)
   (function () {
@@ -62,7 +62,7 @@ SW.Combat = (function () {
   K.playerStats = function () { return SW.Char ? SW.Char.combat() : D.player; }; // echte Charakterwerte (Phase 3)
 
   // Nachtgegner: nur nachts aktiv; wiederkehrende kommen mit jeder neuen Nacht zurück
-  K.on = s => !s.dead && (!s.night || SW.Time.period() === 'night') && (s.kv === undefined || SW.Karma.v <= s.kv); // kv: Kopfgeldjäger erscheinen bei schlechtem Ruf
+  K.on = s => !s.dead && (!s.seal || (SW.Seals && SW.Seals.visibleBoss(s))) && (!s.night || SW.Time.period() === 'night') && (s.kv === undefined || SW.Karma.v <= s.kv); // kv: Kopfgeldjäger erscheinen bei schlechtem Ruf
   // Schattenclan-Hinterhalt (Phase 8, wie die Yiga in BOTW): bei Karma <= -30 spawnt nach einer Wegstrecke ein Angreifer nahe dem Spieler und läuft auf ihn zu.
   // Bleibt bis zum Tod eines der beiden, auch wenn das Karma wieder steigt. Weicht der Spieler > 12 Kacheln aus (Flucht, Hängenbleiben), teleportiert er sich neben ihn; Schnellreise (Sprung > 5 Kacheln pro Bild) lässt ihn verschwinden. Nicht gespeichert, keine Karma-Belohnung. Schlechterer Ruf (<= -70) = kürzere Abstände.
   const AMB = { walked: 0, next: 160, last: null, t: 0 };
@@ -239,7 +239,9 @@ SW.Combat = (function () {
   // ---------- Belohnungen (Phase 3): jedes System bekommt nur seinen Teil ----------
   function reward() {
     if (S.spot.trial) { const o = SW.Trials.duelWon(S.spot.trial); Object.assign(o, { coins: 0, items: [], karma: 0, secret: null }); S.rew = o; SW.Save.touch(); return; } // Schrein-Duell: nur Prüfungsbelohnung, keine Münzen/Beute
-    S.rew = grant(S.spot, S.st); SW.Save.touch();
+    S.rew = grant(S.spot, S.st);
+    if (S.spot.seal && SW.Seals) { const gem = SW.Seals.bossDefeated(S.spot); if (gem) S.rew.items.push(T('seal_found', T('seal_gem_' + gem))); }
+    SW.Save.touch();
   }
   // Belohnung für einen besiegten Gegner (Arena und Weltkampf): spot = Gegnerpunkt, st = Kampfstatistik für Yin/Yang
   function grant(spot, st) {
