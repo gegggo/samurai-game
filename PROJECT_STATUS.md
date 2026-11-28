@@ -9,3 +9,13 @@
 - Regression erweitert: prüft jetzt auch die 12 Zeichen, ihre Regionen, das Tor mit Kollision und Öffnung, Speicherdaten sowie den Zugang zu den Schriftrollen beim Meister.
 - Speicherstand enthält gefundene Zeichen und Torstatus. Regression prüft Zeichenpositionen, Regionszuordnung, Quest-Voraussetzungen, Freischaltung, Tor-Sperre und Speichern/Laden. Gerätetest steht noch aus.
 
+
+## Phase 0.46 – Fünf Siegel und Endboss-Freischaltung (28.11.2026)
+- Nach dem Öffnen des vergessenen Tores erhält der Spieler beim Meister die Hauptquest „Die fünf Siegel“.
+- Fünf einzigartige Minibosse erscheinen an festen Orten in fünf verschiedenen Regionen der Weltkarte: Rubin-Bergwächter, Smaragd-Schlangendämon, Onyx-Schattenkrieger, Saphir-Eisbestie und Amethyst-Drachenwächter.
+- Jeder Miniboss nutzt eine eigene Boss-Arena-Konfiguration, drei Kampfphasen, eigene Angriffskombinationen und ein eigenes Erscheinungsbild. Die vorhandene Arena- und Kampftechnik wird wiederverwendet.
+- Jeder Miniboss hinterlässt genau einen nicht verkaufbaren Quest-Edelstein. Die Edelsteine werden separat vom normalen Inventar gespeichert.
+- Nach Rückkehr zum Meister wird die Altar-Quest freigeschaltet. Am Altar hinter dem vergessenen Tor werden alle fünf Edelsteine eingesetzt; dadurch öffnet sich das letzte Tor.
+- Dahinter wartet der uralte Oni als Endboss. Der finale Kampf nutzt die vorhandene Boss-Arena; nach dem Sieg wird die Hauptquest beim Meister abgeschlossen.
+- Miniboss-Standorte werden während der aktiven Sammelquest als Karten-/Questziele markiert. Vor Annahme der Quest sind sie nicht aktiv und können nicht versehentlich ausgelöst werden.
+- Speicherstand enthält gefundene Edelsteine und den Status des letzten Tores. Regression und CI stehen noch aus; iPhone-Gerätetest bleibt offen.
