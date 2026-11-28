@@ -28,3 +28,11 @@
 - Angriffs-Vorzeichen, Wind-up-Zeiten und bestehende Ausweich-/Parierfenster bleiben erhalten.
 - Heilung, Ausdauer und Belohnungsformeln werden in dieser Phase nicht verändert, um keine ungetesteten Nebenwirkungen in Progression und Kampfökonomie einzuführen.
 - Regression prüft die Angriffsketten und die steigende Guard-Break-Sperre.
+
+
+## Phase 0.49 – Boss-Balancing und Arena-Schadensprüfung (28.11.2026)
+- Die tatsächliche Arena-Lebensleiste berücksichtigt den zusätzlichen Boss-Faktor 1,5. Der Oni besitzt auf Tier 3 daher 22.950 HP (9.000 Basis × 1,7 Tier × 1,5 Arena), nicht 15.300 HP.
+- Die Regression prüft die tatsächliche Arena-HP, den Schaden und die Vorwarnzeit der Oni-Endphasen-Angriffe sowie die Gültigkeit aller Boss-Kombos.
+- Guard-Breaks und schwere Treffer verwenden jetzt dieselbe phasenabhängige Guard-Lock-Dauer. Damit können schwere Treffer die längere Sperre späterer Bossphasen nicht versehentlich auf 2,2 Sekunden zurücksetzen.
+- Keine Abschwächung des Endbosses: Rage bleibt ein angekündigter, unblockbarer Hochrisikoangriff; Storm bleibt eine Mehrfachtreffer-Kombo. Ausweichen und gutes Timing sind entscheidend.
+- GitHub-Regression und iPhone-Gerätetest stehen nach dem Commit noch aus.
