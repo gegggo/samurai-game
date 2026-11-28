@@ -25,7 +25,7 @@ SW.Combat = (function () {
     }
     return { x, y };
   }
-  D.spots.forEach(s => { const p = free(s.x, s.y); K.spots.push({ id: s.id, type: s.type, x: p.x, y: p.y, dead: false, night: !!s.night, respawn: !!s.respawn, kv: s.kv, tier: s.tier }); });
+  D.spots.forEach(s => { const p = free(s.x, s.y); K.spots.push({ id: s.id, type: s.type, x: p.x, y: p.y, dead: false, night: !!s.night, respawn: !!s.respawn, kv: s.kv, tier: s.tier, seal: s.seal }); });
 
   // 0.11.0: jeder Schrein hat mindestens 2 Wächter in 22 Kacheln (fehlende werden ergänzt, feste IDs g_<schrein>_<n>, gespeichert wie alle Gegner)
   (function () {
@@ -41,10 +41,28 @@ SW.Combat = (function () {
     });
   })();
 
+  // Nachtraeglich erzeugte Schreine erhalten dieselbe Waechter-Grundausstattung.
+  K.ensureShrineGuards = function (shrines) {
+    const light = ['bandit', 'ronin', 'spearman'], mid = ['ronin', 'swift', 'spearman', 'samurai'], hard = ['samurai', 'armored', 'swift', 'spearman'];
+    (shrines || []).forEach(sh => {
+      const c = free(sh.x, sh.y);
+      let have = K.spots.filter(e => !e.night && !e.amb && Math.hypot(e.x - c.x, e.y - c.y) < 22).length;
+      const si = Math.max(0, D.shrines.indexOf(sh));
+      const reg = W.regionAt(Math.floor(c.x), Math.floor(c.y)), L = (reg >= 12 || reg === 5 || reg === 8 || reg === 16) ? hard : (reg === 0 || reg === 1 || reg === 3) ? light : mid;
+      for (let n = 1; have < 2; n++) {
+        const id = 'g_' + sh.id + '_' + n;
+        if (K.spots.some(e => e.id === id)) continue;
+        const g = (si * 2.4 + n * 3.1) % TAU, p = free(c.x + Math.cos(g) * 6, c.y + Math.sin(g) * 6);
+        K.spots.push({ id, type: L[(si + n) % L.length], x: p.x, y: p.y, dead: false, night: false, respawn: false, kv: undefined, tier: sh.tier });
+        have++;
+      }
+    });
+  };
+
   K.playerStats = function () { return SW.Char ? SW.Char.combat() : D.player; }; // echte Charakterwerte (Phase 3)
 
   // Nachtgegner: nur nachts aktiv; wiederkehrende kommen mit jeder neuen Nacht zurück
-  K.on = s => !s.dead && (!s.night || SW.Time.period() === 'night') && (s.kv === undefined || SW.Karma.v <= s.kv); // kv: Kopfgeldjäger erscheinen bei schlechtem Ruf
+  K.on = s => !s.dead && (!s.seal || (SW.Seals && SW.Seals.visibleBoss(s))) && (!s.night || SW.Time.period() === 'night') && (s.kv === undefined || SW.Karma.v <= s.kv); // kv: Kopfgeldjäger erscheinen bei schlechtem Ruf
   // Schattenclan-Hinterhalt (Phase 8, wie die Yiga in BOTW): bei Karma <= -30 spawnt nach einer Wegstrecke ein Angreifer nahe dem Spieler und läuft auf ihn zu.
   // Bleibt bis zum Tod eines der beiden, auch wenn das Karma wieder steigt. Weicht der Spieler > 12 Kacheln aus (Flucht, Hängenbleiben), teleportiert er sich neben ihn; Schnellreise (Sprung > 5 Kacheln pro Bild) lässt ihn verschwinden. Nicht gespeichert, keine Karma-Belohnung. Schlechterer Ruf (<= -70) = kürzere Abstände.
   const AMB = { walked: 0, next: 160, last: null, t: 0 };
@@ -221,7 +239,8 @@ SW.Combat = (function () {
   // ---------- Belohnungen (Phase 3): jedes System bekommt nur seinen Teil ----------
   function reward() {
     if (S.spot.trial) { const o = SW.Trials.duelWon(S.spot.trial); Object.assign(o, { coins: 0, items: [], karma: 0, secret: null }); S.rew = o; SW.Save.touch(); return; } // Schrein-Duell: nur Prüfungsbelohnung, keine Münzen/Beute
-    S.rew = grant(S.spot, S.st); SW.Save.touch();
+    S.rew = K.grant(S.spot, S.st);
+    SW.Save.touch();
   }
   // Belohnung für einen besiegten Gegner (Arena und Weltkampf): spot = Gegnerpunkt, st = Kampfstatistik für Yin/Yang
   function grant(spot, st) {
@@ -243,7 +262,11 @@ SW.Combat = (function () {
     SW.Save.touch();
     return out;
   }
-  K.grant = grant;
+  K.grant = function (spot, st) {
+    const out = grant(spot, st);
+    if (spot && spot.seal && SW.Seals) { const gem = SW.Seals.bossDefeated(spot); if (gem) out.items.push(T('seal_found', T('seal_gem_' + gem))); }
+    return out;
+  };
 
   // ---------- Update ----------
   function fight(dt) {

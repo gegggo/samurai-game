@@ -152,6 +152,20 @@ try:
     pg = start(b, errs)
     region25_ok = ev(pg, "!!SW.World.CEN[25] && SW.World.regionAt(3260,3050) === 25 && SW.World.terrain(3260,3050) !== SW.World.T.SEA && SW.TEXT.en.reg_25 === 'Verdant Basin' && SW.TEXT.de.reg_25 === 'Grünes Becken'")
     rec('Map: Region 25 center, terrain and EN/DE names', region25_ok)
+    frontier_check = ev(pg, """() => {
+      const D=SW.Data,W=SW.World, regs=[20,21,22,23,24,25];
+      const prefixes=['dragon','spirit','frostwall','cloudsteppe','jade','basin'];
+      const bad=[]; let counts=[], suggestions={};
+      regs.forEach((reg,i)=>{
+        const p=prefixes[i], spots=D.spots.filter(x=>x.id.startsWith('e_'+p)), npcs=D.npcs.filter(x=>x.id==='n_'+({dragon:'dragonkeeper',spirit:'spiritguide',frostwall:'frostwarden',cloudsteppe:'cloudhermit',jade:'jadeenvoy',basin:'basinwarden'}[p])), ch=D.chests.filter(x=>x.id.startsWith('c_'+p));
+        const qs=D.quests.filter(x=>x.id.startsWith(({dragon:'dragon',spirit:'spirit',frostwall:'frostwall',cloudsteppe:'cloud',jade:'jade',basin:'basin'}[p])));
+        counts.push({reg,spots:spots.length,npcs:npcs.length,chests:ch.length,quests:qs.length});
+        [...spots,...npcs,...ch].forEach(x=>{if(W.regionAt(x.x,x.y)!==reg||W.solid(Math.floor(x.x),Math.floor(x.y))){bad.push({id:x.id,reg,actual:W.regionAt(x.x,x.y),solid:W.solid(Math.floor(x.x),Math.floor(x.y)),x:x.x,y:x.y});let best=null;for(let dy=-80;dy<=80&&!best;dy+=2)for(let dx=-80;dx<=80;dx+=2){const xx=Math.floor(x.x)+dx,yy=Math.floor(x.y)+dy;if(W.regionAt(xx,yy)===reg&&!W.solid(xx,yy)){best={x:xx+.5,y:yy+.5,dist:Math.hypot(dx,dy)};break;}}if(best)suggestions[x.id]=best;}});
+        if(spots.length!==4||npcs.length!==1||ch.length!==2||qs.length!==2||!qs.some(q=>q.obj.type==='kill'&&spots.some(s=>s.id===q.obj.spot))||!qs.some(q=>q.req&&q.req.done===({dragon:'dragon1',spirit:'spirit1',frostwall:'frostwall1',cloudsteppe:'cloud1',jade:'jade1',basin:'basin1'}[p])))bad.push({reg,reason:'content-or-quest-link'});
+      });
+      return {counts,bad,suggestions,version:SW.version};
+    }""")
+    rec('Phase 0.44: Regionen 20–25 haben je NPC, 2 Quests, 4 Gegner und 2 freie Truhen im richtigen Gebiet', not frontier_check['bad'] and all(x['spots']==4 and x['npcs']==1 and x['chests']==2 and x['quests']==2 for x in frontier_check['counts']), json.dumps(frontier_check))
     gap_temple_ok = ev(pg, "SW.World.regionAt(3158,2640) === 25 && SW.World.POI.some(p => p.id === 'gaptemple') && SW.World.S.some(s => s.type === 'shrine' && s.x === 3150 && s.y === 2632) && !!SW.Shrines.get('gaptemple') && SW.TEXT.en.shr_gaptemple === 'Tide Temple' && SW.TEXT.de.shr_gaptemple === 'Gezeitentempel'")
     rec('Map: Gezeitentempel, POI, Schrein und EN/DE-Namen', gap_temple_ok)
     r = ev(pg, """() => {
@@ -217,6 +231,26 @@ try:
     rec('Quest: annehmen, bereit, abschliessen, Belohnung genau einmal, Gegenstand abgegeben', not r.get('none') and r['acc'] and r['s1'] == 'ready' and r['c1'] and r['dc'] == r['exp'] and not r['c2'] and r['dc2'] == r['exp'] and r['left'] == 0, json.dumps(r))
     qid = r.get('id'); cont(pg); st = ev(pg, "id => SW.Quests.st[id]") if False else pg.evaluate("id => SW.Quests.st[id]", qid)
     rec('Quest-Status bleibt nach Neuladen', st == 'done', str(st))
+    # Phase 0.39.1: Schriftzeichen, Wörterbuch, Schattenpforte und Meister-Menü.
+    r = ev(pg, """() => {
+      const I=SW.Inscriptions,Q=SW.Quests,D=SW.Data,W=SW.World,oldI=I.dump(),oldQ=Object.assign({},Q.st);
+      const regions=I.list.every(g=>W.regionAt(g.x,g.y)===g.region);
+      const free=I.list.every(g=>!W.solid(Math.floor(g.x),Math.floor(g.y)));
+      const phrase=I.list.map(g=>g.letter).join('');
+      const q1=D.quests.find(q=>q.id==='main_glyphs'),q2=D.quests.find(q=>q.id==='main_gate');
+      const chain=!!q1&&!!q2&&q1.category==='main'&&q2.category==='main'&&q1.req.done==='elder3'&&q1.obj.type==='inscriptions'&&q1.obj.n===12&&q2.req.done==='main_glyphs'&&q2.obj.type==='gate';
+      I.load({found:[],gateOpened:false}); I.list.forEach(g=>I.collect(g.id));
+      Q.st.main_glyphs='done'; Q.st.main_gate='active';
+      const visible=I.gateVisible(),blocked=W.solid(Math.floor(I.gate.x),Math.floor(I.gate.y));
+      const opened=I.openGate(),passable=!W.solid(Math.floor(I.gate.x),Math.floor(I.gate.y));
+      const persisted=Q.dump().ins.found.length===12&&Q.dump().ins.gateOpened===true;
+      const master=SW.Shop.npcs.find(n=>n.id==='n_master'); Q.open(master);
+      const scrollButton=[...document.querySelectorAll('#dlg button')].some(b=>b.textContent===SW.t('master_scrolls')); Q.close();
+      I.load(oldI); Object.keys(Q.st).forEach(k=>delete Q.st[k]); Object.assign(Q.st,oldQ);
+      return {count:I.total(),regions,free,phrase,chain,visible,blocked,opened,passable,persisted,master:!!master,scrollButton,openMaster:typeof SW.Shop.openMaster==='function'};
+    }""")
+    rec('Phase 0.39.1: 12 Schriftzeichen in richtigen Regionen, Wörterbuchfolge, Tor-Kollision/Speicherung und Meister-Schriftrollen',
+        r.get('count') == 12 and r.get('regions') and r.get('free') and r.get('phrase') == 'THEGATEOPENS' and r.get('chain') and r.get('visible') and r.get('blocked') and r.get('opened') and r.get('passable') and r.get('persisted') and r.get('master') and r.get('scrollButton') and r.get('openMaster'), json.dumps(r))
         # 6b Phase 25 / Map 0.29: Choice-Quests und alle fuenf neuen Regionen
     r = ev(pg, """() => {
       const Q=SW.Quests, D=SW.Data, c=D.quests.filter(q=>q.choice);
@@ -262,6 +296,157 @@ try:
     # 11 Karte/Schnellreise-Daten
     r = ev(pg, "() => ({poi: SW.World.POI.length, shr: SW.Data.shrines.length})")
     rec('Welt: POI und Schreine vorhanden', r['poi'] > 20 and r['shr'] > 20, json.dumps(r))
+    # 11b Phase 0.34: fuenf Schreine je Region, grosse Miniwelt-Pruefungen
+    r = ev(pg, """() => {
+      const D=SW.Data, W=SW.World, T=SW.Trials, counts=Array(26).fill(0);
+      D.shrines.forEach(s => { const reg=W.regionAt(s.x,s.y); if (reg>=0 && reg<26) counts[reg]++; });
+      const generated=D.shrines.filter(s=>s.generated), info=D.shrines.map(s=>T.info(s.id));
+      let min=Infinity;
+      for(let i=0;i<generated.length;i++) for(let j=0;j<i;j++)
+        min=Math.min(min,Math.hypot(generated[i].x-generated[j].x,generated[i].y-generated[j].y));
+      return {total:D.shrines.length, generated:generated.length, counts, min, layouts:new Set(info.filter(Boolean).map(x=>x.layout)).size,
+        rooms:info.length===D.shrines.length && info.every(x=>x && x.w===25 && x.h===17 && (x.kind==='blocks'||x.kind==='lanterns'||(x.kind==='switches'&&x.switches===3)||(x.kind==='mirrors'&&x.mirrors===1)||(x.kind==='combo'&&x.mirrors===1&&x.pressure===1)||(x.kind==='labyrinth'&&x.walls>100)||(x.kind==='miniboss'&&x.bossType==='shrine_guard')||(x.kind==='movement'&&x.hazards===3&&x.checkpoints===2)||(x.kind==='sequence'&&x.switches===3&&x.hazards===3&&x.checkpoints===2))) && ['blocks','lanterns','switches','mirrors','combo','labyrinth','miniboss','movement','sequence'].every(k=>info.some(x=>x.kind===k)),
+        can:D.shrines.every(x=>T.can(x.id))};
+    }""")
+    rec('Phase 0.34: jede Region hat fuenf Schreine; alle Schreine besitzen eine 25x17-Miniwelt-Pruefung',
+        sum(1 for n in r['counts'] if n == 5) == 23 and sum(1 for n in r['counts'] if 3 <= n < 5) == 3 and all(3 <= n <= 5 for n in r['counts']) and r['total'] == sum(r['counts']) and r['generated'] == r['total'] - 37 and r['min'] >= 220 and r['rooms'] and r['can'], json.dumps(r))
+    rec('Phase 0.35: Schreinräume besitzen mindestens 16 unterschiedliche Grundrisse', r['layouts'] >= 16, 'unique layouts=%s' % r['layouts'])
+    # Phase 0.36: Bodenschalter muessen durch Betreten aktiviert werden und die Altartuer oeffnen.
+    r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='switches')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(), targets=room.switches.map(s=>({x:s.x+.5,y:s.y+.5}));
+      targets.forEach(p=>{room.p.x=p.x;room.p.y=p.y;T.update(.02,{x:0,y:0});});
+      const result={entered:true,count:room.switches.length,activated:room.swOn.filter(Boolean).length,open:room.open};
+      T.leave(); return result;
+    }""")
+    rec('Phase 0.36: Drei Bodenschalter lassen sich betreten und oeffnen danach die Altartuer',
+        r.get('entered') and r['count']==3 and r['activated']==3 and r['open'], json.dumps(r))
+    # Phase 0.37: Spiegel durch Anlaufen drehen und Lichtstrahl auf den Kristall lenken.
+    r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='mirrors')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(), m=room.mirrors[0]; m.orientation=1;
+      room.p.x=m.x+.5; room.p.y=m.y+1.5;
+      let steps=0; while(!room.beamSolved && steps++<8) T.update(.1,{x:0,y:-1});
+      const result={entered:true,mirrors:room.mirrors.length,orientation:m.orientation,solved:room.beamSolved,open:room.open,steps};
+      T.leave(); return result;
+    }""")
+    rec('Phase 0.37: Spiegel laesst sich durch Anlaufen drehen und lenkt den Strahl zum Kristall',
+        r.get('entered') and r['mirrors']==1 and r['orientation']==0 and r['solved'] and r['open'], json.dumps(r))
+    # Phase 0.38: Druckplatte startet ein Zeitfenster; der Spiegel muss darin gedreht werden.
+    r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='combo')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(), plate=room.pressurePlate, mirror=room.mirrors[0], duration=T.info(id).comboTime;
+      room.p.x=plate.x+.5; room.p.y=plate.y+.5; T.update(.02,{x:0,y:0});
+      const started=room.pressureActive&&room.pressureTime>duration-.1;
+      T.update(duration+.1,{x:0,y:0}); const expired=!room.pressureActive&&mirror.orientation===1;
+      room.p.x=plate.x+.5; room.p.y=plate.y+.5; T.update(.02,{x:0,y:0});
+      room.p.x=mirror.x+.5; room.p.y=mirror.y+1.5;
+      let steps=0; while(!room.beamSolved&&steps++<8) T.update(.1,{x:0,y:-1});
+      const result={entered:true,pressure:!!plate,started,expired,solved:room.beamSolved,open:room.open,orientation:mirror.orientation,steps};
+      T.leave(); return result;
+    }""")
+    rec('Phase 0.38: Druckplatte startet Timer; Spiegel trifft innerhalb des Zeitfensters den Kristall',
+        r.get('entered') and r['pressure'] and r['started'] and r['expired'] and r['solved'] and r['open'] and r['orientation']==0, json.dumps(r))
+    # Phase 0.39: Labyrinth besitzt einen durchgaengigen Weg vom Eingang bis zur Altartuer.
+    r = ev(pg, """() => { const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='labyrinth')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(), start={x:Math.floor(room.p.x),y:Math.floor(room.p.y)}, goal={x:12,y:3}, q=[start], seen=new Set([start.x+','+start.y]);
+      for(let i=0;i<q.length;i++){ const p=q[i]; for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){ const x=p.x+dx,y=p.y+dy,k=x+','+y;
+        if(x<0||y<0||x>=room.w||y>=room.h||seen.has(k)||room.g[y][x]==='#') continue; seen.add(k); q.push({x,y}); }}
+      const connected=seen.has(goal.x+','+goal.y), walls=room.g.flat().filter(c=>c==='#').length;
+      room.p.x=12.5; room.p.y=3.5; T.update(.02,{x:0,y:0}); const door=room.open;
+      room.p.x=12.5; room.p.y=1.5; T.update(.02,{x:0,y:0}); const completed=room.state==='reward';
+      const result={entered:true,connected,walls,door,completed}; T.leave(); return result;
+    }""")
+    rec('Phase 0.39: Labyrinth ist verbunden, besitzt echte Sackgassen und fuehrt zur Altartuer',
+        r.get('entered') and r['connected'] and r['walls']>100 and r['door'] and r['completed'], json.dumps(r))
+    # Phase 0.40: Mini-Boss-Schrein startet einen eigenen Schreinwaechter in der Boss-Arena.
+    r = ev(pg, """() => {
+      const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='miniboss')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(); room.p.x=12.5; room.p.y=5.5; T.update(.02,{x:0,y:0});
+      const result={entered:true,kind:T.info(id).kind,bossType:T.info(id).bossType,defined:!!D.enemies.shrine_guard,
+        launched:SW.Combat.active&&SW.Arena.active,trial:room.bossStarted};
+      SW.Arena.active=false; SW.Combat.active=false; SW.paused=false; document.body.classList.remove('combat');
+      T.leave(); return result;
+    }""")
+    rec('Phase 0.40: Mini-Boss-Schrein startet den eigenen Schreinwaechter in der Boss-Arena',
+        r.get('entered') and r['kind']=='miniboss' and r['bossType']=='shrine_guard' and r['defined'] and r['launched'] and r['trial'], json.dumps(r))
+    # Phase 0.41: Bewegungsschrein hat drei getaktete Sperren, zwei Checkpoints und einen erreichbaren Altar.
+    r = ev(pg, """() => {
+      const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='movement')?.id;
+      if(!id || !T.enter(id)) return {entered:false};
+      const room=T.debug(), hazards=room.hazards.length, checkpoints=room.checkpoints.length;
+      room.t=0; room.p.x=12.5; room.p.y=11.5; T.update(.01,{x:0,y:0});
+      const reset=room.p.y===15.5;
+      room.t=0; room.p.x=12.5; room.p.y=12.5; T.update(.1,{x:0,y:-1});
+      const blocked=room.p.y===12.5;
+      room.t=1.2; room.p.x=12.5; room.p.y=12.5; T.update(.1,{x:0,y:-1});
+      const passable=room.p.y<12.5;
+      room.p.x=12.5; room.p.y=9.5; T.update(.02,{x:0,y:0});
+      room.p.x=12.5; room.p.y=6.5; T.update(.02,{x:0,y:0});
+      const saved=room.checkpoints.every(cp=>cp.reached);
+      room.p.x=12.5; room.p.y=3.5; T.update(.02,{x:0,y:0}); const open=room.open;
+      room.p.x=12.5; room.p.y=1.5; T.update(.02,{x:0,y:0}); const completed=room.state==='reward';
+      const result={entered:true,hazards,checkpoints,reset,blocked,passable,saved,open,completed};
+      T.leave(); return result;
+    }""")
+    rec('Phase 0.41: Bewegungsschrein prueft Sperren, Rueckwurf, Checkpoints und Altar',
+        r.get('entered') and r['hazards']==3 and r['checkpoints']==2 and r['reset'] and r['blocked'] and r['passable'] and r['saved'] and r['open'] and r['completed'], json.dumps(r))
+    # Phase 0.42: Schreine skalieren nach Regionstier; Zeitfenster bleiben fuer den Parcours passierbar.
+    r = ev(pg, """() => {
+      const T=SW.Trials, tiers=[1,2,3].map(n=>T.challengeProfile(n));
+      return {combo:tiers.map(x=>x.comboTime),periods:tiers.map(x=>x.barrierPeriod),
+        active:tiers.map(x=>x.barrierActive),windows:tiers.map(x=>x.barrierWindow),
+        bounded:tiers.every(x=>x.barrierWindow>=1.5),
+        ordered:tiers[0].comboTime>tiers[1].comboTime&&tiers[1].comboTime>tiers[2].comboTime&&
+          tiers[0].barrierWindow>tiers[1].barrierWindow&&tiers[1].barrierWindow>tiers[2].barrierWindow};
+    }""")
+    rec('Phase 0.42: Schwierigkeitsprofile Tier 1–3 werden schrittweise anspruchsvoller, bleiben aber passierbar',
+        r['combo']==[12,9,7] and r['periods']==[3.6,3.4,3.2] and r['active']==[.85,1,1.1] and r['windows']==[2.75,2.4,2.1] and r['bounded'] and r['ordered'], json.dumps(r))
+    # Phase 0.42: der schwerste Bewegungsschrein muss mit echtem Laufen und Warten abschliessbar bleiben.
+    r = ev(pg, """() => {
+      const D=SW.Data,T=SW.Trials,id=D.shrines.find(s=>T.info(s.id).kind==='movement')?.id;
+      if(!id)return {entered:false};
+      // Phase 0.41 hat denselben Schrein bereits abgeschlossen; fuer diesen isolierten
+      // Mechaniktest wird nur sein Test-Fortschrittsflag zurueckgesetzt.
+      T.done.delete(id);
+      if(!T.enter(id))return {entered:false};
+      const room=T.debug();room.rules=T.challengeProfile(3);room.hazards.forEach(h=>h.offset=0);room.t=.1;
+      let steps=0;while(room.state==='play'&&room.p.y>1.5&&steps++<400)T.update(.02,{x:0,y:-1});
+      const result={entered:true,steps,checkpoints:room.checkpoints.every(cp=>cp.reached),
+        opened:room.open,completed:room.state==='reward',y:room.p.y};
+      T.leave();return result;
+    }""")
+    rec('Phase 0.42: Bewegungsschrein Tier 3 ist nach Timing-Warten und durchgehendem Laufen abschliessbar',
+        r.get('entered') and r['steps']<400 and r['checkpoints'] and r['opened'] and r['completed'], json.dumps(r))
+    # Phase 0.43: zusammengesetzter Schrein verlangt erst Schalter, dann den Zeitparcours.
+    r = ev(pg, """() => {
+      const T=SW.Trials,id=SW.Data.shrines.find(s=>T.info(s.id).sequence)?.id;
+      if(!id||!T.enter(id))return {entered:false};
+      const room=T.debug();room.p.x=12.5;room.p.y=12.1;T.update(.02,{x:0,y:-1});
+      const locked=room.p.y===12.1&&!room.sequenceReady;
+      for(const sw of room.switches){room.p.x=sw.x+.5;room.p.y=sw.y+.5;T.update(.02,{x:0,y:0});}
+      const unlocked=room.sequenceReady&&room.swOn.every(Boolean);
+      room.p.x=12.5;room.p.y=12.1;room.t=.1;T.update(.1,{x:0,y:-1});
+      const timedGate=room.p.y===12.1;
+      room.t=1.2;T.update(.1,{x:0,y:-1});const passable=room.p.y<12.5;
+      room.p.x=12.5;room.p.y=9.5;T.update(.02,{x:0,y:0});
+      room.p.x=12.5;room.p.y=6.5;T.update(.02,{x:0,y:0});
+      const checkpoints=room.checkpoints.every(cp=>cp.reached);
+      room.p.x=12.5;room.p.y=3.5;T.update(.02,{x:0,y:0});const opened=room.open;
+      room.p.x=12.5;room.p.y=1.5;T.update(.02,{x:0,y:0});const completed=room.state==='reward';
+      const result={entered:true,locked,unlocked,timedGate,passable,checkpoints,opened,completed,switches:room.switches.length,hazards:room.hazards.length};
+      T.leave();return result;
+    }""")
+    rec('Phase 0.43: drei Schalter schalten den Zeitparcours frei; Sperren, Checkpoints und Altar funktionieren',
+        r.get('entered') and r['locked'] and r['unlocked'] and r['timedGate'] and r['passable'] and r['checkpoints'] and r['opened'] and r['completed'] and r['switches']==3 and r['hazards']==3,json.dumps(r))
+    # Generierte Schreine muessen nach der spaeteren Expansion ebenfalls bewacht sein.
+    r = ev(pg, """() => { const D=SW.Data, K=SW.Combat, gen=D.shrines.filter(s=>s.generated);
+      const missing=gen.filter(sh=>K.spots.filter(e=>!e.night&&!e.amb&&Math.hypot(e.x-sh.x,e.y-sh.y)<22).length<2);
+      return {generated:gen.length, missing:missing.map(s=>s.id)};
+    }""")
+    rec('Phase 0.34: auch generierte Schreine besitzen mindestens zwei nahe Waechter', not r['missing'], json.dumps(r))
     # 12 Phase 19: Speicher-Schnittstelle SW.Store
     pg = start(b, errs)
     r = ev(pg, """() => { const o={}, S=SW.Store; S.setItem('t19','x'); o.rt=S.getItem('t19')==='x'; S.removeItem('t19'); o.rm=S.getItem('t19')===null;
@@ -522,6 +707,102 @@ try:
     rec('Weltkarte: POIs haben gueltige Typen, Abmessungen und Map-Grenzen',
         r['count']>20 and len(r['bad'])==0, json.dumps(r))
 
+    # Phase 0.45: Schriftzeichen und Hauptquest-Tor
+    r = ev(pg, """() => {
+      const I=SW.Inscriptions,W=SW.World,bad=[],ids=new Set(),letters=I.list.map(g=>g.letter).join('');
+      I.list.forEach(g=>{const x=Math.floor(g.x),y=Math.floor(g.y);if(!g.id||ids.has(g.id)||!Number.isFinite(g.x)||!Number.isFinite(g.y)||W.regionAt(x,y)!==g.region||W.solid(x,y))bad.push(g.id);ids.add(g.id);});
+      const g=I.gate,gx=Math.floor(g.x),gy=Math.floor(g.y);
+      if(W.regionAt(gx,gy)!==g.region||W.solid(gx,gy)||I.list.some(s=>Math.hypot(s.x-g.x,s.y-g.y)<5))bad.push('gate');
+      return {count:I.total(),unique:ids.size,letters,regions:new Set(I.list.map(s=>s.region)).size,bad};
+    }""")
+    rec('Phase 0.45: 12 erfundene Zeichen liegen eindeutig, frei und in zwölf vorgesehenen Regionen; das Tor ist frei', r['count']==12 and r['unique']==12 and r['letters']=='THEGATEOPENS' and r['regions']==12 and not r['bad'], json.dumps(r))
+    r = ev(pg, """() => {
+      const I=SW.Inscriptions,Q=SW.Quests,old=Q.dump();let out={};
+      try{
+        Object.keys(Q.st).forEach(k=>delete Q.st[k]);Object.keys(Q.ch).forEach(k=>delete Q.ch[k]);I.load({found:[],gateOpened:false});Q.st.elder3='done';
+        const available=Q.status('main_glyphs')==='avail',accepted=Q.accept('main_glyphs');
+        for(let i=0;i<11;i++)I.collect(I.list[i].id);
+        const partial=I.count()===11&&Q.status('main_glyphs')==='active'&&!I.gateVisible();
+        const last=I.collect(I.list[11].id),ready=Q.status('main_glyphs')==='ready';
+        const report=Q.complete('main_glyphs'),visible=I.gateVisible()&&Q.status('main_gate')==='avail',blocked=I.blocks(Math.floor(I.gate.x),Math.floor(I.gate.y));
+        const gateAccepted=Q.accept('main_gate'),opened=I.openGate(),gateReady=Q.status('main_gate')==='ready';
+        const passable=!I.blocks(Math.floor(I.gate.x),Math.floor(I.gate.y)),gateReport=Q.complete('main_gate'),saved=Q.dump();Q.load(saved);
+        const restored=I.count()===12&&I.isGateOpened()&&Q.status('main_gate')==='done';
+        out={available,accepted,partial,last,ready,report,visible,blocked,gateAccepted,opened,gateReady,passable,gateReport,restored};
+      }finally{Object.keys(Q.st).forEach(k=>delete Q.st[k]);Object.keys(Q.ch).forEach(k=>delete Q.ch[k]);Q.load(old);}
+      return out;
+    }""")
+    rec('Phase 0.45: Alle Zeichen sind Pflicht, das Tor wird danach sichtbar und begehbar; Wörterbuch und Torstatus werden gespeichert', all(r[k] for k in ['available','accepted','partial','last','ready','report','visible','blocked','gateAccepted','opened','gateReady','passable','gateReport','restored']), json.dumps(r))
+
+    # Phase 0.46: Finaler Oni ist ein langer Endkampf mit skalierter Lebensleiste und vier Eskalationsphasen
+    r = ev(pg, """() => {
+      const C=SW.Combat,D=SW.Data,b=D.enemies.boss_oni,s=C.spot('e_final_boss'),tier=C.tm(s);
+      return {base:b.hp,effective:b.hp*tier.hp,damage:b.dmg,thresholds:b.phases.map(p=>p.at),
+        gaps:b.phases.map(p=>p.gap),speeds:b.phases.map(p=>p.speed),
+        escalating:b.phases.every((p,i,a)=>i===0||p.speed>a[i-1].speed&&p.gap[0]<a[i-1].gap[0])};
+    }""")
+    rec('Phase 0.46: Finaler Oni besitzt 15.300 HP auf Tier 3 und vier zunehmend schnellere Bossphasen',
+        r['base']==9000 and r['effective']==15300 and r['damage']==1.84 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
+
+    # Phase 0.47: Gegner-Lebenspunkte nach Staerke staffeln; Oni bleibt separat
+    r = ev(pg, """() => {
+      const E=SW.Data.enemies, expected={bandit:60,ronin:90,spearman:90,swift:75,
+        armored:260,elite:300,samurai:170,shadow:140,boss:520,boss_monk:680,
+        boss_warden:600,boss_mist:660,shrine_guard:320,mini_ruby:700,
+        mini_emerald:660,mini_onyx:740,mini_sapphire:720,mini_amethyst:780,boss_oni:9000};
+      const bad=Object.keys(expected).filter(k=>!E[k]||E[k].hp!==expected[k]);
+      return {count:Object.keys(expected).length,bad,oni:E.boss_oni&&E.boss_oni.hp};
+    }""")
+    rec('Phase 0.47: Normale Gegner erhalten 1,5x, starke Gegner/Bosse 2x HP; Oni bleibt bei 9.000 Basis-HP',
+        r['count']==19 and len(r['bad'])==0 and r['oni']==9000, json.dumps(r))
+
+    # Phase 0.47: Schwerer Schwierigkeitsstandard - mehr Schaden, kuerzere Pausen, schnellere Phasen
+    r = ev(pg, """() => {
+      const E=SW.Data.enemies, ids=Object.keys(E);
+      return {count:ids.length,allDamage:ids.every(k=>E[k].dmg>=1.03),
+        allGaps:ids.every(k=>!E[k].gap||E[k].gap[0]<=2),
+        oni:E.boss_oni.dmg,oniPhaseSpeed:E.boss_oni.phases.map(p=>p.speed),
+        oniGaps:E.boss_oni.phases.map(p=>p.gap)};
+    }""")
+    rec('Phase 0.47: Gegner verursachen mehr Schaden; Angriffsabstaende sinken und Bossphasen werden schneller',
+        r['count']==19 and r['allDamage'] and r['oni']==1.84 and r['oniPhaseSpeed']==[1.24,1.43,1.62,1.81], json.dumps(r))
+
+    # Phase 0.46: fuenf einzigartige Minibosse liegen in verschiedenen Regionen und nutzen eigene Bossphasen
+    r = ev(pg, """() => {
+      const S=SW.Seals,C=SW.Combat,W=SW.World,D=SW.Data;
+      const a=S.list.map(s=>({id:s.id,seal:s.seal,region:W.regionAt(Math.floor(s.x),Math.floor(s.y)),def:D.enemies[s.type],spot:C.spot(s.id)}));
+      return {count:a.length,unique:new Set(a.map(x=>x.seal)).size,regions:new Set(a.map(x=>x.region)).size,
+        phases:a.every(x=>x.def&&x.def.phases&&x.def.phases.length===3),spots:a.every(x=>x.spot&&x.spot.seal===x.seal),
+        final:!!C.spot('e_final_boss')&&!!D.enemies.boss_oni.phases};
+    }""")
+    rec('Phase 0.46: Fuenf Minibosse sind eindeutig, regional verteilt und besitzen je drei Bossphasen; Endboss ist angelegt',
+        r['count']==5 and r['unique']==5 and r['regions']==5 and r['phases'] and r['spots'] and r['final'], json.dumps(r))
+    # Phase 0.46: Questkette, Kartenmarker, Edelsteinabgabe, Tor und Save/Load
+    r = ev(pg, """() => {
+      const Q=SW.Quests,S=SW.Seals,C=SW.Combat,I=SW.Inscriptions;
+      const old={st:{...Q.st},ch:{...Q.ch},ins:I.dump(),seals:S.dump(),dead:C.spots.filter(x=>x.seal).map(x=>[x.id,x.dead])};
+      let out={};
+      try {
+        ['main_seals','main_altar','main_final'].forEach(k=>{delete Q.st[k];delete Q.ch[k];});
+        Q.st.main_gate='done';I.load({found:I.list.map(g=>g.id),gateOpened:true});S.load({found:[],deposited:false,portalOpen:false});
+        const start=Q.accept('main_seals'),visible=S.bossesVisible(),markers=Q.targets().length;
+        S.list.forEach(s=>{const p=C.spot(s.id);p.dead=true;S.bossDefeated(p);});
+        const five=S.count()===5,ready=Q.status('main_seals')==='ready',report=Q.complete('main_seals');
+        const altarQuest=Q.accept('main_altar'),altarReady=S.nearAltar({x:S.altar.x,y:S.altar.y})!==null;
+        const deposit=S.deposit(),altarComplete=Q.complete('main_altar'),finalQuest=Q.accept('main_final');
+        const portal=S.isOpen()&&!S.blocks(Math.floor(S.portal.x),Math.floor(S.portal.y));
+        const finalVisible=C.on(C.spot('e_final_boss')),save=Q.dump();Q.load(save);
+        const restored=S.count()===5&&S.isDeposited()&&S.isOpen()&&Q.status('main_final')==='active';
+        out={start,visible,markers,five,ready,report,altarQuest,altarReady,deposit,altarComplete,finalQuest,portal,finalVisible,restored};
+      } finally {
+        Object.keys(Q.st).forEach(k=>delete Q.st[k]);Object.assign(Q.st,old.st);
+        Object.keys(Q.ch).forEach(k=>delete Q.ch[k]);Object.assign(Q.ch,old.ch);
+        I.load(old.ins);S.load(old.seals);old.dead.forEach(([id,dead])=>{const p=C.spot(id);if(p)p.dead=dead;});
+      }
+      return out;
+    }""")
+    rec('Phase 0.46: Alle fuenf Edelsteine muessen gesammelt und am Altar eingesetzt werden; Endboss und Tor werden danach freigeschaltet und gespeichert',
+        all(r[k] for k in ['start','visible','five','ready','report','altarQuest','altarReady','deposit','altarComplete','finalQuest','portal','finalVisible','restored']) and r['markers']>=5, json.dumps(r))
     # 49 Bewegung: Spieler darf nicht durch benachbarte feste Tiles laufen
     r = ev(pg, """() => {
       const W=SW.World,P=SW.Player,I=SW.Input,old={x:P.x,y:P.y,stamina:P.stamina,paused:SW.paused,sprint:I.sprint};
@@ -550,6 +831,41 @@ try:
     landscape=ev(pg,"(() => { const c=document.querySelector('canvas'); return !!c&&c.getBoundingClientRect().width>0&&c.getBoundingClientRect().height>0&&!!SW.World; })()")
     rec('Stabilitaet: Wechsel Hoch-/Querformat laesst Canvas und Welt geladen',
         portrait and landscape, 'portrait=%s landscape=%s' % (portrait,landscape))
+
+    # Phase 0.48: Elite- und Bossgegner nutzen lesbare Angriffskombinationen; spaete Phasen bestrafen Guard-Break-Spam staerker
+    r = ev(pg, """() => {
+      const E=SW.Data.enemies, ids=['boss','boss_monk','boss_warden','boss_mist','boss_oni',
+        'mini_ruby','mini_emerald','mini_onyx','mini_sapphire','mini_amethyst','shrine_guard'];
+      const phased=ids.every(id=>E[id]&&E[id].phases&&E[id].phases.every(p=>
+        Array.isArray(p.combo)&&p.combo.length>=3&&p.combo.every(a=>p.atk.includes(a))));
+      const escalating=ids.every(id=>E[id].phases.slice(1).every((p,i,a)=>
+        p.guardLock>=2.2&&(i===0||p.guardLock>a[i-1].guardLock)));
+      return {elite:E.elite.combo,phased,escalating,oni:E.boss_oni.phases.map(p=>p.guardLock||0)};
+    }""")
+    rec('Phase 0.48: Elite besitzt feste Angriffskette; Boss-/Minibossphasen nutzen ihre Angriffsmuster als Kombinationen und spaete Phasen haben steigende Guard-Break-Sperre',
+        r['elite']==['slash','flurry','thrust','heavy'] and r['phased'] and r['escalating'] and  [round(x,1) for x in r['oni']]==[0,3,3.8,4.6], json.dumps(r))
+
+    # Phase 0.49: tatsaechliche Arena-Skalierung und Angriffsdruck des Endbosses pruefen
+    r = ev(pg, """() => {
+      const C=SW.Combat,D=SW.Data,E=D.enemies.boss_oni,s=C.spot('e_final_boss'),tier=C.tm(s);
+      const rage=D.attacks.rage,storm=D.attacks.storm,last=E.phases[3];
+      return {tierHp:tier.hp,tierDmg:tier.dmg,arenaHp:Math.round(E.hp*tier.hp*1.5),
+        rageDamage:rage.dmg*E.dmg*tier.dmg*1.5, rageWind:rage.wind/last.speed,
+        stormHit:storm.dmg*E.dmg*tier.dmg*1.5,stormHits:storm.hits,
+        lastGuardLock:last.guardLock, allBosses:Object.keys(D.enemies).filter(k=>D.enemies[k].phases)
+          .every(k=>D.enemies[k].phases.every(p=>p.combo&&p.combo.every(a=>!!D.attacks[a])))};
+    }""")
+    rec('Phase 0.49: Oni hat 22.950 Arena-HP; Endphasen-Angriffe besitzen berechenbare Telegraphe und Schadenswerte',
+        r['tierHp']==1.7 and r['tierDmg']==1.5 and r['arenaHp']==22950 and
+        abs(r['rageDamage']-99.36)<.001 and abs(r['rageWind']-(1.4/1.81))<.001 and
+        abs(r['stormHit']-20.7)<.001 and r['stormHits']==5 and abs(r['lastGuardLock']-4.6)<.001 and r['allBosses'], json.dumps(r))
+
+    # Phase 0.49: beide Boss-Unterbrechungsarten verwenden dieselbe phasenabhaengige Sperrdauer
+    arena_src = open('js/arena3d.js', encoding='utf-8').read()
+    rec('Phase 0.49: Guard-Break und schwere Treffer verwenden dieselbe Guard-Lock-Formel',
+        arena_src.count('f.staggerLock = guardLock();') == 2 and
+        'const guardLock = () => S.def.phases ? (ph().guardLock || 2.2) : 0;' in arena_src,
+        'beide Unterbrechungspfade synchronisiert')
 
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()

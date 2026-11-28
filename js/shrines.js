@@ -17,6 +17,77 @@ SW.Shrines = (function () {
   }
   D.shrines.forEach(d => { const p = free(d.x, d.y); S.list.push({ id: d.id, x: p.x, y: p.y }); });
 
+  // Regionale Schreine: jede Region erhält insgesamt fünf. Plätze werden auf
+  // begehbarem Terrain gesucht und mit Mindestabstand zu vorhandenen Schreinen gewählt.
+  S.expand = function () {
+    if (S.expanded) return 0;
+    S.expanded = true;
+    const counts = Array(26).fill(0);
+    // Drei Regionen erhalten bewusst weniger Schreine, weil dort das begehbare
+    // Terrain fuer fuenf Standorte zu eng ist: Region 9 = 3, Regionen 17/22 = 4.
+    const targetForRegion = reg => reg === 9 ? 3 : (reg === 17 || reg === 22 ? 4 : 5);
+    D.shrines.forEach(d => { const r = W.regionAt(d.x, d.y); if (r >= 0 && r < counts.length) counts[r]++; });
+    let added = 0;
+    // Der 220er-Mindestabstand gilt fuer neu platzierte Schreine untereinander.
+    // Bestehende feste Schreine sind landmarks und sollen die regionale Erweiterung nicht blockieren.
+    const placed = D.shrines.filter(d => d.generated).map(d => ({ x: d.x, y: d.y }));
+    for (let reg = 0; reg < counts.length; reg++) {
+      const center = W.CEN[reg];
+      const target = targetForRegion(reg);
+      if (!center || counts[reg] >= target) continue;
+      const candidates = [], cx = center[0], cy = center[1];
+      // Die bisherigen 1.050 Einheiten decken die Randbereiche mehrerer
+      // Regionen nicht ab. Die Suche bleibt auf die jeweilige Region begrenzt,
+      // wird bis 3.200 Einheiten erweitert. Ein 64er-Raster begrenzt die Startlast.
+      const searchRadius = 3200, searchStep = 32;
+      for (let y = Math.floor((cy - searchRadius) / searchStep) * searchStep; y <= cy + searchRadius; y += searchStep) {
+        for (let x = Math.floor((cx - searchRadius) / searchStep) * searchStep; x <= cx + searchRadius; x += searchStep) {
+          const radius = Math.hypot(x - cx, y - cy);
+          if (radius < 150 || radius > searchRadius) continue;
+          // regionAt prueft die echte Layout-Zugehoerigkeit. terrainRegionAt mischt
+          // an Regionsraendern absichtlich Nachbarbiome (60/40) und wuerde
+          // dort gueltige, begehbare Flaechen faelschlich ausschliessen.
+          if (W.regionAt(x, y) !== reg) continue;
+          if (W.regionAt(x - 36, y) !== reg || W.regionAt(x + 36, y) !== reg ||
+              W.regionAt(x, y - 36) !== reg || W.regionAt(x, y + 36) !== reg) continue;
+          if (W.solid(x, y) || W.solid(x + 1, y) || W.solid(x - 1, y) ||
+              W.solid(x, y + 1) || W.solid(x, y - 1)) continue;
+          candidates.push({ x, y, radius });
+        }
+      }
+      while (counts[reg] < target && candidates.length) {
+        let best = -1, bestScore = -Infinity;
+        for (let i = 0; i < candidates.length; i++) {
+          const c = candidates[i];
+          let nearest = Infinity;
+          for (const d of placed) nearest = Math.min(nearest, Math.hypot(c.x - d.x, c.y - d.y));
+          if (nearest < 220) continue;
+          const jitter = ((c.x * 17 + c.y * 31 + reg * 13) % 23) / 23;
+          const score = nearest - Math.abs(c.radius - 560) * .12 + jitter;
+          if (score > bestScore) { bestScore = score; best = i; }
+        }
+        if (best < 0) break;
+        const c = candidates.splice(best, 1)[0], n = counts[reg] + 1;
+        const id = 'r' + reg + '_' + n;
+        const tier = reg < 4 ? 1 : reg < 12 ? 2 : 3;
+        D.shrines.push({ id, x: c.x, y: c.y, ed: 'lite', tier, generated: true });
+        const enRegion = SW.TEXT.en['reg_' + reg] || ('Region ' + reg);
+        const deRegion = (SW.TEXT.de || {})['reg_' + reg] || ('Region ' + reg);
+        SW.TEXT.en['shr_' + id] = enRegion + ' Shrine ' + n;
+        SW.TEXT.de['shr_' + id] = deRegion + '-Schrein ' + n;
+        const p = free(c.x, c.y);
+        S.list.push({ id, x: p.x, y: p.y });
+        counts[reg]++; added++;
+        placed.push({ x: c.x, y: c.y });
+        for (let i = candidates.length - 1; i >= 0; i--) {
+          if (Math.hypot(candidates[i].x - c.x, candidates[i].y - c.y) < 220) candidates.splice(i, 1);
+        }
+      }
+    }
+    S.expansionReport = { added, counts };
+    return added;
+  };
+
   S.get = id => S.list.find(s => s.id === id) || null;
   S.name = id => SW.t('shr_' + id);
   S.isOn = id => S.on.has(id);

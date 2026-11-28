@@ -233,6 +233,12 @@ SW.Shop = (function () {
     SW.paused = true; SW.Input.reset(); root.classList.add('open'); if (act) act.style.display = 'none';
     render(); return true;
   };
+  S.openMaster = function (npc) {
+    if (!npc || npc.role !== 'master' || SW.paused || SW.Combat.active) return false;
+    ensure(); S.cur = npc; S.tab = '';
+    SW.paused = true; SW.Input.reset(); root.classList.add('open'); if (act) act.style.display = 'none';
+    render(); return true;
+  };
   S.close = function () {
     if (!S.cur) return;
     S.cur = null; if (root) root.classList.remove('open');
@@ -243,16 +249,23 @@ SW.Shop = (function () {
     if (!act) {
       act = el('button', '', T('talk')); act.id = 'act-btn'; act.style.display = 'none';
       act.addEventListener('click', () => {
-        const n = S.near(SW.Player);
-        if (n) S.open(n); else { const sh = SW.Shrines && SW.Shrines.near(SW.Player); if (sh) SW.Shrines.interact(sh); }
+        const n = S.near(SW.Player); if (n) { S.open(n); return; }
+        const glyph = SW.Inscriptions && SW.Inscriptions.near(SW.Player); if (glyph) { SW.Inscriptions.read(glyph); return; }
+        const gate = SW.Inscriptions && SW.Inscriptions.nearGate(SW.Player); if (gate) { SW.Inscriptions.interactGate(); return; }
+        const altar = SW.Seals && SW.Seals.nearAltar(SW.Player); if (altar) { SW.Seals.interactAltar(); return; }
+        const sh = SW.Shrines && SW.Shrines.near(SW.Player); if (sh) SW.Shrines.interact(sh);
       });
       document.body.appendChild(act);
     }
-    const busy = SW.paused || SW.Combat.active || (SW.Trials && SW.Trials.active), n = busy ? null : S.near(p), sh = (busy || n || !SW.Shrines) ? null : SW.Shrines.near(p);
+    const busy = SW.paused || SW.Combat.active || (SW.Trials && SW.Trials.active), n = busy ? null : S.near(p);
+    const glyph = busy || n || !SW.Inscriptions ? null : SW.Inscriptions.near(p);
+    const gate = busy || n || glyph || !SW.Inscriptions ? null : SW.Inscriptions.nearGate(p);
+    const altar = (busy || n || glyph || gate || !SW.Seals) ? null : SW.Seals.nearAltar(p);
+    const sh = (busy || n || glyph || gate || altar || !SW.Shrines) ? null : SW.Shrines.near(p);
     const activated = !!(sh && SW.Shrines.isOn(sh.id));
     const canEnter = !!(activated && SW.Trials && SW.Trials.can(sh.id));
-    const want = (n || sh) ? 'block' : 'none';
-    const lbl = n ? T('talk') : activated ? (canEnter ? T('tr_enter') : T('tr_done')) : T('pray');
+    const want = (n || glyph || gate || altar || sh) ? 'block' : 'none';
+    const lbl = n ? T('talk') : glyph ? T('read_glyph') : gate ? T('open_gate') : altar ? T('open_seal_altar') : activated ? (canEnter ? T('tr_enter') : T('tr_done')) : T('pray');
     act.disabled = !!(sh && activated && !canEnter);
     if (act.style.display !== want) act.style.display = want;
     if (act.textContent !== lbl) act.textContent = lbl;

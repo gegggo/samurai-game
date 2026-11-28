@@ -15,6 +15,7 @@ SW.Arena = (function () {
   const lerp = (a, b, t) => a + (b - a) * t;
   const ease = t => t * t * (3 - 2 * t);
   const ph = () => S.def.phases ? S.def.phases[S.phase] : S.def;
+  const guardLock = () => S.def.phases ? (ph().guardLock || 2.2) : 0;
   const kiCost = m => Math.ceil(m.ki * S.ps.kiCostMul);
   const REACH = () => S.def.phases ? 2.4 : 2.0;
   const outT = () => S.state === 'win' ? 5.5 : 2.4;
@@ -30,7 +31,7 @@ SW.Arena = (function () {
       block: false, blockT: 0, noBlockT: 1, parryOk: false, bl: 0, dodgeT: 0, dodgeCd: 0, dvx: 1, dvy: 0, invT: 0, hurt: 0, shake: 0, spark: 0,
       breath: false, msg: '', msgT: 0, msgCol: '#fff', floats: [], rew: null, fswing: 0, bob: 0,
       st: { heavy: 0, special: 0, counter: 0, parry: 0, dodge: 0, block: 0, breath: 0 },
-      boss: { x: 3, y: 0, st: 'idle', t: 0, dur: 1, wait: 1.5, atk: null, hits: 0, guarding: false, flash: 0, staggerLock: 0, sd: Math.random() < .5 ? 1 : -1 }
+      boss: { x: 3, y: 0, st: 'idle', t: 0, dur: 1, wait: 1.5, atk: null, hits: 0, guarding: false, flash: 0, staggerLock: 0, comboStep: 0, sd: Math.random() < .5 ? 1 : -1 }
     };
     held.block = held.breath = false;
     if (ps.ranged) D.moves.shot = { wind: ps.ranged.wind, rec: ps.ranged.rec, dmg: ps.ranged.dmg, ranged: true, anim: 'shot' };
@@ -142,7 +143,7 @@ SW.Arena = (function () {
     if (f.st === 'wind') dmg *= 1 + ps.ambush;
     if (f.guarding && nm !== 'counter' && !m.ignoreGuard) {
       if (m.ranged) dmg *= .5;
-      else if ((m.guardBreak || nm === 'special') && (!S.def.phases || f.staggerLock <= 0)) { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; f.staggerLock = S.def.phases ? 2.2 : 0; say(T('combat_guard_break'), '#ffd27a'); }
+      else if ((m.guardBreak || nm === 'special') && (!S.def.phases || f.staggerLock <= 0)) { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; f.staggerLock = guardLock(); say(T('combat_guard_break'), '#ffd27a'); }
       else dmg *= .25;
     } else if (S.def.armor && !heavyish) dmg *= 1 - S.def.armor;
     if (f.st === 'rec' || f.st === 'stagger') dmg *= 1.3;
@@ -150,7 +151,7 @@ SW.Arena = (function () {
     dmg = Math.max(1, Math.round(dmg));
     SW.Inv.wear(m.ranged ? ['ranged'] : [m.weaponSlot || 'main']); S.hp -= dmg; f.flash = .1; if (!m.ranged) S.ki = Math.min(S.kmax, S.ki + 4);
     flt(dmg + (crit ? '!' : ''), crit ? '#ff9a3c' : heavyish ? '#ffd27a' : '#fff');
-    if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock) && (!S.def.phases || f.staggerLock <= 0)) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; f.staggerLock = S.def.phases ? 2.2 : 0; }
+    if (heavyish && f.st === 'wind' && !(f.atk && f.atk.unblock) && (!S.def.phases || f.staggerLock <= 0)) { f.st = 'stagger'; f.t = 0; f.dur = .6; f.hits = 0; f.staggerLock = guardLock(); }
     if (S.hp <= 0) { S.hp = 0; S.php = Math.min(S.pmax, S.php + S.pmax * ps.healWin); S.state = 'win'; S.t = 0; S.spot.dead = true; S.pm = null; reward(); return; }
     if (S.def.phases) {
       const r = S.hp / S.max; let n = S.phase;
@@ -235,7 +236,7 @@ SW.Arena = (function () {
       if (d > REACH() - .2) { f.x += ux * sp * dt; f.y += uy * sp * dt; }
       else { f.x += -uy * f.sd * 1.1 * dt; f.y += ux * f.sd * 1.1 * dt; } // kreist um den Spieler
       if (f.t >= f.wait && d <= REACH() + .6) {
-        const list = p.atk, At = D.attacks[list[(Math.random() * list.length) | 0]];
+        const list = p.combo || p.atk, pick = p.combo ? (f.comboStep++ % list.length) : ((Math.random() * list.length) | 0), At = D.attacks[list[pick]];
         f.atk = At; f.hits = At.hits || 1; f.st = 'wind'; f.t = 0; f.dur = At.wind / p.speed; f.guarding = false; f.sd = Math.random() < .5 ? 1 : -1;
       }
     } else if (f.st === 'wind') {

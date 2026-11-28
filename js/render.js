@@ -231,6 +231,10 @@ SW.Render = (function () {
   const GLOWTYPES = { house: 1, hall: 1, hut: 1, tent: 1, tower: 1, shrine: 1 };
   const glows = [];
 
+  // ---------- Alte Schriftzeichen und versiegeltes Tor ----------
+  function inscription(c,s,sx,sy,u,time){const w=u*.62,h=u*.74,x=sx-w/2,y=sy-h;shadow(c,sx,sy,u*.38,u*.1);c.fillStyle='#484a4b';c.beginPath();c.moveTo(x+w*.12,y);c.lineTo(x+w*.88,y);c.lineTo(x+w,y+h*.12);c.lineTo(x+w*.94,y+h);c.lineTo(x+w*.06,y+h);c.lineTo(x,y+h*.12);c.closePath();c.fill();c.fillStyle='#77756d';c.fillRect(x+w*.1,y+h*.08,w*.8,h*.82);c.strokeStyle='rgba(25,27,29,.55)';c.lineWidth=Math.max(1,u*.025);c.strokeRect(x+w*.1,y+h*.08,w*.8,h*.82);if(SW.Inscriptions)SW.Inscriptions.drawMark(c,s,sx,sy-h*.52,u*.34);c.fillStyle='rgba(224,190,115,'+(.24+.12*Math.sin(time*2+s.shape))+')';c.beginPath();c.arc(sx,sy-h*.5,u*.42,0,TAU);c.fill();}
+  function forgottenGate(c,sx,sy,u,opened,time){shadow(c,sx,sy,u*.85,u*.13);c.fillStyle='#393a3b';c.fillRect(sx-u*.58,sy-u*1.65,u*.19,u*1.65);c.fillRect(sx+u*.39,sy-u*1.65,u*.19,u*1.65);c.fillStyle='#77766e';c.fillRect(sx-u*.7,sy-u*1.82,u*1.4,u*.23);c.fillRect(sx-u*.66,sy-u*.12,u*1.32,u*.14);c.fillStyle=opened?'rgba(75,150,170,.82)':'rgba(16,18,24,.92)';c.fillRect(sx-u*.35,sy-u*1.48,u*.7,u*1.35);c.strokeStyle=opened?'rgba(155,226,228,.95)':'rgba(205,174,112,.7)';c.lineWidth=u*.055;c.strokeRect(sx-u*.35,sy-u*1.48,u*.7,u*1.35);if(opened){c.fillStyle='rgba(96,190,205,'+(.25+.12*Math.sin(time*2.5))+')';c.beginPath();c.ellipse(sx,sy-u*.8,u*.48,u*.75,0,0,TAU);c.fill();}}
+
   // ---------- NPCs (Phase 4b) ----------
   function npc(c, s, sx, sy, u, time) {
     shadow(c, sx, sy, u * .3, u * .1);
@@ -300,12 +304,18 @@ SW.Render = (function () {
     for (let i = 0; i < np.length; i++) { const e = np[i]; if (SW.Shop.on(e) && e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) items.push({ k: -5, s: e, key: e.y + .3 }); }
     const shr = SW.Shrines.list;
     for (let i = 0; i < shr.length; i++) { const e = shr[i]; if (e.x > x0 - 1 && e.x < x1 + 1 && e.y > y0 - 1 && e.y < y1 + 2) { items.push({ k: -6, s: e, key: e.y + .3 }); glows.push(e.x, e.y - .7, SW.Shrines.isOn(e.id) ? 5 : 2.2); } }
+    if(SW.Seals&&SW.Seals.altarVisible()){items.push({k:-9,s:SW.Seals.altar,key:SW.Seals.altar.y+.3});items.push({k:-10,s:SW.Seals.portal,key:SW.Seals.portal.y+.3});}
+    if(SW.Inscriptions){SW.Inscriptions.list.forEach(e=>{if(!SW.Inscriptions.isFound(e.id)&&e.x>x0-1&&e.x<x1+1&&e.y>y0-1&&e.y<y1+2){items.push({k:-7,s:e,key:e.y+.3});glows.push(e.x,e.y-.45,1.15);}});if(SW.Inscriptions.gateVisible()){const e=SW.Inscriptions.gate;if(e.x>x0-2&&e.x<x1+2&&e.y>y0-2&&e.y<y1+2){items.push({k:-8,s:e,key:e.y+.3});glows.push(e.x,e.y-1,SW.Inscriptions.isGateOpened()?4:1.6);}}}
     items.push({ k: -2, key: p.y + .3 });
     items.sort((a, b) => a.key - b.key);
     for (let i = 0; i < items.length; i++) {
       const it = items[i];
       if (it.k === -2) { drawPlayer(c, Math.round(p.x * u + ox), Math.round((p.y + .3) * u + oy), u, p); continue; }
       if (it.k === -1) { drawStruct(c, it.s, ox, oy, u); continue; }
+      if (it.k === -10) { SW.Seals.drawPortal(c,Math.round(it.s.x*u+ox),Math.round((it.s.y+.3)*u+oy),u,time); continue; }
+      if (it.k === -9) { SW.Seals.drawAltar(c,Math.round(it.s.x*u+ox),Math.round((it.s.y+.3)*u+oy),u,time); continue; }
+      if (it.k === -8) { forgottenGate(c,Math.round(it.s.x*u+ox),Math.round((it.s.y+.3)*u+oy),u,SW.Inscriptions.isGateOpened(),time); continue; }
+      if (it.k === -7) { inscription(c,it.s,Math.round(it.s.x*u+ox),Math.round((it.s.y+.3)*u+oy),u,time); continue; }
       if (it.k === -6) { shrineObj(c, it.s, Math.round(it.s.x * u + ox), Math.round((it.s.y + .3) * u + oy), u, time); continue; }
       if (it.k === -5) { npc(c, it.s, Math.round(it.s.x * u + ox), Math.round((it.s.y + .3) * u + oy), u, time); continue; }
       if (it.k === -4) { chest(c, it.s, Math.round(it.s.x * u + ox), Math.round((it.s.y + .3) * u + oy), u, time); continue; }

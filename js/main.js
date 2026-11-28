@@ -141,7 +141,7 @@ window.addEventListener('error', e => { if (e.target && e.target.tagName) return
   SW.Save.load();
   SW.Skills.check();
   SW.Title.show();
-  setTimeout(() => document.getElementById('loading').classList.add('done'), Math.max(0, 1500 - performance.now())); // Ladebildschirm: mindestens 1,5 s sichtbar
+  setTimeout(() => document.getElementById('loading').classList.add('done'), Math.max(0, 4000 - performance.now())); // Ladebildschirm: mindestens 4 s sichtbar
   // Schutz: ist css/main.css veraltet oder fehlt, erscheint eine Warnung im Spiel
   const cssOk = () => getComputedStyle(document.getElementById('mini')).position === 'fixed';
   let last = performance.now(), time = 0;

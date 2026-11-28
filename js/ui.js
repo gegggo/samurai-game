@@ -226,6 +226,7 @@ SW.UI = (function () {
       const x = (o.x / OV - sx) * k, y = (o.y / OV - sy) * k, r = w * .03;
       mc.fillStyle = SW.Shrines.isOn(o.id) ? '#e0452f' : '#8a8f9c'; mc.fillRect(x - r, y - r, r * 2, r * 2);
     });
+    if(SW.Inscriptions&&SW.Inscriptions.gateVisible()){const g=SW.Inscriptions.gate,x=(g.x/OV-sx)*k,y=(g.y/OV-sy)*k,r=w*.045;mc.strokeStyle='#d9bd79';mc.lineWidth=Math.max(1,w*.018);mc.strokeRect(x-r,y-r,r*2,r*2);mc.fillStyle='#d9bd79';mc.fillRect(x-r*.55,y-r*.8,r*.22,r*1.6);mc.fillRect(x+r*.33,y-r*.8,r*.22,r*1.6);mc.fillRect(x-r*.65,y-r*.9,r*1.3,r*.2);}
     if (SW.Quests) SW.Quests.targets().forEach(o => {
       const x = (o.x / OV - sx) * k, y = (o.y / OV - sy) * k, r = w * .04;
       mc.fillStyle = '#6fd36f'; mc.strokeStyle = '#000'; mc.lineWidth = 1.5; mc.beginPath(); mc.arc(x, y, r, 0, 6.2832); mc.fill(); mc.stroke();
@@ -308,6 +309,7 @@ SW.UI = (function () {
       if (U.sel === o.id) { c.strokeStyle = '#f2c14e'; c.lineWidth = 3 * d; c.beginPath(); c.arc(x, y, r * 2, 0, 6.2832); c.stroke(); }
       if (U.sel === o.id || on) { c.fillStyle = '#fff'; c.fillText(SW.Shrines.name(o.id), x, y + 32 * d); }
     });
+    if(SW.Inscriptions&&SW.Inscriptions.gateVisible()){const g=SW.Inscriptions.gate,x=X(g.x),y=Y(g.y),r=8*d;c.strokeStyle='#e2c47e';c.lineWidth=2.2*d;c.strokeRect(x-r,y-r,r*2,r*2);c.fillStyle='#e2c47e';c.fillRect(x-r*.58,y-r*.8,r*.2,r*1.6);c.fillRect(x+r*.38,y-r*.8,r*.2,r*1.6);c.fillRect(x-r*.7,y-r*.96,r*1.4,r*.2);if(v.z>=1.35){const s=SW.t('gate_title');c.font='700 '+(11*d)+'px sans-serif';c.lineJoin='round';c.lineWidth=3*d;c.strokeStyle='rgba(15,20,30,.85)';c.strokeText(s,x,y+25*d);c.fillStyle='#fff';c.fillText(s,x,y+25*d);}}
     if (SW.Quests) SW.Quests.targets().forEach(o => {
       c.fillStyle = '#6fd36f'; c.strokeStyle = '#000'; c.lineWidth = 1.5 * d; c.beginPath(); c.arc(X(o.x), Y(o.y), 6 * d, 0, 6.2832); c.fill(); c.stroke();
     });

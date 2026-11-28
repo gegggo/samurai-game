@@ -1,7 +1,7 @@
 'use strict';
 // Globaler Namespace, Konstanten, zentrale Texte (Sprachsystem folgt Phase 6).
 const SW = {
-  version: '0.33.0',
+  version: '0.40.0',
   CFG: { W: 8000, H: 5200, SPEED: 5, OV: 8 }, // Welt wächst nach rechts/unten (Ursprung oben links); neue Regionen als Segment js/layout-<name>.js
   lang: (function () { try { const l = localStorage.getItem('sw_lang'); return l === 'de' ? 'de' : 'en'; } catch (e) { return 'en'; } })(),
   paused: false,
@@ -11,7 +11,7 @@ const SW = {
     pin_max: 'Marker limit reached (10). Remove one first.', pin_at: 'Marker at X {n}', pin_remove: 'Remove marker', travel_loading: 'Travelling to {n}…', travel_to: 'Travel to {n}?', travel_off: '{n} is not activated yet', travel_go: 'Travel', travel_cancel: 'Cancel', travel_blocked: 'Travel not possible now',
     leg_village: 'Village', leg_temple: 'Temple', leg_camp: 'Camp', leg_place: 'Place',
     tab_map: 'Map', tab_inventory: 'Inventory', tab_equipment: 'Equipment', tab_skills: 'Skills',
-    tab_skilltree: 'Skilltree', tab_quests: 'Quests', tab_character: 'Character',
+    tab_skilltree: 'Skilltree', tab_quests: 'Quests', tab_character: 'Character', master_scrolls: 'Read found scrolls',
     tab_karma: 'Karma & Yin-Yang', tab_settings: 'Settings',
     reg_0: 'Hinode Village', reg_1: 'Bamboo Forest', reg_2: 'Mountain Shrine',
     reg_3: 'Western Woods', reg_4: 'Mirror Lake', reg_5: 'Iron Peaks',
@@ -30,7 +30,7 @@ const SW = {
     set_save: 'Save data', set_wipe: 'Delete save', set_wipe_ask: 'Delete all progress? This cannot be undone.', set_wipe_yes: 'Delete', set_wipe_no: 'Cancel',
     set_lang: 'Language', lang_en: 'English', lang_de: 'Deutsch',
     enemy_bandit: 'Bandit', enemy_ronin: 'Ronin', enemy_samurai: 'Samurai', enemy_spearman: 'Spearman',
-    enemy_swift: 'Swift Swordsman', enemy_armored: 'Armored Warrior', enemy_elite: 'Elite Guard', enemy_boss: 'Bandit Chief', enemy_boss_warden: 'Ruin Warden', enemy_boss_mist: 'Mist Guardian', enemy_boss_monk: 'Iron Peak Monk', enemy_boss_oni: 'Cave Oni', enemy_shadow: 'Shadow Clan Assassin', amb_warn: 'Shadow Clan ambush!'
+    enemy_mini_ruby: 'Ruby Mountain Warden', enemy_mini_emerald: 'Emerald Serpent', enemy_mini_onyx: 'Onyx Shadow Warrior', enemy_mini_sapphire: 'Sapphire Frost Beast', enemy_mini_amethyst: 'Amethyst Dragon Guard', enemy_swift: 'Swift Swordsman', enemy_armored: 'Armored Warrior', enemy_elite: 'Elite Guard', enemy_boss: 'Bandit Chief', enemy_boss_warden: 'Ruin Warden', enemy_boss_mist: 'Mist Guardian', enemy_boss_monk: 'Iron Peak Monk', enemy_boss_oni: 'Cave Oni', seal_found: 'Gemstone recovered: {n}', seal_progress: 'Gemstones: {n}/5', seal_altar: 'Altar of the Five Seals', seal_altar_need: 'The altar requires all five gemstones.', seal_deposited: 'All five gemstones are in place. The final gate opens.', seal_portal: 'The final gate', open_seal_altar: 'Place the gemstones', seal_gem_ruby: 'Ruby', seal_gem_emerald: 'Emerald', seal_gem_onyx: 'Onyx', seal_gem_sapphire: 'Sapphire', seal_gem_amethyst: 'Amethyst', qn_main_seals: 'The Five Seals', qd_main_seals: 'Five powerful guardians have appeared across the land. Defeat each one and recover its gemstone.', qo_main_seals: 'Defeat all five guardians', qdone_main_seals: 'All five gemstones are yours. The altar beyond the forgotten gate can now be used.', qn_main_altar: 'The Altar of the Five Seals', qd_main_altar: 'Take the five gemstones to the ancient altar beyond the gate and place them in their sockets.', qo_main_altar: 'Place all five gemstones at the altar', qdone_main_altar: 'The five seals awaken. The final gate opens, revealing the path to the last enemy.', qn_main_final: 'The Last Enemy', qd_main_final: 'The final gate is open. Enter the passage and defeat the ancient Oni.', qo_main_final: 'Defeat the ancient Oni', qdone_main_final: 'The ancient Oni has fallen. Return to the Master and report what happened.', enemy_shadow: 'Shadow Clan Assassin', amb_warn: 'Shadow Clan ambush!'
   } },
   setLang(l) {
     this.lang = l === 'de' ? 'de' : 'en';

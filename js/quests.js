@@ -23,6 +23,10 @@ SW.Quests = (function () {
     if (o.type === 'kill') { const s = spot(o.spot); return !!(s && s.dead); }
     if (o.type === 'shrine') return SW.Shrines.isOn(o.shrine);
     if (o.type === 'have') return Q.have(q) >= o.n;
+    if (o.type === 'inscriptions') return !!(SW.Inscriptions && SW.Inscriptions.count() >= o.n);
+    if (o.type === 'gate') return !!(SW.Inscriptions && SW.Inscriptions.isGateOpened());
+    if (o.type === 'seals') return !!(SW.Seals && SW.Seals.count() >= o.n);
+    if (o.type === 'altar') return !!(SW.Seals && SW.Seals.isDeposited());
     return false;
   };
   Q.status = function (id) {
@@ -33,7 +37,7 @@ SW.Quests = (function () {
     return Q.reqOk(q) ? 'avail' : 'locked';
   };
   Q.accept = function (id) {
-    if (Q.status(id) !== 'avail' || Q.refuses()) return false;
+    const q = get(id); if (!q || Q.status(id) !== 'avail' || (Q.refuses() && q.category !== 'main')) return false;
     Q.st[id] = 'active'; SW.Save.touch(); banner(T('q_new', T('qn_' + id))); return true;
   };
   Q.rewText = function (r) {
@@ -48,12 +52,14 @@ SW.Quests = (function () {
   };
   Q.objText = function (q) {
     const o = q.obj;
+    if (o.type === 'inscriptions') return T('qo_' + q.id) + ' (' + Math.min(SW.Inscriptions ? SW.Inscriptions.count() : 0, o.n) + '/' + o.n + ')';
+    if (o.type === 'seals') return T('qo_' + q.id) + ' (' + Math.min(SW.Seals ? SW.Seals.count() : 0, o.n) + '/' + o.n + ')';
     return T('qo_' + q.id) + (o.type === 'have' ? ' (' + Math.min(Q.have(q), o.n) + '/' + o.n + ')' : '');
   };
   // Abschluss: Gegenstände abgeben, jedes System bekommt nur seinen Teil (Münzen, XP, Essence, Karma)
   Q.complete = function (id, choice) {
     const q = get(id); if (!q || Q.status(id) !== 'ready') return false;
-    let rew = q.rew, ch = null;
+    let rew = q.rew || {}, ch = null;
     if (q.choice) { ch = q.choice.find(c => c.id === choice); if (!ch) return false; rew = ch.rew; }
     if (q.obj.type === 'have' && !SW.Inv.remove(q.obj.item, q.obj.n)) return false;
     let lv = [], vt = '';
@@ -63,6 +69,7 @@ SW.Quests = (function () {
     if (rew.karma) SW.Karma.add('quest_' + id, rew.karma);
     Q.st[id] = 'done'; if (ch) Q.ch[id] = ch.id;
     if (id === 'elder2' && SW.World.buildVillageFence) SW.World.buildVillageFence();
+    if (id === 'main_glyphs' && SW.Inscriptions) SW.Inscriptions.unlockGate();
     if (SW.Village) vt = SW.Village.update(true);
     SW.Save.touch();
     banner(T('q_done', T('qn_' + id)) + (lv.length ? ' ' + lv.join(' ') : '') + (vt ? ' · ' + vt : ''));
@@ -75,7 +82,7 @@ SW.Quests = (function () {
       const q = D.quests[i]; if (q.giver !== npcId) continue;
       const s = Q.status(q.id);
       if (s === 'ready') return 2;
-      if (s === 'avail' && !Q.refuses()) best = 1;
+      if (s === 'avail' && (!Q.refuses() || q.category === 'main')) best = 1;
     }
     return best;
   };
@@ -88,11 +95,13 @@ SW.Quests = (function () {
       else if (s === 'active') {
         const o = q.obj, t = o.type === 'kill' ? spot(o.spot) : o.type === 'shrine' ? SW.Shrines.get(o.shrine) : null;
         if (t) out.push({ x: t.x, y: t.y });
+        if (o.type === 'seals' && SW.Seals) SW.Seals.targets().forEach(p => out.push(p));
+        if (o.type === 'altar' && SW.Seals) out.push({ x: SW.Seals.altar.x, y: SW.Seals.altar.y });
       }
     });
     return out;
   };
-  Q.dump = () => ({ st: Object.assign({}, Q.st), ch: Object.assign({}, Q.ch) });
+  Q.dump = () => ({ st: Object.assign({}, Q.st), ch: Object.assign({}, Q.ch), ins: SW.Inscriptions ? SW.Inscriptions.dump() : null, seals: SW.Seals ? SW.Seals.dump() : null });
   Q.load = function (d) {
     if (!d || typeof d !== 'object') return;
     const st = d.st || {}, ch = d.ch || {};
@@ -100,6 +109,8 @@ SW.Quests = (function () {
       if (st[q.id] === 'active' || st[q.id] === 'done') Q.st[q.id] = st[q.id];
       if (q.choice && typeof ch[q.id] === 'string' && q.choice.some(c => c.id === ch[q.id])) Q.ch[q.id] = ch[q.id];
     });
+    if (SW.Inscriptions) SW.Inscriptions.load(d.ins);
+    if (SW.Seals) SW.Seals.load(d.seals);
     if (Q.st.elder2 === 'done' && SW.World.buildVillageFence) SW.World.buildVillageFence();
     if (SW.Village) SW.Village.update(false);
   };
@@ -126,15 +137,17 @@ SW.Quests = (function () {
     const q = get(id), s = Q.status(id);
     add(body, el('h3', '', T('qn_' + id)), el('div', 'dlgtext', T(s === 'ready' ? 'qdone_' + id : 'qd_' + id)));
     add(body, el('div', 'dim', T('q_goal') + ': ' + Q.objText(q)));
+    const hasReward = !!(q.rew && (q.rew.coins || q.rew.xp || q.rew.ess || q.rew.karma));
     if (s === 'avail') {
-      add(body, el('div', 'ok', T('q_reward') + ': ' + Q.rewText(q.rew)));
+      if (q.choice) { add(body, el('div', 'dim', T('q_choose'))); q.choice.forEach(ch => add(body, el('div', 'dim', Q.rewText(ch.rew)))); }
+      else if (hasReward) add(body, el('div', 'ok', T('q_reward') + ': ' + Q.rewText(q.rew)));
       add(body, add(el('div', 'row'), btn(T('q_accept'), 'pri', () => { Q.accept(id); go(null); }), btn(T('q_back'), '', () => go(null))));
     } else if (s === 'ready') {
       if (q.choice) {
         add(body, el('div', 'dim', T('q_choose')));
         q.choice.forEach(c => add(body, add(el('div', 'row card'), btn(T('qc_' + id + '_' + c.id), 'pri', () => { Q.complete(id, c.id); go(null); }), el('span', 'dim', Q.rewText(c.rew)))));
       } else {
-        add(body, el('div', 'ok', T('q_reward') + ': ' + Q.rewText(q.rew)));
+        if (hasReward) add(body, el('div', 'ok', T('q_reward') + ': ' + Q.rewText(q.rew)));
         add(body, btn(T('q_complete'), 'pri', () => { Q.complete(id); go(null); }));
       }
       add(body, btn(T('q_back'), '', () => go(null)));
@@ -145,12 +158,13 @@ SW.Quests = (function () {
     titleEl.textContent = T('npc_' + cur.role); body.innerHTML = '';
     if (view) { detail(view); return; }
     add(body, el('div', 'dlgtext', T('dl_' + cur.role + '_' + tone())));
+    if (cur.role === 'master') add(body, btn(T('master_scrolls'), '', () => { const master = cur; Q.close(); SW.Shop.openMaster(master); }));
     const mine = D.quests.filter(q => q.giver === cur.id);
     let refused = false;
     mine.forEach(q => {
       const s = Q.status(q.id);
       if (s === 'ready') add(body, btn(T('q_report') + ': ' + T('qn_' + q.id), 'pri', () => go(q.id)));
-      else if (s === 'avail') { if (Q.refuses()) refused = true; else add(body, btn(T('q_offer') + ': ' + T('qn_' + q.id), '', () => go(q.id))); }
+      else if (s === 'avail') { if (Q.refuses() && q.category !== 'main') refused = true; else add(body, btn(T('q_offer') + ': ' + T('qn_' + q.id), '', () => go(q.id))); }
       else if (s === 'active') add(body, el('div', 'dim', T('qn_' + q.id) + ' – ' + Q.objText(q)));
       else if (Q.storyOpen(q) && !Q.refuses()) add(body, el('div', 'dim', T('qn_' + q.id) + ' – ' + T('q_locked') + ': ' + needText(q)));
     });
@@ -178,6 +192,7 @@ SW.Quests = (function () {
     const filterBar = el('div','row quest-filters');
     filters.forEach(([key,label]) => add(filterBar,btn(label,qfilter===key?'pri':'',()=>{qfilter=key;SW.UI.refresh();})));
     add(root2,filterBar);
+    add(root2, btn(T('glyph_book') + ' (' + (SW.Inscriptions ? SW.Inscriptions.count() : 0) + '/' + (SW.Inscriptions ? SW.Inscriptions.total() : 0) + ')', '', () => SW.Inscriptions && SW.Inscriptions.openBook()));
     const shown = all.filter(q => qfilter==='all' || qfilter===questType(q) || (qfilter==='open' && Q.status(q.id)!=='done') || (qfilter==='done' && Q.status(q.id)==='done'));
     if (!shown.length) add(root2, el('div', 'dim', T('q_none')));
     else {
@@ -192,7 +207,9 @@ SW.Quests = (function () {
       const q = get(qsel), s = Q.status(qsel);
       add(det, el('h3', '', T('qn_' + qsel)), el('div', 'chip', T('qs_' + s)), el('div', 'dlgtext', T('qd_' + qsel)));
       add(det, el('div', '', T('q_goal') + ': ' + Q.objText(q)), el('div', 'dim', T('q_from') + ': ' + T('npc_' + npc(q.giver).role)));
-      add(det, el('div', 'ok', T('q_reward') + ': ' + (q.choice ? q.choice.map(c => Q.rewText(c.rew)).join('  /  ') : Q.rewText(q.rew))));
+      if (q.category === 'main') add(det, el('div', 'chip', T('q_story')));
+      const rewards = q.choice ? q.choice.map(c => Q.rewText(c.rew)).filter(Boolean).join('  /  ') : Q.rewText(q.rew);
+      if (rewards) add(det, el('div', 'ok', T('q_reward') + ': ' + rewards));
       if (s === 'done' && Q.ch[qsel]) add(det, el('div', 'dim', T('qc_' + qsel + '_' + Q.ch[qsel])));
       add(lay, list, det); add(root2, lay);
     }
