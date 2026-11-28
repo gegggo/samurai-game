@@ -832,6 +832,19 @@ try:
     rec('Stabilitaet: Wechsel Hoch-/Querformat laesst Canvas und Welt geladen',
         portrait and landscape, 'portrait=%s landscape=%s' % (portrait,landscape))
 
+    # Phase 0.48: Elite- und Bossgegner nutzen lesbare Angriffskombinationen; spaete Phasen bestrafen Guard-Break-Spam staerker
+    r = ev(pg, """() => {
+      const E=SW.Data.enemies, ids=['boss','boss_monk','boss_warden','boss_mist','boss_oni',
+        'mini_ruby','mini_emerald','mini_onyx','mini_sapphire','mini_amethyst','shrine_guard'];
+      const phased=ids.every(id=>E[id]&&E[id].phases&&E[id].phases.every(p=>
+        Array.isArray(p.combo)&&p.combo.length>=3&&p.combo.every(a=>p.atk.includes(a))));
+      const escalating=ids.every(id=>E[id].phases.slice(1).every((p,i,a)=>
+        p.guardLock>=2.2&&(i===0||p.guardLock>a[i-1].guardLock)));
+      return {elite:E.elite.combo,phased,escalating,oni:E.boss_oni.phases.map(p=>p.guardLock||0)};
+    }""")
+    rec('Phase 0.48: Elite besitzt feste Angriffskette; Boss-/Minibossphasen nutzen ihre Angriffsmuster als Kombinationen und spaete Phasen haben steigende Guard-Break-Sperre',
+        r['elite']==['slash','flurry','thrust','heavy'] and r['phased'] and r['escalating'] and r['oni']==[0,3,3.8,4.6], json.dumps(r))
+
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
 finally:
