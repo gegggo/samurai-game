@@ -734,6 +734,42 @@ try:
     }""")
     rec('Phase 0.45: Alle Zeichen sind Pflicht, das Tor wird danach sichtbar und begehbar; Wörterbuch und Torstatus werden gespeichert', all(r[k] for k in ['available','accepted','partial','last','ready','report','visible','blocked','gateAccepted','opened','gateReady','passable','gateReport','restored']), json.dumps(r))
 
+    # Phase 0.46: fuenf einzigartige Minibosse liegen in verschiedenen Regionen und nutzen eigene Bossphasen
+    r = ev(pg, """() => {
+      const S=SW.Seals,C=SW.Combat,W=SW.World,D=SW.Data;
+      const a=S.list.map(s=>({id:s.id,seal:s.seal,region:W.regionAt(Math.floor(s.x),Math.floor(s.y)),def:D.enemies[s.type],spot:C.spot(s.id)}));
+      return {count:a.length,unique:new Set(a.map(x=>x.seal)).size,regions:new Set(a.map(x=>x.region)).size,
+        phases:a.every(x=>x.def&&x.def.phases&&x.def.phases.length===3),spots:a.every(x=>x.spot&&x.spot.seal===x.seal),
+        final:!!C.spot('e_final_boss')&&!!D.enemies.boss_oni.phases};
+    }""")
+    rec('Phase 0.46: Fuenf Minibosse sind eindeutig, regional verteilt und besitzen je drei Bossphasen; Endboss ist angelegt',
+        r['count']==5 and r['unique']==5 and r['regions']==5 and r['phases'] and r['spots'] and r['final'], json.dumps(r))
+    # Phase 0.46: Questkette, Kartenmarker, Edelsteinabgabe, Tor und Save/Load
+    r = ev(pg, """() => {
+      const Q=SW.Quests,S=SW.Seals,C=SW.Combat,I=SW.Inscriptions;
+      const old={st:{...Q.st},ch:{...Q.ch},ins:I.dump(),seals:S.dump(),dead:C.spots.filter(x=>x.seal).map(x=>[x.id,x.dead])};
+      let out={};
+      try {
+        ['main_seals','main_altar','main_final'].forEach(k=>{delete Q.st[k];delete Q.ch[k];});
+        Q.st.main_gate='done';S.load({found:[],deposited:false,portalOpen:false});
+        const start=Q.accept('main_seals'),visible=S.bossesVisible(),markers=Q.targets().length;
+        S.list.forEach(s=>{const p=C.spot(s.id);p.dead=true;S.bossDefeated(p);});
+        const five=S.count()===5,ready=Q.status('main_seals')==='ready',report=Q.complete('main_seals');
+        const altarQuest=Q.accept('main_altar'),altarReady=S.nearAltar({x:S.altar.x,y:S.altar.y})!==null;
+        const deposit=S.deposit(),altarComplete=Q.complete('main_altar'),finalQuest=Q.accept('main_final');
+        const portal=S.isOpen()&&!S.blocks(Math.floor(S.portal.x),Math.floor(S.portal.y));
+        const finalVisible=C.on(C.spot('e_final_boss')),save=Q.dump();Q.load(save);
+        const restored=S.count()===5&&S.isDeposited()&&S.isOpen()&&Q.status('main_final')==='active';
+        out={start,visible,markers,five,ready,report,altarQuest,altarReady,deposit,altarComplete,finalQuest,portal,finalVisible,restored};
+      } finally {
+        Object.keys(Q.st).forEach(k=>delete Q.st[k]);Object.assign(Q.st,old.st);
+        Object.keys(Q.ch).forEach(k=>delete Q.ch[k]);Object.assign(Q.ch,old.ch);
+        I.load(old.ins);S.load(old.seals);old.dead.forEach(([id,dead])=>{const p=C.spot(id);if(p)p.dead=dead;});
+      }
+      return out;
+    }""")
+    rec('Phase 0.46: Alle fuenf Edelsteine muessen gesammelt und am Altar eingesetzt werden; Endboss und Tor werden danach freigeschaltet und gespeichert',
+        all(r[k] for k in ['start','visible','five','ready','report','altarQuest','altarReady','deposit','altarComplete','finalQuest','portal','finalVisible','restored']) and r['markers']>=5, json.dumps(r))
     # 49 Bewegung: Spieler darf nicht durch benachbarte feste Tiles laufen
     r = ev(pg, """() => {
       const W=SW.World,P=SW.Player,I=SW.Input,old={x:P.x,y:P.y,stamina:P.stamina,paused:SW.paused,sprint:I.sprint};
