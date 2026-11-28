@@ -881,6 +881,47 @@
    },
    "ed": "lite",
    "tier": 3
+  },
+  {
+   "id": "main_seals",
+   "category": "main",
+   "giver": "n_master",
+   "req": {
+    "done": "main_gate"
+   },
+   "obj": {
+    "type": "seals",
+    "n": 5
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "main_altar",
+   "category": "main",
+   "giver": "n_master",
+   "req": {
+    "done": "main_seals"
+   },
+   "obj": {
+    "type": "altar"
+   },
+   "ed": "lite",
+   "tier": 3
+  },
+  {
+   "id": "main_final",
+   "category": "main",
+   "giver": "n_master",
+   "req": {
+    "done": "main_altar"
+   },
+   "obj": {
+    "type": "kill",
+    "spot": "e_final_boss"
+   },
+   "ed": "lite",
+   "tier": 3
   }
  ]
 }
