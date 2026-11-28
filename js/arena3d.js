@@ -142,7 +142,7 @@ SW.Arena = (function () {
     if (f.st === 'wind') dmg *= 1 + ps.ambush;
     if (f.guarding && nm !== 'counter' && !m.ignoreGuard) {
       if (m.ranged) dmg *= .5;
-      else if ((m.guardBreak || nm === 'special') && (!S.def.phases || f.staggerLock <= 0)) { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; f.staggerLock = S.def.phases ? 2.2 : 0; say(T('combat_guard_break'), '#ffd27a'); }
+      else if ((m.guardBreak || nm === 'special') && (!S.def.phases || f.staggerLock <= 0)) { f.guarding = false; f.st = 'stagger'; f.t = 0; f.dur = .9; f.hits = 0; f.staggerLock = S.def.phases ? (p.guardLock || 2.2) : 0; say(T('combat_guard_break'), '#ffd27a'); }
       else dmg *= .25;
     } else if (S.def.armor && !heavyish) dmg *= 1 - S.def.armor;
     if (f.st === 'rec' || f.st === 'stagger') dmg *= 1.3;
@@ -235,7 +235,7 @@ SW.Arena = (function () {
       if (d > REACH() - .2) { f.x += ux * sp * dt; f.y += uy * sp * dt; }
       else { f.x += -uy * f.sd * 1.1 * dt; f.y += ux * f.sd * 1.1 * dt; } // kreist um den Spieler
       if (f.t >= f.wait && d <= REACH() + .6) {
-        const list = p.atk, At = D.attacks[list[(Math.random() * list.length) | 0]];
+        const list = p.combo || p.atk, pick = p.combo ? (f.comboStep++ % list.length) : ((Math.random() * list.length) | 0), At = D.attacks[list[pick]];
         f.atk = At; f.hits = At.hits || 1; f.st = 'wind'; f.t = 0; f.dur = At.wind / p.speed; f.guarding = false; f.sd = Math.random() < .5 ? 1 : -1;
       }
     } else if (f.st === 'wind') {
