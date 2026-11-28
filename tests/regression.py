@@ -757,13 +757,13 @@ try:
         r['count']==19 and len(r['bad'])==0 and r['oni']==9000, json.dumps(r))
 
     # Phase 0.47: Schwerer Schwierigkeitsstandard - mehr Schaden, kuerzere Pausen, schnellere Phasen
-    r = ev(pg, \"\"\"() => {
+    r = ev(pg, """() => {
       const E=SW.Data.enemies, ids=Object.keys(E);
       return {count:ids.length,allDamage:ids.every(k=>E[k].dmg>=1.03),
         allGaps:ids.every(k=>!E[k].gap||E[k].gap[0]<=2),
         oni:E.boss_oni.dmg,oniPhaseSpeed:E.boss_oni.phases.map(p=>p.speed),
         oniGaps:E.boss_oni.phases.map(p=>p.gap)};
-    }\"\"\")
+    }""")
     rec('Phase 0.47: Gegner verursachen mehr Schaden; Angriffsabstaende sinken und Bossphasen werden schneller',
         r['count']==19 and r['allDamage'] and r['oni']==1.84 and r['oniPhaseSpeed']==[1.24,1.43,1.62,1.81], json.dumps(r))
 
