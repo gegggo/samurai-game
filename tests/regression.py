@@ -744,6 +744,18 @@ try:
     rec('Phase 0.46: Finaler Oni besitzt 15.300 HP auf Tier 3 und vier zunehmend schnellere Bossphasen',
         r['base']==9000 and r['effective']==15300 and r['damage']==1.6 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
 
+    # Phase 0.47: Gegner-Lebenspunkte nach Staerke staffeln; Oni bleibt separat
+    r = ev(pg, \"\"\"() => {
+      const E=SW.Data.enemies, expected={bandit:60,ronin:90,spearman:90,swift:75,
+        armored:260,elite:300,samurai:170,shadow:140,boss:520,boss_monk:680,
+        boss_warden:600,boss_mist:660,shrine_guard:320,mini_ruby:700,
+        mini_emerald:660,mini_onyx:740,mini_sapphire:720,mini_amethyst:780,boss_oni:9000};
+      const bad=Object.keys(expected).filter(k=>!E[k]||E[k].hp!==expected[k]);
+      return {count:Object.keys(expected).length,bad,oni:E.boss_oni&&E.boss_oni.hp};
+    }\"\"\")
+    rec('Phase 0.47: Normale Gegner erhalten 1,5x, starke Gegner/Bosse 2x HP; Oni bleibt bei 9.000 Basis-HP',
+        r['count']==19 and r['bad'].length===0 and r['oni']==9000, json.dumps(r))
+
     # Phase 0.46: fuenf einzigartige Minibosse liegen in verschiedenen Regionen und nutzen eigene Bossphasen
     r = ev(pg, """() => {
       const S=SW.Seals,C=SW.Combat,W=SW.World,D=SW.Data;
