@@ -734,6 +734,16 @@ try:
     }""")
     rec('Phase 0.45: Alle Zeichen sind Pflicht, das Tor wird danach sichtbar und begehbar; Wörterbuch und Torstatus werden gespeichert', all(r[k] for k in ['available','accepted','partial','last','ready','report','visible','blocked','gateAccepted','opened','gateReady','passable','gateReport','restored']), json.dumps(r))
 
+    # Phase 0.46: Finaler Oni ist ein langer Endkampf mit skalierter Lebensleiste und vier Eskalationsphasen
+    r = ev(pg, \"\"\"() => {
+      const C=SW.Combat,D=SW.Data,b=D.enemies.boss_oni,s=C.spot('e_final_boss'),tier=C.tm(s);
+      return {base:b.hp,effective:b.hp*tier.hp,damage:b.dmg,thresholds:b.phases.map(p=>p.at),
+        gaps:b.phases.map(p=>p.gap),speeds:b.phases.map(p=>p.speed),
+        escalating:b.phases.every((p,i,a)=>i===0||p.speed>a[i-1].speed&&p.gap[0]<a[i-1].gap[0])};
+    }\"\"\")
+    rec('Phase 0.46: Finaler Oni besitzt 15.300 HP auf Tier 3 und vier zunehmend schnellere Bossphasen',
+        r['base']==9000 and r['effective']==15300 and r['damage']==1.6 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
+
     # Phase 0.46: fuenf einzigartige Minibosse liegen in verschiedenen Regionen und nutzen eigene Bossphasen
     r = ev(pg, """() => {
       const S=SW.Seals,C=SW.Combat,W=SW.World,D=SW.Data;
