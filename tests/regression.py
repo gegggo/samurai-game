@@ -741,8 +741,8 @@ try:
         gaps:b.phases.map(p=>p.gap),speeds:b.phases.map(p=>p.speed),
         escalating:b.phases.every((p,i,a)=>i===0||p.speed>a[i-1].speed&&p.gap[0]<a[i-1].gap[0])};
     }""")
-    rec('Phase 0.46: Finaler Oni besitzt 15.300 HP auf Tier 3 und vier zunehmend schnellere Bossphasen',
-        r['base']==9000 and r['effective']==15300 and r['damage']==1.84 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
+    rec('Phase 0.46: Finaler Oni besitzt 22.950 Arena-HP auf Tier 3 und vier zunehmend schnellere Bossphasen',
+        r['base']==9000 and r['effective']==22950 and r['damage']==1.84 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
 
     # Phase 0.47: Gegner-Lebenspunkte nach Staerke staffeln; Oni bleibt separat
     r = ev(pg, """() => {
@@ -844,6 +844,28 @@ try:
     }""")
     rec('Phase 0.48: Elite besitzt feste Angriffskette; Boss-/Minibossphasen nutzen ihre Angriffsmuster als Kombinationen und spaete Phasen haben steigende Guard-Break-Sperre',
         r['elite']==['slash','flurry','thrust','heavy'] and r['phased'] and r['escalating'] and  [round(x,1) for x in r['oni']]==[0,3,3.8,4.6], json.dumps(r))
+
+    # Phase 0.49: tatsaechliche Arena-Skalierung und Angriffsdruck des Endbosses pruefen
+    r = ev(pg, """() => {
+      const C=SW.Combat,D=SW.Data,E=D.enemies.boss_oni,s=C.spot('e_final_boss'),tier=C.tm(s);
+      const rage=D.attacks.rage,storm=D.attacks.storm,last=E.phases[3];
+      return {tierHp:tier.hp,tierDmg:tier.dmg,arenaHp:Math.round(E.hp*tier.hp*1.5),
+        rageDamage:rage.dmg*E.dmg*tier.dmg*1.5, rageWind:rage.wind/last.speed,
+        stormHit:storm.dmg*E.dmg*tier.dmg*1.5,stormHits:storm.hits,
+        lastGuardLock:last.guardLock, allBosses:Object.keys(D.enemies).filter(k=>D.enemies[k].phases)
+          .every(k=>D.enemies[k].phases.every(p=>p.combo&&p.combo.every(a=>!!D.attacks[a])))};
+    }""")
+    rec('Phase 0.49: Oni hat 22.950 Arena-HP; Endphasen-Angriffe besitzen berechenbare Telegraphe und Schadenswerte',
+        r['tierHp']==1.7 and r['tierDmg']==1.5 and r['arenaHp']==22950 and
+        abs(r['rageDamage']-99.36)<.001 and abs(r['rageWind']-(1.4/1.81))<.001 and
+        abs(r['stormHit']-20.7)<.001 and r['stormHits']==5 and r['lastGuardLock']==4.6 and r['allBosses'], json.dumps(r))
+
+    # Phase 0.49: beide Boss-Unterbrechungsarten verwenden dieselbe phasenabhaengige Sperrdauer
+    arena_src = open('js/arena3d.js', encoding='utf-8').read()
+    rec('Phase 0.49: Guard-Break und schwere Treffer verwenden dieselbe Guard-Lock-Formel',
+        arena_src.count('f.staggerLock = guardLock();') == 2 and
+        'const guardLock = () => S.def.phases ? (ph().guardLock || 2.2) : 0;' in arena_src,
+        'beide Unterbrechungspfade synchronisiert')
 
     rec('Keine JS-Fehler waehrend aller Tests', not errs, str(errs[:3]))
     b.close()
