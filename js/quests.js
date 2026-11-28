@@ -25,6 +25,8 @@ SW.Quests = (function () {
     if (o.type === 'have') return Q.have(q) >= o.n;
     if (o.type === 'inscriptions') return !!(SW.Inscriptions && SW.Inscriptions.count() >= o.n);
     if (o.type === 'gate') return !!(SW.Inscriptions && SW.Inscriptions.isGateOpened());
+    if (o.type === 'seals') return !!(SW.Seals && SW.Seals.count() >= o.n);
+    if (o.type === 'altar') return !!(SW.Seals && SW.Seals.isDeposited());
     return false;
   };
   Q.status = function (id) {
@@ -51,6 +53,7 @@ SW.Quests = (function () {
   Q.objText = function (q) {
     const o = q.obj;
     if (o.type === 'inscriptions') return T('qo_' + q.id) + ' (' + Math.min(SW.Inscriptions ? SW.Inscriptions.count() : 0, o.n) + '/' + o.n + ')';
+    if (o.type === 'seals') return T('qo_' + q.id) + ' (' + Math.min(SW.Seals ? SW.Seals.count() : 0, o.n) + '/' + o.n + ')';
     return T('qo_' + q.id) + (o.type === 'have' ? ' (' + Math.min(Q.have(q), o.n) + '/' + o.n + ')' : '');
   };
   // Abschluss: Gegenstände abgeben, jedes System bekommt nur seinen Teil (Münzen, XP, Essence, Karma)
@@ -92,11 +95,13 @@ SW.Quests = (function () {
       else if (s === 'active') {
         const o = q.obj, t = o.type === 'kill' ? spot(o.spot) : o.type === 'shrine' ? SW.Shrines.get(o.shrine) : null;
         if (t) out.push({ x: t.x, y: t.y });
+        if (o.type === 'seals' && SW.Seals) SW.Seals.targets().forEach(p => out.push(p));
+        if (o.type === 'altar' && SW.Seals) out.push({ x: SW.Seals.altar.x, y: SW.Seals.altar.y });
       }
     });
     return out;
   };
-  Q.dump = () => ({ st: Object.assign({}, Q.st), ch: Object.assign({}, Q.ch), ins: SW.Inscriptions ? SW.Inscriptions.dump() : null });
+  Q.dump = () => ({ st: Object.assign({}, Q.st), ch: Object.assign({}, Q.ch), ins: SW.Inscriptions ? SW.Inscriptions.dump() : null, seals: SW.Seals ? SW.Seals.dump() : null });
   Q.load = function (d) {
     if (!d || typeof d !== 'object') return;
     const st = d.st || {}, ch = d.ch || {};
@@ -105,6 +110,7 @@ SW.Quests = (function () {
       if (q.choice && typeof ch[q.id] === 'string' && q.choice.some(c => c.id === ch[q.id])) Q.ch[q.id] = ch[q.id];
     });
     if (SW.Inscriptions) SW.Inscriptions.load(d.ins);
+    if (SW.Seals) SW.Seals.load(d.seals);
     if (Q.st.elder2 === 'done' && SW.World.buildVillageFence) SW.World.buildVillageFence();
     if (SW.Village) SW.Village.update(false);
   };
