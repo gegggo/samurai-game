@@ -735,24 +735,24 @@ try:
     rec('Phase 0.45: Alle Zeichen sind Pflicht, das Tor wird danach sichtbar und begehbar; Wörterbuch und Torstatus werden gespeichert', all(r[k] for k in ['available','accepted','partial','last','ready','report','visible','blocked','gateAccepted','opened','gateReady','passable','gateReport','restored']), json.dumps(r))
 
     # Phase 0.46: Finaler Oni ist ein langer Endkampf mit skalierter Lebensleiste und vier Eskalationsphasen
-    r = ev(pg, \"\"\"() => {
+    r = ev(pg, """() => {
       const C=SW.Combat,D=SW.Data,b=D.enemies.boss_oni,s=C.spot('e_final_boss'),tier=C.tm(s);
       return {base:b.hp,effective:b.hp*tier.hp,damage:b.dmg,thresholds:b.phases.map(p=>p.at),
         gaps:b.phases.map(p=>p.gap),speeds:b.phases.map(p=>p.speed),
         escalating:b.phases.every((p,i,a)=>i===0||p.speed>a[i-1].speed&&p.gap[0]<a[i-1].gap[0])};
-    }\"\"\")
+    }""")
     rec('Phase 0.46: Finaler Oni besitzt 15.300 HP auf Tier 3 und vier zunehmend schnellere Bossphasen',
         r['base']==9000 and r['effective']==15300 and r['damage']==1.6 and r['thresholds']==[1,.75,.5,.25] and r['escalating'], json.dumps(r))
 
     # Phase 0.47: Gegner-Lebenspunkte nach Staerke staffeln; Oni bleibt separat
-    r = ev(pg, \"\"\"() => {
+    r = ev(pg, """() => {
       const E=SW.Data.enemies, expected={bandit:60,ronin:90,spearman:90,swift:75,
         armored:260,elite:300,samurai:170,shadow:140,boss:520,boss_monk:680,
         boss_warden:600,boss_mist:660,shrine_guard:320,mini_ruby:700,
         mini_emerald:660,mini_onyx:740,mini_sapphire:720,mini_amethyst:780,boss_oni:9000};
       const bad=Object.keys(expected).filter(k=>!E[k]||E[k].hp!==expected[k]);
       return {count:Object.keys(expected).length,bad,oni:E.boss_oni&&E.boss_oni.hp};
-    }\"\"\")
+    }""")
     rec('Phase 0.47: Normale Gegner erhalten 1,5x, starke Gegner/Bosse 2x HP; Oni bleibt bei 9.000 Basis-HP',
         r['count']==19 and r['bad'].length===0 and r['oni']==9000, json.dumps(r))
 
