@@ -223,7 +223,7 @@ SW.WCombat = (function () {
     const dist = Math.hypot(p.x - s.x, p.y - s.y);
     if (!w) {
       if (dist > (s.amb ? 8 : AGGRO) || P.php <= 0) return;
-      w = s.w = { hp: Math.round(d.hp * K.tm(s).hp), max: Math.round(d.hp * K.tm(s).hp), st: 'chase', t: 0, dur: 1, wait: 1, atk: null, hits: 0, guarding: false, flash: 0, sw: 0, hx: s.x, hy: s.y, dir: 1 };
+      w = s.w = { hp: Math.round(d.hp * K.tm(s).hp), max: Math.round(d.hp * K.tm(s).hp), st: 'chase', t: 0, dur: 1, wait: 1, atk: null, hits: 0, guarding: false, flash: 0, sw: 0, hx: s.x, hy: s.y, dir: 1, comboStep: 0 };
     }
     w.flash = Math.max(0, w.flash - dt); w.sw = Math.max(0, w.sw - dt); w.t += dt;
     if (Math.abs(p.x - s.x) > .05) w.dir = p.x > s.x ? 1 : -1;
@@ -240,7 +240,7 @@ SW.WCombat = (function () {
     } else if (w.st === 'idle') {
       if (dist > r + .6) { w.st = 'chase'; return; }
       if (w.t >= w.wait && dist <= r + .5) {
-        const list = d.atk, A = D.attacks[list[(Math.random() * list.length) | 0]];
+        const list = d.combo || d.atk, pick = d.combo ? (w.comboStep++ % list.length) : ((Math.random() * list.length) | 0), A = D.attacks[list[pick]];
         w.atk = A; w.hits = A.hits || 1; w.st = 'wind'; w.t = 0; w.dur = A.wind / (d.speed || 1); w.guarding = false;
       }
     } else if (w.st === 'wind') { if (w.t >= w.dur) strike(s); }
