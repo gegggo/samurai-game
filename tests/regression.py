@@ -751,7 +751,7 @@ try:
       let out={};
       try {
         ['main_seals','main_altar','main_final'].forEach(k=>{delete Q.st[k];delete Q.ch[k];});
-        Q.st.main_gate='done';S.load({found:[],deposited:false,portalOpen:false});
+        Q.st.main_gate='done';I.load({found:I.list.map(g=>g.id),gateOpened:true});S.load({found:[],deposited:false,portalOpen:false});
         const start=Q.accept('main_seals'),visible=S.bossesVisible(),markers=Q.targets().length;
         S.list.forEach(s=>{const p=C.spot(s.id);p.dead=true;S.bossDefeated(p);});
         const five=S.count()===5,ready=Q.status('main_seals')==='ready',report=Q.complete('main_seals');
