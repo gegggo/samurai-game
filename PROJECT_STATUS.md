@@ -19,3 +19,12 @@
 - Dahinter wartet der uralte Oni als Endboss. Der finale Kampf nutzt die vorhandene Boss-Arena; nach dem Sieg wird die Hauptquest beim Meister abgeschlossen.
 - Miniboss-Standorte werden während der aktiven Sammelquest als Karten-/Questziele markiert. Vor Annahme der Quest sind sie nicht aktiv und können nicht versehentlich ausgelöst werden.
 - Speicherstand enthält gefundene Edelsteine und den Status des letzten Tores. Regression und CI stehen noch aus; iPhone-Gerätetest bleibt offen.
+
+
+## Phase 0.48 – Anspruchsvollere Kampf-KI und Boss-Kombinationen (28.11.2026)
+- Elitegegner nutzen eine feste, lesbare Angriffskette statt einer vollständig zufälligen Auswahl einzelner Angriffe.
+- Boss-, Miniboss- und Schreinwächterphasen verwenden ihre definierten Angriffsmuster als Abfolgen. Dadurch entstehen erkennbare Kombinationen, die Spieler lernen und kontern können.
+- Spätere Bossphasen erhalten eine längere Guard-Break-Sperre. Wiederholtes Erzwingen von Betäubungen funktioniert dadurch weniger zuverlässig; Parieren und Ausweichen bleiben wichtige Gegenmittel.
+- Angriffs-Vorzeichen, Wind-up-Zeiten und bestehende Ausweich-/Parierfenster bleiben erhalten.
+- Heilung, Ausdauer und Belohnungsformeln werden in dieser Phase nicht verändert, um keine ungetesteten Nebenwirkungen in Progression und Kampfökonomie einzuführen.
+- Regression prüft die Angriffsketten und die steigende Guard-Break-Sperre.
